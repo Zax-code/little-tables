@@ -38,7 +38,7 @@ export function GardenScreen() {
           : `${nextStep.bloomsRemaining} more ${bloomWord} starts this bud`
 
   return (
-    <Screen>
+    <Screen contentClassName="screen-content-garden">
       <section className="garden-screen">
         <header className="garden-heading">
           <h1>your little garden</h1>

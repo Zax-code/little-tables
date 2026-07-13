@@ -111,6 +111,10 @@ a:focus-visible {
 .screen-content-full {
   padding-bottom: max(18px, env(safe-area-inset-bottom));
 }
+.screen-content-garden {
+  padding: 0 0 calc(96px + env(safe-area-inset-bottom));
+  background: var(--surface-garden);
+}
 
 .eyebrow {
   margin: 0 0 8px;
@@ -745,36 +749,28 @@ p {
 }
 
 .garden-screen {
-  min-height: calc(100dvh - 130px);
+  min-height: calc(100dvh - 96px - env(safe-area-inset-bottom));
+  padding-top: max(22px, env(safe-area-inset-top));
   display: flex;
   flex-direction: column;
+  background: var(--surface-garden);
 }
 .garden-ground-region {
   position: relative;
   flex: 1;
   min-height: 0;
-  margin: 2px -24px 0;
+  margin: 2px 0 0;
   padding: 0 24px;
   display: flex;
   flex-direction: column;
   background: var(--surface-garden);
-}
-.garden-ground-region::after {
-  position: absolute;
-  z-index: 0;
-  top: 100%;
-  right: 0;
-  left: 0;
-  height: calc(108px + env(safe-area-inset-bottom));
-  background: var(--surface-garden);
-  content: '';
-  pointer-events: none;
 }
 .garden-ground-region > * {
   position: relative;
   z-index: 1;
 }
 .garden-heading {
+  padding: 0 24px;
   text-align: center;
 }
 .garden-heading h1 {
@@ -799,11 +795,7 @@ p {
   position: absolute;
   inset: 0;
   overflow: hidden;
-  background: linear-gradient(
-    to bottom,
-    var(--surface-canvas) 0 35%,
-    var(--surface-garden) 35% 100%
-  );
+  background: var(--surface-garden);
 }
 .garden-plot__canvas::after {
   position: absolute;
@@ -820,7 +812,7 @@ p {
 .garden-plot__pages {
   position: absolute;
   z-index: 2;
-  inset: 145px 10px 5px;
+  inset: 72px 10px 5px;
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -934,6 +926,7 @@ p {
 }
 .garden-walking-sprite__sheet {
   animation: garden-walking-sprite 0.58s steps(1, end) infinite;
+  transform: scale(1.175);
 }
 .garden-watering-sprite--facing-left,
 .garden-walking-sprite--facing-left {
