@@ -126,7 +126,7 @@ a:focus-visible {
 }
 .screen-content-garden {
   padding: 0 0 calc(96px + env(safe-area-inset-bottom));
-  background: var(--surface-garden);
+  background: var(--surface-canvas);
 }
 
 .eyebrow {
@@ -1042,17 +1042,15 @@ p {
   padding-top: max(22px, env(safe-area-inset-top));
   display: flex;
   flex-direction: column;
-  background: var(--surface-garden);
+  background: var(--surface-canvas);
 }
 .garden-ground-region {
   position: relative;
-  flex: 1;
   min-height: 0;
-  margin: 2px 0 0;
+  margin: 18px 0 0;
   padding: 0 24px;
   display: flex;
   flex-direction: column;
-  background: var(--surface-garden);
 }
 .garden-ground-region > * {
   position: relative;
@@ -1075,15 +1073,18 @@ p {
 }
 .garden-plot {
   position: relative;
-  flex: 1;
-  min-height: 440px;
-  margin: 0 -24px;
+  height: clamp(370px, 52dvh, 430px);
+  min-height: 370px;
+  flex: 0 0 auto;
   overflow: hidden;
+  border-radius: 30px;
 }
 .garden-plot__canvas {
   position: absolute;
   inset: 0;
   overflow: hidden;
+  border: 1px solid var(--line-garden);
+  border-radius: inherit;
   background: var(--surface-garden);
 }
 .garden-plot__pages {
@@ -1413,13 +1414,28 @@ p {
   left: 45%;
 }
 .tomorrow-card {
+  width: 100%;
   min-height: 76px;
-  margin: 2px 0 18px;
+  margin: 16px 0 18px;
   padding: 14px 16px;
   display: flex;
   align-items: center;
   gap: 12px;
   border-color: var(--line-garden);
+  color: var(--ink-primary);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    box-shadow 150ms ease,
+    transform 150ms ease;
+}
+.tomorrow-card:active {
+  transform: translateY(2px);
+  box-shadow: 0 4px 16px rgb(90 50 55 / 5%);
+}
+.tomorrow-card:disabled {
+  cursor: wait;
+  opacity: 0.65;
 }
 .tomorrow-card > span {
   font-size: 2rem;

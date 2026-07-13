@@ -10,7 +10,7 @@ import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
-import { playSuccessSound } from '../sound.js'
+import { playSuccessSound, prepareSuccessSound } from '../sound.js'
 
 type Feedback = Readonly<{
   correct: boolean
@@ -91,6 +91,7 @@ export function PracticeScreen() {
       session,
     })
     const snapshot = LearningEngine.reduce({ attempts: [result.event], snapshot: data.snapshot })
+    if (result.correct) prepareSuccessSound()
     try {
       await practiceStore.commitAnswer({ attempt: result.event, session: result.session, snapshot })
     } catch (error) {

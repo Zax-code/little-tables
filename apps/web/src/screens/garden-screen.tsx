@@ -1,11 +1,16 @@
 import { LearningEngine } from '@little-tables/domain'
+import { useQueryClient } from '@tanstack/react-query'
+import { useNavigate } from '@tanstack/react-router'
 
 import { GardenPlot } from '../components/garden-plot.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
+import { localBootstrapQueryKey, practiceStore } from '../store.js'
 
 export function GardenScreen() {
   const bootstrap = useLocalBootstrap()
+  const navigate = useNavigate()
+  const queryClient = useQueryClient()
   const data = bootstrap.data
   const previewValue = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('blooms')
@@ -37,6 +42,25 @@ export function GardenScreen() {
           ? `${nextStep.bloomsRemaining} more ${bloomWord} finishes this flower`
           : `${nextStep.bloomsRemaining} more ${bloomWord} starts this bud`
 
+  const practice = async () => {
+    if (data?.activeSession !== null && data?.activeSession !== undefined) {
+      await navigate({ to: '/practice' })
+      return
+    }
+
+    const snapshot = data?.snapshot ?? LearningEngine.emptySnapshot()
+    const firstVisit = snapshot.processedEventIds.length === 0
+    const session = LearningEngine.createSession({
+      now: new Date(),
+      policy: { questionCount: firstVisit ? 8 : 10 },
+      seed: crypto.getRandomValues(new Uint32Array(1))[0] ?? Date.now(),
+      snapshot,
+    })
+    await practiceStore.startSession(session, snapshot)
+    await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
+    await navigate({ to: '/practice' })
+  }
+
   return (
     <Screen contentClassName="screen-content-garden">
       <section className="garden-screen">
@@ -48,7 +72,13 @@ export function GardenScreen() {
         </header>
         <div className="garden-ground-region">
           <GardenPlot progress={progress} />
-          <div className="tomorrow-card">
+          <button
+            aria-label={`${nextTitle}. Practice now`}
+            className="tomorrow-card"
+            disabled={bootstrap.isLoading}
+            onClick={() => void practice()}
+            type="button"
+          >
             <span aria-hidden="true" className="next-pot-icon">
               ♧
             </span>
@@ -59,7 +89,7 @@ export function GardenScreen() {
             <span aria-hidden="true" className="tomorrow-chevron">
               ›
             </span>
-          </div>
+          </button>
         </div>
       </section>
     </Screen>
