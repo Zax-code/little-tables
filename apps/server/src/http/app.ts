@@ -48,6 +48,7 @@ const authConfig =
     : null
 const defaultWebDistPath = fileURLToPath(new URL('../../../web/dist', import.meta.url))
 const webDistPath = resolve(process.env.WEB_DIST_PATH ?? defaultWebDistPath)
+const appRevision = process.env.APP_REVISION ?? 'unknown'
 
 const json = (body: unknown, status = 200) => HttpServerResponse.json(body, { status })
 
@@ -103,7 +104,7 @@ const refreshSession = Effect.gen(function* () {
 const ready = Effect.gen(function* () {
   const repository = yield* AttemptRepository
   yield* repository.health
-  return yield* json({ status: 'ready' })
+  return yield* json({ revision: appRevision, status: 'ready' })
 }).pipe(Effect.catchAll(() => json({ status: 'unavailable' }, 503)))
 
 const sync = Effect.gen(function* () {
