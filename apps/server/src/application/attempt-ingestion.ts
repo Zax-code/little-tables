@@ -33,7 +33,8 @@ const ingest = ({ attempts, profileId }: IngestInput) =>
         (attempt.answerMode === 'choice' &&
           (!attempt.choices.includes(attempt.selected) ||
             !attempt.choices.includes(attempt.left * attempt.right))) ||
-        (attempt.answerMode === 'keypad' && attempt.choices.length !== 0)
+        (attempt.answerMode === 'keypad' && attempt.choices.length !== 0) ||
+        attempt.sequence >= attempt.questionCount
       ) {
         rejected.push({ eventId: attempt.eventId, reason: 'inconsistent_attempt' })
       } else {

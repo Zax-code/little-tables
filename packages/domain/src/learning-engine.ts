@@ -48,6 +48,7 @@ export type AttemptEvent = Readonly<{
   latencyMs: number
   left: number
   right: number
+  questionCount: number
   selected: number
   sequence: number
   sessionId: string
@@ -232,8 +233,9 @@ const updateMastery = (current: FactMastery, attempt: AttemptEvent): FactMastery
     dueAt: addDays(attempt.answeredAt, Math.max(0.04, stabilityDays)),
     lapseCount: current.lapseCount + (attempt.correct ? 0 : 1),
     lastReviewedAt: attempt.answeredAt,
-    latencyMs:
-      current.latencyMs === null
+    latencyMs: !attempt.correct
+      ? current.latencyMs
+      : current.latencyMs === null
         ? attempt.latencyMs
         : Math.round(current.latencyMs * 0.7 + attempt.latencyMs * 0.3),
     recallDayKeys,
@@ -342,6 +344,7 @@ const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): Answer
     latencyMs: Math.max(0, answeredAt.getTime() - session.currentQuestionStartedAt.getTime()),
     left: question.left,
     right: question.right,
+    questionCount: session.questions.length,
     selected,
     sequence: session.currentIndex,
     sessionId: session.id,

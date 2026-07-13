@@ -24,6 +24,10 @@ const inviteId = (invite: string, secret: string): string =>
 
 const claim = ({ expectedInvite, invite, now, secret }: ClaimInput): string | null => {
   if (!equalDigest(digest(invite, secret), digest(expectedInvite, secret))) return null
+  return issue(now, secret)
+}
+
+const issue = (now: Date, secret: string): string => {
   const expiresAt = now.getTime() + 30 * 24 * 60 * 60 * 1000
   const payload = Buffer.from(JSON.stringify({ expiresAt, profileId: 'lou' })).toString('base64url')
   const signature = digest(payload, secret).toString('base64url')
@@ -46,4 +50,7 @@ const verify = ({ now, secret, session }: VerifyInput): Readonly<{ profileId: st
   }
 }
 
-export const Identity = { claim, inviteId, verify } as const
+const renew = (input: VerifyInput): string | null =>
+  verify(input) === null ? null : issue(input.now, input.secret)
+
+export const Identity = { claim, inviteId, renew, verify } as const

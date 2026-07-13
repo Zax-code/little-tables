@@ -52,3 +52,17 @@ export async function flushPendingAttempts({
     status: 'synced',
   }
 }
+
+export async function flushAllPendingAttempts(input: FlushInput): Promise<SyncSummary> {
+  let acknowledged = 0
+  let rejected = 0
+  for (let batch = 0; batch < 100; batch += 1) {
+    const result = await flushPendingAttempts(input)
+    acknowledged += result.acknowledged
+    rejected += result.rejected
+    if (result.status === 'idle' || result.acknowledged < 100) {
+      return { acknowledged, rejected, status: acknowledged === 0 ? 'idle' : 'synced' }
+    }
+  }
+  throw new Error('Sync outbox exceeded the safe foreground batch limit')
+}

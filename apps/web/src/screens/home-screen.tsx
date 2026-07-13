@@ -49,6 +49,13 @@ export function HomeScreen() {
     await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
     await navigate({ to: '/practice' })
   }
+  const primaryAction = async () => {
+    if (data?.activeSession !== null && data?.activeSession !== undefined) {
+      await navigate({ to: '/practice' })
+      return
+    }
+    await start({ questionCount: firstVisit ? 8 : 10 })
+  }
 
   return (
     <Screen>
@@ -72,12 +79,20 @@ export function HomeScreen() {
 
         <motion.button
           className="primary-button"
-          onClick={() => void start({ questionCount: firstVisit ? 8 : 10 })}
+          onClick={() => void primaryAction()}
           whileTap={{ scale: 0.97 }}
         >
-          {firstVisit ? 'start a gentle check-in' : 'play 90 sec'}
+          {data?.activeSession
+            ? 'resume your tiny win'
+            : firstVisit
+              ? 'start a gentle check-in'
+              : 'play 90 sec'}
         </motion.button>
-        <button className="mode-link" onClick={() => setShowModes((visible) => !visible)}>
+        <button
+          className="mode-link"
+          disabled={data?.activeSession !== null && data?.activeSession !== undefined}
+          onClick={() => setShowModes((visible) => !visible)}
+        >
           {showModes ? 'hide practice choices' : 'choose a tiny mode'}
         </button>
         {showModes ? (

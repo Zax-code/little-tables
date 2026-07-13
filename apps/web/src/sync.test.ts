@@ -1,7 +1,7 @@
 import type { AttemptEvent } from '@little-tables/domain'
 import { describe, expect, it, vi } from 'vitest'
 
-import { flushPendingAttempts } from './sync.js'
+import { flushAllPendingAttempts, flushPendingAttempts } from './sync.js'
 
 const attempt: AttemptEvent = {
   answerMode: 'choice',
@@ -13,6 +13,7 @@ const attempt: AttemptEvent = {
   latencyMs: 1500,
   left: 7,
   right: 8,
+  questionCount: 10,
   selected: 56,
   sequence: 0,
   sessionId: 'session-1',
@@ -62,5 +63,46 @@ describe('flushPendingAttempts', () => {
       }),
     ).rejects.toBeDefined()
     expect(acknowledge).not.toHaveBeenCalled()
+  })
+
+  it('flushes every full outbox batch before canonical reconciliation', async () => {
+    let remaining = 101
+    const fetcher: typeof fetch = (_input, init) => {
+      if (typeof init?.body !== 'string') throw new Error('Expected JSON request body')
+      const sent = (JSON.parse(init.body) as { attempts: AttemptEvent[] }).attempts
+      return Promise.resolve(
+        new Response(
+          JSON.stringify({
+            accepted: sent.map(({ eventId }) => eventId),
+            duplicates: [],
+            rejected: [],
+          }),
+        ),
+      )
+    }
+    const acknowledge = (ids: ReadonlyArray<string>): Promise<void> => {
+      remaining -= ids.length
+      return Promise.resolve()
+    }
+    const pendingBatch = (
+      limit: number,
+    ): Promise<Readonly<{ attempts: ReadonlyArray<AttemptEvent> }>> =>
+      Promise.resolve({
+        attempts: Array.from({ length: Math.min(limit, remaining) }, (_, index) => ({
+          ...attempt,
+          eventId: `batch-${remaining}-${index}`,
+        })),
+      })
+    const result = await flushAllPendingAttempts({
+      fetcher,
+      profileId: 'lou',
+      store: {
+        acknowledge,
+        pendingBatch,
+      },
+    })
+
+    expect(result.acknowledged).toBe(101)
+    expect(remaining).toBe(0)
   })
 })

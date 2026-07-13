@@ -132,8 +132,22 @@ export class IndexedDbPracticeStore {
     })
   }
 
-  async replaceSnapshot(snapshot: LearningSnapshot): Promise<void> {
+  async replaceSnapshot(
+    snapshot: LearningSnapshot,
+    serverState?: Readonly<{
+      completedSessions: number
+      practiceDayKeys: ReadonlyArray<string>
+    }>,
+  ): Promise<void> {
     const current = await this.load()
-    await this.#database.state.put({ ...current, id: 'current', snapshot })
+    await this.#database.state.put({
+      ...current,
+      completedSessions: Math.max(current.completedSessions, serverState?.completedSessions ?? 0),
+      id: 'current',
+      practiceDayKeys: [
+        ...new Set([...current.practiceDayKeys, ...(serverState?.practiceDayKeys ?? [])]),
+      ],
+      snapshot,
+    })
   }
 }

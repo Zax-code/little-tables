@@ -41,6 +41,7 @@ describe('LearningEngine properties', () => {
           latencyMs: 2000,
           left: 7,
           right: 8,
+          questionCount: 1,
           selected: 56,
           sequence: 0,
           sessionId: 'session',

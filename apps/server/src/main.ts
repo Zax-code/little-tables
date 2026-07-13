@@ -1,6 +1,6 @@
 import { HttpServer } from '@effect/platform'
 import { NodeHttpServer, NodeRuntime } from '@effect/platform-node'
-import { Layer } from 'effect'
+import { Effect, Layer } from 'effect'
 import { createServer } from 'node:http'
 
 import { httpApp } from './http/app.js'
@@ -27,4 +27,5 @@ const serverLayer = HttpServer.serve(httpApp).pipe(
   Layer.provide(NodeHttpServer.layer(createServer, { port })),
 )
 
-NodeRuntime.runMain(Layer.launch(serverLayer))
+const program: Effect.Effect<never> = Layer.launch(serverLayer).pipe(Effect.orDie)
+NodeRuntime.runMain(program)

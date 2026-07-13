@@ -31,3 +31,7 @@ corepack pnpm smoke:docker
 Set `MONGODB_URI`, `MONGODB_DATABASE`, `INVITE_TOKEN`, and `SESSION_SECRET` in
 production. Without MongoDB, the server intentionally uses its in-memory
 repository for local development.
+
+Invite links are single-use. Active sessions renew while the app syncs. If the
+cookie is deliberately cleared, rotate `INVITE_TOKEN` to issue a new private
+link; the previous token remains consumed in MongoDB.

@@ -15,6 +15,7 @@ const attempt: AttemptEvent = {
   latencyMs: 1700,
   left: 7,
   right: 8,
+  questionCount: 10,
   selected: 56,
   sequence: 0,
   sessionId: 'session-1',

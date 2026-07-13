@@ -102,6 +102,7 @@ describe('LearningEngine', () => {
       latencyMs: 1800,
       left: 7,
       right: 8,
+      questionCount: 10,
       selected: 56,
       sequence: Number(eventId.slice(-1)),
       sessionId: `session-${eventId}`,
@@ -129,6 +130,44 @@ describe('LearningEngine', () => {
     expect(withRecall.facts['7:8']?.state).toBe('fluent')
   })
 
+  it('does not treat a fast wrong guess as improved recall latency', () => {
+    const correct: AttemptEvent = {
+      answerMode: 'keypad',
+      answeredAt: new Date('2026-07-12T12:00:00.000Z'),
+      choices: [],
+      correct: true,
+      eventId: 'latency-correct',
+      factKey: '7:8',
+      latencyMs: 1800,
+      left: 7,
+      questionCount: 2,
+      right: 8,
+      selected: 56,
+      sequence: 0,
+      sessionId: 'latency-session',
+    }
+    const learned = LearningEngine.reduce({
+      attempts: [correct],
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const afterGuess = LearningEngine.reduce({
+      attempts: [
+        {
+          ...correct,
+          answeredAt: new Date('2026-07-12T12:01:00.000Z'),
+          correct: false,
+          eventId: 'latency-wrong',
+          latencyMs: 100,
+          selected: 54,
+          sequence: 1,
+        },
+      ],
+      snapshot: learned,
+    })
+
+    expect(afterGuess.facts['7:8']?.latencyMs).toBe(1800)
+  })
+
   it('prioritizes due facts and graduates familiar facts to keypad recall', () => {
     const baseAttempt: Omit<AttemptEvent, 'answeredAt' | 'eventId' | 'sequence'> = {
       answerMode: 'choice',
@@ -138,6 +177,7 @@ describe('LearningEngine', () => {
       latencyMs: 1900,
       left: 7,
       right: 8,
+      questionCount: 10,
       selected: 56,
       sessionId: 'practice-7-8',
     }

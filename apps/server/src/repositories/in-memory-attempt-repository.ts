@@ -13,6 +13,7 @@ const layer = () => {
         consumedInvites.add(inviteId)
         return true
       }),
+    health: Effect.void,
     insert: (profileId, attempts) =>
       Effect.sync(() => {
         const accepted: string[] = []

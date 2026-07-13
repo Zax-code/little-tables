@@ -19,6 +19,7 @@ const AttemptEventSchema = Schema.Struct({
   latencyMs: Schema.NonNegativeInt,
   left: Schema.Int.pipe(Schema.between(1, 12)),
   right: Schema.Int.pipe(Schema.between(1, 12)),
+  questionCount: Schema.Int.pipe(Schema.between(1, 100)),
   selected: Schema.NonNegativeInt,
   sequence: Schema.NonNegativeInt,
   sessionId: Schema.NonEmptyString,
@@ -30,6 +31,7 @@ const SyncRequestSchema = Schema.Struct({
 })
 
 const ClaimInviteSchema = Schema.Struct({ token: Schema.NonEmptyString })
+const claimAttempts: number[] = []
 const authConfig =
   process.env.INVITE_TOKEN && process.env.SESSION_SECRET
     ? { invite: process.env.INVITE_TOKEN, secret: process.env.SESSION_SECRET }
@@ -38,6 +40,15 @@ const defaultWebDistPath = fileURLToPath(new URL('../../../web/dist', import.met
 const webDistPath = resolve(process.env.WEB_DIST_PATH ?? defaultWebDistPath)
 
 const json = (body: unknown, status = 200) => HttpServerResponse.json(body, { status })
+
+const sessionCookie = (response: HttpServerResponse.HttpServerResponse, session: string) =>
+  HttpServerResponse.unsafeSetCookie(response, 'little-tables-session', session, {
+    httpOnly: true,
+    maxAge: '30 days',
+    path: '/',
+    sameSite: 'lax',
+    secure: true,
+  })
 
 const authorizedProfile = Effect.gen(function* () {
   if (authConfig === null) return 'lou'
@@ -48,6 +59,10 @@ const authorizedProfile = Effect.gen(function* () {
 })
 
 const claimInvite = Effect.gen(function* () {
+  const now = Date.now()
+  while (claimAttempts[0] !== undefined && claimAttempts[0] < now - 60_000) claimAttempts.shift()
+  if (claimAttempts.length >= 5) return yield* json({ error: 'invite_rate_limited' }, 429)
+  claimAttempts.push(now)
   if (authConfig === null)
     return yield* json({ profileId: 'lou', status: 'development_auth_disabled' })
   const { token } = yield* HttpServerRequest.schemaBodyJson(ClaimInviteSchema)
@@ -62,14 +77,24 @@ const claimInvite = Effect.gen(function* () {
   const consumed = yield* repository.consumeInvite(Identity.inviteId(token, authConfig.secret))
   if (!consumed) return yield* json({ error: 'invite_already_used' }, 401)
   const response = yield* json({ profileId: 'lou', status: 'claimed' })
-  return HttpServerResponse.unsafeSetCookie(response, 'little-tables-session', session, {
-    httpOnly: true,
-    maxAge: '30 days',
-    path: '/',
-    sameSite: 'lax',
-    secure: true,
-  })
+  return sessionCookie(response, session)
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_invite_request' }, 400)))
+
+const refreshSession = Effect.gen(function* () {
+  if (authConfig === null) return yield* json({ status: 'development_auth_disabled' })
+  const request = yield* HttpServerRequest.HttpServerRequest
+  const current = request.cookies['little-tables-session']
+  if (current === undefined) return yield* json({ error: 'unauthorized' }, 401)
+  const renewed = Identity.renew({ now: new Date(), secret: authConfig.secret, session: current })
+  if (renewed === null) return yield* json({ error: 'unauthorized' }, 401)
+  return sessionCookie(yield* json({ status: 'renewed' }), renewed)
+})
+
+const ready = Effect.gen(function* () {
+  const repository = yield* AttemptRepository
+  yield* repository.health
+  return yield* json({ status: 'ready' })
+}).pipe(Effect.catchAll(() => json({ status: 'unavailable' }, 503)))
 
 const sync = Effect.gen(function* () {
   const profileId = yield* authorizedProfile
@@ -96,10 +121,20 @@ const bootstrap = Effect.gen(function* () {
   const repository = yield* AttemptRepository
   const attempts = yield* repository.list(profileId)
   const snapshot = LearningEngine.reduce({ attempts, snapshot: LearningEngine.emptySnapshot() })
+  const completedSessions = new Set(
+    attempts
+      .filter(({ questionCount, sequence }) => sequence === questionCount - 1)
+      .map(({ sessionId }) => sessionId),
+  ).size
+  const practiceDayKeys = [
+    ...new Set(attempts.map(({ answeredAt }) => answeredAt.toISOString().slice(0, 10))),
+  ]
   return yield* json({
     algorithmVersion: snapshot.algorithmVersion,
     profile: { displayName: 'lou', id: 'lou' },
-    rewards: LearningEngine.deriveRewards({ completedSessions: 0, snapshot }),
+    completedSessions,
+    practiceDayKeys,
+    rewards: LearningEngine.deriveRewards({ completedSessions, snapshot }),
     snapshot,
   })
 }).pipe(Effect.catchAll(() => json({ error: 'bootstrap_unavailable' }, 503)))
@@ -120,8 +155,9 @@ const staticWebApp = Effect.gen(function* () {
 
 export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.get('/health/live', json({ status: 'ok' })),
-  HttpRouter.get('/health/ready', json({ status: 'ready' })),
+  HttpRouter.get('/health/ready', ready),
   HttpRouter.post('/api/v1/invites/claim', claimInvite),
+  HttpRouter.post('/api/v1/session/refresh', refreshSession),
   HttpRouter.get('/api/v1/bootstrap', bootstrap),
   HttpRouter.post('/api/v1/attempts/sync', sync),
   HttpRouter.get('/*', staticWebApp),

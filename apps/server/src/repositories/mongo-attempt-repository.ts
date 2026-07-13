@@ -16,6 +16,7 @@ type AttemptDocument = Readonly<{
 }>
 
 const makeService = (
+  client: MongoClient,
   collection: Collection<AttemptDocument>,
   inviteClaims: Collection<{ _id: string; consumedAt: Date }>,
 ): AttemptRepositoryService => ({
@@ -31,6 +32,12 @@ const makeService = (
       },
       catch: (cause) => new AttemptRepositoryError({ cause, operation: 'consume-invite' }),
     }),
+  health: Effect.tryPromise({
+    try: async () => {
+      await client.db().command({ ping: 1 })
+    },
+    catch: (cause) => new AttemptRepositoryError({ cause, operation: 'health' }),
+  }),
   insert: (profileId, attempts) =>
     Effect.tryPromise({
       try: async () => {
@@ -90,7 +97,7 @@ const layer = (uri: string, databaseName = 'little_tables') =>
             .db(databaseName)
             .collection<{ _id: string; consumedAt: Date }>('invite_claims')
           await collection.createIndex({ profileId: 1, 'attempt.answeredAt': 1 })
-          return { client, service: makeService(collection, inviteClaims) }
+          return { client, service: makeService(client, collection, inviteClaims) }
         },
         catch: (cause) => new AttemptRepositoryError({ cause, operation: 'list' }),
       }),
