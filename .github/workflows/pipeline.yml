@@ -124,10 +124,4 @@ jobs:
 
       - name: Verify public deployment
         run: |
-          for attempt in {1..20}; do
-            if curl --user-agent 'Mozilla/5.0 little-tables-deployment' --fail --silent --show-error --max-time 5 https://math.leaetzak.love/health/ready; then
-              exit 0
-            fi
-            sleep 3
-          done
-          exit 1
+          ssh -i ~/.ssh/little-tables-deploy -p "${{ vars.VPS_PORT }}" "${{ vars.VPS_USER }}@${{ vars.VPS_HOST }}" public-health
