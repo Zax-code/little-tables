@@ -812,7 +812,7 @@ p {
 .garden-plot__pages {
   position: absolute;
   z-index: 2;
-  inset: 72px 10px 5px;
+  inset: 0 10px 5px;
   display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
@@ -829,8 +829,10 @@ p {
   display: grid;
   flex: 0 0 100%;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 1fr));
+  grid-template-rows: repeat(2, minmax(0, 146px));
+  align-content: center;
   align-items: end;
+  gap: clamp(12px, 2.5dvh, 22px) 0;
   scroll-snap-align: start;
 }
 .garden-plot__pagination {
