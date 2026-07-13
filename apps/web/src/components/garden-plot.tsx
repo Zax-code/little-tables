@@ -6,6 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { gardenPlantDefinition, type GardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenGrowingBud, GardenMatureHead } from './garden-plant-renderers.js'
 import { GardenWateringSprite } from './garden-watering-sprite.js'
+import { pickNextGardenTarget } from './garden-watering-route.js'
 import { GardenWalkingSprite } from './garden-walking-sprite.js'
 
 type GardenPlotProps = Readonly<{
@@ -339,8 +340,9 @@ export function GardenPlot({ progress }: GardenPlotProps) {
 
     const timeout = window.setTimeout(() => {
       setCurrentTargetIndex((currentIndex) => {
-        const nextIndex = (currentIndex + 1) % wateringTargets.length
-        const currentTarget = wateringTargets[currentIndex]
+        const normalizedCurrentIndex = currentIndex % wateringTargets.length
+        const nextIndex = pickNextGardenTarget(currentIndex, wateringTargets.length)
+        const currentTarget = wateringTargets[normalizedCurrentIndex]
         const nextTarget = wateringTargets[nextIndex]
         if (currentTarget === undefined || nextTarget === undefined) return currentIndex
 
