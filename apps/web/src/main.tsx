@@ -6,7 +6,6 @@ import { MotionConfig } from 'motion/react'
 
 import { router } from './router.js'
 import { SyncManager } from './components/sync-manager.js'
-import { PwaManager } from './components/pwa-manager.js'
 import './styles.css'
 
 const queryClient = new QueryClient({
@@ -24,7 +23,6 @@ createRoot(root).render(
     <QueryClientProvider client={queryClient}>
       <MotionConfig reducedMotion="user">
         <SyncManager />
-        <PwaManager />
         <RouterProvider router={router} context={{ queryClient }} />
       </MotionConfig>
     </QueryClientProvider>

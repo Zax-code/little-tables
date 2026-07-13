@@ -1,6 +1,7 @@
 import type { PropsWithChildren, ReactNode } from 'react'
 
 import { BottomNav } from './bottom-nav.js'
+import { PwaManager } from './pwa-manager.js'
 
 type ScreenProps = PropsWithChildren<
   Readonly<{
@@ -15,6 +16,7 @@ export function Screen({ children, footer = true, header }: ScreenProps) {
       {header}
       <main className="screen-content">{children}</main>
       {footer ? <BottomNav /> : null}
+      <PwaManager />
     </div>
   )
 }
