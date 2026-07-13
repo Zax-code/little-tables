@@ -18,10 +18,12 @@ RUN pnpm --filter @little-tables/server deploy --prod --legacy /prod/server
 FROM node:22-bookworm-slim AS runtime
 
 WORKDIR /app
+ARG APP_REVISION=unknown
 ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOST=0.0.0.0
 ENV WEB_DIST_PATH=/app/web-dist
+ENV APP_REVISION=$APP_REVISION
 
 COPY --from=build --chown=node:node /prod/server ./
 COPY --from=build --chown=node:node /app/apps/web/dist ./web-dist

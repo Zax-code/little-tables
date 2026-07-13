@@ -11,10 +11,10 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@effect/platform": "^0.97.0",
-    "@effect/platform-node": "^0.108.0",
+    "@effect/platform": "^0.96.2",
+    "@effect/platform-node": "^0.107.0",
     "@little-tables/domain": "workspace:*",
-    "effect": "^3.22.0",
+    "effect": "^3.21.4",
     "mongodb": "^7.5.0",
     "web-push": "^3.6.7"
   },
