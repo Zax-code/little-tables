@@ -11,7 +11,15 @@ clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
 
 self.addEventListener('message', (event) => {
-  if (event.data === 'SKIP_WAITING') void self.skipWaiting()
+  const message: unknown = event.data
+  const isSkipWaitingMessage =
+    message === 'SKIP_WAITING' ||
+    (typeof message === 'object' &&
+      message !== null &&
+      'type' in message &&
+      message.type === 'SKIP_WAITING')
+
+  if (isSkipWaitingMessage) void self.skipWaiting()
 })
 
 self.addEventListener('push', (event) => {

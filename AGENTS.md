@@ -41,6 +41,8 @@ Vitest is used throughout, with Fast Check for domain properties and Testcontain
 
 History follows Conventional Commit-style subjects such as `feat:`, `fix:`, and `build:`. Keep commits scoped and imperative. Pull requests should explain user impact, list verification performed, link relevant issues, and include screenshots for visible PWA changes. All CI checks must pass before merge. Merging to `main` deploys production automatically.
 
+When finishing any feature or fix, always commit and push the completed work on a branch and open a pull request. Do not stop with uncommitted local changes.
+
 ## Security & Deployment
 
 Never commit `.env` files, invite tokens, VAPID private keys, session secrets, registry credentials, or SSH keys. Production secrets remain under `/etc/little-tables/` on the VPS. Deployments use immutable GHCR tags, a command-restricted SSH key, health checks, and automatic rollback; preserve these controls when changing deployment files.
