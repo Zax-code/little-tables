@@ -6,7 +6,7 @@ import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react
 import { gardenPlantDefinition, type GardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenGrowingBud, GardenMatureHead } from './garden-plant-renderers.js'
 import { GardenWateringSprite } from './garden-watering-sprite.js'
-import { pickNextGardenTarget, positionGardenCaretakerY } from './garden-watering-route.js'
+import { pickNextGardenTarget } from './garden-watering-route.js'
 import { GardenWalkingSprite } from './garden-walking-sprite.js'
 
 type GardenPlotProps = Readonly<{
@@ -280,7 +280,7 @@ export function GardenPlot({ progress }: GardenPlotProps) {
       return [
         {
           caretakerX: waterX - caretakerSize * pourPointX,
-          caretakerY: positionGardenCaretakerY(waterY, caretakerSize),
+          caretakerY: waterY - caretakerSize * 0.93,
           facing,
           id,
           waterX,

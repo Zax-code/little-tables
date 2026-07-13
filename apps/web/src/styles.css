@@ -1088,13 +1088,13 @@ p {
   height: clamp(370px, 52dvh, 430px);
   min-height: 370px;
   flex: 0 0 auto;
-  overflow: hidden;
+  overflow: visible;
   border-radius: 30px;
 }
 .garden-plot__canvas {
   position: absolute;
   inset: 0;
-  overflow: hidden;
+  overflow: visible;
   border: 1px solid var(--line-garden);
   border-radius: inherit;
   background: var(--surface-garden);
