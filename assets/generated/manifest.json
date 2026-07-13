@@ -46,6 +46,23 @@
       "source": "assets/generated/miffy-garden-watering-sprite-source.png",
       "sourceSha256": "189ca4f700c7596c8fa371cb056c89324b45f6ad28d4e31459e88bda0f4566de",
       "status": "approved"
+    },
+    {
+      "generatedAt": "2026-07-13",
+      "id": "miffy-garden-walking-sprite",
+      "kind": "character-sprite-sheet",
+      "model": "gpt-image-2 (Codex built-in; snapshot not exposed)",
+      "notes": "Four-frame 2x2 right-facing walk cycle carrying the watering can; chroma-key removed with soft matte/despill and alpha validated.",
+      "output": "apps/web/public/generated/miffy-garden-walking-sprite.png",
+      "promptFile": "assets/prompts/miffy-garden-walking-sprite.md",
+      "references": [
+        "apps/web/public/generated/miffy-garden-watering-sprite.png",
+        "assets/generated/miffy-character-sheet-alpha.png"
+      ],
+      "sha256": "4765ac9a99e0b0610a674886266e98ad50c05446d5247d107d323ab8001c05a2",
+      "source": "assets/generated/miffy-garden-walking-sprite-source.png",
+      "sourceSha256": "50ab1322c747872f933483c22d12ed3c3f966b6c216e8d6225fe9d0d2b9bc953",
+      "status": "approved"
     }
   ],
   "version": 1

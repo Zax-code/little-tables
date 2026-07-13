@@ -1,10 +1,12 @@
 import { motion, useReducedMotion } from 'motion/react'
 import type { GardenPlantStage, GardenProgress } from '@little-tables/domain'
-import { useRef, useState } from 'react'
+import type { CSSProperties } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 
 import { gardenPlantDefinition, type GardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenGrowingBud, GardenMatureHead } from './garden-plant-renderers.js'
 import { GardenWateringSprite } from './garden-watering-sprite.js'
+import { GardenWalkingSprite } from './garden-walking-sprite.js'
 
 type GardenPlotProps = Readonly<{
   progress: GardenProgress
@@ -24,6 +26,19 @@ type LockedPlotProps = Readonly<{
 }>
 
 const plantsPerPlot = 6
+const caretakerSize = 190
+const wateringCycleMs = 3_600
+
+type CaretakerPhase = 'walking' | 'watering'
+
+type WateringTarget = Readonly<{
+  caretakerX: number
+  caretakerY: number
+  facing: 'left' | 'right'
+  id: string
+  waterX: number
+  waterY: number
+}>
 
 function PlantStem({ stage }: Readonly<{ stage: Exclude<GardenPlantStage, 'locked'> }>) {
   const top = stage === 'dormant' ? 90 : stage === 'growing' ? 67 : 48
@@ -189,11 +204,15 @@ function LockedPlot({ definition, index, reduceMotion }: LockedPlotProps) {
   )
 }
 
-function WateringLanding({ reduceMotion }: Readonly<{ reduceMotion: boolean }>) {
+function WateringLanding({
+  reduceMotion,
+  style,
+}: Readonly<{ reduceMotion: boolean; style: CSSProperties }>) {
   return (
     <span
       aria-hidden="true"
       className={`garden-plot__watering-landing${reduceMotion ? ' garden-plot__watering-landing--static' : ''}`}
+      style={style}
     >
       <i />
       <i />
@@ -209,8 +228,14 @@ function pluralize(count: number, singular: string) {
 
 export function GardenPlot({ progress }: GardenPlotProps) {
   const reduceMotion = useReducedMotion() === true
+  const canvasRef = useRef<HTMLDivElement>(null)
   const pagesRef = useRef<HTMLDivElement>(null)
   const [activePage, setActivePage] = useState(0)
+  const [caretakerPhase, setCaretakerPhase] = useState<CaretakerPhase>('watering')
+  const [currentTargetIndex, setCurrentTargetIndex] = useState(0)
+  const [walkFacing, setWalkFacing] = useState<'left' | 'right'>('right')
+  const [walkDuration, setWalkDuration] = useState(1)
+  const [wateringTargets, setWateringTargets] = useState<readonly WateringTarget[]>([])
   const plants = progress.plants.map(gardenPlantDefinition)
   const plantPages = Array.from(
     { length: Math.ceil(plants.length / plantsPerPlot) },
@@ -229,9 +254,114 @@ export function GardenPlot({ progress }: GardenPlotProps) {
       : `, and ${lockedPlants.map(({ name, startAt }) => `${name} locked until ${startAt} blooms`).join(', ')}`
   const ariaLabel = `Little garden earned from ${progress.bloomCount} ${pluralize(progress.bloomCount, 'bloom')}: ${matureCount} mature ${pluralize(matureCount, 'flower')}${growthDescription}${lockDescription}${hasSparkle ? ', with a mastery sparkle' : ''}. Miffy is watering the garden.`
   const lastPage = plantPages.length - 1
+  const measureWateringTargets = useCallback(() => {
+    const canvas = canvasRef.current
+    const pages = pagesRef.current
+    if (canvas === null || pages === null) return
+
+    const canvasRect = canvas.getBoundingClientRect()
+    const activeGrid = pages.querySelector<HTMLElement>(`[data-garden-page="${activePage}"]`)
+    if (activeGrid === null) return
+
+    const nextTargets = Array.from(
+      activeGrid.querySelectorAll<HTMLElement>('[data-plant-id]:not([data-locked="true"])'),
+    ).flatMap((slot): WateringTarget[] => {
+      const soil = slot.querySelector<SVGGraphicsElement>('.garden-plot__soil')
+      const id = slot.dataset.plantId
+      if (soil === null || id === undefined) return []
+
+      const soilRect = soil.getBoundingClientRect()
+      const waterX = soilRect.left - canvasRect.left + soilRect.width / 2
+      const waterY = soilRect.top - canvasRect.top + soilRect.height / 2
+      const facing = waterX < canvasRect.width / 2 ? 'left' : 'right'
+      const pourPointX = facing === 'right' ? 0.8 : 0.2
+
+      return [
+        {
+          caretakerX: waterX - caretakerSize * pourPointX,
+          caretakerY: waterY - caretakerSize * 0.93,
+          facing,
+          id,
+          waterX,
+          waterY,
+        },
+      ]
+    })
+
+    setWateringTargets((currentTargets) => {
+      const unchanged =
+        currentTargets.length === nextTargets.length &&
+        currentTargets.every((target, index) => {
+          const nextTarget = nextTargets[index]
+          return (
+            nextTarget?.id === target.id &&
+            Math.abs(target.caretakerX - nextTarget.caretakerX) < 0.5 &&
+            Math.abs(target.caretakerY - nextTarget.caretakerY) < 0.5
+          )
+        })
+      return unchanged ? currentTargets : nextTargets
+    })
+  }, [activePage])
+
+  useLayoutEffect(() => {
+    const pages = pagesRef.current
+    const canvas = canvasRef.current
+    if (pages === null || canvas === null) return
+
+    let frame = window.requestAnimationFrame(measureWateringTargets)
+    const settledMeasurement = window.setTimeout(measureWateringTargets, 950)
+    const scheduleMeasurement = () => {
+      window.cancelAnimationFrame(frame)
+      frame = window.requestAnimationFrame(measureWateringTargets)
+    }
+    const resizeObserver =
+      typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(scheduleMeasurement)
+
+    pages.addEventListener('scroll', scheduleMeasurement, { passive: true })
+    resizeObserver?.observe(canvas)
+    return () => {
+      window.cancelAnimationFrame(frame)
+      window.clearTimeout(settledMeasurement)
+      pages.removeEventListener('scroll', scheduleMeasurement)
+      resizeObserver?.disconnect()
+    }
+  }, [measureWateringTargets])
+
+  const updateActivePage = (nextPage: number) => {
+    if (nextPage === activePage) return
+    setActivePage(nextPage)
+    setCurrentTargetIndex(0)
+    setCaretakerPhase('watering')
+  }
+
+  useEffect(() => {
+    if (reduceMotion || caretakerPhase !== 'watering' || wateringTargets.length < 2) return
+
+    const timeout = window.setTimeout(() => {
+      setCurrentTargetIndex((currentIndex) => {
+        const nextIndex = (currentIndex + 1) % wateringTargets.length
+        const currentTarget = wateringTargets[currentIndex]
+        const nextTarget = wateringTargets[nextIndex]
+        if (currentTarget === undefined || nextTarget === undefined) return currentIndex
+
+        const distance = Math.hypot(
+          nextTarget.caretakerX - currentTarget.caretakerX,
+          nextTarget.caretakerY - currentTarget.caretakerY,
+        )
+        setWalkFacing(nextTarget.caretakerX >= currentTarget.caretakerX ? 'right' : 'left')
+        setWalkDuration(Math.min(1.7, Math.max(0.8, distance / 115)))
+        setCaretakerPhase('walking')
+        return nextIndex
+      })
+    }, wateringCycleMs)
+
+    return () => window.clearTimeout(timeout)
+  }, [caretakerPhase, reduceMotion, wateringTargets])
+
+  const currentTarget = wateringTargets[currentTargetIndex % wateringTargets.length]
   const showPage = (pageIndex: number) => {
     const nextPage = Math.max(0, Math.min(lastPage, pageIndex))
-    setActivePage(nextPage)
+    updateActivePage(nextPage)
     const pages = pagesRef.current
     if (pages === null) return
     pages.scrollTo({
@@ -249,13 +379,13 @@ export function GardenPlot({ progress }: GardenPlotProps) {
 
   return (
     <div className={className}>
-      <div className="garden-plot__canvas" role="img" aria-label={ariaLabel}>
+      <div className="garden-plot__canvas" ref={canvasRef} role="img" aria-label={ariaLabel}>
         <div
           className="garden-plot__pages"
           onScroll={(event) => {
             const pageWidth = event.currentTarget.clientWidth
             if (pageWidth === 0) return
-            setActivePage(
+            updateActivePage(
               Math.max(
                 0,
                 Math.min(lastPage, Math.round(event.currentTarget.scrollLeft / pageWidth)),
@@ -265,13 +395,21 @@ export function GardenPlot({ progress }: GardenPlotProps) {
           ref={pagesRef}
         >
           {plantPages.map((page, pageIndex) => (
-            <div className="garden-plot__grid" key={page[0]?.id ?? `plot-${pageIndex + 1}`}>
+            <div
+              className="garden-plot__grid"
+              data-garden-page={pageIndex}
+              key={page[0]?.id ?? `plot-${pageIndex + 1}`}
+            >
               {page.map((definition, index) => {
                 const isWateredPlant =
-                  index === Math.min(2, page.length - 1) && definition.stage !== 'locked'
+                  pageIndex === activePage &&
+                  caretakerPhase === 'watering' &&
+                  currentTarget?.id === definition.id
                 return (
                   <div
                     className={`garden-plot__slot garden-plot__slot--${definition.id} garden-plot__slot--${definition.stage}${isWateredPlant ? ' garden-plot__slot--watered' : ''}`}
+                    data-locked={definition.stage === 'locked'}
+                    data-plant-id={definition.id}
                     key={definition.id}
                   >
                     {definition.stage === 'locked' ? (
@@ -288,26 +426,45 @@ export function GardenPlot({ progress }: GardenPlotProps) {
                         stage={definition.stage}
                       />
                     )}
-                    {isWateredPlant ? <WateringLanding reduceMotion={reduceMotion} /> : null}
                   </div>
                 )
               })}
             </div>
           ))}
         </div>
-        <motion.div
-          aria-hidden="true"
-          className="garden-plot__caretaker"
-          initial={reduceMotion ? false : { opacity: 0, rotate: 1.5, y: 10 }}
-          animate={
-            reduceMotion
-              ? { opacity: 1, rotate: 0, y: 0 }
-              : { opacity: [0, 1, 1], rotate: [1.5, -1, 0], y: [10, -2, 0] }
-          }
-          transition={{ delay: reduceMotion ? 0 : 0.24, duration: reduceMotion ? 0 : 0.8 }}
-        >
-          <GardenWateringSprite reduceMotion={reduceMotion} />
-        </motion.div>
+        {currentTarget === undefined ? null : (
+          <>
+            <motion.div
+              aria-hidden="true"
+              animate={{ x: currentTarget.caretakerX, y: currentTarget.caretakerY }}
+              className="garden-plot__caretaker"
+              initial={false}
+              onAnimationComplete={() => {
+                if (caretakerPhase === 'walking') setCaretakerPhase('watering')
+              }}
+              transition={
+                reduceMotion
+                  ? { duration: 0 }
+                  : {
+                      duration: caretakerPhase === 'walking' ? walkDuration : 0.18,
+                      ease: caretakerPhase === 'walking' ? 'easeInOut' : 'easeOut',
+                    }
+              }
+            >
+              {caretakerPhase === 'walking' && !reduceMotion ? (
+                <GardenWalkingSprite facing={walkFacing} />
+              ) : (
+                <GardenWateringSprite facing={currentTarget.facing} reduceMotion={reduceMotion} />
+              )}
+            </motion.div>
+            {caretakerPhase === 'watering' ? (
+              <WateringLanding
+                reduceMotion={reduceMotion}
+                style={{ left: currentTarget.waterX, top: currentTarget.waterY }}
+              />
+            ) : null}
+          </>
+        )}
         {hasSparkle ? (
           <div className="garden-plot__sparkles">
             {['✦', '✧', '✦'].map((sparkle, index) => (

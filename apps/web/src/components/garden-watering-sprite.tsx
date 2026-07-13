@@ -1,14 +1,15 @@
 import { gardenWateringSprite } from '../assets.js'
 
 type GardenWateringSpriteProps = Readonly<{
+  facing: 'left' | 'right'
   reduceMotion: boolean
 }>
 
-export function GardenWateringSprite({ reduceMotion }: GardenWateringSpriteProps) {
+export function GardenWateringSprite({ facing, reduceMotion }: GardenWateringSpriteProps) {
   return (
     <div
       aria-label={gardenWateringSprite.alt}
-      className={`garden-watering-sprite${reduceMotion ? ' garden-watering-sprite--static' : ''}`}
+      className={`garden-watering-sprite garden-watering-sprite--facing-${facing}${reduceMotion ? ' garden-watering-sprite--static' : ''}`}
       role="img"
     >
       <span

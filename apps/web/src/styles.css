@@ -905,27 +905,39 @@ p {
 .garden-plot__caretaker {
   position: absolute;
   z-index: 4;
-  top: 46px;
-  right: 10px;
-  width: 230px;
+  top: 0;
+  left: 0;
+  width: 190px;
   aspect-ratio: 1;
   transform-origin: 50% 100%;
   pointer-events: none;
+  will-change: transform;
 }
-.garden-watering-sprite {
+.garden-watering-sprite,
+.garden-walking-sprite {
   width: 100%;
   aspect-ratio: 1;
   overflow: hidden;
 }
-.garden-watering-sprite__sheet {
+.garden-watering-sprite__sheet,
+.garden-walking-sprite__sheet {
   display: block;
   width: 100%;
   height: 100%;
   background-position: 0 0;
   background-repeat: no-repeat;
   background-size: 200% 200%;
-  animation: garden-watering-sprite 3.6s steps(1, end) infinite;
   will-change: background-position;
+}
+.garden-watering-sprite__sheet {
+  animation: garden-watering-sprite 3.6s steps(1, end) infinite;
+}
+.garden-walking-sprite__sheet {
+  animation: garden-walking-sprite 0.58s steps(1, end) infinite;
+}
+.garden-watering-sprite--facing-left,
+.garden-walking-sprite--facing-left {
+  transform: scaleX(-1);
 }
 .garden-watering-sprite--static .garden-watering-sprite__sheet {
   background-position: 0 100%;
@@ -1010,6 +1022,24 @@ p {
   89%,
   96% {
     background-position: 100% 0;
+  }
+}
+@keyframes garden-walking-sprite {
+  0%,
+  24% {
+    background-position: -10px 0;
+  }
+  25%,
+  49% {
+    background-position: calc(100% + 10px) 0;
+  }
+  50%,
+  74% {
+    background-position: -10px calc(100% + 6px);
+  }
+  75%,
+  100% {
+    background-position: calc(100% + 12px) calc(100% + 6px);
   }
 }
 @keyframes garden-water-landing {

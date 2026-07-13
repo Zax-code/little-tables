@@ -13,6 +13,12 @@ export const gardenWateringSprite: CharacterAsset = {
   src: '/generated/miffy-garden-watering-sprite.png',
 }
 
+export const gardenWalkingSprite: CharacterAsset = {
+  alt: 'Miffy walking through the garden with her blue watering can',
+  source: 'gpt-image-built-in',
+  src: '/generated/miffy-garden-walking-sprite.png',
+}
+
 export const characterAssets: Readonly<Record<CharacterScene, CharacterAsset>> = {
   celebration: {
     alt: 'Miffy making a joyful little jump',
