@@ -29,6 +29,23 @@
       ],
       "sha256": "16d6cab563b99d9046883b17c6a59c5d5509417c340f0f892248d5d5fc3f97d5",
       "status": "approved"
+    },
+    {
+      "generatedAt": "2026-07-13",
+      "id": "miffy-garden-watering-sprite",
+      "kind": "character-sprite-sheet",
+      "model": "gpt-image-2 (Codex built-in; snapshot not exposed)",
+      "notes": "Four-frame 2x2 watering cycle; flower removed, chroma-key removed with soft matte/despill, and alpha validated.",
+      "output": "apps/web/public/generated/miffy-garden-watering-sprite.png",
+      "promptFile": "assets/prompts/miffy-garden-watering-sprite.md",
+      "references": [
+        "apps/web/public/generated/miffy-garden.png",
+        "assets/generated/miffy-character-sheet-alpha.png"
+      ],
+      "sha256": "4e858c2e5b28aa061d5928da79cdf6e80667233c3d5c0ca14795707e2dabeebe",
+      "source": "assets/generated/miffy-garden-watering-sprite-source.png",
+      "sourceSha256": "189ca4f700c7596c8fa371cb056c89324b45f6ad28d4e31459e88bda0f4566de",
+      "status": "approved"
     }
   ],
   "version": 1

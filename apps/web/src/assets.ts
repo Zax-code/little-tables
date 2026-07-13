@@ -1,5 +1,5 @@
 export type CharacterScene =
-  'celebration' | 'garden' | 'home' | 'practice' | 'practiceCorrect' | 'practiceEncourage'
+  'celebration' | 'home' | 'practice' | 'practiceCorrect' | 'practiceEncourage'
 
 type CharacterAsset = Readonly<{
   alt: string
@@ -7,16 +7,17 @@ type CharacterAsset = Readonly<{
   src: string
 }>
 
+export const gardenWateringSprite: CharacterAsset = {
+  alt: 'Miffy tipping her blue watering can over the garden plants',
+  source: 'gpt-image-built-in',
+  src: '/generated/miffy-garden-watering-sprite.png',
+}
+
 export const characterAssets: Readonly<Record<CharacterScene, CharacterAsset>> = {
   celebration: {
     alt: 'Miffy making a joyful little jump',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-celebration.png',
-  },
-  garden: {
-    alt: 'Miffy watering a pink tulip',
-    source: 'gpt-image-built-in',
-    src: '/generated/miffy-garden.png',
   },
   home: {
     alt: 'Miffy holding a red tulip',

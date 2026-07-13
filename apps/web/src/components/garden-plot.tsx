@@ -4,7 +4,7 @@ import { useRef, useState } from 'react'
 
 import { gardenPlantDefinition, type GardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenGrowingBud, GardenMatureHead } from './garden-plant-renderers.js'
-import { Bunny } from './bunny.js'
+import { GardenWateringSprite } from './garden-watering-sprite.js'
 
 type GardenPlotProps = Readonly<{
   progress: GardenProgress
@@ -23,16 +23,6 @@ type LockedPlotProps = Readonly<{
   reduceMotion: boolean
 }>
 
-type WaterDrop = Readonly<{
-  delay: number
-  path: string
-}>
-
-const waterDrops: ReadonlyArray<WaterDrop> = [
-  { delay: 0, path: 'M8 2C8 2 3 8 3 12a5 5 0 0 0 10 0C13 8 8 2 8 2Z' },
-  { delay: 0.13, path: 'M8 2C8 2 3 8 3 12a5 5 0 0 0 10 0C13 8 8 2 8 2Z' },
-  { delay: 0.26, path: 'M8 2C8 2 3 8 3 12a5 5 0 0 0 10 0C13 8 8 2 8 2Z' },
-]
 const plantsPerPlot = 6
 
 function PlantStem({ stage }: Readonly<{ stage: Exclude<GardenPlantStage, 'locked'> }>) {
@@ -199,33 +189,17 @@ function LockedPlot({ definition, index, reduceMotion }: LockedPlotProps) {
   )
 }
 
-function WateringDrops({ reduceMotion }: Readonly<{ reduceMotion: boolean }>) {
+function WateringLanding({ reduceMotion }: Readonly<{ reduceMotion: boolean }>) {
   return (
-    <svg className="garden-plot__drops" viewBox="0 0 76 48" preserveAspectRatio="xMidYMid meet">
-      {waterDrops.map((drop, index) => (
-        <motion.path
-          className={`garden-plot__drop garden-plot__drop--${index + 1}`}
-          key={drop.delay}
-          d={drop.path}
-          fill="var(--garden-water)"
-          initial={reduceMotion ? false : { opacity: 0, y: -3 }}
-          animate={
-            reduceMotion
-              ? { opacity: 0.8, x: index * 18, y: index * 5 }
-              : {
-                  opacity: [0, 1, 0],
-                  x: [index * 18, index * 18 - 3, index * 18 - 6],
-                  y: [-3 + index * 5, 7 + index * 5, 17 + index * 5],
-                }
-          }
-          transition={{
-            delay: reduceMotion ? 0 : 0.58 + drop.delay,
-            duration: reduceMotion ? 0 : 0.72,
-            ease: 'easeIn',
-          }}
-        />
-      ))}
-    </svg>
+    <span
+      aria-hidden="true"
+      className={`garden-plot__watering-landing${reduceMotion ? ' garden-plot__watering-landing--static' : ''}`}
+    >
+      <i />
+      <i />
+      <i />
+      <b />
+    </span>
   )
 }
 
@@ -292,27 +266,32 @@ export function GardenPlot({ progress }: GardenPlotProps) {
         >
           {plantPages.map((page, pageIndex) => (
             <div className="garden-plot__grid" key={page[0]?.id ?? `plot-${pageIndex + 1}`}>
-              {page.map((definition, index) => (
-                <div
-                  className={`garden-plot__slot garden-plot__slot--${definition.id} garden-plot__slot--${definition.stage}`}
-                  key={definition.id}
-                >
-                  {definition.stage === 'locked' ? (
-                    <LockedPlot
-                      definition={definition}
-                      index={pageIndex * plantsPerPlot + index}
-                      reduceMotion={reduceMotion}
-                    />
-                  ) : (
-                    <Plant
-                      definition={definition}
-                      index={pageIndex * plantsPerPlot + index}
-                      reduceMotion={reduceMotion}
-                      stage={definition.stage}
-                    />
-                  )}
-                </div>
-              ))}
+              {page.map((definition, index) => {
+                const isWateredPlant =
+                  index === Math.min(2, page.length - 1) && definition.stage !== 'locked'
+                return (
+                  <div
+                    className={`garden-plot__slot garden-plot__slot--${definition.id} garden-plot__slot--${definition.stage}${isWateredPlant ? ' garden-plot__slot--watered' : ''}`}
+                    key={definition.id}
+                  >
+                    {definition.stage === 'locked' ? (
+                      <LockedPlot
+                        definition={definition}
+                        index={pageIndex * plantsPerPlot + index}
+                        reduceMotion={reduceMotion}
+                      />
+                    ) : (
+                      <Plant
+                        definition={definition}
+                        index={pageIndex * plantsPerPlot + index}
+                        reduceMotion={reduceMotion}
+                        stage={definition.stage}
+                      />
+                    )}
+                    {isWateredPlant ? <WateringLanding reduceMotion={reduceMotion} /> : null}
+                  </div>
+                )
+              })}
             </div>
           ))}
         </div>
@@ -327,10 +306,8 @@ export function GardenPlot({ progress }: GardenPlotProps) {
           }
           transition={{ delay: reduceMotion ? 0 : 0.24, duration: reduceMotion ? 0 : 0.8 }}
         >
-          <Bunny className="garden-plot__bunny" scene="garden" />
+          <GardenWateringSprite reduceMotion={reduceMotion} />
         </motion.div>
-
-        <WateringDrops reduceMotion={reduceMotion} />
         {hasSparkle ? (
           <div className="garden-plot__sparkles">
             {['✦', '✧', '✦'].map((sparkle, index) => (

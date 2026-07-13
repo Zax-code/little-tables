@@ -20,9 +20,7 @@ export function Bunny({ className, scene }: BunnyProps) {
           ? { rotate: 0, y: 0 }
           : scene === 'celebration'
             ? { y: [0, -12, 0], rotate: [0, -1, 1, 0] }
-            : scene === 'garden'
-              ? { rotate: [0, -1.5, 1.5, 0] }
-              : { y: [0, -2, 0] }
+            : { y: [0, -2, 0] }
       }
       src={asset.src}
       transition={{
