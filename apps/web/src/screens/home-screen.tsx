@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 import { Bunny } from '../components/bunny.js'
 import { InstallCard } from '../components/install-card.js'
+import { ReminderCard } from '../components/reminder-card.js'
 import { syncStatusQueryKey } from '../components/sync-manager.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
@@ -158,6 +159,7 @@ export function HomeScreen() {
             ))}
           </div>
         </div>
+        <ReminderCard />
         <InstallCard completedSessions={data?.completedSessions ?? 0} />
       </section>
     </Screen>

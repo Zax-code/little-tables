@@ -1,0 +1,19 @@
+[Unit]
+Description=Little Tables PWA and API
+After=network-online.target little-tables-mongo.service
+Requires=little-tables-mongo.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+EnvironmentFile=/etc/little-tables/little-tables.env
+EnvironmentFile=/etc/little-tables/image.env
+ExecStartPre=-/usr/bin/podman rm -f little-tables-app
+ExecStart=/usr/bin/podman run --name little-tables-app --rm --pull=never --network host --env-file /etc/little-tables/little-tables.env ${LITTLE_TABLES_IMAGE}
+ExecStop=/usr/bin/podman stop --time 15 little-tables-app
+Restart=always
+RestartSec=5
+TimeoutStartSec=0
+
+[Install]
+WantedBy=multi-user.target

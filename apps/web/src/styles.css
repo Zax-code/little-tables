@@ -362,6 +362,51 @@ p {
   border-radius: 20px;
   background: var(--surface-soft);
 }
+.reminder-card {
+  margin-top: 12px;
+  padding: 13px 14px;
+  display: grid;
+  grid-template-columns: 42px 1fr auto;
+  gap: 11px;
+  align-items: center;
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  background: rgb(255 253 249 / 86%);
+}
+.reminder-bell {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--surface-soft);
+  color: var(--action-primary-deep);
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+.reminder-card strong {
+  font-size: 0.82rem;
+}
+.reminder-card p {
+  margin: 3px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+  line-height: 1.35;
+}
+.reminder-card button {
+  min-width: 65px;
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: var(--action-primary-deep);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+.reminder-card button:disabled {
+  opacity: 0.58;
+}
 .install-card strong {
   font-size: 0.86rem;
 }

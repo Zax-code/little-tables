@@ -6,6 +6,7 @@ import {
   AttemptRepository,
   AttemptRepositoryError,
   type AttemptRepositoryService,
+  type PushSubscriptionRecord,
 } from './attempt-repository.js'
 
 type AttemptDocument = Readonly<{
@@ -15,10 +16,17 @@ type AttemptDocument = Readonly<{
   receivedAt: Date
 }>
 
+type PushSubscriptionDocument = PushSubscriptionRecord &
+  Readonly<{
+    _id: string
+    updatedAt: Date
+  }>
+
 const makeService = (
   client: MongoClient,
   collection: Collection<AttemptDocument>,
   inviteClaims: Collection<{ _id: string; consumedAt: Date }>,
+  pushSubscriptions: Collection<PushSubscriptionDocument>,
 ): AttemptRepositoryService => ({
   consumeInvite: (inviteId) =>
     Effect.tryPromise({
@@ -82,6 +90,52 @@ const makeService = (
         ).map(({ attempt }) => attempt),
       catch: (cause) => new AttemptRepositoryError({ cause, operation: 'list' }),
     }),
+  listPushSubscriptions: () =>
+    Effect.tryPromise({
+      try: async () =>
+        (await pushSubscriptions.find().toArray()).map(
+          ({ _id: _, updatedAt: __, ...record }) => record,
+        ),
+      catch: (cause) => new AttemptRepositoryError({ cause, operation: 'list-push-subscriptions' }),
+    }),
+  markPushSubscriptionSent: (endpoint, dayKey) =>
+    Effect.tryPromise({
+      try: async () => {
+        await pushSubscriptions.updateOne(
+          { _id: endpoint },
+          { $set: { lastSentDayKey: dayKey, updatedAt: new Date() } },
+        )
+      },
+      catch: (cause) =>
+        new AttemptRepositoryError({ cause, operation: 'mark-push-subscription-sent' }),
+    }),
+  removePushSubscription: (endpoint) =>
+    Effect.tryPromise({
+      try: async () => {
+        await pushSubscriptions.deleteOne({ _id: endpoint })
+      },
+      catch: (cause) =>
+        new AttemptRepositoryError({ cause, operation: 'remove-push-subscription' }),
+    }),
+  upsertPushSubscription: (profileId, subscription) =>
+    Effect.tryPromise({
+      try: async () => {
+        await pushSubscriptions.updateOne(
+          { _id: subscription.endpoint },
+          {
+            $set: {
+              ...subscription,
+              profileId,
+              updatedAt: new Date(),
+            },
+            $setOnInsert: { lastSentDayKey: null },
+          },
+          { upsert: true },
+        )
+      },
+      catch: (cause) =>
+        new AttemptRepositoryError({ cause, operation: 'upsert-push-subscription' }),
+    }),
 })
 
 const layer = (uri: string, databaseName = 'little_tables') =>
@@ -96,8 +150,15 @@ const layer = (uri: string, databaseName = 'little_tables') =>
           const inviteClaims = client
             .db(databaseName)
             .collection<{ _id: string; consumedAt: Date }>('invite_claims')
+          const pushSubscriptions = client
+            .db(databaseName)
+            .collection<PushSubscriptionDocument>('push_subscriptions')
           await collection.createIndex({ profileId: 1, 'attempt.answeredAt': 1 })
-          return { client, service: makeService(client, collection, inviteClaims) }
+          await pushSubscriptions.createIndex({ profileId: 1 })
+          return {
+            client,
+            service: makeService(client, collection, inviteClaims, pushSubscriptions),
+          }
         },
         catch: (cause) => new AttemptRepositoryError({ cause, operation: 'list' }),
       }),

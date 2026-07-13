@@ -1,11 +1,16 @@
 import type { AttemptEvent } from '@little-tables/domain'
 import { Effect, Layer } from 'effect'
 
-import { AttemptRepository, type AttemptRepositoryService } from './attempt-repository.js'
+import {
+  AttemptRepository,
+  type AttemptRepositoryService,
+  type PushSubscriptionRecord,
+} from './attempt-repository.js'
 
 const layer = () => {
   const events = new Map<string, Readonly<{ attempt: AttemptEvent; profileId: string }>>()
   const consumedInvites = new Set<string>()
+  const pushSubscriptions = new Map<string, PushSubscriptionRecord>()
   const service: AttemptRepositoryService = {
     consumeInvite: (inviteId) =>
       Effect.sync(() => {
@@ -35,6 +40,27 @@ const layer = () => {
           .map((event) => event.attempt)
           .sort((first, second) => first.answeredAt.getTime() - second.answeredAt.getTime()),
       ),
+    listPushSubscriptions: () => Effect.sync(() => [...pushSubscriptions.values()]),
+    markPushSubscriptionSent: (endpoint, dayKey) =>
+      Effect.sync(() => {
+        const subscription = pushSubscriptions.get(endpoint)
+        if (subscription !== undefined) {
+          pushSubscriptions.set(endpoint, { ...subscription, lastSentDayKey: dayKey })
+        }
+      }),
+    removePushSubscription: (endpoint) =>
+      Effect.sync(() => {
+        pushSubscriptions.delete(endpoint)
+      }),
+    upsertPushSubscription: (profileId, subscription) =>
+      Effect.sync(() => {
+        const existing = pushSubscriptions.get(subscription.endpoint)
+        pushSubscriptions.set(subscription.endpoint, {
+          ...subscription,
+          lastSentDayKey: existing?.lastSentDayKey ?? null,
+          profileId,
+        })
+      }),
   }
   return Layer.succeed(AttemptRepository, service)
 }

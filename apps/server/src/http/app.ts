@@ -31,6 +31,16 @@ const SyncRequestSchema = Schema.Struct({
 })
 
 const ClaimInviteSchema = Schema.Struct({ token: Schema.NonEmptyString })
+const PushSubscriptionSchema = Schema.Struct({
+  endpoint: Schema.NonEmptyString,
+  expirationTime: Schema.NullOr(Schema.NonNegative),
+  keys: Schema.Struct({ auth: Schema.NonEmptyString, p256dh: Schema.NonEmptyString }),
+})
+const SavePushSubscriptionSchema = Schema.Struct({
+  subscription: PushSubscriptionSchema,
+  timezone: Schema.NonEmptyString,
+})
+const RemovePushSubscriptionSchema = Schema.Struct({ endpoint: Schema.NonEmptyString })
 const claimAttempts: number[] = []
 const authConfig =
   process.env.INVITE_TOKEN && process.env.SESSION_SECRET
@@ -139,6 +149,40 @@ const bootstrap = Effect.gen(function* () {
   })
 }).pipe(Effect.catchAll(() => json({ error: 'bootstrap_unavailable' }, 503)))
 
+const notificationConfig = Effect.sync(() => {
+  const publicKey = process.env.VAPID_PUBLIC_KEY
+  return publicKey ? json({ publicKey, reminderHour: 18 }) : json({ error: 'unavailable' }, 503)
+}).pipe(Effect.flatten)
+
+const savePushSubscription = Effect.gen(function* () {
+  const profileId = yield* authorizedProfile
+  if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
+  const { subscription, timezone } = yield* HttpServerRequest.schemaBodyJson(
+    SavePushSubscriptionSchema,
+  )
+  try {
+    new Intl.DateTimeFormat('en', { timeZone: timezone }).format()
+  } catch {
+    return yield* json({ error: 'invalid_timezone' }, 400)
+  }
+  const repository = yield* AttemptRepository
+  yield* repository.upsertPushSubscription(profileId, {
+    ...subscription,
+    reminderHour: 18,
+    timezone,
+  })
+  return yield* json({ reminderHour: 18, status: 'subscribed', timezone })
+}).pipe(Effect.catchAll(() => json({ error: 'invalid_subscription_request' }, 400)))
+
+const removePushSubscription = Effect.gen(function* () {
+  const profileId = yield* authorizedProfile
+  if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
+  const { endpoint } = yield* HttpServerRequest.schemaBodyJson(RemovePushSubscriptionSchema)
+  const repository = yield* AttemptRepository
+  yield* repository.removePushSubscription(endpoint)
+  return yield* json({ status: 'unsubscribed' })
+}).pipe(Effect.catchAll(() => json({ error: 'invalid_subscription_request' }, 400)))
+
 const staticWebApp = Effect.gen(function* () {
   const request = yield* HttpServerRequest.HttpServerRequest
   const pathname = new URL(request.url, 'http://little-tables.local').pathname
@@ -160,5 +204,8 @@ export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.post('/api/v1/session/refresh', refreshSession),
   HttpRouter.get('/api/v1/bootstrap', bootstrap),
   HttpRouter.post('/api/v1/attempts/sync', sync),
+  HttpRouter.get('/api/v1/notifications/config', notificationConfig),
+  HttpRouter.post('/api/v1/notifications/subscriptions', savePushSubscription),
+  HttpRouter.del('/api/v1/notifications/subscriptions', removePushSubscription),
   HttpRouter.get('/*', staticWebApp),
 )
