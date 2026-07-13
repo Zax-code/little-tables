@@ -91,20 +91,29 @@ export function ReminderCard() {
     }
   }
 
+  if (state === 'enabled') {
+    return (
+      <button
+        aria-label="Turn daily reminder off"
+        className="reminder-status"
+        onClick={() => void disable()}
+      >
+        <span aria-hidden="true">♡</span> reminder on
+      </button>
+    )
+  }
+
   return (
     <aside className="reminder-card">
       <span aria-hidden="true" className="reminder-bell">
         ♡
       </span>
       <div>
-        <strong>{state === 'enabled' ? 'daily reminder is on' : 'remember your tiny win'}</strong>
+        <strong>remember your tiny win</strong>
         <p>{message}</p>
       </div>
-      <button
-        disabled={state === 'checking' || state === 'working'}
-        onClick={() => void (state === 'enabled' ? disable() : enable())}
-      >
-        {state === 'enabled' ? 'turn off' : state === 'working' ? 'wait…' : 'turn on'}
+      <button disabled={state === 'checking' || state === 'working'} onClick={() => void enable()}>
+        {state === 'working' ? 'wait…' : 'turn on'}
       </button>
     </aside>
   )
