@@ -1,13 +1,15 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
+import { useRouterState } from '@tanstack/react-router'
 
 export function PwaManager() {
+  const inPractice = useRouterState({ select: ({ location }) => location.pathname === '/practice' })
   const {
     needRefresh: [needRefresh, setNeedRefresh],
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
   } = useRegisterSW()
 
-  if (!needRefresh && !offlineReady) return null
+  if ((!needRefresh && !offlineReady) || (needRefresh && inPractice)) return null
 
   return (
     <aside className="pwa-toast" role="status">

@@ -40,6 +40,7 @@ describe('IndexedDbPracticeStore', () => {
 
     const reopened = new IndexedDbPracticeStore(databaseName)
     expect((await reopened.load()).snapshot).toEqual(snapshot)
+    expect((await reopened.load()).practiceDayKeys).toEqual(['2026-07-12'])
     expect((await reopened.pendingBatch(10)).attempts.map((attempt) => attempt.eventId)).toEqual([
       'attempt-persisted',
     ])
@@ -64,11 +65,13 @@ describe('IndexedDbPracticeStore', () => {
     await store.startSession(session, snapshot)
     expect((await store.load()).activeSession?.id).toBe(session.id)
     await store.completeSession(snapshot)
+    const replacement = { ...snapshot, processedEventIds: ['from-server'] }
+    await store.replaceSnapshot(replacement)
 
     expect(await store.load()).toMatchObject({
       activeSession: null,
       completedSessions: 1,
-      snapshot,
+      snapshot: replacement,
     })
     store.close()
   })

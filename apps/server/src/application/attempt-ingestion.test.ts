@@ -33,4 +33,19 @@ describe('AttemptIngestion', () => {
     expect(result.first).toEqual({ accepted: ['attempt-1'], duplicates: [], rejected: [] })
     expect(result.retry).toEqual({ accepted: [], duplicates: ['attempt-1'], rejected: [] })
   })
+
+  it('rejects an internally contradictory attempt before persistence', async () => {
+    const contradictory = { ...attempt, correct: false, eventId: 'contradictory' }
+    const result = await Effect.runPromise(
+      AttemptIngestion.ingest({ attempts: [contradictory], profileId: 'lou' }).pipe(
+        Effect.provide(InMemoryAttemptRepository.layer()),
+      ),
+    )
+
+    expect(result).toEqual({
+      accepted: [],
+      duplicates: [],
+      rejected: [{ eventId: 'contradictory', reason: 'inconsistent_attempt' }],
+    })
+  })
 })

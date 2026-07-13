@@ -3,7 +3,7 @@ import { Context, Data, type Effect } from 'effect'
 
 export class AttemptRepositoryError extends Data.TaggedError('AttemptRepositoryError')<{
   cause: unknown
-  operation: 'insert' | 'list'
+  operation: 'consume-invite' | 'insert' | 'list'
 }> {}
 
 export type AttemptInsertResult = Readonly<{
@@ -12,6 +12,7 @@ export type AttemptInsertResult = Readonly<{
 }>
 
 export type AttemptRepositoryService = Readonly<{
+  consumeInvite: (inviteId: string) => Effect.Effect<boolean, AttemptRepositoryError>
   insert: (
     profileId: string,
     attempts: ReadonlyArray<AttemptEvent>,

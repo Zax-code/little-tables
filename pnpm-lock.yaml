@@ -81,6 +81,9 @@ importers:
       dexie:
         specifier: ^4.4.4
         version: 4.4.4
+      effect:
+        specifier: ^3.21.4
+        version: 3.21.4
       motion:
         specifier: ^12.42.2
         version: 12.42.2(react-dom@19.2.7(react@19.2.7))(react@19.2.7)

@@ -11,7 +11,7 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 docker build --tag "$image" .
-docker run --detach --rm --publish "$port:3000" --name "$container" "$image" >/dev/null
+docker run --detach --rm --publish "$port:3000" --env LITTLE_TABLES_UNSAFE_EPHEMERAL=true --name "$container" "$image" >/dev/null
 
 attempt=1
 while [ "$attempt" -le 10 ]; do

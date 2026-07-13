@@ -26,6 +26,16 @@ const ingest = ({ attempts, profileId }: IngestInput) =>
         rejected.push({ eventId: attempt.eventId, reason: 'duplicate_in_batch' })
       } else if (attempt.selected < 0 || !Number.isInteger(attempt.selected)) {
         rejected.push({ eventId: attempt.eventId, reason: 'invalid_answer' })
+      } else if (
+        attempt.factKey !==
+          `${Math.min(attempt.left, attempt.right)}:${Math.max(attempt.left, attempt.right)}` ||
+        attempt.correct !== (attempt.selected === attempt.left * attempt.right) ||
+        (attempt.answerMode === 'choice' &&
+          (!attempt.choices.includes(attempt.selected) ||
+            !attempt.choices.includes(attempt.left * attempt.right))) ||
+        (attempt.answerMode === 'keypad' && attempt.choices.length !== 0)
+      ) {
+        rejected.push({ eventId: attempt.eventId, reason: 'inconsistent_attempt' })
       } else {
         seen.add(attempt.eventId)
         valid.push(attempt)

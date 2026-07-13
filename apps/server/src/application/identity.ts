@@ -19,6 +19,9 @@ const digest = (value: string, secret: string): Buffer =>
 const equalDigest = (first: Buffer, second: Buffer): boolean =>
   first.length === second.length && timingSafeEqual(first, second)
 
+const inviteId = (invite: string, secret: string): string =>
+  digest(`invite:${invite}`, secret).toString('hex')
+
 const claim = ({ expectedInvite, invite, now, secret }: ClaimInput): string | null => {
   if (!equalDigest(digest(invite, secret), digest(expectedInvite, secret))) return null
   const expiresAt = now.getTime() + 30 * 24 * 60 * 60 * 1000
@@ -43,4 +46,4 @@ const verify = ({ now, secret, session }: VerifyInput): Readonly<{ profileId: st
   }
 }
 
-export const Identity = { claim, verify } as const
+export const Identity = { claim, inviteId, verify } as const

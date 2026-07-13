@@ -37,8 +37,10 @@ describe('MongoAttemptRepository', () => {
       const first = yield* AttemptIngestion.ingest({ attempts: [attempt], profileId: 'lou' })
       const second = yield* AttemptIngestion.ingest({ attempts: [attempt], profileId: 'lou' })
       const repository = yield* AttemptRepository
+      const firstInvite = yield* repository.consumeInvite('invite-hash')
+      const reusedInvite = yield* repository.consumeInvite('invite-hash')
       const stored = yield* repository.list('lou')
-      return { first, second, stored }
+      return { first, firstInvite, reusedInvite, second, stored }
     }).pipe(
       Effect.provide(
         MongoAttemptRepository.layer(
@@ -53,5 +55,7 @@ describe('MongoAttemptRepository', () => {
     expect(result.first.accepted).toEqual(['mongo-attempt-1'])
     expect(result.second.duplicates).toEqual(['mongo-attempt-1'])
     expect(result.stored).toEqual([attempt])
+    expect(result.firstInvite).toBe(true)
+    expect(result.reusedInvite).toBe(false)
   }, 30_000)
 })

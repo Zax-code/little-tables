@@ -1,15 +1,16 @@
 import type { AttemptEvent } from '@little-tables/domain'
+import { Schema } from 'effect'
 
 type SyncStore = Readonly<{
   acknowledge: (attemptIds: ReadonlyArray<string>) => Promise<void>
   pendingBatch: (limit: number) => Promise<Readonly<{ attempts: ReadonlyArray<AttemptEvent> }>>
 }>
 
-type SyncResponse = Readonly<{
-  accepted: ReadonlyArray<string>
-  duplicates: ReadonlyArray<string>
-  rejected: ReadonlyArray<Readonly<{ eventId: string; reason: string }>>
-}>
+const SyncResponseSchema = Schema.Struct({
+  accepted: Schema.Array(Schema.String),
+  duplicates: Schema.Array(Schema.String),
+  rejected: Schema.Array(Schema.Struct({ eventId: Schema.String, reason: Schema.String })),
+})
 
 type FlushInput = Readonly<{
   fetcher?: typeof fetch
@@ -22,16 +23,6 @@ export type SyncSummary = Readonly<{
   rejected: number
   status: 'idle' | 'synced'
 }>
-
-const isSyncResponse = (value: unknown): value is SyncResponse => {
-  if (typeof value !== 'object' || value === null) return false
-  const candidate = value as Record<string, unknown>
-  return (
-    Array.isArray(candidate.accepted) &&
-    Array.isArray(candidate.duplicates) &&
-    Array.isArray(candidate.rejected)
-  )
-}
 
 export async function flushPendingAttempts({
   fetcher = fetch,
@@ -47,8 +38,7 @@ export async function flushPendingAttempts({
     method: 'POST',
   })
   if (!response.ok) throw new Error(`Sync failed with status ${response.status}`)
-  const body: unknown = await response.json()
-  if (!isSyncResponse(body)) throw new Error('Sync returned an invalid response')
+  const body = await Schema.decodeUnknownPromise(SyncResponseSchema)(await response.json())
 
   const acknowledged = [
     ...body.accepted,

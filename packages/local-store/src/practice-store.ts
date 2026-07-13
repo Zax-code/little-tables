@@ -5,6 +5,7 @@ type StateRecord = Readonly<{
   activeSession: PracticeSession | null
   completedSessions: number
   id: 'current'
+  practiceDayKeys?: ReadonlyArray<string>
   snapshot: LearningSnapshot
 }>
 
@@ -22,6 +23,7 @@ type PracticeDatabase = Dexie & {
 export type LocalBootstrap = Readonly<{
   activeSession: PracticeSession | null
   completedSessions: number
+  practiceDayKeys: ReadonlyArray<string>
   snapshot: LearningSnapshot
 }>
 
@@ -62,13 +64,14 @@ export class IndexedDbPracticeStore {
 
   async load(): Promise<LocalBootstrap> {
     const state = await this.#database.state.get('current')
-    return (
-      state ?? {
-        activeSession: null,
-        completedSessions: 0,
-        snapshot: { algorithmVersion: '1', facts: {}, processedEventIds: [] },
-      }
-    )
+    return state === undefined
+      ? {
+          activeSession: null,
+          completedSessions: 0,
+          practiceDayKeys: [],
+          snapshot: { algorithmVersion: '1', facts: {}, processedEventIds: [] },
+        }
+      : { ...state, practiceDayKeys: state.practiceDayKeys ?? [] }
   }
 
   async commitAnswer({ attempt, session, snapshot }: CommitAnswerInput): Promise<void> {
@@ -83,6 +86,12 @@ export class IndexedDbPracticeStore {
           activeSession: session,
           completedSessions: current?.completedSessions ?? 0,
           id: 'current',
+          practiceDayKeys: [
+            ...new Set([
+              ...(current?.practiceDayKeys ?? []),
+              attempt.answeredAt.toISOString().slice(0, 10),
+            ]),
+          ],
           snapshot,
         })
       },
@@ -95,6 +104,7 @@ export class IndexedDbPracticeStore {
       activeSession: session,
       completedSessions: current?.completedSessions ?? 0,
       id: 'current',
+      practiceDayKeys: current?.practiceDayKeys ?? [],
       snapshot,
     })
   }
@@ -116,8 +126,14 @@ export class IndexedDbPracticeStore {
         activeSession: null,
         completedSessions: (current?.completedSessions ?? 0) + 1,
         id: 'current',
+        practiceDayKeys: current?.practiceDayKeys ?? [],
         snapshot,
       })
     })
+  }
+
+  async replaceSnapshot(snapshot: LearningSnapshot): Promise<void> {
+    const current = await this.load()
+    await this.#database.state.put({ ...current, id: 'current', snapshot })
   }
 }

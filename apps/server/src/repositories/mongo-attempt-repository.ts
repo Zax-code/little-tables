@@ -15,7 +15,22 @@ type AttemptDocument = Readonly<{
   receivedAt: Date
 }>
 
-const makeService = (collection: Collection<AttemptDocument>): AttemptRepositoryService => ({
+const makeService = (
+  collection: Collection<AttemptDocument>,
+  inviteClaims: Collection<{ _id: string; consumedAt: Date }>,
+): AttemptRepositoryService => ({
+  consumeInvite: (inviteId) =>
+    Effect.tryPromise({
+      try: async () => {
+        const previous = await inviteClaims.findOneAndUpdate(
+          { _id: inviteId },
+          { $setOnInsert: { consumedAt: new Date() } },
+          { returnDocument: 'before', upsert: true },
+        )
+        return previous === null
+      },
+      catch: (cause) => new AttemptRepositoryError({ cause, operation: 'consume-invite' }),
+    }),
   insert: (profileId, attempts) =>
     Effect.tryPromise({
       try: async () => {
@@ -71,8 +86,11 @@ const layer = (uri: string, databaseName = 'little_tables') =>
           const client = new MongoClient(uri)
           await client.connect()
           const collection = client.db(databaseName).collection<AttemptDocument>('attempt_events')
+          const inviteClaims = client
+            .db(databaseName)
+            .collection<{ _id: string; consumedAt: Date }>('invite_claims')
           await collection.createIndex({ profileId: 1, 'attempt.answeredAt': 1 })
-          return { client, service: makeService(collection) }
+          return { client, service: makeService(collection, inviteClaims) }
         },
         catch: (cause) => new AttemptRepositoryError({ cause, operation: 'list' }),
       }),

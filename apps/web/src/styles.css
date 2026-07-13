@@ -14,6 +14,11 @@
   --ink-primary: #1d1d1b;
   --ink-muted: #716b67;
   --line-soft: #edcbd2;
+  --line-neutral: #e8e0d8;
+  --surface-track: #eee8df;
+  --surface-success: #e8f2e4;
+  --surface-try-again: #fae9ec;
+  --surface-garden: #f4f1c9;
   --accent-red: #e94b4b;
   --accent-yellow: #f4c542;
   --accent-blue: #3e78b2;
@@ -285,7 +290,7 @@ p {
   height: 7px;
   margin-top: 7px;
   overflow: hidden;
-  background: #eee8df;
+  background: var(--surface-track);
   border-radius: 99px;
 }
 .glow-track span {
@@ -407,7 +412,7 @@ p {
   width: 11px;
   height: 11px;
   border-radius: 50%;
-  background: #e8e0d8;
+  background: var(--line-neutral);
   transition:
     background-color 0.2s,
     transform 0.2s;
@@ -450,11 +455,11 @@ p {
 }
 .answer-correct {
   border-color: var(--accent-green);
-  background: #e8f2e4;
+  background: var(--surface-success);
 }
 .answer-try-again {
   border-color: var(--action-primary-deep);
-  background: #fae9ec;
+  background: var(--surface-try-again);
 }
 .answer-muted {
   opacity: 0.42;
@@ -640,7 +645,7 @@ p {
   margin-inline: -8px;
   overflow: hidden;
   border-radius: 32px;
-  background: #f4f1c9;
+  background: var(--surface-garden);
   box-shadow: var(--shadow-soft);
 }
 .garden-bunny {

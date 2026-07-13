@@ -2,7 +2,7 @@ import { LearningEngine, type PracticeQuestion } from '@little-tables/domain'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Bunny } from '../components/bunny.js'
 import { ProgressDots } from '../components/progress-dots.js'
@@ -20,6 +20,7 @@ export function PracticeScreen() {
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [keypadValue, setKeypadValue] = useState('')
   const [showExplanation, setShowExplanation] = useState(false)
+  const answering = useRef(false)
   const data = bootstrap.data
   const session = data?.activeSession ?? null
   const question = session?.questions[session.currentIndex]
@@ -37,7 +38,8 @@ export function PracticeScreen() {
   }
 
   const choose = async (selected: number) => {
-    if (feedback !== null) return
+    if (feedback !== null || answering.current) return
+    answering.current = true
     const result = LearningEngine.answer({
       answeredAt: new Date(),
       eventId: crypto.randomUUID(),
@@ -45,7 +47,12 @@ export function PracticeScreen() {
       session,
     })
     const snapshot = LearningEngine.reduce({ attempts: [result.event], snapshot: data.snapshot })
-    await practiceStore.commitAnswer({ attempt: result.event, session: result.session, snapshot })
+    try {
+      await practiceStore.commitAnswer({ attempt: result.event, session: result.session, snapshot })
+    } catch (error) {
+      answering.current = false
+      throw error
+    }
     if (result.correct) playSuccessSound()
     queryClient.setQueryData(localBootstrapQueryKey, {
       ...data,
@@ -64,7 +71,13 @@ export function PracticeScreen() {
       await navigate({ to: '/celebration' })
       return
     }
-    queryClient.setQueryData(localBootstrapQueryKey, latest)
+    const activeSession = {
+      ...latest.activeSession,
+      currentQuestionStartedAt: new Date(),
+    }
+    await practiceStore.startSession(activeSession, latest.snapshot)
+    queryClient.setQueryData(localBootstrapQueryKey, { ...latest, activeSession })
+    answering.current = false
     setFeedback(null)
     setKeypadValue('')
     setShowExplanation(false)

@@ -58,6 +58,9 @@ const claimInvite = Effect.gen(function* () {
     secret: authConfig.secret,
   })
   if (session === null) return yield* json({ error: 'invalid_invite' }, 401)
+  const repository = yield* AttemptRepository
+  const consumed = yield* repository.consumeInvite(Identity.inviteId(token, authConfig.secret))
+  if (!consumed) return yield* json({ error: 'invite_already_used' }, 401)
   const response = yield* json({ profileId: 'lou', status: 'claimed' })
   return HttpServerResponse.unsafeSetCookie(response, 'little-tables-session', session, {
     httpOnly: true,

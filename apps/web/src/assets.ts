@@ -8,12 +8,12 @@ type CharacterAsset = Readonly<{
 
 export const characterAssets: Readonly<Record<CharacterScene, CharacterAsset>> = {
   celebration: {
-    alt: 'Miffy jumping happily among pink flowers',
+    alt: 'Miffy making a joyful little jump',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-celebration.png',
   },
   garden: {
-    alt: 'Miffy watering a little garden of tulips and daisies',
+    alt: 'Miffy watering a pink tulip',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-garden.png',
   },

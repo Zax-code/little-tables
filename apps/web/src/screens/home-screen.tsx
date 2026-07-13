@@ -25,8 +25,17 @@ export function HomeScreen() {
   const data = bootstrap.data
   const [showModes, setShowModes] = useState(false)
   const [sound, setSound] = useState(soundEnabled)
+  const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
   const rewards = data === undefined ? [] : LearningEngine.deriveRewards(data)
-  const glow = Math.min(7, data?.completedSessions ?? 0)
+  const today = new Date()
+  const recentDayKeys = new Set(
+    Array.from({ length: 7 }, (_, offset) => {
+      const day = new Date(today)
+      day.setDate(day.getDate() - offset)
+      return day.toISOString().slice(0, 10)
+    }),
+  )
+  const glow = data?.practiceDayKeys.filter((day) => recentDayKeys.has(day)).length ?? 0
 
   const start = async (policy: Readonly<{ focusTable?: number; questionCount: number }>) => {
     const snapshot = data?.snapshot ?? LearningEngine.emptySnapshot()
@@ -57,16 +66,16 @@ export function HomeScreen() {
         </button>
         <header className="welcome-copy">
           <p className="eyebrow">little tables.</p>
-          <h1>good morning, lou ♡</h1>
-          <p>ready for a tiny win?</p>
+          <h1>{firstVisit ? 'a tiny hello ♡' : 'good morning, lou ♡'}</h1>
+          <p>{firstVisit ? 'let’s find your easiest starting place.' : 'ready for a tiny win?'}</p>
         </header>
 
         <motion.button
           className="primary-button"
-          onClick={() => void start({ questionCount: 10 })}
+          onClick={() => void start({ questionCount: firstVisit ? 8 : 10 })}
           whileTap={{ scale: 0.97 }}
         >
-          play 90 sec
+          {firstVisit ? 'start a gentle check-in' : 'play 90 sec'}
         </motion.button>
         <button className="mode-link" onClick={() => setShowModes((visible) => !visible)}>
           {showModes ? 'hide practice choices' : 'choose a tiny mode'}

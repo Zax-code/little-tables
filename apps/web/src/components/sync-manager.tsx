@@ -3,6 +3,7 @@ import { useEffect } from 'react'
 
 import { practiceStore } from '../store.js'
 import { flushPendingAttempts } from '../sync.js'
+import type { LearningSnapshot } from '@little-tables/domain'
 
 export const syncStatusQueryKey = ['sync-status'] as const
 
@@ -31,7 +32,31 @@ export function SyncManager() {
       window.history.replaceState(null, '', url)
     }
     const flush = () => {
-      if (navigator.onLine) mutate()
+      if (!navigator.onLine) return
+      mutate(undefined, {
+        onSuccess: () => {
+          void (async () => {
+            const response = await fetch('/api/v1/bootstrap')
+            if (!response.ok) return
+            const body: unknown = await response.json()
+            if (typeof body !== 'object' || body === null || !('snapshot' in body)) return
+            const snapshot = (body as { snapshot: LearningSnapshot }).snapshot
+            const facts = Object.fromEntries(
+              Object.entries(snapshot.facts).map(([key, fact]) => [
+                key,
+                {
+                  ...fact,
+                  dueAt: fact.dueAt === null ? null : new Date(fact.dueAt),
+                  lastReviewedAt:
+                    fact.lastReviewedAt === null ? null : new Date(fact.lastReviewedAt),
+                },
+              ]),
+            )
+            await practiceStore.replaceSnapshot({ ...snapshot, facts })
+            await queryClient.invalidateQueries({ queryKey: ['local-bootstrap'] })
+          })().catch(() => queryClient.setQueryData(syncStatusQueryKey, 'saved on this phone'))
+        },
+      })
     }
     const onVisibility = () => {
       if (document.visibilityState === 'visible') flush()

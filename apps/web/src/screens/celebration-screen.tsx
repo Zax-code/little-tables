@@ -11,7 +11,11 @@ export function CelebrationScreen() {
   const navigate = useNavigate()
   const data = bootstrap.data
   const rewards = data === undefined ? [] : LearningEngine.deriveRewards(data)
-  const latest = rewards.at(-1)
+  const previousRewards =
+    data === undefined
+      ? []
+      : LearningEngine.deriveRewards({ ...data, completedSessions: data.completedSessions - 1 })
+  const latest = rewards.find((reward) => !previousRewards.some(({ id }) => id === reward.id))
 
   return (
     <Screen footer={false}>
@@ -28,9 +32,13 @@ export function CelebrationScreen() {
           <p>your garden grew a little today.</p>
         </div>
         <Bunny className="celebration-bunny" scene="celebration" />
-        <motion.div className="reward-chip" initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
-          <span aria-hidden="true">🌷</span> +1 {latest?.label ?? 'tulip'}
-        </motion.div>
+        {latest === undefined ? (
+          <div className="reward-chip">♡ practice saved</div>
+        ) : (
+          <motion.div className="reward-chip" initial={{ scale: 0.8 }} animate={{ scale: 1 }}>
+            <span aria-hidden="true">🌷</span> +1 {latest.label}
+          </motion.div>
+        )}
         <div className="celebration-actions">
           <button className="primary-button" onClick={() => void navigate({ to: '/garden' })}>
             visit garden

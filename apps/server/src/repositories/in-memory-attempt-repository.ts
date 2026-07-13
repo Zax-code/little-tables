@@ -5,7 +5,14 @@ import { AttemptRepository, type AttemptRepositoryService } from './attempt-repo
 
 const layer = () => {
   const events = new Map<string, Readonly<{ attempt: AttemptEvent; profileId: string }>>()
+  const consumedInvites = new Set<string>()
   const service: AttemptRepositoryService = {
+    consumeInvite: (inviteId) =>
+      Effect.sync(() => {
+        if (consumedInvites.has(inviteId)) return false
+        consumedInvites.add(inviteId)
+        return true
+      }),
     insert: (profileId, attempts) =>
       Effect.sync(() => {
         const accepted: string[] = []

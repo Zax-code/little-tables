@@ -44,4 +44,23 @@ describe('flushPendingAttempts', () => {
     expect(result.status).toBe('synced')
     expect(acknowledge).toHaveBeenCalledWith(['attempt-1', 'attempt-bad'])
   })
+
+  it('does not acknowledge malformed server responses', async () => {
+    const acknowledge = vi.fn<(ids: ReadonlyArray<string>) => Promise<void>>().mockResolvedValue()
+    await expect(
+      flushPendingAttempts({
+        fetcher: vi
+          .fn<typeof fetch>()
+          .mockResolvedValue(
+            new Response(JSON.stringify({ accepted: [null], duplicates: [], rejected: [] })),
+          ),
+        profileId: 'lou',
+        store: {
+          acknowledge,
+          pendingBatch: vi.fn().mockResolvedValue({ attempts: [attempt] }),
+        },
+      }),
+    ).rejects.toBeDefined()
+    expect(acknowledge).not.toHaveBeenCalled()
+  })
 })
