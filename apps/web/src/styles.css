@@ -797,18 +797,6 @@ p {
   overflow: hidden;
   background: var(--surface-garden);
 }
-.garden-plot__canvas::after {
-  position: absolute;
-  z-index: 0;
-  right: 7%;
-  bottom: 10px;
-  left: 7%;
-  height: 13px;
-  border-radius: 50%;
-  background: var(--garden-ground-shadow);
-  content: '';
-  filter: blur(2px);
-}
 .garden-plot__pages {
   position: absolute;
   z-index: 2;
@@ -825,15 +813,39 @@ p {
   bottom: 52px;
 }
 .garden-plot__grid {
+  --garden-row-height: 146px;
+  --garden-row-gap: clamp(12px, 2.5dvh, 22px);
+
+  position: relative;
+  isolation: isolate;
   min-width: 100%;
   display: grid;
   flex: 0 0 100%;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, 146px));
+  grid-template-rows: repeat(2, minmax(0, var(--garden-row-height)));
   align-content: center;
   align-items: end;
-  gap: clamp(12px, 2.5dvh, 22px) 0;
+  gap: var(--garden-row-gap) 0;
   scroll-snap-align: start;
+}
+.garden-plot__grid::before,
+.garden-plot__grid::after {
+  position: absolute;
+  z-index: 0;
+  right: 5%;
+  left: 5%;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--garden-ground-shadow);
+  content: '';
+  filter: blur(2px);
+  pointer-events: none;
+}
+.garden-plot__grid::before {
+  top: calc(50% - var(--garden-row-gap) / 2 - 2.5px);
+}
+.garden-plot__grid::after {
+  top: calc(50% + var(--garden-row-gap) / 2 + var(--garden-row-height) - 2.5px);
 }
 .garden-plot__pagination {
   position: absolute;
@@ -876,6 +888,7 @@ p {
 }
 .garden-plot__slot {
   position: relative;
+  z-index: 1;
   min-width: 0;
   height: 100%;
   display: grid;
