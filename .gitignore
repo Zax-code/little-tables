@@ -1,0 +1,13 @@
+node_modules/
+dist/
+coverage/
+.DS_Store
+.env
+.env.*
+!.env.example
+playwright-report/
+test-results/
+*.log
+*.tsbuildinfo
+assets/references/
+assets/generated/drafts/

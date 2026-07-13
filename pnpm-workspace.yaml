@@ -1,0 +1,11 @@
+packages:
+  - apps/*
+  - packages/*
+
+allowBuilds:
+  '@parcel/watcher': true
+  cpu-features: true
+  esbuild: true
+  msgpackr-extract: true
+  protobufjs: true
+  ssh2: true

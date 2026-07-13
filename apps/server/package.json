@@ -1,0 +1,24 @@
+{
+  "name": "@little-tables/server",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "dev": "tsx watch src/main.ts",
+    "start": "node dist/main.js",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@effect/platform": "^0.96.2",
+    "@effect/platform-node": "^0.107.0",
+    "@little-tables/domain": "workspace:*",
+    "effect": "^3.21.4",
+    "mongodb": "^7.5.0"
+  },
+  "devDependencies": {
+    "@testcontainers/mongodb": "^12.0.4",
+    "tsx": "^4.23.0"
+  }
+}

@@ -339,15 +339,15 @@ The first release needs equal groups, array, and one known-fact bridge. Other re
 
 The primary home CTA always chooses the standard session. Additional modes unlock gradually and live on a secondary sheet.
 
-| Mode | Exact behavior | Learning purpose | Release |
-|---|---|---|---|
-| `tiny win` | 10 mixed questions or about 90 seconds | Default spaced retrieval | MVP |
-| `five quick` | Exactly 5 questions | Very low-energy days and habit continuity | Beta |
-| `table focus` | 8 questions from one selected table plus 2 mixed reviews | Initial acquisition or learner choice | MVP |
-| `garden rescue` | 5 current weakest/due facts with confidence spacing | Targeted repair | Beta |
-| `keypad bloom` | 8 familiar/fluent facts, keypad only | Recall fluency | Beta |
-| `calm practice` | No streak display, no sound, reduced motion, unlimited pause | Anxiety/accessibility | MVP setting |
-| `bonus bouquet` | 11 and 12 tables after core competency | Expansion without diluting 1–10 | Phase 5 |
+| Mode            | Exact behavior                                               | Learning purpose                          | Release     |
+| --------------- | ------------------------------------------------------------ | ----------------------------------------- | ----------- |
+| `tiny win`      | 10 mixed questions or about 90 seconds                       | Default spaced retrieval                  | MVP         |
+| `five quick`    | Exactly 5 questions                                          | Very low-energy days and habit continuity | Beta        |
+| `table focus`   | 8 questions from one selected table plus 2 mixed reviews     | Initial acquisition or learner choice     | MVP         |
+| `garden rescue` | 5 current weakest/due facts with confidence spacing          | Targeted repair                           | Beta        |
+| `keypad bloom`  | 8 familiar/fluent facts, keypad only                         | Recall fluency                            | Beta        |
+| `calm practice` | No streak display, no sound, reduced motion, unlimited pause | Anxiety/accessibility                     | MVP setting |
+| `bonus bouquet` | 11 and 12 tables after core competency                       | Expansion without diluting 1–10           | Phase 5     |
 
 Modes are not separate mastery systems. Every answer enters the same event stream and mastery model.
 
@@ -625,24 +625,24 @@ A feature with no learning or return benefit does not ship. A feature that score
 
 All dependencies should use the latest stable release at project initialization and then be locked in `pnpm-lock.yaml`. Avoid floating versions in CI.
 
-| Concern | Choice | Reason |
-|---|---|---|
-| Monorepo | pnpm workspaces | Small, fast, and sufficient without adding a build orchestrator initially. |
-| Web | React + TypeScript + Vite | Mature PWA toolchain, simple static output, excellent mobile iteration. |
-| Routing | TanStack Router | Typed routes without requiring a server-rendering framework. |
-| Remote state | TanStack Query | Fetching, cache invalidation, reconnect behavior, and sync status. |
-| Durable local state | IndexedDB via Dexie | Sessions and the outbox survive reloads and offline use. |
-| Styling | Tailwind CSS | Fast implementation of the approved visual system through semantic design tokens. |
-| UI motion | Motion | Buttons, counters, transitions, and reduced-motion-aware micro-interactions. |
-| Character motion | dotLottie web runtime | Compact, scalable, inspectable animation assets. |
-| PWA | `vite-plugin-pwa` + Workbox | Manifest, precaching, update flow, and explicit runtime caching. |
-| Backend runtime | Node.js LTS | Best-supported target for Effect, MongoDB, tests, and deployment. |
-| Backend | Effect + `@effect/platform` | Typed errors, schemas, dependency layers, structured concurrency, and HTTP contracts. |
-| Database | MongoDB Atlas | Fits append-only attempt events and evolving mastery/reward documents. |
-| Validation | Effect Schema | One source of truth for domain, storage, and transport validation. |
-| Unit/integration tests | Vitest + fast-check + Testcontainers | Examples, property invariants, and real MongoDB behavior. |
-| Browser tests | Playwright | Offline, service-worker, installability, and end-to-end flow tests. |
-| Deployment | One Docker image on Railway initially | Same-origin web and API, simple cookies, one deployable, low operational overhead. |
+| Concern                | Choice                                | Reason                                                                                |
+| ---------------------- | ------------------------------------- | ------------------------------------------------------------------------------------- |
+| Monorepo               | pnpm workspaces                       | Small, fast, and sufficient without adding a build orchestrator initially.            |
+| Web                    | React + TypeScript + Vite             | Mature PWA toolchain, simple static output, excellent mobile iteration.               |
+| Routing                | TanStack Router                       | Typed routes without requiring a server-rendering framework.                          |
+| Remote state           | TanStack Query                        | Fetching, cache invalidation, reconnect behavior, and sync status.                    |
+| Durable local state    | IndexedDB via Dexie                   | Sessions and the outbox survive reloads and offline use.                              |
+| Styling                | Tailwind CSS                          | Fast implementation of the approved visual system through semantic design tokens.     |
+| UI motion              | Motion                                | Buttons, counters, transitions, and reduced-motion-aware micro-interactions.          |
+| Character motion       | dotLottie web runtime                 | Compact, scalable, inspectable animation assets.                                      |
+| PWA                    | `vite-plugin-pwa` + Workbox           | Manifest, precaching, update flow, and explicit runtime caching.                      |
+| Backend runtime        | Node.js LTS                           | Best-supported target for Effect, MongoDB, tests, and deployment.                     |
+| Backend                | Effect + `@effect/platform`           | Typed errors, schemas, dependency layers, structured concurrency, and HTTP contracts. |
+| Database               | MongoDB Atlas                         | Fits append-only attempt events and evolving mastery/reward documents.                |
+| Validation             | Effect Schema                         | One source of truth for domain, storage, and transport validation.                    |
+| Unit/integration tests | Vitest + fast-check + Testcontainers  | Examples, property invariants, and real MongoDB behavior.                             |
+| Browser tests          | Playwright                            | Offline, service-worker, installability, and end-to-end flow tests.                   |
+| Deployment             | One Docker image on Railway initially | Same-origin web and API, simple cookies, one deployable, low operational overhead.    |
 
 ### Why not make TanStack Query the offline database?
 
@@ -840,18 +840,18 @@ Do not put all writes into a multi-document transaction by default. Idempotent e
 
 All request and response bodies use Effect Schema and tagged error responses.
 
-| Method | Path | Purpose |
-|---|---|---|
-| `POST` | `/api/v1/invites/claim` | Exchange the one-time invite for a secure session. |
-| `POST` | `/api/v1/session/refresh` | Rotate an expiring session. |
-| `POST` | `/api/v1/session/logout` | Revoke the current session. |
-| `GET` | `/api/v1/bootstrap` | Profile, canonical snapshot, rewards, settings, and version config. |
-| `POST` | `/api/v1/attempts/sync` | Idempotently accept an ordered batch and return acknowledgements plus canonical progress. |
-| `PATCH` | `/api/v1/settings` | Update learner preferences. |
-| `POST` | `/api/v1/push-subscriptions` | Add an opted-in subscription in the later reminder phase. |
-| `DELETE` | `/api/v1/push-subscriptions/:id` | Revoke a subscription. |
-| `GET` | `/health/live` | Process liveness. |
-| `GET` | `/health/ready` | Database and required configuration readiness. |
+| Method   | Path                             | Purpose                                                                                   |
+| -------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
+| `POST`   | `/api/v1/invites/claim`          | Exchange the one-time invite for a secure session.                                        |
+| `POST`   | `/api/v1/session/refresh`        | Rotate an expiring session.                                                               |
+| `POST`   | `/api/v1/session/logout`         | Revoke the current session.                                                               |
+| `GET`    | `/api/v1/bootstrap`              | Profile, canonical snapshot, rewards, settings, and version config.                       |
+| `POST`   | `/api/v1/attempts/sync`          | Idempotently accept an ordered batch and return acknowledgements plus canonical progress. |
+| `PATCH`  | `/api/v1/settings`               | Update learner preferences.                                                               |
+| `POST`   | `/api/v1/push-subscriptions`     | Add an opted-in subscription in the later reminder phase.                                 |
+| `DELETE` | `/api/v1/push-subscriptions/:id` | Revoke a subscription.                                                                    |
+| `GET`    | `/health/live`                   | Process liveness.                                                                         |
+| `GET`    | `/health/ready`                  | Database and required configuration readiness.                                            |
 
 The sync response includes accepted, duplicate, and rejected event IDs separately. One malformed event does not make the client retry an otherwise accepted batch forever.
 
@@ -1025,15 +1025,15 @@ The LottieFiles MCP can create and edit layers, paths, strokes, masks, transform
 
 Keep the first set small and reusable:
 
-| Animation | Trigger | Duration | Loop |
-|---|---|---:|---|
-| `idle-breathe` | Home and question peek | 2.4–3.2s | Yes, subtle |
-| `tulip-offer` | Home entrance | 700ms | No |
-| `peek` | New question | 450ms | No |
-| `happy-hop` | Correct streak milestone | 650–850ms | No |
-| `gentle-encourage` | Mistake | 500ms | No |
-| `water-flower` | Garden reward | 1.2–1.6s | No |
-| `new-bloom` | Unlock | 700–900ms | No |
+| Animation          | Trigger                  |  Duration | Loop        |
+| ------------------ | ------------------------ | --------: | ----------- |
+| `idle-breathe`     | Home and question peek   |  2.4–3.2s | Yes, subtle |
+| `tulip-offer`      | Home entrance            |     700ms | No          |
+| `peek`             | New question             |     450ms | No          |
+| `happy-hop`        | Correct streak milestone | 650–850ms | No          |
+| `gentle-encourage` | Mistake                  |     500ms | No          |
+| `water-flower`     | Garden reward            |  1.2–1.6s | No          |
+| `new-bloom`        | Unlock                   | 700–900ms | No          |
 
 Most correct answers should use lightweight CSS motion plus a small character reaction; playing the largest celebration ten times per session would become slow and irritating.
 
@@ -1302,20 +1302,20 @@ Do not build this abstraction during the multiplication MVP. One adapter is a hy
 
 ## 18. Risks and mitigations
 
-| Risk | Mitigation |
-|---|---|
-| Cute app, weak learning value | Track latency and spaced recall, not taps; keep LearningEngine deterministic and tested. |
-| Novelty wears off | Short sessions, meaningful progression, content variation, and observation of voluntary return. |
-| iOS suspends the app mid-write | Commit each answer atomically to IndexedDB before advancing. |
-| TanStack cache is mistaken for durable storage | IndexedDB is explicitly the local source of truth; Query coordinates remote state only. |
-| Duplicate or reordered sync | Immutable client event IDs, sequence constraints, idempotent ingestion, rebuildable projection. |
-| Effect HTTP modules change | Pin dependencies and isolate platform imports inside the HTTP adapter. |
-| Generated character inconsistency | Approved reference sheet, edit-based workflow, dated model snapshot, human review, contact-sheet regression. |
-| Messy SVG/Lottie output | Start from cleaned named layers; use MCP for animation rather than source-art invention. |
-| Animation bundle becomes heavy | Small inventory, dotLottie compression, lazy load non-core garden scenes, static fallbacks. |
-| Miffy licensing blocks public launch | Treat exact art as private-prototype-only and decide license versus original mascot before public distribution. |
-| Notifications become manipulative | Delay them, cap frequency, use opt-in controls, stop after ignored reminders, never threaten progress. |
-| One-user assumptions leak into architecture | Use profile IDs and idempotent events now, but avoid multi-tenant administration until needed. |
+| Risk                                           | Mitigation                                                                                                      |
+| ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
+| Cute app, weak learning value                  | Track latency and spaced recall, not taps; keep LearningEngine deterministic and tested.                        |
+| Novelty wears off                              | Short sessions, meaningful progression, content variation, and observation of voluntary return.                 |
+| iOS suspends the app mid-write                 | Commit each answer atomically to IndexedDB before advancing.                                                    |
+| TanStack cache is mistaken for durable storage | IndexedDB is explicitly the local source of truth; Query coordinates remote state only.                         |
+| Duplicate or reordered sync                    | Immutable client event IDs, sequence constraints, idempotent ingestion, rebuildable projection.                 |
+| Effect HTTP modules change                     | Pin dependencies and isolate platform imports inside the HTTP adapter.                                          |
+| Generated character inconsistency              | Approved reference sheet, edit-based workflow, dated model snapshot, human review, contact-sheet regression.    |
+| Messy SVG/Lottie output                        | Start from cleaned named layers; use MCP for animation rather than source-art invention.                        |
+| Animation bundle becomes heavy                 | Small inventory, dotLottie compression, lazy load non-core garden scenes, static fallbacks.                     |
+| Miffy licensing blocks public launch           | Treat exact art as private-prototype-only and decide license versus original mascot before public distribution. |
+| Notifications become manipulative              | Delay them, cap frequency, use opt-in controls, stop after ignored reminders, never threaten progress.          |
+| One-user assumptions leak into architecture    | Use profile IDs and idempotent events now, but avoid multi-tenant administration until needed.                  |
 
 ## 19. Definition of done for MVP
 
