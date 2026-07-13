@@ -1,5 +1,9 @@
 type RandomSource = () => number
 
+export function positionGardenCaretakerY(waterY: number, caretakerSize: number): number {
+  return Math.max(8, waterY - caretakerSize * 0.93)
+}
+
 export function pickNextGardenTarget(
   currentIndex: number,
   targetCount: number,
