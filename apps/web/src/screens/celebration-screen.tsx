@@ -3,7 +3,8 @@ import { useNavigate } from '@tanstack/react-router'
 import { motion, useReducedMotion } from 'motion/react'
 import { useEffect } from 'react'
 
-import { Bunny } from '../components/bunny.js'
+import { CelebrationSprite } from '../components/celebration-sprite.js'
+import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
 import { gardenPlantVisuals } from '../components/garden-plant-catalog.js'
 import { GardenRewardFlower } from '../components/garden-plant-renderers.js'
 import { Screen } from '../components/screen.js'
@@ -41,17 +42,18 @@ export function CelebrationScreen() {
   return (
     <Screen footer={false}>
       <section className="celebration-screen">
+        {reduceMotion ? null : <CorrectAnswerConfetti variant="flowers" />}
         <div className="confetti" aria-hidden="true">
-          <i>●</i>
           <i>✿</i>
-          <i>♡</i>
-          <i>●</i>
+          <i>❀</i>
+          <i>✾</i>
+          <i>❁</i>
         </div>
         <header className="celebration-copy">
           <h1>{heading}</h1>
           <p>{perfectSession ? 'perfect little streak' : 'tiny win complete'}</p>
         </header>
-        <Bunny className="celebration-bunny" scene="celebration" />
+        <CelebrationSprite />
         <div className="reward-summary">
           <motion.div
             className="reward-chip"

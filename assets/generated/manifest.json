@@ -63,6 +63,20 @@
       "source": "assets/generated/miffy-garden-walking-sprite-source.png",
       "sourceSha256": "50ab1322c747872f933483c22d12ed3c3f966b6c216e8d6225fe9d0d2b9bc953",
       "status": "approved"
+    },
+    {
+      "generatedAt": "2026-07-13",
+      "id": "little-tables-app-icon",
+      "kind": "app-icon",
+      "model": "gpt-image-2 (Codex built-in; snapshot not exposed)",
+      "notes": "User-approved Miffy icon holding a red tulip and a learning token marked 6; PNG-only icon family with padded maskable variants.",
+      "output": "apps/web/public/icons/icon-512.png",
+      "promptFile": "assets/prompts/little-tables-app-icon.md",
+      "references": [],
+      "sha256": "a54178cc61655143198ffbe56da52cb481ab72a4e8e2d51697263d2fb13ea3ec",
+      "source": "assets/generated/little-tables-app-icon-master.png",
+      "sourceSha256": "e44973ab9d2b2cdcbc3437f785e6d920e5fc868076dd6652baa0895ced8d4d1b",
+      "status": "approved"
     }
   ],
   "version": 1

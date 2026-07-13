@@ -11,6 +11,7 @@
     "typecheck": "tsc -b"
   },
   "dependencies": {
+    "@fontsource-variable/fredoka": "^5.2.10",
     "@little-tables/domain": "workspace:*",
     "@little-tables/local-store": "workspace:*",
     "@tanstack/react-query": "^5.101.2",

@@ -19,6 +19,11 @@ export const gardenWalkingSprite: CharacterAsset = {
   src: '/generated/miffy-garden-walking-sprite.png',
 }
 
+export const celebrationSprite = {
+  alt: 'Miffy making a small joyful hop',
+  src: '/generated/miffy-celebration-sprite-simple.png',
+} as const
+
 export const characterAssets: Readonly<Record<CharacterScene, CharacterAsset>> = {
   celebration: {
     alt: 'Miffy making a joyful little jump',

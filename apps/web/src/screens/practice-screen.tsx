@@ -6,6 +6,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { PracticeBunny } from '../components/practice-bunny.js'
 import { ProgressDots } from '../components/progress-dots.js'
+import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
@@ -172,6 +173,8 @@ export function PracticeScreen() {
             {feedback === null ? <PracticeBunny reaction="idle" /> : null}
           </motion.div>
         </AnimatePresence>
+
+        {feedback?.correct ? <CorrectAnswerConfetti key={feedback.question.id} /> : null}
 
         {feedback === null ? null : (
           <div
