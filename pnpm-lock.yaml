@@ -145,6 +145,9 @@ importers:
       dexie:
         specifier: ^4.4.4
         version: 4.4.4
+      effect:
+        specifier: ^3.21.4
+        version: 3.21.4
     devDependencies:
       fake-indexeddb:
         specifier: ^6.2.5

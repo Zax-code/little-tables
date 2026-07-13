@@ -26,7 +26,10 @@ export function HomeScreen() {
   const [showModes, setShowModes] = useState(false)
   const [sound, setSound] = useState(soundEnabled)
   const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
-  const rewards = data === undefined ? [] : LearningEngine.deriveRewards(data)
+  const garden = LearningEngine.deriveGardenProgress({
+    completedSessions: data?.completedSessions ?? 0,
+    snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
+  })
   const today = new Date()
   const recentDayKeys = new Set(
     Array.from({ length: 7 }, (_, offset) => {
@@ -135,7 +138,9 @@ export function HomeScreen() {
         <div className="today-card">
           <div className="card-heading">
             <strong>today</strong>
-            <span>{rewards.length} blooms</span>
+            <span>
+              {garden.bloomCount} {garden.bloomCount === 1 ? 'bloom' : 'blooms'}
+            </span>
           </div>
           <div
             className="petal-row"

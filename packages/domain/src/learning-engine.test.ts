@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { type AttemptEvent, LearningEngine } from './learning-engine.js'
+import { type AttemptEvent, type FactMastery, LearningEngine } from './learning-engine.js'
 
 describe('LearningEngine', () => {
   it('creates a ten-question beginner session with valid answer choices', () => {
@@ -216,6 +216,167 @@ describe('LearningEngine', () => {
       'session:five-pink-pot',
     ])
     expect(new Set(rewards.map((reward) => reward.id)).size).toBe(rewards.length)
+  })
+
+  it.each([
+    [0, []],
+    [1, ['session:first-bloom']],
+    [3, ['session:first-bloom', 'session:three-daisy']],
+    [5, ['session:first-bloom', 'session:three-daisy', 'session:five-pink-pot']],
+    [12, ['session:first-bloom', 'session:three-daisy', 'session:five-pink-pot']],
+  ] as const)(
+    'derives garden progress after %i completed sessions',
+    (completedSessions, rewardIds) => {
+      const progress = LearningEngine.deriveGardenProgress({
+        completedSessions,
+        snapshot: LearningEngine.emptySnapshot(),
+      })
+
+      expect(progress.bloomCount).toBe(completedSessions)
+      expect(progress.rewards.map((reward) => reward.id)).toEqual(rewardIds)
+    },
+  )
+
+  it('derives the catalog-driven plant growth stages and featured reward', () => {
+    const stagesAt = (completedSessions: number) =>
+      LearningEngine.deriveGardenProgress({
+        completedSessions,
+        snapshot: LearningEngine.emptySnapshot(),
+      })
+
+    expect(stagesAt(0).plants.map(({ stage }) => stage)).toEqual([
+      'dormant',
+      'dormant',
+      'dormant',
+      'dormant',
+      'dormant',
+      'locked',
+    ])
+    expect(stagesAt(1).featuredPlant?.name).toBe('coral tulip')
+    expect(stagesAt(2).plants[0]?.stage).toBe('mature')
+    expect(stagesAt(12).plants.map(({ stage }) => stage)).toEqual([
+      'mature',
+      'mature',
+      'mature',
+      'mature',
+      'mature',
+      'locked',
+    ])
+    expect(stagesAt(12).featuredPlant?.name).toBe('blush tulip')
+    expect(stagesAt(13).plants[5]?.stage).toBe('growing')
+    expect(stagesAt(15).plants[5]?.stage).toBe('mature')
+  })
+
+  it.each([
+    [0, 'coral-tulip', 1, 1, 'growing', false],
+    [1, 'coral-tulip', 2, 1, 'mature', false],
+    [12, 'celebration-daisy', 13, 1, 'growing', true],
+    [13, 'celebration-daisy', 15, 2, 'mature', false],
+  ] as const)(
+    'derives the next garden milestone after %i blooms',
+    (completedSessions, plantId, targetAt, bloomsRemaining, targetStage, unlocksPot) => {
+      const progress = LearningEngine.deriveGardenProgress({
+        completedSessions,
+        snapshot: LearningEngine.emptySnapshot(),
+      })
+
+      expect(progress.nextStep).toMatchObject({
+        bloomsRemaining,
+        plant: { id: plantId },
+        targetAt,
+        targetStage,
+        unlocksPot,
+      })
+    },
+  )
+
+  it.each([15, 16, 100])('has no next garden milestone after %i blooms', (completedSessions) => {
+    const progress = LearningEngine.deriveGardenProgress({
+      completedSessions,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+
+    expect(progress.nextStep).toBeNull()
+  })
+
+  it.each([
+    [-4, 0],
+    [2.9, 2],
+    [Number.NaN, 0],
+    [Number.POSITIVE_INFINITY, 0],
+  ])('normalizes a completed session count of %s to %i blooms', (completedSessions, bloomCount) => {
+    const progress = LearningEngine.deriveGardenProgress({
+      completedSessions,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+
+    expect(progress.bloomCount).toBe(bloomCount)
+    expect(progress.bloomCount).toBeGreaterThanOrEqual(0)
+    expect(Number.isInteger(progress.bloomCount)).toBe(true)
+  })
+
+  it('keeps bloom count independent of pot and sparkle rewards', () => {
+    const fluentFact: FactMastery = {
+      correctCount: 5,
+      correctStreak: 5,
+      difficulty: 0.3,
+      dueAt: null,
+      lapseCount: 0,
+      lastReviewedAt: null,
+      latencyMs: 1_200,
+      recallDayKeys: ['2026-07-11', '2026-07-12'],
+      stabilityDays: 5,
+      state: 'fluent',
+      successfulDayKeys: ['2026-07-10', '2026-07-11', '2026-07-12'],
+    }
+    const snapshot = {
+      ...LearningEngine.emptySnapshot(),
+      facts: Object.fromEntries(
+        Array.from({ length: 10 }, (_, index) => [`fact-${index}`, fluentFact]),
+      ),
+    }
+
+    const baseline = LearningEngine.deriveGardenProgress({
+      completedSessions: 5,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const withMasteryReward = LearningEngine.deriveGardenProgress({
+      completedSessions: 5,
+      snapshot,
+    })
+
+    expect(baseline.bloomCount).toBe(5)
+    expect(withMasteryReward.bloomCount).toBe(baseline.bloomCount)
+    expect(
+      baseline.rewards.filter((reward) => reward.kind !== 'flower').map(({ kind }) => kind),
+    ).toEqual(['pot'])
+    expect(
+      withMasteryReward.rewards
+        .filter((reward) => reward.kind !== 'flower')
+        .map(({ kind }) => kind),
+    ).toEqual(['pot', 'sparkle'])
+  })
+
+  it('keeps garden rewards deterministic, unique, and monotonic as blooms increase', () => {
+    const snapshot = LearningEngine.emptySnapshot()
+    const rewardIdsByMilestone = [0, 1, 3, 5, 12].map((completedSessions) => {
+      const input = { completedSessions, snapshot }
+      const first = LearningEngine.deriveGardenProgress(input)
+      const repeated = LearningEngine.deriveGardenProgress(input)
+      const rewardIds = first.rewards.map((reward) => reward.id)
+
+      expect(repeated).toEqual(first)
+      expect(first.rewards).toEqual(LearningEngine.deriveRewards(input))
+      expect(new Set(rewardIds).size).toBe(rewardIds.length)
+
+      return rewardIds
+    })
+
+    for (let index = 1; index < rewardIdsByMilestone.length; index += 1) {
+      const previousRewardIds = rewardIdsByMilestone[index - 1] ?? []
+      const rewardIds = rewardIdsByMilestone[index] ?? []
+      expect(rewardIds.slice(0, previousRewardIds.length)).toEqual(previousRewardIds)
+    }
   })
 
   it('requeues a missed fact after intervening questions without lengthening the session', () => {

@@ -14,7 +14,9 @@ export function Screen({ children, footer = true, header }: ScreenProps) {
   return (
     <div className="app-shell">
       {header}
-      <main className="screen-content">{children}</main>
+      <main className={footer ? 'screen-content' : 'screen-content screen-content-full'}>
+        {children}
+      </main>
       {footer ? <BottomNav /> : null}
       <PwaManager />
     </div>

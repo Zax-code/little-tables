@@ -2,16 +2,20 @@ import { LearningEngine, type PracticeQuestion } from '@little-tables/domain'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence, motion } from 'motion/react'
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { Bunny } from '../components/bunny.js'
+import { PracticeBunny } from '../components/practice-bunny.js'
 import { ProgressDots } from '../components/progress-dots.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 import { playSuccessSound } from '../sound.js'
 
-type Feedback = Readonly<{ correct: boolean; selected: number }>
+type Feedback = Readonly<{
+  correct: boolean
+  question: PracticeQuestion
+  selected: number
+}>
 
 export function PracticeScreen() {
   const bootstrap = useLocalBootstrap()
@@ -21,15 +25,54 @@ export function PracticeScreen() {
   const [keypadValue, setKeypadValue] = useState('')
   const [showExplanation, setShowExplanation] = useState(false)
   const answering = useRef(false)
+  const finishing = useRef(false)
   const data = bootstrap.data
   const session = data?.activeSession ?? null
   const question = session?.questions[session.currentIndex]
+  const displayedQuestion = feedback?.question ?? question
+
+  const finishSession = useCallback(async () => {
+    if (finishing.current) return
+    finishing.current = true
+    const latest = await practiceStore.load()
+    const activeSession = latest.activeSession
+    if (activeSession === null) {
+      finishing.current = false
+      return
+    }
+    const completion = await practiceStore.completeSession({
+      completedAt: new Date(),
+      sessionId: activeSession.id,
+      snapshot: latest.snapshot,
+    })
+    if (completion === null) {
+      finishing.current = false
+      return
+    }
+    await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
+    await navigate({ to: '/celebration' })
+  }, [navigate, queryClient])
 
   useEffect(() => {
-    if (!bootstrap.isLoading && session === null) void navigate({ to: '/' })
+    if (!bootstrap.isLoading && session === null && !finishing.current) {
+      void navigate({ to: '/' })
+    }
   }, [bootstrap.isLoading, navigate, session])
 
-  if (session === null || question === undefined || data === undefined) {
+  useEffect(() => {
+    if (
+      !bootstrap.isLoading &&
+      feedback === null &&
+      !answering.current &&
+      session !== null &&
+      question === undefined &&
+      session.currentIndex >= session.questions.length
+    ) {
+      void finishSession()
+    }
+  }, [bootstrap.isLoading, feedback, finishSession, question, session])
+
+  if (session === null || displayedQuestion === undefined || data === undefined) {
     return (
       <Screen footer={false}>
         <div className="loading-state">growing your questions…</div>
@@ -59,16 +102,14 @@ export function PracticeScreen() {
       activeSession: session,
       snapshot,
     })
-    setFeedback({ correct: result.correct, selected })
+    setFeedback({ correct: result.correct, question: displayedQuestion, selected })
   }
 
   const next = async () => {
     const latest = await practiceStore.load()
     if (latest.activeSession === null) return
     if (latest.activeSession.currentIndex >= latest.activeSession.questions.length) {
-      await practiceStore.completeSession(latest.snapshot)
-      await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
-      await navigate({ to: '/celebration' })
+      await finishSession()
       return
     }
     const activeSession = {
@@ -103,47 +144,54 @@ export function PracticeScreen() {
 
         <AnimatePresence mode="wait">
           <motion.div
-            key={question.id}
+            key={displayedQuestion.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             className="question-stage"
           >
             <p className="sr-only">
-              {question.left} times {question.right}
+              {displayedQuestion.left} times {displayedQuestion.right}
             </p>
             <div aria-hidden="true" className="equation">
-              {question.left} × {question.right}
+              {displayedQuestion.left} × {displayedQuestion.right}
             </div>
 
-            {question.answerMode === 'choice' ? (
-              <ChoiceGrid feedback={feedback} onChoose={choose} question={question} />
+            {displayedQuestion.answerMode === 'choice' ? (
+              <ChoiceGrid feedback={feedback} onChoose={choose} question={displayedQuestion} />
             ) : (
               <Keypad
                 feedback={feedback}
                 onChoose={choose}
-                question={question}
+                question={displayedQuestion}
                 setValue={setKeypadValue}
                 value={keypadValue}
               />
             )}
 
-            <Bunny className="practice-bunny" scene="practice" />
+            {feedback === null ? <PracticeBunny reaction="idle" /> : null}
           </motion.div>
         </AnimatePresence>
 
         {feedback === null ? null : (
-          <div className="feedback-tray" role="status">
+          <div
+            className={`feedback-tray feedback-${feedback.correct ? 'correct' : 'encourage'}`}
+            role="status"
+          >
+            <PracticeBunny
+              className="feedback-bunny"
+              reaction={feedback.correct ? 'correct' : 'encourage'}
+            />
             <div>
               <strong>
                 {feedback.correct
-                  ? `yes! ${question.left * question.right} ♡`
-                  : `almost — it’s ${question.left * question.right}`}
+                  ? `yes! ${displayedQuestion.left * displayedQuestion.right} ♡`
+                  : `almost — it’s ${displayedQuestion.left * displayedQuestion.right}`}
               </strong>
               <span>
                 {feedback.correct
                   ? 'perfect little practice'
-                  : `${question.left} × ${question.right} = ${question.left * question.right}`}
+                  : `${displayedQuestion.left} × ${displayedQuestion.right} = ${displayedQuestion.left * displayedQuestion.right}`}
               </span>
             </div>
             {!feedback.correct && !showExplanation ? (
@@ -151,7 +199,9 @@ export function PracticeScreen() {
                 show me
               </button>
             ) : null}
-            {!feedback.correct && showExplanation ? <FactArray question={question} /> : null}
+            {!feedback.correct && showExplanation ? (
+              <FactArray question={displayedQuestion} />
+            ) : null}
             <button className="next-button" onClick={() => void next()}>
               next
             </button>

@@ -85,6 +85,88 @@ export type GardenReward = Readonly<{
   label: string
 }>
 
+export type GardenPlantStage = 'dormant' | 'growing' | 'locked' | 'mature'
+
+type GardenPlantMilestone = Readonly<{
+  id: string
+  lockedUntilStart: boolean
+  matureAt: number
+  name: string
+  startAt: number
+}>
+
+export const gardenPlantMilestones = [
+  {
+    id: 'coral-tulip',
+    lockedUntilStart: false,
+    matureAt: 2,
+    name: 'coral tulip',
+    startAt: 1,
+  },
+  {
+    id: 'sunny-daisy',
+    lockedUntilStart: false,
+    matureAt: 4,
+    name: 'sunny daisy',
+    startAt: 3,
+  },
+  {
+    id: 'red-tulip',
+    lockedUntilStart: false,
+    matureAt: 7,
+    name: 'red tulip',
+    startAt: 5,
+  },
+  {
+    id: 'cloud-daisy',
+    lockedUntilStart: false,
+    matureAt: 10,
+    name: 'cloud daisy',
+    startAt: 8,
+  },
+  {
+    id: 'blush-tulip',
+    lockedUntilStart: false,
+    matureAt: 12,
+    name: 'blush tulip',
+    startAt: 11,
+  },
+  {
+    id: 'celebration-daisy',
+    lockedUntilStart: true,
+    matureAt: 15,
+    name: 'celebration daisy',
+    startAt: 13,
+  },
+] as const satisfies ReadonlyArray<GardenPlantMilestone>
+
+export type GardenPlantId = (typeof gardenPlantMilestones)[number]['id']
+
+export type GardenPlantProgress = Readonly<{
+  id: GardenPlantId
+  lockedUntilStart: boolean
+  matureAt: number
+  name: string
+  stage: GardenPlantStage
+  startAt: number
+}>
+
+export type GardenNextStep = Readonly<{
+  bloomsRemaining: number
+  plant: GardenPlantProgress
+  targetAt: number
+  targetStage: 'growing' | 'mature'
+  unlocksPot: boolean
+}>
+
+export type GardenProgress = Readonly<{
+  bloomCount: number
+  featuredPlant: GardenPlantProgress | null
+  nextStep: GardenNextStep | null
+  plants: ReadonlyArray<GardenPlantProgress>
+  rewards: ReadonlyArray<GardenReward>
+}>
+
 type DeriveRewardsInput = Readonly<{
   completedSessions: number
   snapshot: LearningSnapshot
@@ -395,9 +477,67 @@ const deriveRewards = ({
   return rewards
 }
 
+const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
+  const bloomCount = Number.isFinite(input.completedSessions)
+    ? Math.max(0, Math.floor(input.completedSessions))
+    : 0
+
+  const plants: ReadonlyArray<GardenPlantProgress> = gardenPlantMilestones.map((plant) => ({
+    ...plant,
+    stage:
+      bloomCount < plant.startAt
+        ? plant.lockedUntilStart
+          ? 'locked'
+          : 'dormant'
+        : bloomCount < plant.matureAt
+          ? 'growing'
+          : 'mature',
+  }))
+  const nextMilestone = gardenPlantMilestones
+    .flatMap((plant) => [
+      {
+        plantId: plant.id,
+        targetAt: plant.startAt,
+        targetStage: 'growing' as const,
+        unlocksPot: plant.lockedUntilStart,
+      },
+      {
+        plantId: plant.id,
+        targetAt: plant.matureAt,
+        targetStage: 'mature' as const,
+        unlocksPot: false,
+      },
+    ])
+    .filter(({ targetAt }) => targetAt > bloomCount)
+    .sort((left, right) => left.targetAt - right.targetAt)[0]
+  const nextPlant = nextMilestone
+    ? (plants.find(({ id }) => id === nextMilestone.plantId) ?? null)
+    : null
+
+  return {
+    bloomCount,
+    featuredPlant:
+      plants.find(({ matureAt, startAt }) => bloomCount >= startAt && bloomCount <= matureAt) ??
+      null,
+    nextStep:
+      nextMilestone && nextPlant
+        ? {
+            bloomsRemaining: nextMilestone.targetAt - bloomCount,
+            plant: nextPlant,
+            targetAt: nextMilestone.targetAt,
+            targetStage: nextMilestone.targetStage,
+            unlocksPot: nextMilestone.unlocksPot,
+          }
+        : null,
+    plants,
+    rewards: deriveRewards({ ...input, completedSessions: bloomCount }),
+  }
+}
+
 export const LearningEngine = {
   answer,
   createSession,
+  deriveGardenProgress,
   deriveRewards,
   emptySnapshot,
   reduce,

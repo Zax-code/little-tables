@@ -1,0 +1,35 @@
+{
+  "assets": [
+    {
+      "generatedAt": "2026-07-13",
+      "id": "miffy-practice-correct",
+      "kind": "character-reaction",
+      "model": "gpt-image-2 (Codex built-in; snapshot not exposed)",
+      "notes": "Correct-answer pop-up pose; chroma-key removed, alpha validated, and transparent bounds cropped.",
+      "output": "apps/web/public/generated/miffy-practice-correct.png",
+      "promptFile": "assets/prompts/miffy-practice-correct.md",
+      "references": [
+        "assets/generated/miffy-character-sheet-alpha.png",
+        "apps/web/public/generated/miffy-practice.png"
+      ],
+      "sha256": "298473806b34aa03349d30f0aee5539ece974c8b8e74ad84237dbb20e6021724",
+      "status": "approved"
+    },
+    {
+      "generatedAt": "2026-07-13",
+      "id": "miffy-practice-encourage",
+      "kind": "character-reaction",
+      "model": "gpt-image-2 (Codex built-in; snapshot not exposed)",
+      "notes": "Gentle correction pop-up pose; chroma-key removed, alpha validated, and transparent bounds cropped.",
+      "output": "apps/web/public/generated/miffy-practice-encourage.png",
+      "promptFile": "assets/prompts/miffy-practice-encourage.md",
+      "references": [
+        "assets/generated/miffy-character-sheet-alpha.png",
+        "apps/web/public/generated/miffy-practice.png"
+      ],
+      "sha256": "16d6cab563b99d9046883b17c6a59c5d5509417c340f0f892248d5d5fc3f97d5",
+      "status": "approved"
+    }
+  ],
+  "version": 1
+}

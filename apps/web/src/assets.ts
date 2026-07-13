@@ -1,4 +1,5 @@
-export type CharacterScene = 'celebration' | 'garden' | 'home' | 'practice'
+export type CharacterScene =
+  'celebration' | 'garden' | 'home' | 'practice' | 'practiceCorrect' | 'practiceEncourage'
 
 type CharacterAsset = Readonly<{
   alt: string
@@ -26,5 +27,15 @@ export const characterAssets: Readonly<Record<CharacterScene, CharacterAsset>> =
     alt: 'Miffy peeking over the bottom of the question',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-practice.png',
+  },
+  practiceCorrect: {
+    alt: 'Miffy popping up with a happy little cheer',
+    source: 'gpt-image-built-in',
+    src: '/generated/miffy-practice-correct.png',
+  },
+  practiceEncourage: {
+    alt: 'Miffy popping up with a calm, thoughtful pose',
+    source: 'gpt-image-built-in',
+    src: '/generated/miffy-practice-encourage.png',
   },
 }

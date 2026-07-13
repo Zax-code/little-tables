@@ -1,42 +1,64 @@
 import { LearningEngine } from '@little-tables/domain'
 
-import { Bunny } from '../components/bunny.js'
+import { GardenPlot } from '../components/garden-plot.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 
 export function GardenScreen() {
   const bootstrap = useLocalBootstrap()
   const data = bootstrap.data
-  const rewards = data === undefined ? [] : LearningEngine.deriveRewards(data)
+  const previewValue = import.meta.env.DEV
+    ? new URLSearchParams(window.location.search).get('blooms')
+    : null
+  const previewNumber = previewValue === null ? Number.NaN : Number(previewValue)
+  const progress = LearningEngine.deriveGardenProgress({
+    completedSessions: Number.isFinite(previewNumber)
+      ? previewNumber
+      : (data?.completedSessions ?? 0),
+    snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
+  })
+  const bloomCount = progress.bloomCount
+  const nextStep = progress.nextStep
+  const nextTitle =
+    nextStep === null
+      ? 'garden in full bloom'
+      : nextStep.unlocksPot
+        ? 'next: unlock a new pot'
+        : nextStep.targetStage === 'mature'
+          ? `next: bloom ${nextStep.plant.name}`
+          : `next: grow ${nextStep.plant.name}`
+  const bloomWord = nextStep?.bloomsRemaining === 1 ? 'bloom' : 'blooms'
+  const nextCopy =
+    nextStep === null
+      ? 'every little plant is blooming'
+      : nextStep.unlocksPot
+        ? `${nextStep.bloomsRemaining} more ${bloomWord} opens the ${nextStep.plant.name} pot`
+        : nextStep.targetStage === 'mature'
+          ? `${nextStep.bloomsRemaining} more ${bloomWord} finishes this flower`
+          : `${nextStep.bloomsRemaining} more ${bloomWord} starts this bud`
 
   return (
     <Screen>
       <section className="garden-screen">
         <header className="garden-heading">
-          <p className="eyebrow">your little garden</p>
-          <h1>{rewards.length} blooms</h1>
-          <p>everything here stays yours.</p>
+          <h1>your little garden</h1>
+          <p className="garden-bloom-count">
+            {bloomCount} {bloomCount === 1 ? 'bloom' : 'blooms'}
+          </p>
         </header>
-        <div className="garden-scene">
-          <Bunny className="garden-bunny" scene="garden" />
-        </div>
-        <div className="garden-reward-list" aria-label="Unlocked garden collection">
-          {rewards.map((reward, index) => (
-            <span key={reward.id}>
-              {index % 2 === 0 ? '🌷' : '🌼'} {reward.label}
+        <div className="garden-ground-region">
+          <GardenPlot progress={progress} />
+          <div className="tomorrow-card">
+            <span aria-hidden="true" className="next-pot-icon">
+              ♧
             </span>
-          ))}
-          {rewards.length === 0 ? <span>one tiny win grows the first tulip</span> : null}
-        </div>
-        <div className="tomorrow-card">
-          <span aria-hidden="true">🌱</span>
-          <div>
-            <strong>next</strong>
-            <p>
-              {data?.completedSessions === 0
-                ? 'finish your first tiny win'
-                : 'another flower is waiting to grow'}
-            </p>
+            <div>
+              <strong>{nextTitle}</strong>
+              <p>{nextCopy}</p>
+            </div>
+            <span aria-hidden="true" className="tomorrow-chevron">
+              ›
+            </span>
           </div>
         </div>
       </section>
