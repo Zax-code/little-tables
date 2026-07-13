@@ -9,11 +9,42 @@
     <meta name="apple-mobile-web-app-title" content="little tables" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
     <link rel="icon" href="/icons/favicon-32.png" sizes="32x32" type="image/png" />
-    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
+    <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" sizes="180x180" />
+    <link
+      data-app-image
+      rel="preload"
+      href="/generated/miffy-home.png"
+      as="image"
+      fetchpriority="high"
+    />
+    <link data-app-image rel="preload" href="/generated/miffy-practice.png" as="image" />
+    <link data-app-image rel="preload" href="/generated/miffy-practice-correct.png" as="image" />
+    <link data-app-image rel="preload" href="/generated/miffy-practice-encourage.png" as="image" />
+    <link data-app-image rel="preload" href="/generated/miffy-celebration.png" as="image" />
+    <link
+      data-app-image
+      rel="preload"
+      href="/generated/miffy-celebration-sprite-simple.png"
+      as="image"
+    />
+    <link
+      data-app-image
+      rel="preload"
+      href="/generated/miffy-garden-walking-sprite.png"
+      as="image"
+    />
+    <link
+      data-app-image
+      rel="preload"
+      href="/generated/miffy-garden-watering-sprite.png"
+      as="image"
+    />
     <title>little tables.</title>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <div class="app-loading" role="status">growing your little garden…</div>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>

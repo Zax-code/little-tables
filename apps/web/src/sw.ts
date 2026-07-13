@@ -65,8 +65,9 @@ self.addEventListener('notificationclick', (event) => {
 registerRoute(
   ({ request, url }) =>
     request.method === 'GET' &&
-    (url.pathname.startsWith('/assets/') || url.pathname.startsWith('/icons/')),
-  new CacheFirst({ cacheName: 'little-tables-visuals-v1' }),
+    url.origin === self.location.origin &&
+    request.destination === 'image',
+  new CacheFirst({ cacheName: 'little-tables-visuals-v2' }),
 )
 
 registerRoute(

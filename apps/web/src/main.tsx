@@ -6,6 +6,7 @@ import { MotionConfig } from 'motion/react'
 
 import { router } from './router.js'
 import { SyncManager } from './components/sync-manager.js'
+import { preloadAppImages } from './preload-images.js'
 import './styles.css'
 
 const queryClient = new QueryClient({
@@ -18,13 +19,15 @@ const queryClient = new QueryClient({
 const root = document.querySelector('#root')
 if (root === null) throw new Error('Missing #root element')
 
-createRoot(root).render(
-  <StrictMode>
-    <QueryClientProvider client={queryClient}>
-      <MotionConfig reducedMotion="user">
-        <SyncManager />
-        <RouterProvider router={router} context={{ queryClient }} />
-      </MotionConfig>
-    </QueryClientProvider>
-  </StrictMode>,
-)
+void preloadAppImages().then(() => {
+  createRoot(root).render(
+    <StrictMode>
+      <QueryClientProvider client={queryClient}>
+        <MotionConfig reducedMotion="user">
+          <SyncManager />
+          <RouterProvider router={router} context={{ queryClient }} />
+        </MotionConfig>
+      </QueryClientProvider>
+    </StrictMode>,
+  )
+})

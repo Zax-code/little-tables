@@ -48,6 +48,7 @@
   --accent-blue: #3e78b2;
   --accent-green: #759b67;
   --shadow-soft: 0 14px 34px rgb(90 50 55 / 10%);
+  --shadow-floating-bar: 0 12px 34px rgb(79 57 47 / 14%);
 }
 
 * {
@@ -103,6 +104,16 @@ a:focus-visible {
   flex-direction: column;
   background: rgb(255 248 237 / 78%);
   border-inline: 1px solid rgb(237 203 210 / 45%);
+}
+
+.app-loading {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--action-primary-deep);
+  font-size: 0.95rem;
+  font-weight: 700;
 }
 
 .screen-content {
@@ -168,16 +179,18 @@ p {
 .bottom-nav {
   position: fixed;
   z-index: 20;
-  bottom: 0;
+  bottom: max(14px, calc(env(safe-area-inset-bottom) + 8px));
   left: 50%;
-  width: min(100%, 480px);
-  min-height: calc(74px + env(safe-area-inset-bottom));
-  padding: 8px 28px env(safe-area-inset-bottom);
+  width: min(calc(100% - 32px), 448px);
+  min-height: 68px;
+  padding: 6px 20px;
   transform: translateX(-50%);
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   background: rgb(255 253 249 / 94%);
-  border-top: 1px solid var(--line-soft);
+  border: 1px solid var(--line-soft);
+  border-radius: 24px;
+  box-shadow: var(--shadow-floating-bar);
   backdrop-filter: blur(16px);
 }
 
@@ -1511,7 +1524,7 @@ p {
   position: fixed;
   z-index: 60;
   left: 50%;
-  bottom: calc(86px + env(safe-area-inset-bottom));
+  bottom: max(98px, calc(92px + env(safe-area-inset-bottom)));
   width: min(calc(100% - 32px), 440px);
   min-height: 60px;
   padding: 9px 10px 9px 16px;
