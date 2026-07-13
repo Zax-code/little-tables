@@ -22,6 +22,11 @@ vi.mock('../hooks/use-local-bootstrap.js', () => ({
   useLocalBootstrap: () => ({ data: undefined, isLoading: false }),
 }))
 
+vi.mock('../store.js', () => ({
+  localBootstrapQueryKey: ['local-bootstrap'],
+  practiceStore: { startSession: vi.fn() },
+}))
+
 import { GardenScreen } from './garden-screen.js'
 
 describe('garden screen', () => {
