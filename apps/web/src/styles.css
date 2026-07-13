@@ -667,6 +667,14 @@ p {
   margin: 16px 0 2px;
   object-fit: contain;
 }
+.reward-summary {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  justify-items: center;
+  gap: 8px;
+  text-align: center;
+}
 .reward-chip {
   position: relative;
   z-index: 2;
@@ -680,6 +688,13 @@ p {
   font-size: 1.08rem;
   font-weight: 700;
   box-shadow: var(--shadow-soft);
+}
+.reward-explanation {
+  max-width: 320px;
+  color: var(--ink-muted);
+  font-size: 0.94rem;
+  font-weight: 600;
+  line-height: 1.35;
 }
 .reward-flower {
   width: 31px;

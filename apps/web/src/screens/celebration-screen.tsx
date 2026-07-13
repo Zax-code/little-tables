@@ -8,6 +8,7 @@ import { gardenPlantVisuals } from '../components/garden-plant-catalog.js'
 import { GardenRewardFlower } from '../components/garden-plant-renderers.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
+import { celebrationRewardCopy } from './celebration-reward-copy.js'
 
 export function CelebrationScreen() {
   const bootstrap = useLocalBootstrap()
@@ -32,8 +33,8 @@ export function CelebrationScreen() {
     snapshot: data.snapshot,
   })
   const featuredPlant = progress.featuredPlant
-  const bloomName = featuredPlant?.name ?? 'bloom'
   const bloomKind = featuredPlant === null ? 'tulip' : gardenPlantVisuals[featuredPlant.id].kind
+  const rewardCopy = celebrationRewardCopy(progress)
   const perfectSession = completion.correctAnswers === completion.totalAnswers
   const heading = completion.finalCorrect ? `yes! ${completion.finalAnswer} ♡` : 'you did it ♡'
 
@@ -51,16 +52,19 @@ export function CelebrationScreen() {
           <p>{perfectSession ? 'perfect little streak' : 'tiny win complete'}</p>
         </header>
         <Bunny className="celebration-bunny" scene="celebration" />
-        <motion.div
-          className="reward-chip"
-          initial={reduceMotion ? false : { scale: 0.8 }}
-          animate={{ scale: 1 }}
-          transition={
-            reduceMotion ? { duration: 0 } : { delay: 0.22, type: 'spring', stiffness: 280 }
-          }
-        >
-          <GardenRewardFlower kind={bloomKind} /> +1 {bloomName}
-        </motion.div>
+        <div className="reward-summary">
+          <motion.div
+            className="reward-chip"
+            initial={reduceMotion ? false : { scale: 0.8 }}
+            animate={{ scale: 1 }}
+            transition={
+              reduceMotion ? { duration: 0 } : { delay: 0.22, type: 'spring', stiffness: 280 }
+            }
+          >
+            <GardenRewardFlower kind={bloomKind} /> +1 garden bloom
+          </motion.div>
+          <p className="reward-explanation">{rewardCopy}</p>
+        </div>
         <div className="celebration-actions">
           <button className="primary-button" onClick={() => void navigate({ to: '/garden' })}>
             next
