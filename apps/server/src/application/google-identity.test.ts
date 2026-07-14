@@ -12,7 +12,7 @@ describe('authorizeGoogleClaims', () => {
           given_name: 'LÉA',
           sub: 'google-account-id',
         },
-        ['boosmlang.a@gmail.com', 'belmudeslea@gmail.com'],
+        ['boomslang.a@gmail.com', 'belmudeslea@gmail.com'],
       ),
     ).toEqual({ displayName: 'léa', profileId: 'lou', subject: 'google-account-id' })
   })
@@ -21,12 +21,12 @@ describe('authorizeGoogleClaims', () => {
     expect(
       authorizeGoogleClaims(
         {
-          email: 'boosmlang.a@gmail.com',
+          email: 'boomslang.a@gmail.com',
           email_verified: true,
           given_name: 'BOO',
           sub: 'second-google-account-id',
         },
-        ['boosmlang.a@gmail.com', 'belmudeslea@gmail.com'],
+        ['boomslang.a@gmail.com', 'belmudeslea@gmail.com'],
       ),
     ).toEqual({ displayName: 'boo', profileId: 'lou', subject: 'second-google-account-id' })
   })
@@ -37,7 +37,7 @@ describe('authorizeGoogleClaims', () => {
     { email: 'lea@example.com', email_verified: true },
   ])('rejects unapproved, unverified, or unidentified accounts', (claims) => {
     expect(
-      authorizeGoogleClaims(claims, ['boosmlang.a@gmail.com', 'belmudeslea@gmail.com']),
+      authorizeGoogleClaims(claims, ['boomslang.a@gmail.com', 'belmudeslea@gmail.com']),
     ).toBeNull()
   })
 })

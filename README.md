@@ -88,7 +88,7 @@ Put the values in the server's environment:
 
 ```sh
 GOOGLE_CLIENT_ID=123456789-example.apps.googleusercontent.com
-GOOGLE_ALLOWED_EMAILS=boosmlang.a@gmail.com,belmudeslea@gmail.com
+GOOGLE_ALLOWED_EMAILS=boomslang.a@gmail.com,belmudeslea@gmail.com
 ```
 
 For production, add those two lines to
@@ -96,6 +96,6 @@ For production, add those two lines to
 merge a deployment PR). For local development, export them in the shell that
 runs `corepack pnpm dev:server`; `.env.example` documents the values but is not a
 secret file to fill in or commit. `GOOGLE_ALLOWED_EMAILS` is a comma-separated
-allowlist; production should contain only `boosmlang.a@gmail.com` and
+allowlist; production should contain only `boomslang.a@gmail.com` and
 `belmudeslea@gmail.com`. The client ID is intentionally returned to the browser;
 never add a Google client secret to the web app.
