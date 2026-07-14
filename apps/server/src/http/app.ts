@@ -142,7 +142,7 @@ const bootstrap = Effect.gen(function* () {
   ]
   return yield* json({
     algorithmVersion: snapshot.algorithmVersion,
-    profile: { displayName: 'lou', id: 'lou' },
+    profile: { displayName: 'léa', id: 'lou' },
     completedSessions,
     practiceDayKeys,
     rewards: LearningEngine.deriveRewards({ completedSessions, snapshot }),
