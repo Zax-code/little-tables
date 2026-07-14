@@ -44,6 +44,8 @@ test "$garden_status" = 302
 test "$bootstrap_status" = 401
 test "$notification_status" = 401
 test "$invite_status" = 404
-curl --fail --silent "http://127.0.0.1:$port/sign-in" >/dev/null
+sign_in_headers=$(curl --fail --silent --dump-header - --output /dev/null "http://127.0.0.1:$port/sign-in")
+sign_in_cache_control=$(printf '%s' "$sign_in_headers" | tr -d '\r' | sed -n 's/^cache-control: //Ip')
+test "$sign_in_cache_control" = no-store
 
 echo "Production image authentication smoke test passed on port $port."
