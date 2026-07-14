@@ -204,6 +204,8 @@ const ALL_FACTS: ReadonlyArray<readonly [number, number]> = [
 const canonicalFactKey = (left: number, right: number): string =>
   `${Math.min(left, right)}:${Math.max(left, right)}`
 
+const WEAK_FACT_DIFFICULTY = 0.53
+
 const makeRandom = (initialSeed: number): (() => number) => {
   let state = initialSeed >>> 0
 
@@ -349,10 +351,18 @@ const reduce = ({ attempts, snapshot }: ReduceAttemptsInput): LearningSnapshot =
 
 const createSession = ({ now, policy, seed, snapshot }: CreateSessionInput): PracticeSession => {
   const random = makeRandom(seed)
+  const todayKey = now.toISOString().slice(0, 10)
   const candidateFacts = ALL_FACTS.map(([left, right], curriculumIndex) => {
     const key = canonicalFactKey(left, right)
     const mastery = snapshot.facts[key]
     const due = mastery?.dueAt !== null && mastery?.dueAt !== undefined && mastery.dueAt <= now
+    const reviewedToday = mastery?.lastReviewedAt?.toISOString().slice(0, 10) === todayKey
+    const weak =
+      mastery !== undefined &&
+      (mastery.correctStreak === 0 ||
+        (mastery.lapseCount > 0 && mastery.correctStreak === 1) ||
+        mastery.difficulty >= WEAK_FACT_DIFFICULTY ||
+        (mastery.latencyMs !== null && mastery.latencyMs > 3_000))
     const stateScore =
       mastery === undefined
         ? Math.max(0, 120 - curriculumIndex)
@@ -365,24 +375,84 @@ const createSession = ({ now, policy, seed, snapshot }: CreateSessionInput): Pra
     const latencyScore = mastery?.latencyMs !== null && (mastery?.latencyMs ?? 0) > 3_000 ? 35 : 0
     const difficultyScore = (mastery?.difficulty ?? 0) * 40
     return {
+      due,
       left,
       mastery,
+      reviewedToday,
       right,
       score: stateScore + dueScore + latencyScore + difficultyScore + random(),
+      weak,
     }
   }).sort((first, second) => second.score - first.score)
+  const selectBalancedFacts = (
+    candidates: ReadonlyArray<(typeof candidateFacts)[number]>,
+    count: number,
+  ): ReadonlyArray<(typeof candidateFacts)[number]> => {
+    const priorityReview = candidates.filter(
+      ({ due, mastery, weak }) => mastery !== undefined && (due || weak),
+    )
+    const olderReview = candidates.filter(
+      ({ due, mastery, reviewedToday, weak }) =>
+        mastery !== undefined && !due && !weak && !reviewedToday,
+    )
+    const recentReview = candidates.filter(
+      ({ due, mastery, reviewedToday, weak }) =>
+        mastery !== undefined && !due && !weak && reviewedToday,
+    )
+    const unseen = candidates.filter(({ mastery }) => mastery === undefined)
+    // Urgent sessions spend half their slots on due or weak facts and reserve 30% for
+    // unseen material. Otherwise, half-new sessions prevent a recently learned pool
+    // from monopolizing practice; remaining mixed slots prefer older reviews.
+    const priorityTarget = priorityReview.length > 0 ? Math.max(1, Math.floor(count / 2)) : 0
+    const unseenTarget =
+      priorityReview.length > 0 ? (count === 1 ? 0 : Math.ceil(count * 0.3)) : Math.ceil(count / 2)
+    const selected = [...priorityReview.slice(0, priorityTarget), ...unseen.slice(0, unseenTarget)]
+    const selectedKeys = new Set(selected.map(({ left, right }) => canonicalFactKey(left, right)))
+    const remainingPriority = priorityReview.slice(priorityTarget)
+    const olderPriority = remainingPriority.filter(({ reviewedToday }) => !reviewedToday)
+    const recentPriority = remainingPriority.filter(({ reviewedToday }) => reviewedToday)
+    const remainingUnseen = unseen.slice(unseenTarget)
+    const mixedAndFallback =
+      priorityReview.length > 0
+        ? [
+            ...olderReview,
+            ...olderPriority,
+            ...remainingUnseen,
+            ...recentReview,
+            ...recentPriority,
+            ...candidates,
+          ]
+        : [...olderReview, ...recentReview, ...remainingUnseen, ...candidates]
+    const fill = mixedAndFallback
+      .filter(({ left, right }) => !selectedKeys.has(canonicalFactKey(left, right)))
+      .filter(
+        ({ left, right }, index, values) =>
+          values.findIndex(
+            ({ left: otherLeft, right: otherRight }) =>
+              canonicalFactKey(left, right) === canonicalFactKey(otherLeft, otherRight),
+          ) === index,
+      )
+      .slice(0, Math.max(0, count - selected.length))
+    return [...selected, ...fill]
+  }
   const focusCount = Math.max(0, policy.questionCount - 2)
-  const focused =
+  const selectedFacts =
     policy.focusTable === undefined
-      ? []
-      : candidateFacts
-          .filter(({ left, right }) => left === policy.focusTable || right === policy.focusTable)
-          .slice(0, focusCount)
-  const focusedKeys = new Set(focused.map(({ left, right }) => canonicalFactKey(left, right)))
-  const remaining = candidateFacts.filter(
-    ({ left, right }) => !focusedKeys.has(canonicalFactKey(left, right)),
-  )
-  const selectedFacts = [...focused, ...remaining].slice(0, policy.questionCount)
+      ? selectBalancedFacts(candidateFacts, policy.questionCount)
+      : [
+          ...selectBalancedFacts(
+            candidateFacts.filter(
+              ({ left, right }) => left === policy.focusTable || right === policy.focusTable,
+            ),
+            focusCount,
+          ),
+          ...selectBalancedFacts(
+            candidateFacts.filter(
+              ({ left, right }) => left !== policy.focusTable && right !== policy.focusTable,
+            ),
+            policy.questionCount - focusCount,
+          ),
+        ]
   const questions = selectedFacts.map(
     ({ left: canonicalLeft, mastery, right: canonicalRight }, index) => {
       const reverse = canonicalLeft !== canonicalRight && random() >= 0.5
