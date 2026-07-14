@@ -4,7 +4,6 @@ import { Context, Data, type Effect } from 'effect'
 export class AttemptRepositoryError extends Data.TaggedError('AttemptRepositoryError')<{
   cause: unknown
   operation:
-    | 'consume-invite'
     | 'health'
     | 'insert'
     | 'list'
@@ -32,7 +31,6 @@ export type PushSubscriptionRecord = Readonly<{
 export type PushSubscriptionInput = Omit<PushSubscriptionRecord, 'lastSentDayKey' | 'profileId'>
 
 export type AttemptRepositoryService = Readonly<{
-  consumeInvite: (inviteId: string) => Effect.Effect<boolean, AttemptRepositoryError>
   health: Effect.Effect<void, AttemptRepositoryError>
   insert: (
     profileId: string,

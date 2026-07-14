@@ -1,6 +1,6 @@
 # little tables
 
-An iPhone-first, offline-capable multiplication practice PWA.
+An iPhone-first, offline-first multiplication practice PWA with Google-gated access.
 
 The approved product and architecture specification is in [TECHNICAL_PLAN.md](./TECHNICAL_PLAN.md).
 
@@ -55,16 +55,18 @@ corepack pnpm smoke:docker
 ```
 
 Set `MONGODB_URI`, `MONGODB_DATABASE`, `SESSION_SECRET`, `VAPID_PUBLIC_KEY`, and
-`VAPID_PRIVATE_KEY` in production, plus at least one authentication method:
-`INVITE_TOKEN`, or both `GOOGLE_CLIENT_ID` and `GOOGLE_ALLOWED_EMAILS`. Without
-MongoDB, the server intentionally uses its in-memory repository for local
-development. The daily reminder worker sends at 18:00 in each subscribed
-device's timezone and skips the notification when practice was already
-completed that local day.
+`VAPID_PRIVATE_KEY`, `GOOGLE_CLIENT_ID`, and `GOOGLE_ALLOWED_EMAILS` in
+production. Without MongoDB, the server intentionally uses its in-memory
+repository for local development. The daily reminder worker sends at 18:00 in
+each subscribed device's timezone and skips the notification when practice was
+already completed that local day.
 
-Invite links are single-use. Active sessions renew while the app syncs. If the
-cookie is deliberately cleared, rotate `INVITE_TOKEN` to issue a new private
-link; the previous token remains consumed in MongoDB.
+Production access requires a verified Google account from the configured
+allowlist. Navigation without a valid Google-authenticated session redirects to
+`/sign-in`, and protected API requests return `401`. After the server verifies a
+Google session, the PWA remembers only its display name and real session expiry
+so that local practice continues offline until that session expires. First-time,
+expired, legacy, and server-rejected sessions remain locked.
 
 ## Google sign-in setup
 

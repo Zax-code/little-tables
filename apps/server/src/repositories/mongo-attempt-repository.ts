@@ -25,21 +25,8 @@ type PushSubscriptionDocument = PushSubscriptionRecord &
 const makeService = (
   client: MongoClient,
   collection: Collection<AttemptDocument>,
-  inviteClaims: Collection<{ _id: string; consumedAt: Date }>,
   pushSubscriptions: Collection<PushSubscriptionDocument>,
 ): AttemptRepositoryService => ({
-  consumeInvite: (inviteId) =>
-    Effect.tryPromise({
-      try: async () => {
-        const previous = await inviteClaims.findOneAndUpdate(
-          { _id: inviteId },
-          { $setOnInsert: { consumedAt: new Date() } },
-          { returnDocument: 'before', upsert: true },
-        )
-        return previous === null
-      },
-      catch: (cause) => new AttemptRepositoryError({ cause, operation: 'consume-invite' }),
-    }),
   health: Effect.tryPromise({
     try: async () => {
       await client.db().command({ ping: 1 })
@@ -147,9 +134,6 @@ const layer = (uri: string, databaseName = 'little_tables') =>
           const client = new MongoClient(uri)
           await client.connect()
           const collection = client.db(databaseName).collection<AttemptDocument>('attempt_events')
-          const inviteClaims = client
-            .db(databaseName)
-            .collection<{ _id: string; consumedAt: Date }>('invite_claims')
           const pushSubscriptions = client
             .db(databaseName)
             .collection<PushSubscriptionDocument>('push_subscriptions')
@@ -157,7 +141,7 @@ const layer = (uri: string, databaseName = 'little_tables') =>
           await pushSubscriptions.createIndex({ profileId: 1 })
           return {
             client,
-            service: makeService(client, collection, inviteClaims, pushSubscriptions),
+            service: makeService(client, collection, pushSubscriptions),
           }
         },
         catch: (cause) => new AttemptRepositoryError({ cause, operation: 'list' }),

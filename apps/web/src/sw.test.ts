@@ -5,7 +5,6 @@ vi.mock('workbox-precaching', () => ({ precacheAndRoute: vi.fn() }))
 vi.mock('workbox-routing', () => ({ registerRoute: vi.fn() }))
 vi.mock('workbox-strategies', () => ({
   CacheFirst: vi.fn(),
-  NetworkFirst: vi.fn(),
 }))
 
 describe('service worker updates', () => {
@@ -40,5 +39,30 @@ describe('service worker updates', () => {
     onMessage?.({ data: { type: 'SKIP_WAITING' } } as MessageEvent)
 
     expect(skipWaiting).toHaveBeenCalledOnce()
+  })
+
+  it('deletes the legacy cache that may contain authenticated bootstrap data', async () => {
+    const listeners = new Map<string, EventListener>()
+    const deleteCache = vi.fn().mockResolvedValue(true)
+
+    vi.stubGlobal('caches', { delete: deleteCache })
+    vi.stubGlobal('self', {
+      __WB_MANIFEST: [],
+      addEventListener: vi.fn((type: string, listener: EventListener) => {
+        listeners.set(type, listener)
+      }),
+      clients: { matchAll: vi.fn(), openWindow: vi.fn() },
+      location: { origin: 'https://little-tables.test' },
+      registration: { showNotification: vi.fn() },
+      skipWaiting: vi.fn(),
+    })
+
+    await import('./sw.js')
+
+    const waitUntil = vi.fn()
+    listeners.get('activate')?.({ waitUntil } as unknown as ExtendableEvent)
+
+    expect(deleteCache).toHaveBeenCalledWith('little-tables-bootstrap-v1')
+    expect(waitUntil).toHaveBeenCalledOnce()
   })
 })

@@ -1,53 +1,64 @@
+import { createHmac } from 'node:crypto'
 import { describe, expect, it } from 'vitest'
 
 import { Identity } from './identity.js'
 
+const secret = 'a-session-secret-long-enough'
+
+const legacySession = (now: Date): string => {
+  const payload = Buffer.from(
+    JSON.stringify({ displayName: 'léa', expiresAt: now.getTime() + 60_000, profileId: 'lou' }),
+  ).toString('base64url')
+  const signature = createHmac('sha256', secret).update(payload).digest('base64url')
+  return `${payload}.${signature}`
+}
+
 describe('Identity', () => {
-  it('claims a valid invite and rejects tampered or expired sessions', () => {
+  it('issues and renews Google-authenticated sessions', () => {
     const now = new Date('2026-07-12T12:00:00.000Z')
-    const session = Identity.claim({
-      expectedInvite: 'a-private-invite',
-      invite: 'a-private-invite',
+    const session = Identity.issue({
+      authMethod: 'google',
+      displayName: 'lea',
+      googleSubject: 'google-account-id',
       now,
-      secret: 'a-session-secret-long-enough',
+      profileId: 'lou',
+      secret,
+    })
+    const identity = {
+      authMethod: 'google',
+      displayName: 'lea',
+      expiresAt: new Date('2026-08-11T12:00:00.000Z').getTime(),
+      googleSubject: 'google-account-id',
+      profileId: 'lou',
+    }
+
+    expect(Identity.verify({ now, secret, session })).toEqual(identity)
+    const renewed = Identity.renew({ now: new Date(now.getTime() + 1_000), secret, session })
+    expect(Identity.verify({ now, secret, session: renewed ?? '' })).toEqual({
+      ...identity,
+      expiresAt: identity.expiresAt + 1_000,
+    })
+  })
+
+  it('rejects legacy, tampered, and expired sessions', () => {
+    const now = new Date('2026-07-12T12:00:00.000Z')
+    const session = Identity.issue({
+      authMethod: 'google',
+      displayName: 'lea',
+      googleSubject: 'google-account-id',
+      now,
+      profileId: 'lou',
+      secret,
     })
 
-    expect(session).not.toBeNull()
-    expect(
-      Identity.verify({
-        now: new Date('2026-07-13T12:00:00.000Z'),
-        secret: 'a-session-secret-long-enough',
-        session: session ?? '',
-      }),
-    ).toEqual({ displayName: 'léa', profileId: 'lou' })
-    expect(
-      Identity.verify({
-        now,
-        secret: 'a-session-secret-long-enough',
-        session: `${session ?? ''}tampered`,
-      }),
-    ).toBeNull()
+    expect(Identity.verify({ now, secret, session: legacySession(now) })).toBeNull()
+    expect(Identity.verify({ now, secret, session: `${session}tampered` })).toBeNull()
     expect(
       Identity.verify({
         now: new Date('2026-08-20T12:00:00.000Z'),
-        secret: 'a-session-secret-long-enough',
-        session: session ?? '',
+        secret,
+        session,
       }),
     ).toBeNull()
-  })
-
-  it('issues a valid session for an externally verified identity', () => {
-    const now = new Date('2026-07-12T12:00:00.000Z')
-    const session = Identity.issue({
-      displayName: 'lea',
-      now,
-      profileId: 'lou',
-      secret: 'a-session-secret-long-enough',
-    })
-
-    expect(Identity.verify({ now, secret: 'a-session-secret-long-enough', session })).toEqual({
-      displayName: 'lea',
-      profileId: 'lou',
-    })
   })
 })
