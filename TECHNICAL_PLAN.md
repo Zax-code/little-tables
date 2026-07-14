@@ -2,7 +2,7 @@
 
 Status: proposed implementation plan  
 Date: 2026-07-12  
-Product: an iPhone-first, offline-capable PWA for building multiplication fluency
+Product: an iPhone-first, local-first PWA for building multiplication fluency
 
 ## 1. Product outcome
 
@@ -28,7 +28,7 @@ The first release is successful when the learner voluntarily returns, completes 
 
 ### MVP includes
 
-- Private invite onboarding for one learner.
+- Google-authenticated access restricted to the approved learner accounts.
 - Install guidance for iPhone Home Screen.
 - Multiplication facts 1–10.
 - A short initial calibration session.
@@ -62,7 +62,7 @@ This yields 55 unique facts for 1–10 instead of pretending all 100 ordered exp
 
 ### Session composition
 
-A session is assembled locally so it works offline. The selection score combines:
+A session is assembled locally after authentication so transient network latency does not interrupt question flow. The selection score combines:
 
 - due review;
 - low mastery;
@@ -172,7 +172,7 @@ Every entertainment feature must reinforce at least one of these layers. If it d
 
 **Entertainment:** The home character uses a quiet rotating pose set keyed to time of day and recent progress. Tapping the character triggers one short, non-blocking reaction.
 
-**Guardrails:** No feed, infinite scroll, offers, modal on launch, or overdue warning. The page remains useful offline.
+**Guardrails:** No feed, infinite scroll, offers, modal on launch, or overdue warning. The page remains responsive during transient connectivity changes after authentication.
 
 ### 4.3 The standard 90-second session
 
@@ -613,7 +613,7 @@ Before implementation, every proposed feature receives a 0–2 score on:
 - improves retrieval quality;
 - improves return motivation;
 - reduces anxiety or friction;
-- remains clear offline;
+- remains clear during connectivity changes;
 - respects a 90-second session;
 - can be measured without invasive tracking;
 - can be made accessible;
@@ -631,7 +631,7 @@ All dependencies should use the latest stable release at project initialization 
 | Web                    | React + TypeScript + Vite             | Mature PWA toolchain, simple static output, excellent mobile iteration.               |
 | Routing                | TanStack Router                       | Typed routes without requiring a server-rendering framework.                          |
 | Remote state           | TanStack Query                        | Fetching, cache invalidation, reconnect behavior, and sync status.                    |
-| Durable local state    | IndexedDB via Dexie                   | Sessions and the outbox survive reloads and offline use.                              |
+| Durable local state    | IndexedDB via Dexie                   | Sessions and the outbox survive reloads and transient connection loss.                |
 | Styling                | Tailwind CSS                          | Fast implementation of the approved visual system through semantic design tokens.     |
 | UI motion              | Motion                                | Buttons, counters, transitions, and reduced-motion-aware micro-interactions.          |
 | Character motion       | dotLottie web runtime                 | Compact, scalable, inspectable animation assets.                                      |
@@ -641,12 +641,12 @@ All dependencies should use the latest stable release at project initialization 
 | Database               | MongoDB Atlas                         | Fits append-only attempt events and evolving mastery/reward documents.                |
 | Validation             | Effect Schema                         | One source of truth for domain, storage, and transport validation.                    |
 | Unit/integration tests | Vitest + fast-check + Testcontainers  | Examples, property invariants, and real MongoDB behavior.                             |
-| Browser tests          | Playwright                            | Offline, service-worker, installability, and end-to-end flow tests.                   |
+| Browser tests          | Playwright                            | Authentication gating, service-worker, installability, and end-to-end flow tests.     |
 | Deployment             | One Docker image on Railway initially | Same-origin web and API, simple cookies, one deployable, low operational overhead.    |
 
-### Why not make TanStack Query the offline database?
+### Why not make TanStack Query the durable local database?
 
-TanStack Query supports offline-aware queries and paused mutations, but its cache is not the correct source of truth for learning attempts. Every answer is first committed to IndexedDB as an immutable event. TanStack Query then drives synchronization and canonical server-state reads. A suspended iPhone cannot lose a completed session merely because a mutation cache was not persisted correctly.
+TanStack Query supports connectivity-aware queries and paused mutations, but its cache is not the correct source of truth for learning attempts. After authentication is verified online, every answer is first committed to IndexedDB as an immutable event. TanStack Query then drives synchronization and canonical server-state reads. A suspended iPhone cannot lose a completed session merely because a mutation cache was not persisted correctly.
 
 ### Why one deployable first?
 
@@ -718,7 +718,7 @@ It does not leak HTTP or MongoDB concepts to the UI. Retries use capped exponent
 - `AttemptIngestion`: validates and idempotently stores batches.
 - `ProgressProjection`: reduces ordered attempts into canonical mastery.
 - `RewardGarden`: derives unlocks from progress and completed sessions.
-- `Identity`: claims the private invite and manages sessions.
+- `Identity`: verifies Google-backed application sessions.
 - `Reminder`: stores push subscriptions and sends opt-in reminders later.
 
 The Effect HTTP code is a thin adapter. Because the `HttpApi` area can evolve, imports from unstable platform modules stay inside `apps/server/src/http`; domain and application packages do not depend on them. Package versions are pinned, and upgrades require contract tests to pass.
@@ -842,7 +842,8 @@ All request and response bodies use Effect Schema and tagged error responses.
 
 | Method   | Path                             | Purpose                                                                                   |
 | -------- | -------------------------------- | ----------------------------------------------------------------------------------------- |
-| `POST`   | `/api/v1/invites/claim`          | Exchange the one-time invite for a secure session.                                        |
+| `GET`    | `/api/v1/auth/status`            | Report whether the current Google-backed session is authenticated.                        |
+| `POST`   | `/api/v1/auth/google`            | Verify a Google ID token and issue a secure application session.                          |
 | `POST`   | `/api/v1/session/refresh`        | Rotate an expiring session.                                                               |
 | `POST`   | `/api/v1/session/logout`         | Revoke the current session.                                                               |
 | `GET`    | `/api/v1/bootstrap`              | Profile, canonical snapshot, rewards, settings, and version config.                       |
@@ -857,14 +858,15 @@ The sync response includes accepted, duplicate, and rejected event IDs separatel
 
 ## 9. Authentication, privacy, and security
 
-### Initial private release
+### Private release authentication
 
-1. Generate one high-entropy, single-use invite URL on the server.
-2. Opening it exchanges the token for a short-lived session plus rotating refresh session.
-3. Store credentials only in `Secure`, `HttpOnly`, `SameSite=Lax` cookies.
-4. Store only a hash of the invite and refresh token server-side.
-5. Rate-limit invite, refresh, and sync endpoints.
-6. Keep the app and API same-origin and require an origin/CSRF check for state-changing requests.
+1. Verify Google ID tokens server-side against the configured Web OAuth client ID.
+2. Allow only verified email addresses from the production allowlist.
+3. Issue sessions that explicitly record Google as the authentication method so legacy credentials cannot be reused.
+4. Store credentials only in `Secure`, `HttpOnly`, `SameSite=Lax` cookies.
+5. Redirect unauthenticated navigation to `/sign-in` and reject protected API requests with `401`.
+6. Persist a non-secret offline grant only after server verification, bounded by the real session expiry; first-time, expired, legacy, and rejected sessions fail closed.
+7. Keep the app and API same-origin and require an origin/CSRF check for state-changing requests.
 
 Do not store bearer tokens in `localStorage` or IndexedDB.
 
@@ -873,7 +875,7 @@ Do not store bearer tokens in `localStorage` or IndexedDB.
 - No contacts, location, photo library, advertising IDs, or social graph.
 - Display name can be a nickname.
 - Attempt telemetry exists to power learning; it is not sold or sent to ad platforms.
-- Logs exclude answers, cookies, push keys, and invite tokens.
+- Logs exclude answers, cookies, Google credentials, and push keys.
 - Provide export and delete scripts before inviting more users.
 - Keep `OPENAI_API_KEY` in developer/CI secrets only. It is never shipped to the PWA and is not required by the production app.
 
@@ -898,18 +900,18 @@ Use a custom Workbox `injectManifest` worker because sync and update behavior ar
 - Precache the hashed app shell, fonts, core animation files, and essential garden art.
 - `CacheFirst` for immutable hashed visual assets.
 - `StaleWhileRevalidate` for non-critical content catalog files.
-- `NetworkFirst` with a short timeout for bootstrap reads.
-- Never cache authentication responses or sync POST responses.
+- Never cache bootstrap data, authentication responses, or sync POST responses.
+- Delete legacy bootstrap caches when the worker activates.
 - Show an “update ready” prompt between sessions; never replace the app mid-question.
 - Keep the previous shell viable until the new worker activates successfully.
 
-### Offline behavior
+### Connectivity behavior
 
-- First successful load downloads the core shell and starter assets.
-- Every answer commits locally before the next question renders.
+- Opening or reloading the app requires a successful server-side authentication check.
+- Authentication-check failures remain locked and cannot fall through to locally stored practice data.
+- After authentication, every answer commits locally before the next question renders.
 - A visible but quiet status says `saved on this phone` or `synced`.
 - Reconnect triggers `Sync.flush()`; foregrounding the app also attempts a flush.
-- The learner can complete multiple sessions offline.
 - Canonical reconciliation never removes earned local feedback while a session is in progress.
 
 ### iPhone-specific constraints
@@ -1104,7 +1106,7 @@ Use structured Effect logs with correlation IDs and aggressive field allow-listi
 - Real IndexedDB tests using a browser environment.
 - Atomic answer/session/outbox commit.
 - Refresh and process-kill recovery.
-- Multiple offline sessions followed by ordered sync.
+- Queued attempts followed by ordered reconnect sync.
 - IndexedDB migration fixtures from every released schema.
 
 ### Backend tests
@@ -1117,12 +1119,12 @@ Use structured Effect logs with correlation IDs and aggressive field allow-listi
 
 ### End-to-end tests
 
-- Claim invite → installable shell → calibration → session → garden reward.
+- Google sign-in → installable shell → calibration → session → garden reward.
 - Offline reload → complete session → reconnect → sync.
 - Update becomes available during a question and waits until session end.
 - Reduced-motion and sound-off journeys.
 - 320px-wide layout, text zoom, keyboard navigation, and screen-reader labels.
-- Service-worker cache and offline fallback behavior.
+- Service-worker cache purge, authenticated offline reload, and expired-session lockout.
 
 ### Visual and asset tests
 
@@ -1137,7 +1139,7 @@ Before each release, test on the girlfriend’s actual iPhone:
 
 - install and launch from Home Screen;
 - safe areas and keyboard;
-- offline practice;
+- offline practice with a current previously verified Google session;
 - resume after locking the phone;
 - audio after mute/unmute;
 - animation smoothness and reduced motion;
@@ -1163,7 +1165,7 @@ Before each release, test on the girlfriend’s actual iPhone:
 ### Environments
 
 - `local`: local MongoDB container and in-memory adapters where useful.
-- `preview`: isolated database name and private invite per branch/deploy.
+- `preview`: isolated database name and a dedicated Google OAuth configuration per environment.
 - `production`: protected secrets, backups, alerts, and manual promotion.
 
 Database indexes are declared in code and verified at startup/readiness. Production migrations are additive first; destructive cleanup happens only after a compatible release has been stable.
@@ -1199,7 +1201,7 @@ Exit criteria:
 
 Deliver one thin, end-to-end slice:
 
-- private invite;
+- Google-authenticated private access;
 - installable home screen;
 - one real practice session;
 - durable IndexedDB event commit;
@@ -1267,8 +1269,8 @@ Deliverables:
 
 Exit criteria:
 
-- No high-severity accessibility, offline, data-loss, or auth issue is open.
-- A session can be completed from a cold Home Screen launch without network.
+- No high-severity accessibility, connectivity, data-loss, or auth issue is open.
+- A cold Home Screen launch works offline only while a previously verified Google session remains unexpired.
 - The learner voluntarily returns often enough to justify notification work.
 
 ### Phase 5 — retention enhancements
@@ -1323,7 +1325,7 @@ The MVP is done only when all of the following are true:
 
 - It installs and launches standalone on the target iPhone.
 - A first-time learner can reach the first question without developer help.
-- A full session works without a network connection.
+- A cold start works offline with a current verified-session grant and stays locked without one.
 - Every answer is durable before the next question appears.
 - Reconnection syncs idempotently and restores the same canonical progress.
 - All 1–10 facts can be scheduled and answered with valid choices.
@@ -1331,7 +1333,7 @@ The MVP is done only when all of the following are true:
 - Rewards are deterministic and cannot be lost through inactivity.
 - The approved visual system and core character motions are implemented with reduced-motion fallbacks.
 - Sound can be disabled and no required feedback depends on sound, color, or motion alone.
-- No critical accessibility, auth, privacy, data-loss, or offline defect remains.
+- No critical accessibility, auth, privacy, data-loss, or connectivity defect remains.
 - The learner has used the private beta long enough to confirm that the app is appealing in practice, not only in a mockup.
 
 ## 20. Decisions to confirm before implementation

@@ -5,6 +5,7 @@ const AuthStatusSchema = Schema.Struct({
   authenticationRequired: Schema.Boolean,
   displayName: Schema.NullOr(Schema.String),
   googleClientId: Schema.NullOr(Schema.String),
+  sessionExpiresAt: Schema.NullOr(Schema.NonNegative),
 })
 
 export type AuthStatus = typeof AuthStatusSchema.Type
@@ -15,15 +16,6 @@ export async function fetchAuthStatus(fetcher: typeof fetch = fetch): Promise<Au
   const response = await fetcher('/api/v1/auth/status')
   if (!response.ok) throw new Error(`Authentication check failed with status ${response.status}`)
   return Schema.decodeUnknownPromise(AuthStatusSchema)(await response.json())
-}
-
-export async function claimInvite(token: string, fetcher: typeof fetch = fetch): Promise<void> {
-  const response = await fetcher('/api/v1/invites/claim', {
-    body: JSON.stringify({ token }),
-    headers: { 'content-type': 'application/json' },
-    method: 'POST',
-  })
-  if (!response.ok) throw new Error('The private invite could not be claimed.')
 }
 
 export async function signInWithGoogle(

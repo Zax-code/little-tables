@@ -1,7 +1,7 @@
 import type { AttemptEvent } from '@little-tables/domain'
 import { describe, expect, it, vi } from 'vitest'
 
-import { flushAllPendingAttempts, flushPendingAttempts } from './sync.js'
+import { SyncAuthenticationError, flushAllPendingAttempts, flushPendingAttempts } from './sync.js'
 
 const attempt: AttemptEvent = {
   answerMode: 'choice',
@@ -63,6 +63,19 @@ describe('flushPendingAttempts', () => {
       }),
     ).rejects.toBeDefined()
     expect(acknowledge).not.toHaveBeenCalled()
+  })
+
+  it('reports an expired session distinctly so the app can lock immediately', async () => {
+    await expect(
+      flushPendingAttempts({
+        fetcher: vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 401 })),
+        profileId: 'lou',
+        store: {
+          acknowledge: vi.fn(),
+          pendingBatch: vi.fn().mockResolvedValue({ attempts: [attempt] }),
+        },
+      }),
+    ).rejects.toBeInstanceOf(SyncAuthenticationError)
   })
 
   it('flushes every full outbox batch before canonical reconciliation', async () => {

@@ -24,6 +24,10 @@ export type SyncSummary = Readonly<{
   status: 'idle' | 'synced'
 }>
 
+export class SyncAuthenticationError extends Error {
+  override readonly name = 'SyncAuthenticationError'
+}
+
 export async function flushPendingAttempts({
   fetcher = fetch,
   profileId,
@@ -37,6 +41,7 @@ export async function flushPendingAttempts({
     headers: { 'content-type': 'application/json' },
     method: 'POST',
   })
+  if (response.status === 401) throw new SyncAuthenticationError('Authentication is required')
   if (!response.ok) throw new Error(`Sync failed with status ${response.status}`)
   const body = await Schema.decodeUnknownPromise(SyncResponseSchema)(await response.json())
 

@@ -5,6 +5,7 @@ import { existsSync, statSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { resolve, sep } from 'node:path'
 
+import { AccessControl } from '../application/access-control.js'
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
 import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
@@ -31,7 +32,6 @@ const SyncRequestSchema = Schema.Struct({
   profileId: Schema.NonEmptyString,
 })
 
-const ClaimInviteSchema = Schema.Struct({ token: Schema.NonEmptyString })
 const GoogleCredentialSchema = Schema.Struct({ credential: Schema.NonEmptyString })
 const PushSubscriptionSchema = Schema.Struct({
   endpoint: Schema.NonEmptyString,
@@ -43,7 +43,6 @@ const SavePushSubscriptionSchema = Schema.Struct({
   timezone: Schema.NonEmptyString,
 })
 const RemovePushSubscriptionSchema = Schema.Struct({ endpoint: Schema.NonEmptyString })
-const claimAttempts: number[] = []
 const googleAllowedEmails = (process.env.GOOGLE_ALLOWED_EMAILS ?? '')
   .split(',')
   .map((email) => email.trim())
@@ -56,10 +55,9 @@ const googleAuthConfig =
       }
     : null
 const authConfig =
-  process.env.SESSION_SECRET && (process.env.INVITE_TOKEN || googleAuthConfig !== null)
+  process.env.SESSION_SECRET && googleAuthConfig !== null
     ? {
         google: googleAuthConfig,
-        invite: process.env.INVITE_TOKEN ?? null,
         secret: process.env.SESSION_SECRET,
       }
     : null
@@ -79,7 +77,15 @@ const sessionCookie = (response: HttpServerResponse.HttpServerResponse, session:
   })
 
 const authorizedIdentity = Effect.gen(function* () {
-  if (authConfig === null) return { displayName: 'léa', profileId: 'lou' } as const
+  if (authConfig === null) {
+    return {
+      authMethod: 'google',
+      displayName: 'léa',
+      expiresAt: null,
+      googleSubject: 'development',
+      profileId: 'lou',
+    } as const
+  }
   const request = yield* HttpServerRequest.HttpServerRequest
   const session = request.cookies['little-tables-session']
   if (session === undefined) return null
@@ -90,43 +96,21 @@ const authorizedProfile = authorizedIdentity.pipe(
   Effect.map((identity) => identity?.profileId ?? null),
 )
 
-const claimInvite = Effect.gen(function* () {
-  const now = Date.now()
-  while (claimAttempts[0] !== undefined && claimAttempts[0] < now - 60_000) claimAttempts.shift()
-  if (claimAttempts.length >= 5) return yield* json({ error: 'invite_rate_limited' }, 429)
-  claimAttempts.push(now)
-  if (authConfig === null)
-    return yield* json({ profileId: 'lou', status: 'development_auth_disabled' })
-  if (authConfig.invite === null) return yield* json({ error: 'invite_auth_unavailable' }, 404)
-  const { token } = yield* HttpServerRequest.schemaBodyJson(ClaimInviteSchema)
-  const session = Identity.claim({
-    expectedInvite: authConfig.invite,
-    invite: token,
-    now: new Date(),
-    secret: authConfig.secret,
-  })
-  if (session === null) return yield* json({ error: 'invalid_invite' }, 401)
-  const repository = yield* AttemptRepository
-  const consumed = yield* repository.consumeInvite(Identity.inviteId(token, authConfig.secret))
-  if (!consumed) return yield* json({ error: 'invite_already_used' }, 401)
-  const response = yield* json({ profileId: 'lou', status: 'claimed' })
-  return sessionCookie(response, session)
-}).pipe(Effect.catchAll(() => json({ error: 'invalid_invite_request' }, 400)))
-
 const authStatus = Effect.gen(function* () {
   const identity = yield* authorizedIdentity
   return yield* json({
     authenticated: identity !== null,
     authenticationRequired: authConfig !== null,
     displayName: identity?.displayName ?? null,
-    googleClientId: authConfig?.google?.clientId ?? null,
+    googleClientId: authConfig?.google.clientId ?? null,
+    sessionExpiresAt: identity?.expiresAt ?? null,
   })
 })
 
 const googleSignIn = Effect.gen(function* () {
   const google = authConfig?.google
   const secret = authConfig?.secret
-  if (google === null || google === undefined || secret === undefined) {
+  if (google === undefined || secret === undefined) {
     return yield* json({ error: 'google_auth_unavailable' }, 404)
   }
   const { credential } = yield* HttpServerRequest.schemaBodyJson(GoogleCredentialSchema)
@@ -139,7 +123,9 @@ const googleSignIn = Effect.gen(function* () {
   )
   if (identity === null) return yield* json({ error: 'google_account_not_allowed' }, 401)
   const session = Identity.issue({
+    authMethod: 'google',
     displayName: identity.displayName,
+    googleSubject: identity.subject,
     now: new Date(),
     profileId: identity.profileId,
     secret,
@@ -209,10 +195,13 @@ const bootstrap = Effect.gen(function* () {
   })
 }).pipe(Effect.catchAll(() => json({ error: 'bootstrap_unavailable' }, 503)))
 
-const notificationConfig = Effect.sync(() => {
+const notificationConfig = Effect.gen(function* () {
+  const profileId = yield* authorizedProfile
+  if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
   const publicKey = process.env.VAPID_PUBLIC_KEY
-  return publicKey ? json({ publicKey, reminderHour: 18 }) : json({ error: 'unavailable' }, 503)
-}).pipe(Effect.flatten)
+  if (publicKey === undefined) return yield* json({ error: 'unavailable' }, 503)
+  return yield* json({ publicKey, reminderHour: 18 })
+})
 
 const savePushSubscription = Effect.gen(function* () {
   const profileId = yield* authorizedProfile
@@ -252,6 +241,17 @@ const staticWebApp = Effect.gen(function* () {
     return yield* json({ error: 'not_found' }, 404)
   }
   const assetExists = existsSync(requestedPath) && statSync(requestedPath).isFile()
+  const isNavigation = pathname === '/' || !assetExists
+  if (isNavigation) {
+    const identity = yield* authorizedIdentity
+    const location = AccessControl.navigationRedirect({
+      authenticated: identity !== null,
+      authenticationRequired: authConfig !== null,
+      isNavigation,
+      pathname,
+    })
+    if (location !== null) return yield* HttpServerResponse.redirect(location)
+  }
   const target = assetExists ? requestedPath : resolve(webDistPath, 'index.html')
   if (!existsSync(target)) return yield* json({ error: 'web_build_not_found' }, 404)
   return yield* HttpServerResponse.file(target)
@@ -260,7 +260,6 @@ const staticWebApp = Effect.gen(function* () {
 export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.get('/health/live', json({ status: 'ok' })),
   HttpRouter.get('/health/ready', ready),
-  HttpRouter.post('/api/v1/invites/claim', claimInvite),
   HttpRouter.get('/api/v1/auth/status', authStatus),
   HttpRouter.post('/api/v1/auth/google', googleSignIn),
   HttpRouter.post('/api/v1/session/refresh', refreshSession),

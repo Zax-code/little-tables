@@ -34,11 +34,11 @@ if (
   !unsafeEphemeral &&
   (!process.env.MONGODB_URI ||
     !process.env.SESSION_SECRET ||
-    (!process.env.INVITE_TOKEN && !googleConfigComplete) ||
+    !googleConfigComplete ||
     vapidConfig === null)
 ) {
   throw new Error(
-    'Production requires MONGODB_URI, SESSION_SECRET, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and at least one authentication method: INVITE_TOKEN or GOOGLE_CLIENT_ID with GOOGLE_ALLOWED_EMAILS. Set LITTLE_TABLES_UNSAFE_EPHEMERAL=true only for an explicit disposable smoke test.',
+    'Production requires MONGODB_URI, SESSION_SECRET, GOOGLE_CLIENT_ID, GOOGLE_ALLOWED_EMAILS, VAPID_PUBLIC_KEY, and VAPID_PRIVATE_KEY. Set LITTLE_TABLES_UNSAFE_EPHEMERAL=true only for an explicit disposable smoke test.',
   )
 }
 const repositoryLayer = process.env.MONGODB_URI

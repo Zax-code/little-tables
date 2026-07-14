@@ -59,7 +59,7 @@ export function ReminderCard() {
       if (!response.ok) {
         await subscription.unsubscribe()
         throw new Error(
-          response.status === 401 ? 'Open your private invite first' : 'Could not save reminder',
+          response.status === 401 ? 'Sign in with Google first' : 'Could not save reminder',
         )
       }
       setState('enabled')

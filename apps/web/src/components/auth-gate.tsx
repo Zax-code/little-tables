@@ -1,20 +1,21 @@
-import { useQuery, useQueryClient } from '@tanstack/react-query'
+import { useQuery } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import {
-  authStatusQueryKey,
-  claimInvite,
-  fetchAuthStatus,
-  signInWithGoogle,
-} from '../auth-client.js'
+import { authStatusQueryKey, fetchAuthStatus, signInWithGoogle } from '../auth-client.js'
 import { renderGoogleSignInButton } from '../google-identity.js'
+import {
+  authStatusFromOfflineGrant,
+  clearOfflineAuthGrant,
+  offlineGrantFromAuthStatus,
+  persistOfflineAuthGrant,
+  readOfflineAuthGrant,
+} from '../offline-auth.js'
 import { Bunny } from './bunny.js'
 import { Screen } from './screen.js'
 
 function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
   const button = useRef<HTMLDivElement>(null)
-  const queryClient = useQueryClient()
   const [error, setError] = useState<string>()
   const [pending, setPending] = useState(false)
 
@@ -30,7 +31,7 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
         setError(undefined)
         setPending(true)
         void signInWithGoogle(credential)
-          .then(() => queryClient.invalidateQueries({ queryKey: authStatusQueryKey }))
+          .then(() => window.location.replace('/'))
           .catch((cause: unknown) => {
             setError(
               cause instanceof Error ? cause.message : 'Google sign-in could not be completed.',
@@ -49,7 +50,7 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
       active = false
       element.replaceChildren()
     }
-  }, [clientId, queryClient])
+  }, [clientId])
 
   return (
     <div className="google-sign-in-area">
@@ -69,35 +70,69 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
 }
 
 export function AuthGate({ children }: PropsWithChildren) {
-  const [inviteError, setInviteError] = useState<string>()
+  const [offlineGrant, setOfflineGrant] = useState(() => readOfflineAuthGrant())
   const auth = useQuery({
+    initialData: offlineGrant === null ? undefined : authStatusFromOfflineGrant(offlineGrant),
+    initialDataUpdatedAt: 0,
     queryKey: authStatusQueryKey,
     queryFn: async () => {
-      const url = new URL(window.location.href)
-      const invite = url.searchParams.get('invite')
-      if (invite !== null) {
-        try {
-          await claimInvite(invite)
-          url.searchParams.delete('invite')
-          window.history.replaceState(null, '', url)
-          setInviteError(undefined)
-        } catch (cause) {
-          setInviteError(
-            cause instanceof Error ? cause.message : 'The private invite could not be claimed.',
-          )
-        }
-      }
-      return fetchAuthStatus()
+      const status = await fetchAuthStatus()
+      persistOfflineAuthGrant(status)
+      return status
     },
     retry: 1,
     staleTime: 30_000,
   })
+  const serverGrant = auth.data ? offlineGrantFromAuthStatus(auth.data) : null
+  const serverSaysSignedOut = auth.data?.authenticationRequired === true && !auth.data.authenticated
+  const accessGrant = serverSaysSignedOut ? null : (serverGrant ?? offlineGrant)
+  const accessGrantExpiresAt = accessGrant?.expiresAt
+  const canAccess = auth.data?.authenticationRequired === false || accessGrant !== null
+  const mustSignIn = !canAccess && !auth.isPending
 
+  useEffect(() => {
+    if (accessGrantExpiresAt === undefined) return
+    let timeout: ReturnType<typeof setTimeout> | undefined
+    const expireWhenDue = () => {
+      const remaining = accessGrantExpiresAt - Date.now()
+      if (remaining > 0) {
+        timeout = setTimeout(expireWhenDue, Math.min(remaining, 2_147_483_647))
+        return
+      }
+      clearOfflineAuthGrant()
+      setOfflineGrant(null)
+    }
+    expireWhenDue()
+    return () => {
+      if (timeout !== undefined) clearTimeout(timeout)
+    }
+  }, [accessGrantExpiresAt])
+
+  useEffect(() => {
+    if (mustSignIn && window.location.pathname !== '/sign-in') {
+      window.history.replaceState(null, '', '/sign-in')
+    }
+  }, [mustSignIn])
+
+  if (canAccess) return children
   if (auth.isPending) return <div className="app-loading">opening your garden…</div>
-  if (auth.isError || auth.data.authenticated || !auth.data.authenticationRequired) {
-    return children
+  if (auth.isError) {
+    return (
+      <Screen footer={false}>
+        <section className="auth-screen">
+          <div>
+            <p className="eyebrow">little tables.</p>
+            <h1>sign-in is required</h1>
+            <p>Connect to the internet so we can safely check your account.</p>
+          </div>
+          <Bunny className="auth-bunny" scene="home" />
+          <button className="primary-button auth-retry" onClick={() => void auth.refetch()}>
+            try again
+          </button>
+        </section>
+      </Screen>
+    )
   }
-
   return (
     <Screen footer={false}>
       <section className="auth-screen">
@@ -107,16 +142,13 @@ export function AuthGate({ children }: PropsWithChildren) {
           <p>Sign in to safely bring your progress with you.</p>
         </div>
         <Bunny className="auth-bunny" scene="home" />
-        {auth.data.googleClientId === null ? (
-          <p className="auth-help">Open your private invite link to continue.</p>
+        {auth.data?.googleClientId === null || auth.data?.googleClientId === undefined ? (
+          <p className="auth-error" role="alert">
+            Google sign-in is temporarily unavailable.
+          </p>
         ) : (
           <GoogleSignInButton clientId={auth.data.googleClientId} />
         )}
-        {inviteError ? (
-          <p className="auth-error" role="alert">
-            {inviteError}
-          </p>
-        ) : null}
       </section>
     </Screen>
   )

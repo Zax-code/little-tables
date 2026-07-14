@@ -11,7 +11,12 @@ cleanup() {
 trap cleanup EXIT INT TERM
 
 docker build --tag "$image" .
-docker run --detach --rm --publish "$port:3000" --env LITTLE_TABLES_UNSAFE_EPHEMERAL=true --name "$container" "$image" >/dev/null
+docker run --detach --rm --publish "$port:3000" \
+  --env GOOGLE_ALLOWED_EMAILS=learner@example.com \
+  --env GOOGLE_CLIENT_ID=smoke.apps.googleusercontent.com \
+  --env LITTLE_TABLES_UNSAFE_EPHEMERAL=true \
+  --env SESSION_SECRET=smoke-session-secret-at-least-32-bytes \
+  --name "$container" "$image" >/dev/null
 
 attempt=1
 while [ "$attempt" -le 10 ]; do
@@ -23,7 +28,22 @@ while [ "$attempt" -le 10 ]; do
 done
 
 curl --fail --silent "http://127.0.0.1:$port/health/live" >/dev/null
-curl --fail --silent "http://127.0.0.1:$port/" >/dev/null
-curl --fail --silent "http://127.0.0.1:$port/garden" >/dev/null
+root_headers=$(curl --silent --dump-header - --output /dev/null "http://127.0.0.1:$port/")
+root_status=$(printf '%s' "$root_headers" | sed -n '1s/.* \([0-9][0-9][0-9]\).*/\1/p')
+root_location=$(printf '%s' "$root_headers" | tr -d '\r' | sed -n 's/^location: //Ip')
+test "$root_status" = 302
+test "$root_location" = /sign-in
 
-echo "Production image smoke test passed on port $port."
+garden_status=$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:$port/garden")
+bootstrap_status=$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:$port/api/v1/bootstrap")
+notification_status=$(curl --silent --output /dev/null --write-out '%{http_code}' "http://127.0.0.1:$port/api/v1/notifications/config")
+invite_status=$(curl --silent --output /dev/null --write-out '%{http_code}' \
+  --header 'content-type: application/json' --data '{}' \
+  "http://127.0.0.1:$port/api/v1/invites/claim")
+test "$garden_status" = 302
+test "$bootstrap_status" = 401
+test "$notification_status" = 401
+test "$invite_status" = 404
+curl --fail --silent "http://127.0.0.1:$port/sign-in" >/dev/null
+
+echo "Production image authentication smoke test passed on port $port."

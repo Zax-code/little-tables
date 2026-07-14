@@ -158,15 +158,12 @@ a:focus-visible {
   font-size: 0.82rem;
   font-weight: 650;
 }
-.auth-help {
-  padding: 14px 18px;
-  border: 1px solid var(--line-soft);
-  border-radius: 18px;
-  background: var(--surface-card);
-}
 .auth-error {
   max-width: 320px;
   color: #a63f58;
+}
+.auth-retry {
+  width: min(100%, 320px);
 }
 
 .screen-content {

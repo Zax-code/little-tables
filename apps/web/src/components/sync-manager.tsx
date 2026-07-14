@@ -1,8 +1,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
+import { authStatusQueryKey } from '../auth-client.js'
 import { practiceStore } from '../store.js'
-import { flushAllPendingAttempts } from '../sync.js'
+import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
 import type { LearningSnapshot } from '@little-tables/domain'
 
 export const syncStatusQueryKey = ['sync-status'] as const
@@ -11,7 +12,12 @@ export function SyncManager() {
   const queryClient = useQueryClient()
   const sync = useMutation({
     mutationFn: () => flushAllPendingAttempts({ profileId: 'lou', store: practiceStore }),
-    onError: () => queryClient.setQueryData(syncStatusQueryKey, 'saved on this phone'),
+    onError: (error) => {
+      queryClient.setQueryData(syncStatusQueryKey, 'saved on this phone')
+      if (error instanceof SyncAuthenticationError) {
+        void queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
+      }
+    },
     onMutate: () => queryClient.setQueryData(syncStatusQueryKey, 'syncing'),
     onSuccess: () => queryClient.setQueryData(syncStatusQueryKey, 'synced'),
   })
@@ -24,6 +30,10 @@ export function SyncManager() {
         onSuccess: () => {
           void (async () => {
             const response = await fetch('/api/v1/bootstrap')
+            if (response.status === 401) {
+              await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
+              return
+            }
             if (!response.ok) return
             const body: unknown = await response.json()
             if (typeof body !== 'object' || body === null || !('snapshot' in body)) return
@@ -51,7 +61,14 @@ export function SyncManager() {
                 practiceDayKeys: server.practiceDayKeys ?? [],
               },
             )
-            await fetch('/api/v1/session/refresh', { method: 'POST' })
+            const refresh = await fetch('/api/v1/session/refresh', { method: 'POST' })
+            if (refresh.status === 401) {
+              await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
+              return
+            }
+            if (refresh.ok) {
+              await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
+            }
             await queryClient.invalidateQueries({ queryKey: ['local-bootstrap'] })
           })().catch(() => queryClient.setQueryData(syncStatusQueryKey, 'saved on this phone'))
         },

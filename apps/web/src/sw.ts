@@ -3,12 +3,16 @@
 import { clientsClaim } from 'workbox-core'
 import { precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
-import { CacheFirst, NetworkFirst } from 'workbox-strategies'
+import { CacheFirst } from 'workbox-strategies'
 
 declare const self: ServiceWorkerGlobalScope
 
 clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
+
+self.addEventListener('activate', (event) => {
+  event.waitUntil(caches.delete('little-tables-bootstrap-v1'))
+})
 
 self.addEventListener('message', (event) => {
   const message: unknown = event.data
@@ -76,9 +80,4 @@ registerRoute(
     url.origin === self.location.origin &&
     request.destination === 'image',
   new CacheFirst({ cacheName: 'little-tables-visuals-v2' }),
-)
-
-registerRoute(
-  ({ request, url }) => request.method === 'GET' && url.pathname === '/api/v1/bootstrap',
-  new NetworkFirst({ cacheName: 'little-tables-bootstrap-v1', networkTimeoutSeconds: 2 }),
 )

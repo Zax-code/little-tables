@@ -9,15 +9,8 @@ import {
 
 const layer = () => {
   const events = new Map<string, Readonly<{ attempt: AttemptEvent; profileId: string }>>()
-  const consumedInvites = new Set<string>()
   const pushSubscriptions = new Map<string, PushSubscriptionRecord>()
   const service: AttemptRepositoryService = {
-    consumeInvite: (inviteId) =>
-      Effect.sync(() => {
-        if (consumedInvites.has(inviteId)) return false
-        consumedInvites.add(inviteId)
-        return true
-      }),
     health: Effect.void,
     insert: (profileId, attempts) =>
       Effect.sync(() => {
