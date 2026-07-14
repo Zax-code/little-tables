@@ -70,38 +70,7 @@ export function ReminderCard() {
     }
   }
 
-  const disable = async () => {
-    setState('working')
-    try {
-      const registration = await navigator.serviceWorker.ready
-      const subscription = await registration.pushManager.getSubscription()
-      if (subscription !== null) {
-        await fetch('/api/v1/notifications/subscriptions', {
-          body: JSON.stringify({ endpoint: subscription.endpoint }),
-          headers: { 'content-type': 'application/json' },
-          method: 'DELETE',
-        })
-        await subscription.unsubscribe()
-      }
-      setState('disabled')
-      setMessage('a gentle nudge at 6:00 pm')
-    } catch {
-      setState('enabled')
-      setMessage('could not turn the reminder off')
-    }
-  }
-
-  if (state === 'enabled') {
-    return (
-      <button
-        aria-label="Turn daily reminder off"
-        className="reminder-status"
-        onClick={() => void disable()}
-      >
-        <span aria-hidden="true">♡</span> reminder on
-      </button>
-    )
-  }
+  if (state === 'enabled') return null
 
   return (
     <aside className="reminder-card">
