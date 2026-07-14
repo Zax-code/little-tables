@@ -7,14 +7,28 @@ describe('authorizeGoogleClaims', () => {
     expect(
       authorizeGoogleClaims(
         {
-          email: 'Lea@Example.com',
+          email: 'BELMUDESLEA@GMAIL.COM',
           email_verified: true,
           given_name: 'LÉA',
           sub: 'google-account-id',
         },
-        'lea@example.com',
+        ['boosmlang.a@gmail.com', 'belmudeslea@gmail.com'],
       ),
     ).toEqual({ displayName: 'léa', profileId: 'lou', subject: 'google-account-id' })
+  })
+
+  it('accepts either configured Google account', () => {
+    expect(
+      authorizeGoogleClaims(
+        {
+          email: 'boosmlang.a@gmail.com',
+          email_verified: true,
+          given_name: 'BOO',
+          sub: 'second-google-account-id',
+        },
+        ['boosmlang.a@gmail.com', 'belmudeslea@gmail.com'],
+      ),
+    ).toEqual({ displayName: 'boo', profileId: 'lou', subject: 'second-google-account-id' })
   })
 
   it.each([
@@ -22,6 +36,8 @@ describe('authorizeGoogleClaims', () => {
     { email: 'lea@example.com', email_verified: false, sub: 'google-account-id' },
     { email: 'lea@example.com', email_verified: true },
   ])('rejects unapproved, unverified, or unidentified accounts', (claims) => {
-    expect(authorizeGoogleClaims(claims, 'lea@example.com')).toBeNull()
+    expect(
+      authorizeGoogleClaims(claims, ['boosmlang.a@gmail.com', 'belmudeslea@gmail.com']),
+    ).toBeNull()
   })
 })

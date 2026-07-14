@@ -56,7 +56,7 @@ corepack pnpm smoke:docker
 
 Set `MONGODB_URI`, `MONGODB_DATABASE`, `SESSION_SECRET`, `VAPID_PUBLIC_KEY`, and
 `VAPID_PRIVATE_KEY` in production, plus at least one authentication method:
-`INVITE_TOKEN`, or both `GOOGLE_CLIENT_ID` and `GOOGLE_ALLOWED_EMAIL`. Without
+`INVITE_TOKEN`, or both `GOOGLE_CLIENT_ID` and `GOOGLE_ALLOWED_EMAILS`. Without
 MongoDB, the server intentionally uses its in-memory repository for local
 development. The daily reminder worker sends at 18:00 in each subscribed
 device's timezone and skips the notification when practice was already
@@ -76,18 +76,24 @@ authorized JavaScript origins:
 - `https://math.leaetzak.love`
 - `http://localhost:5173` for local development
 
-The popup integration does not require an authorized redirect URI. Put the
-values in the server's environment:
+Google's JavaScript popup/callback integration does not use a redirect URI. If
+the Google Cloud Console requires one while creating the client, register:
+
+- `https://math.leaetzak.love/`
+- `http://localhost:5173/` for local development
+
+Put the values in the server's environment:
 
 ```sh
 GOOGLE_CLIENT_ID=123456789-example.apps.googleusercontent.com
-GOOGLE_ALLOWED_EMAIL=learner@example.com
+GOOGLE_ALLOWED_EMAILS=boosmlang.a@gmail.com,belmudeslea@gmail.com
 ```
 
 For production, add those two lines to
 `/etc/little-tables/little-tables.env` on the VPS and restart the application (or
 merge a deployment PR). For local development, export them in the shell that
 runs `corepack pnpm dev:server`; `.env.example` documents the values but is not a
-secret file to fill in or commit. `GOOGLE_ALLOWED_EMAIL` restricts access to the
-single Google account that owns this garden. The client ID is intentionally
-returned to the browser; never add a Google client secret to the web app.
+secret file to fill in or commit. `GOOGLE_ALLOWED_EMAILS` is a comma-separated
+allowlist; production should contain only `boosmlang.a@gmail.com` and
+`belmudeslea@gmail.com`. The client ID is intentionally returned to the browser;
+never add a Google client secret to the web app.

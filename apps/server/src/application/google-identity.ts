@@ -9,7 +9,7 @@ type GoogleClaims = Readonly<{
 }>
 
 type VerifyGoogleCredentialInput = Readonly<{
-  allowedEmail: string
+  allowedEmails: ReadonlyArray<string>
   clientId: string
   credential: string
 }>
@@ -23,23 +23,25 @@ const nonEmpty = (value: string | undefined): string | undefined => {
 
 export const authorizeGoogleClaims = (
   claims: GoogleClaims | undefined,
-  allowedEmail: string,
+  allowedEmails: ReadonlyArray<string>,
 ): Readonly<{ displayName: string; profileId: 'lou'; subject: string }> | null => {
+  const email = claims?.email?.toLocaleLowerCase('en-US')
   if (
     claims?.email_verified !== true ||
     claims.sub === undefined ||
-    claims.email?.toLocaleLowerCase('en-US') !== allowedEmail.toLocaleLowerCase('en-US')
+    email === undefined ||
+    !allowedEmails.some((allowedEmail) => allowedEmail.toLocaleLowerCase('en-US') === email)
   ) {
     return null
   }
   const googleName = nonEmpty(claims.given_name) ?? nonEmpty(claims.name)
-  const emailName = nonEmpty(claims.email.split('@')[0])
+  const emailName = nonEmpty(email.split('@')[0])
   const displayName = (googleName ?? emailName ?? 'léa').toLocaleLowerCase('en-US')
   return { displayName, profileId: 'lou', subject: claims.sub }
 }
 
 export const verifyGoogleCredential = async ({
-  allowedEmail,
+  allowedEmails,
   clientId,
   credential,
 }: VerifyGoogleCredentialInput): Promise<Readonly<{
@@ -48,5 +50,5 @@ export const verifyGoogleCredential = async ({
   subject: string
 }> | null> => {
   const ticket = await oauthClient.verifyIdToken({ audience: clientId, idToken: credential })
-  return authorizeGoogleClaims(ticket.getPayload(), allowedEmail)
+  return authorizeGoogleClaims(ticket.getPayload(), allowedEmails)
 }

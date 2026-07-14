@@ -44,10 +44,14 @@ const SavePushSubscriptionSchema = Schema.Struct({
 })
 const RemovePushSubscriptionSchema = Schema.Struct({ endpoint: Schema.NonEmptyString })
 const claimAttempts: number[] = []
+const googleAllowedEmails = (process.env.GOOGLE_ALLOWED_EMAILS ?? '')
+  .split(',')
+  .map((email) => email.trim())
+  .filter((email) => email !== '')
 const googleAuthConfig =
-  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_ALLOWED_EMAIL
+  process.env.GOOGLE_CLIENT_ID && googleAllowedEmails.length > 0
     ? {
-        allowedEmail: process.env.GOOGLE_ALLOWED_EMAIL,
+        allowedEmails: googleAllowedEmails,
         clientId: process.env.GOOGLE_CLIENT_ID,
       }
     : null
@@ -128,7 +132,7 @@ const googleSignIn = Effect.gen(function* () {
   const { credential } = yield* HttpServerRequest.schemaBodyJson(GoogleCredentialSchema)
   const identity = yield* Effect.tryPromise(() =>
     verifyGoogleCredential({
-      allowedEmail: google.allowedEmail,
+      allowedEmails: google.allowedEmails,
       clientId: google.clientId,
       credential,
     }),
