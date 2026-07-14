@@ -13,6 +13,7 @@
   --surface-soft: #f9e3e8;
   --action-primary: #f28ba2;
   --action-primary-deep: #e96e8b;
+  --ink-on-action: #fff;
   --ink-primary: #1d1d1b;
   --ink-muted: #716b67;
   --line-soft: #edcbd2;
@@ -49,6 +50,7 @@
   --accent-green: #759b67;
   --shadow-soft: 0 14px 34px rgb(90 50 55 / 10%);
   --shadow-floating-bar: 0 12px 34px rgb(79 57 47 / 14%);
+  --shadow-action-edge: rgb(210 91 118 / 18%);
 }
 
 * {
@@ -141,11 +143,69 @@ a:focus-visible {
   min-height: 64px;
 }
 .google-button {
+  position: relative;
   width: 100%;
-  min-height: 44px;
+  min-height: 58px;
+  overflow: hidden;
   display: flex;
+  align-items: center;
   justify-content: center;
-  transition: opacity 0.2s;
+  background: var(--action-primary);
+  border: 2px solid var(--action-primary-deep);
+  border-radius: 999px;
+  box-shadow:
+    0 7px 0 var(--shadow-action-edge),
+    var(--shadow-soft);
+  cursor: pointer;
+  transition:
+    box-shadow 0.2s,
+    opacity 0.2s,
+    transform 0.2s;
+}
+.google-button:hover {
+  background: var(--action-primary-deep);
+}
+.google-button:active {
+  transform: translateY(2px);
+  box-shadow: 0 4px 0 var(--shadow-action-edge);
+}
+.google-button:focus-within {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 3px;
+}
+.google-button-artwork {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--ink-on-action);
+  font-size: 1.08rem;
+  font-weight: 650;
+  letter-spacing: 0.005em;
+  pointer-events: none;
+}
+.google-button-artwork img {
+  width: 38px;
+  height: 38px;
+  object-fit: contain;
+}
+.google-button-provider {
+  position: absolute;
+  z-index: 1;
+  top: 50%;
+  left: 0;
+  width: 100%;
+  min-height: 40px;
+  overflow: hidden;
+  opacity: 0.0001;
+  transform: translateY(-50%) scaleY(1.45);
+  transform-origin: center;
+}
+.google-button-provider > div,
+.google-button-provider iframe {
+  width: 100% !important;
 }
 .google-button.pending {
   opacity: 0.55;
@@ -1670,5 +1730,8 @@ p {
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+  .google-button:active {
+    transform: none;
   }
 }

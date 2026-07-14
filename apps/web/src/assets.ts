@@ -7,6 +7,12 @@ type CharacterAsset = Readonly<{
   src: string
 }>
 
+export const googleConnectIcon: CharacterAsset = {
+  alt: 'Miffy face',
+  source: 'gpt-image-built-in',
+  src: '/generated/miffy-google-connect.png',
+}
+
 export const gardenWateringSprite: CharacterAsset = {
   alt: 'Miffy tipping her blue watering can over the garden plants',
   source: 'gpt-image-built-in',

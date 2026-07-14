@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { PropsWithChildren } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
+import { googleConnectIcon } from '../assets.js'
 import { authStatusQueryKey, fetchAuthStatus, signInWithGoogle } from '../auth-client.js'
 import { renderGoogleSignInButton } from '../google-identity.js'
 import {
@@ -13,6 +14,15 @@ import {
 } from '../offline-auth.js'
 import { Bunny } from './bunny.js'
 import { Screen } from './screen.js'
+
+export function GoogleConnectButtonArtwork() {
+  return (
+    <span aria-hidden="true" className="google-button-artwork">
+      <img alt="" src={googleConnectIcon.src} />
+      <span>connect with google</span>
+    </span>
+  )
+}
 
 function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
   const button = useRef<HTMLDivElement>(null)
@@ -54,11 +64,10 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
 
   return (
     <div className="google-sign-in-area">
-      <div
-        aria-label="Sign in with Google"
-        className={pending ? 'google-button pending' : 'google-button'}
-        ref={button}
-      />
+      <div className={pending ? 'google-button pending' : 'google-button'}>
+        <GoogleConnectButtonArtwork />
+        <div className="google-button-provider" ref={button} />
+      </div>
       {pending ? <p role="status">opening your garden…</p> : null}
       {error ? (
         <p className="auth-error" role="alert">
