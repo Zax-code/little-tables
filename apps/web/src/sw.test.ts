@@ -41,6 +41,31 @@ describe('service worker updates', () => {
     expect(skipWaiting).toHaveBeenCalledOnce()
   })
 
+  it('activates this recovery release immediately for already-installed PWAs', async () => {
+    const listeners = new Map<string, EventListener>()
+    const activation = Promise.resolve()
+    const skipWaiting = vi.fn(() => activation)
+
+    vi.stubGlobal('self', {
+      __WB_MANIFEST: [],
+      addEventListener: vi.fn((type: string, listener: EventListener) => {
+        listeners.set(type, listener)
+      }),
+      clients: { matchAll: vi.fn(), openWindow: vi.fn() },
+      location: { origin: 'https://little-tables.test' },
+      registration: { showNotification: vi.fn() },
+      skipWaiting,
+    })
+
+    await import('./sw.js')
+
+    const waitUntil = vi.fn()
+    listeners.get('install')?.({ waitUntil } as unknown as ExtendableEvent)
+
+    expect(skipWaiting).toHaveBeenCalledOnce()
+    expect(waitUntil).toHaveBeenCalledWith(activation)
+  })
+
   it('deletes the legacy cache that may contain authenticated bootstrap data', async () => {
     const listeners = new Map<string, EventListener>()
     const deleteCache = vi.fn().mockResolvedValue(true)

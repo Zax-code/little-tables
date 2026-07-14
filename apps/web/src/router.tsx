@@ -7,6 +7,8 @@ import {
 } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
+import { PwaManager } from './components/pwa-manager.js'
+
 const CelebrationScreen = lazy(() =>
   import('./screens/celebration-screen.js').then((module) => ({
     default: module.CelebrationScreen,
@@ -29,9 +31,12 @@ type RouterContext = Readonly<{ queryClient: QueryClient | undefined }>
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => (
-    <Suspense fallback={<div className="loading-state">opening your garden…</div>}>
-      <Outlet />
-    </Suspense>
+    <>
+      <Suspense fallback={<div className="loading-state">opening your garden…</div>}>
+        <Outlet />
+      </Suspense>
+      <PwaManager />
+    </>
   ),
 })
 

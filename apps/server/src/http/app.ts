@@ -254,7 +254,10 @@ const staticWebApp = Effect.gen(function* () {
   }
   const target = assetExists ? requestedPath : resolve(webDistPath, 'index.html')
   if (!existsSync(target)) return yield* json({ error: 'web_build_not_found' }, 404)
-  return yield* HttpServerResponse.file(target)
+  const response = yield* HttpServerResponse.file(target)
+  return target.endsWith(`${sep}index.html`)
+    ? HttpServerResponse.setHeader(response, 'cache-control', 'no-store')
+    : response
 }).pipe(Effect.catchAll(() => json({ error: 'not_found' }, 404)))
 
 export const httpApp = HttpRouter.empty.pipe(
