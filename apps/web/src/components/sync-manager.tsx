@@ -18,19 +18,6 @@ export function SyncManager() {
   const { mutate } = sync
 
   useEffect(() => {
-    const claimInvite = async () => {
-      const url = new URL(window.location.href)
-      const invite = url.searchParams.get('invite')
-      if (invite === null) return
-      const response = await fetch('/api/v1/invites/claim', {
-        body: JSON.stringify({ token: invite }),
-        headers: { 'content-type': 'application/json' },
-        method: 'POST',
-      })
-      if (!response.ok) throw new Error('The private invite could not be claimed.')
-      url.searchParams.delete('invite')
-      window.history.replaceState(null, '', url)
-    }
     const flush = () => {
       if (!navigator.onLine) return
       mutate(undefined, {
@@ -73,11 +60,7 @@ export function SyncManager() {
     const onVisibility = () => {
       if (document.visibilityState === 'visible') flush()
     }
-    void claimInvite()
-      .then(flush)
-      .catch(() => {
-        queryClient.setQueryData(syncStatusQueryKey, 'invite needed')
-      })
+    flush()
     window.addEventListener('online', flush)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {

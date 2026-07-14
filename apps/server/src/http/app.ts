@@ -6,6 +6,7 @@ import { fileURLToPath } from 'node:url'
 import { resolve, sep } from 'node:path'
 
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
+import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
 import { AttemptRepository } from '../repositories/attempt-repository.js'
 
@@ -31,6 +32,7 @@ const SyncRequestSchema = Schema.Struct({
 })
 
 const ClaimInviteSchema = Schema.Struct({ token: Schema.NonEmptyString })
+const GoogleCredentialSchema = Schema.Struct({ credential: Schema.NonEmptyString })
 const PushSubscriptionSchema = Schema.Struct({
   endpoint: Schema.NonEmptyString,
   expirationTime: Schema.NullOr(Schema.NonNegative),
@@ -42,9 +44,20 @@ const SavePushSubscriptionSchema = Schema.Struct({
 })
 const RemovePushSubscriptionSchema = Schema.Struct({ endpoint: Schema.NonEmptyString })
 const claimAttempts: number[] = []
+const googleAuthConfig =
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_ALLOWED_EMAIL
+    ? {
+        allowedEmail: process.env.GOOGLE_ALLOWED_EMAIL,
+        clientId: process.env.GOOGLE_CLIENT_ID,
+      }
+    : null
 const authConfig =
-  process.env.INVITE_TOKEN && process.env.SESSION_SECRET
-    ? { invite: process.env.INVITE_TOKEN, secret: process.env.SESSION_SECRET }
+  process.env.SESSION_SECRET && (process.env.INVITE_TOKEN || googleAuthConfig !== null)
+    ? {
+        google: googleAuthConfig,
+        invite: process.env.INVITE_TOKEN ?? null,
+        secret: process.env.SESSION_SECRET,
+      }
     : null
 const defaultWebDistPath = fileURLToPath(new URL('../../../web/dist', import.meta.url))
 const webDistPath = resolve(process.env.WEB_DIST_PATH ?? defaultWebDistPath)
@@ -61,13 +74,17 @@ const sessionCookie = (response: HttpServerResponse.HttpServerResponse, session:
     secure: true,
   })
 
-const authorizedProfile = Effect.gen(function* () {
-  if (authConfig === null) return 'lou'
+const authorizedIdentity = Effect.gen(function* () {
+  if (authConfig === null) return { displayName: 'léa', profileId: 'lou' } as const
   const request = yield* HttpServerRequest.HttpServerRequest
   const session = request.cookies['little-tables-session']
   if (session === undefined) return null
-  return Identity.verify({ now: new Date(), secret: authConfig.secret, session })?.profileId ?? null
+  return Identity.verify({ now: new Date(), secret: authConfig.secret, session })
 })
+
+const authorizedProfile = authorizedIdentity.pipe(
+  Effect.map((identity) => identity?.profileId ?? null),
+)
 
 const claimInvite = Effect.gen(function* () {
   const now = Date.now()
@@ -76,6 +93,7 @@ const claimInvite = Effect.gen(function* () {
   claimAttempts.push(now)
   if (authConfig === null)
     return yield* json({ profileId: 'lou', status: 'development_auth_disabled' })
+  if (authConfig.invite === null) return yield* json({ error: 'invite_auth_unavailable' }, 404)
   const { token } = yield* HttpServerRequest.schemaBodyJson(ClaimInviteSchema)
   const session = Identity.claim({
     expectedInvite: authConfig.invite,
@@ -90,6 +108,43 @@ const claimInvite = Effect.gen(function* () {
   const response = yield* json({ profileId: 'lou', status: 'claimed' })
   return sessionCookie(response, session)
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_invite_request' }, 400)))
+
+const authStatus = Effect.gen(function* () {
+  const identity = yield* authorizedIdentity
+  return yield* json({
+    authenticated: identity !== null,
+    authenticationRequired: authConfig !== null,
+    displayName: identity?.displayName ?? null,
+    googleClientId: authConfig?.google?.clientId ?? null,
+  })
+})
+
+const googleSignIn = Effect.gen(function* () {
+  const google = authConfig?.google
+  const secret = authConfig?.secret
+  if (google === null || google === undefined || secret === undefined) {
+    return yield* json({ error: 'google_auth_unavailable' }, 404)
+  }
+  const { credential } = yield* HttpServerRequest.schemaBodyJson(GoogleCredentialSchema)
+  const identity = yield* Effect.tryPromise(() =>
+    verifyGoogleCredential({
+      allowedEmail: google.allowedEmail,
+      clientId: google.clientId,
+      credential,
+    }),
+  )
+  if (identity === null) return yield* json({ error: 'google_account_not_allowed' }, 401)
+  const session = Identity.issue({
+    displayName: identity.displayName,
+    now: new Date(),
+    profileId: identity.profileId,
+    secret,
+  })
+  return sessionCookie(
+    yield* json({ profileId: identity.profileId, status: 'authenticated' }),
+    session,
+  )
+}).pipe(Effect.catchAll(() => json({ error: 'invalid_google_credential' }, 401)))
 
 const refreshSession = Effect.gen(function* () {
   if (authConfig === null) return yield* json({ status: 'development_auth_disabled' })
@@ -127,10 +182,10 @@ const sync = Effect.gen(function* () {
 )
 
 const bootstrap = Effect.gen(function* () {
-  const profileId = yield* authorizedProfile
-  if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
+  const identity = yield* authorizedIdentity
+  if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
   const repository = yield* AttemptRepository
-  const attempts = yield* repository.list(profileId)
+  const attempts = yield* repository.list(identity.profileId)
   const snapshot = LearningEngine.reduce({ attempts, snapshot: LearningEngine.emptySnapshot() })
   const completedSessions = new Set(
     attempts
@@ -142,7 +197,7 @@ const bootstrap = Effect.gen(function* () {
   ]
   return yield* json({
     algorithmVersion: snapshot.algorithmVersion,
-    profile: { displayName: 'léa', id: 'lou' },
+    profile: { displayName: identity.displayName, id: identity.profileId },
     completedSessions,
     practiceDayKeys,
     rewards: LearningEngine.deriveRewards({ completedSessions, snapshot }),
@@ -202,6 +257,8 @@ export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.get('/health/live', json({ status: 'ok' })),
   HttpRouter.get('/health/ready', ready),
   HttpRouter.post('/api/v1/invites/claim', claimInvite),
+  HttpRouter.get('/api/v1/auth/status', authStatus),
+  HttpRouter.post('/api/v1/auth/google', googleSignIn),
   HttpRouter.post('/api/v1/session/refresh', refreshSession),
   HttpRouter.get('/api/v1/bootstrap', bootstrap),
   HttpRouter.post('/api/v1/attempts/sync', sync),

@@ -15,6 +15,7 @@
     "@effect/platform-node": "^0.107.0",
     "@little-tables/domain": "workspace:*",
     "effect": "^3.21.4",
+    "google-auth-library": "^10.9.0",
     "mongodb": "^7.5.0",
     "web-push": "^3.6.7"
   },
