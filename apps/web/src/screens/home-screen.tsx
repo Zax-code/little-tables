@@ -77,7 +77,7 @@ export function HomeScreen() {
         </button>
         <header className="welcome-copy">
           <p className="eyebrow">little tables.</p>
-          <h1>{firstVisit ? 'a tiny hello ♡' : 'good morning, lou ♡'}</h1>
+          <h1>{firstVisit ? 'a tiny hello ♡' : 'good morning, léa ♡'}</h1>
           <p>{firstVisit ? 'let’s find your easiest starting place.' : 'ready for a tiny win?'}</p>
         </header>
 
