@@ -11,6 +11,11 @@ import { MongoAttemptRepository } from './repositories/mongo-attempt-repository.
 const port = Number(process.env.PORT ?? 3000)
 const host = process.env.HOST ?? '127.0.0.1'
 const unsafeEphemeral = process.env.LITTLE_TABLES_UNSAFE_EPHEMERAL === 'true'
+const googleConfigComplete = Boolean(
+  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_ALLOWED_EMAILS,
+)
+const googleConfigPartial =
+  process.env.GOOGLE_CLIENT_ID !== undefined || process.env.GOOGLE_ALLOWED_EMAILS !== undefined
 const vapidConfig =
   process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY
     ? {
@@ -19,16 +24,21 @@ const vapidConfig =
         subject: process.env.VAPID_SUBJECT ?? 'https://math.leaetzak.love',
       }
     : null
+if (googleConfigPartial && !googleConfigComplete) {
+  throw new Error(
+    'Google authentication requires GOOGLE_CLIENT_ID and GOOGLE_ALLOWED_EMAILS together.',
+  )
+}
 if (
   process.env.NODE_ENV === 'production' &&
   !unsafeEphemeral &&
   (!process.env.MONGODB_URI ||
-    !process.env.INVITE_TOKEN ||
     !process.env.SESSION_SECRET ||
+    (!process.env.INVITE_TOKEN && !googleConfigComplete) ||
     vapidConfig === null)
 ) {
   throw new Error(
-    'Production requires MONGODB_URI, INVITE_TOKEN, SESSION_SECRET, VAPID_PUBLIC_KEY, and VAPID_PRIVATE_KEY. Set LITTLE_TABLES_UNSAFE_EPHEMERAL=true only for an explicit disposable smoke test.',
+    'Production requires MONGODB_URI, SESSION_SECRET, VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, and at least one authentication method: INVITE_TOKEN or GOOGLE_CLIENT_ID with GOOGLE_ALLOWED_EMAILS. Set LITTLE_TABLES_UNSAFE_EPHEMERAL=true only for an explicit disposable smoke test.',
   )
 }
 const repositoryLayer = process.env.MONGODB_URI

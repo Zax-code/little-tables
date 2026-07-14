@@ -19,7 +19,7 @@ describe('Identity', () => {
         secret: 'a-session-secret-long-enough',
         session: session ?? '',
       }),
-    ).toEqual({ profileId: 'lou' })
+    ).toEqual({ displayName: 'léa', profileId: 'lou' })
     expect(
       Identity.verify({
         now,
@@ -34,5 +34,20 @@ describe('Identity', () => {
         session: session ?? '',
       }),
     ).toBeNull()
+  })
+
+  it('issues a valid session for an externally verified identity', () => {
+    const now = new Date('2026-07-12T12:00:00.000Z')
+    const session = Identity.issue({
+      displayName: 'lea',
+      now,
+      profileId: 'lou',
+      secret: 'a-session-secret-long-enough',
+    })
+
+    expect(Identity.verify({ now, secret: 'a-session-secret-long-enough', session })).toEqual({
+      displayName: 'lea',
+      profileId: 'lou',
+    })
   })
 })

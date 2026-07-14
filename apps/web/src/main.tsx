@@ -5,6 +5,7 @@ import { createRoot } from 'react-dom/client'
 import { MotionConfig } from 'motion/react'
 
 import { router } from './router.js'
+import { AuthGate } from './components/auth-gate.js'
 import { SyncManager } from './components/sync-manager.js'
 import { preloadAppImages } from './preload-images.js'
 import './styles.css'
@@ -23,10 +24,12 @@ void preloadAppImages().then(() => {
   createRoot(root).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <MotionConfig reducedMotion="user">
-          <SyncManager />
-          <RouterProvider router={router} context={{ queryClient }} />
-        </MotionConfig>
+        <AuthGate>
+          <MotionConfig reducedMotion="user">
+            <SyncManager />
+            <RouterProvider router={router} context={{ queryClient }} />
+          </MotionConfig>
+        </AuthGate>
       </QueryClientProvider>
     </StrictMode>,
   )

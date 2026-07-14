@@ -116,6 +116,59 @@ a:focus-visible {
   font-weight: 700;
 }
 
+.auth-screen {
+  min-height: calc(100dvh - 44px - max(18px, env(safe-area-inset-bottom)));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.auth-screen h1 {
+  max-width: 360px;
+}
+.auth-screen > div:first-child > p:last-child {
+  max-width: 320px;
+  margin: 12px auto 0;
+}
+.auth-bunny {
+  width: min(58vw, 230px);
+  height: auto;
+  margin: 24px 0 8px;
+}
+.google-sign-in-area {
+  width: min(100%, 320px);
+  min-height: 64px;
+}
+.google-button {
+  width: 100%;
+  min-height: 44px;
+  display: flex;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+.google-button.pending {
+  opacity: 0.55;
+  pointer-events: none;
+}
+.google-sign-in-area p,
+.auth-help,
+.auth-error {
+  margin: 10px auto 0;
+  font-size: 0.82rem;
+  font-weight: 650;
+}
+.auth-help {
+  padding: 14px 18px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: var(--surface-card);
+}
+.auth-error {
+  max-width: 320px;
+  color: #a63f58;
+}
+
 .screen-content {
   flex: 1;
   min-height: 0;

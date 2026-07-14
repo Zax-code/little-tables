@@ -4,6 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { motion } from 'motion/react'
 import { useState } from 'react'
 
+import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
 import { Bunny } from '../components/bunny.js'
 import { InstallCard } from '../components/install-card.js'
 import { ReminderCard } from '../components/reminder-card.js'
@@ -14,6 +15,11 @@ import { localBootstrapQueryKey, practiceStore } from '../store.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
 
 export function HomeScreen() {
+  const auth = useQuery({
+    queryKey: authStatusQueryKey,
+    queryFn: () => fetchAuthStatus(),
+    staleTime: 30_000,
+  })
   const bootstrap = useLocalBootstrap()
   const syncStatus = useQuery({
     initialData: navigator.onLine ? 'syncing' : 'saved on this phone',
@@ -27,6 +33,7 @@ export function HomeScreen() {
   const [showModes, setShowModes] = useState(false)
   const [sound, setSound] = useState(soundEnabled)
   const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
+  const displayName = auth.data?.displayName ?? 'léa'
   const garden = LearningEngine.deriveGardenProgress({
     completedSessions: data?.completedSessions ?? 0,
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
@@ -77,7 +84,9 @@ export function HomeScreen() {
         </button>
         <header className="welcome-copy">
           <p className="eyebrow">little tables.</p>
-          <h1>{firstVisit ? 'a tiny hello ♡' : 'good morning, léa ♡'}</h1>
+          <h1>
+            {firstVisit ? `a tiny hello, ${displayName} ♡` : `good morning, ${displayName} ♡`}
+          </h1>
           <p>{firstVisit ? 'let’s find your easiest starting place.' : 'ready for a tiny win?'}</p>
         </header>
 
