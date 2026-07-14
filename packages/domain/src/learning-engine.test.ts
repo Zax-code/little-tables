@@ -1,6 +1,36 @@
 import { describe, expect, it } from 'vitest'
 
-import { type AttemptEvent, type FactMastery, LearningEngine } from './learning-engine.js'
+import {
+  type AttemptEvent,
+  type FactMastery,
+  LearningEngine,
+  type PracticeSession,
+} from './learning-engine.js'
+
+const answerCorrectly = (
+  initialSession: PracticeSession,
+  startedAt: Date,
+  eventPrefix: string,
+  latencyMs = 1_000,
+): ReadonlyArray<AttemptEvent> => {
+  let session = initialSession
+  const attempts: AttemptEvent[] = []
+
+  while (session.currentIndex < session.questions.length) {
+    const question = session.questions[session.currentIndex]
+    if (question === undefined) throw new Error('Expected a question')
+    const result = LearningEngine.answer({
+      answeredAt: new Date(startedAt.getTime() + (session.currentIndex + 1) * latencyMs),
+      eventId: `${eventPrefix}-${session.currentIndex}`,
+      selected: question.left * question.right,
+      session,
+    })
+    attempts.push(result.event)
+    session = result.session
+  }
+
+  return attempts
+}
 
 describe('LearningEngine', () => {
   it('creates a ten-question beginner session with valid answer choices', () => {
@@ -22,6 +52,228 @@ describe('LearningEngine', () => {
       expect(question.right).toBeGreaterThanOrEqual(1)
       expect(question.right).toBeLessThanOrEqual(10)
     }
+  })
+
+  it('introduces variety in consecutive same-day standard sessions', () => {
+    const now = new Date('2026-07-13T12:00:00.000Z')
+    const session = LearningEngine.createSession({
+      now,
+      policy: { questionCount: 10 },
+      seed: 41,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const firstFactKeys = new Set(session.questions.map(({ factKey }) => factKey))
+
+    const snapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(session, now, 'variety'),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const nextSession = LearningEngine.createSession({
+      now: new Date('2026-07-13T12:01:00.000Z'),
+      policy: { questionCount: 10 },
+      seed: 42,
+      snapshot,
+    })
+    const overlap = nextSession.questions.filter(({ factKey }) => firstFactKeys.has(factKey))
+
+    expect(overlap).toHaveLength(5)
+  })
+
+  it('caps same-day overlap when the previous session was slow', () => {
+    const now = new Date('2026-07-13T12:00:00.000Z')
+    const session = LearningEngine.createSession({
+      now,
+      policy: { questionCount: 10 },
+      seed: 43,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const firstFactKeys = new Set(session.questions.map(({ factKey }) => factKey))
+    const snapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(session, now, 'slow-variety', 4_000),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const nextSession = LearningEngine.createSession({
+      now: new Date('2026-07-13T12:01:00.000Z'),
+      policy: { questionCount: 10 },
+      seed: 44,
+      snapshot,
+    })
+    const overlap = nextSession.questions.filter(({ factKey }) => firstFactKeys.has(factKey))
+
+    expect(overlap).toHaveLength(5)
+  })
+
+  it('prefers older review facts over facts already answered today', () => {
+    const firstDay = new Date('2026-07-13T12:00:00.000Z')
+    const firstSession = LearningEngine.createSession({
+      now: firstDay,
+      policy: { questionCount: 10 },
+      seed: 71,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const firstSnapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(firstSession, firstDay, 'cooldown-first'),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const secondDay = new Date('2026-07-14T11:00:00.000Z')
+    const secondSession = LearningEngine.createSession({
+      now: secondDay,
+      policy: { questionCount: 10 },
+      seed: 72,
+      snapshot: firstSnapshot,
+    })
+    const secondSnapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(secondSession, secondDay, 'cooldown-second'),
+      snapshot: firstSnapshot,
+    })
+    const nextSession = LearningEngine.createSession({
+      now: new Date('2026-07-14T11:01:00.000Z'),
+      policy: { questionCount: 10 },
+      seed: 73,
+      snapshot: secondSnapshot,
+    })
+    const reviewed = nextSession.questions.filter(
+      ({ factKey }) => secondSnapshot.facts[factKey] !== undefined,
+    )
+
+    expect(reviewed).toHaveLength(5)
+    expect(
+      reviewed.every(({ factKey }) =>
+        secondSnapshot.facts[factKey]?.lastReviewedAt?.toISOString().startsWith('2026-07-13'),
+      ),
+    ).toBe(true)
+  })
+
+  it('keeps a recently missed fact in the next session', () => {
+    const firstDay = new Date('2026-07-13T12:00:00.000Z')
+    const firstSession = LearningEngine.createSession({
+      now: firstDay,
+      policy: { questionCount: 10 },
+      seed: 74,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const learnedSnapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(firstSession, firstDay, 'weak-first'),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const easySnapshot = {
+      ...learnedSnapshot,
+      facts: Object.fromEntries(
+        Object.entries(learnedSnapshot.facts).map(([factKey, mastery]) => [
+          factKey,
+          { ...mastery, difficulty: 0.3 },
+        ]),
+      ),
+    }
+    const secondDay = new Date('2026-07-14T11:00:00.000Z')
+    let session = LearningEngine.createSession({
+      now: secondDay,
+      policy: { questionCount: 10 },
+      seed: 75,
+      snapshot: easySnapshot,
+    })
+    const attempts: AttemptEvent[] = []
+
+    while (session.currentIndex < 5) {
+      const question = session.questions[session.currentIndex]
+      if (question === undefined) throw new Error('Expected a question')
+      const result = LearningEngine.answer({
+        answeredAt: new Date(secondDay.getTime() + (session.currentIndex + 1) * 1_000),
+        eventId: `weak-lead-${session.currentIndex}`,
+        selected: question.left * question.right,
+        session,
+      })
+      attempts.push(result.event)
+      session = result.session
+    }
+
+    const missed = session.questions[session.currentIndex]
+    if (missed === undefined) throw new Error('Expected a question')
+    expect(easySnapshot.facts[missed.factKey]).toBeDefined()
+    const wrong = LearningEngine.answer({
+      answeredAt: new Date(secondDay.getTime() + (session.currentIndex + 1) * 1_000),
+      eventId: 'weak-miss',
+      selected: missed.left * missed.right + 1,
+      session,
+    })
+    attempts.push(wrong.event)
+    session = wrong.session
+
+    while (session.currentIndex < session.questions.length) {
+      const question = session.questions[session.currentIndex]
+      if (question === undefined) throw new Error('Expected a question')
+      const result = LearningEngine.answer({
+        answeredAt: new Date(secondDay.getTime() + (session.currentIndex + 1) * 1_000),
+        eventId: `weak-finish-${session.currentIndex}`,
+        selected: question.left * question.right,
+        session,
+      })
+      attempts.push(result.event)
+      session = result.session
+    }
+
+    const weakSnapshot = LearningEngine.reduce({
+      attempts,
+      snapshot: easySnapshot,
+    })
+    const nextSession = LearningEngine.createSession({
+      now: new Date('2026-07-14T11:02:00.000Z'),
+      policy: { questionCount: 10 },
+      seed: 76,
+      snapshot: weakSnapshot,
+    })
+
+    expect(nextSession.questions.some(({ factKey }) => factKey === missed.factKey)).toBe(true)
+  })
+
+  it('keeps due review as the majority while introducing unseen facts', () => {
+    const firstDay = new Date('2026-07-13T12:00:00.000Z')
+    const firstSession = LearningEngine.createSession({
+      now: firstDay,
+      policy: { questionCount: 10 },
+      seed: 51,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const snapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(firstSession, firstDay, 'due-variety'),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const nextSession = LearningEngine.createSession({
+      now: new Date('2026-07-15T12:00:00.000Z'),
+      policy: { questionCount: 10 },
+      seed: 52,
+      snapshot,
+    })
+    const unseen = nextSession.questions.filter(
+      ({ factKey }) => snapshot.facts[factKey] === undefined,
+    )
+
+    expect(unseen).toHaveLength(3)
+  })
+
+  it('balances due review and unseen facts in a five-question session', () => {
+    const firstDay = new Date('2026-07-13T12:00:00.000Z')
+    const firstSession = LearningEngine.createSession({
+      now: firstDay,
+      policy: { questionCount: 5 },
+      seed: 53,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const snapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(firstSession, firstDay, 'five-quick-variety'),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const nextSession = LearningEngine.createSession({
+      now: new Date('2026-07-15T12:00:00.000Z'),
+      policy: { questionCount: 5 },
+      seed: 54,
+      snapshot,
+    })
+    const unseen = nextSession.questions.filter(
+      ({ factKey }) => snapshot.facts[factKey] === undefined,
+    )
+
+    expect(unseen).toHaveLength(2)
   })
 
   it('answers a question and emits an immutable attempt event', () => {
@@ -414,5 +666,35 @@ describe('LearningEngine', () => {
 
     const focused = session.questions.filter(({ left, right }) => left === 7 || right === 7)
     expect(focused).toHaveLength(8)
+  })
+
+  it('introduces unused facts in consecutive focused sessions', () => {
+    const now = new Date('2026-07-13T12:00:00.000Z')
+    const firstSession = LearningEngine.createSession({
+      now,
+      policy: { focusTable: 7, questionCount: 10 },
+      seed: 61,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const firstFocusedKeys = new Set(
+      firstSession.questions
+        .filter(({ left, right }) => left === 7 || right === 7)
+        .map(({ factKey }) => factKey),
+    )
+    const snapshot = LearningEngine.reduce({
+      attempts: answerCorrectly(firstSession, now, 'focused-variety'),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const nextSession = LearningEngine.createSession({
+      now: new Date('2026-07-13T12:01:00.000Z'),
+      policy: { focusTable: 7, questionCount: 10 },
+      seed: 62,
+      snapshot,
+    })
+    const focused = nextSession.questions.filter(({ left, right }) => left === 7 || right === 7)
+    const newlyIntroduced = focused.filter(({ factKey }) => !firstFocusedKeys.has(factKey))
+
+    expect(focused).toHaveLength(8)
+    expect(newlyIntroduced).toHaveLength(2)
   })
 })
