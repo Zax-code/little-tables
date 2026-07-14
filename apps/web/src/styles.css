@@ -530,18 +530,6 @@ p {
 .reminder-card button:disabled {
   opacity: 0.58;
 }
-.reminder-status {
-  margin: 12px 2px 0 auto;
-  padding: 8px 10px;
-  border: 0;
-  background: transparent;
-  color: var(--accent-green);
-  font-size: 0.72rem;
-  font-weight: 750;
-}
-.reminder-status span {
-  margin-right: 3px;
-}
 .install-card strong {
   font-size: 0.86rem;
 }

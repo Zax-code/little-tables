@@ -16,15 +16,13 @@ vi.mock('react', async (importOriginal) => ({
 import { ReminderCard } from './reminder-card.js'
 
 describe('reminder card', () => {
-  it('stops showing the opt-in card once notifications are enabled', () => {
+  it('renders nothing once notifications are enabled', () => {
     useState
       .mockReturnValueOnce(['enabled', vi.fn()])
       .mockReturnValueOnce(['daily at 6:00 pm · quiet after you practice', vi.fn()])
 
     const markup = renderToStaticMarkup(createElement(ReminderCard))
 
-    expect(markup).not.toContain('class="reminder-card"')
-    expect(markup).toContain('class="reminder-status"')
-    expect(markup).toContain('aria-label="Turn daily reminder off"')
+    expect(markup).toBe('')
   })
 })
