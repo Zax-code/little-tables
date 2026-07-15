@@ -5,7 +5,9 @@ import { createServer } from 'node:http'
 
 import { httpApp } from './http/app.js'
 import { DailyReminders } from './application/daily-reminders.js'
+import { InMemoryAllowedEmailRepository } from './repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from './repositories/in-memory-attempt-repository.js'
+import { MongoAllowedEmailRepository } from './repositories/mongo-allowed-email-repository.js'
 import { MongoAttemptRepository } from './repositories/mongo-attempt-repository.js'
 
 const port = Number(process.env.PORT ?? 3000)
@@ -42,8 +44,11 @@ if (
   )
 }
 const repositoryLayer = process.env.MONGODB_URI
-  ? MongoAttemptRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE)
-  : InMemoryAttemptRepository.layer()
+  ? Layer.merge(
+      MongoAttemptRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
+      MongoAllowedEmailRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
+    )
+  : Layer.merge(InMemoryAttemptRepository.layer(), InMemoryAllowedEmailRepository.layer())
 
 const httpLayer = HttpServer.serve(httpApp).pipe(
   Layer.provide(NodeHttpServer.layer(createServer, { host, port })),

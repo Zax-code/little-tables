@@ -9,6 +9,7 @@ type VerifyInput = Readonly<{
 type IssueInput = Readonly<{
   authMethod: 'google'
   displayName: string
+  email: string
   googleSubject: string
   now: Date
   profileId: 'lou'
@@ -24,6 +25,7 @@ const equalDigest = (first: Buffer, second: Buffer): boolean =>
 const issue = ({
   authMethod,
   displayName,
+  email,
   googleSubject,
   now,
   profileId,
@@ -31,7 +33,7 @@ const issue = ({
 }: IssueInput): string => {
   const expiresAt = now.getTime() + 30 * 24 * 60 * 60 * 1000
   const payload = Buffer.from(
-    JSON.stringify({ authMethod, displayName, expiresAt, googleSubject, profileId }),
+    JSON.stringify({ authMethod, displayName, email, expiresAt, googleSubject, profileId }),
   ).toString('base64url')
   const signature = digest(payload, secret).toString('base64url')
   return `${payload}.${signature}`
@@ -44,6 +46,7 @@ const verify = ({
 }: VerifyInput): Readonly<{
   authMethod: 'google'
   displayName: string
+  email: string
   expiresAt: number
   googleSubject: string
   profileId: 'lou'
@@ -59,6 +62,8 @@ const verify = ({
       record.authMethod !== 'google' ||
       typeof record.displayName !== 'string' ||
       record.displayName.trim() === '' ||
+      typeof record.email !== 'string' ||
+      record.email.trim() === '' ||
       typeof record.googleSubject !== 'string' ||
       record.googleSubject.trim() === '' ||
       record.profileId !== 'lou' ||
@@ -70,6 +75,7 @@ const verify = ({
     return {
       authMethod: 'google',
       displayName: record.displayName,
+      email: record.email,
       expiresAt: record.expiresAt,
       googleSubject: record.googleSubject,
       profileId: 'lou',
@@ -86,6 +92,7 @@ const renew = (input: VerifyInput): string | null => {
     : issue({
         authMethod: identity.authMethod,
         displayName: identity.displayName,
+        email: identity.email,
         googleSubject: identity.googleSubject,
         now: input.now,
         profileId: identity.profileId,

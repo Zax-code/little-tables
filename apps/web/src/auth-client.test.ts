@@ -11,6 +11,7 @@ describe('auth client', () => {
           authenticationRequired: true,
           displayName: null,
           googleClientId: 'client.apps.googleusercontent.com',
+          isAdmin: false,
           sessionExpiresAt: null,
         }),
       ),
@@ -21,6 +22,7 @@ describe('auth client', () => {
       authenticationRequired: true,
       displayName: null,
       googleClientId: 'client.apps.googleusercontent.com',
+      isAdmin: false,
       sessionExpiresAt: null,
     })
   })

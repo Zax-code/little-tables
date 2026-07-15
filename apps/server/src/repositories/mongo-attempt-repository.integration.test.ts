@@ -4,7 +4,9 @@ import { Effect } from 'effect'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
+import { AllowedEmailRepository } from './allowed-email-repository.js'
 import { AttemptRepository } from './attempt-repository.js'
+import { MongoAllowedEmailRepository } from './mongo-allowed-email-repository.js'
 import { MongoAttemptRepository } from './mongo-attempt-repository.js'
 
 describe('MongoAttemptRepository', () => {
@@ -54,5 +56,30 @@ describe('MongoAttemptRepository', () => {
     expect(result.first.accepted).toEqual(['mongo-attempt-1'])
     expect(result.second.duplicates).toEqual(['mongo-attempt-1'])
     expect(result.stored).toEqual([attempt])
+  }, 30_000)
+
+  it('idempotently persists allowed email addresses', async () => {
+    const program = Effect.gen(function* () {
+      const repository = yield* AllowedEmailRepository
+      const firstCreated = yield* repository.add('new.user@example.com', 'boomslang.a@gmail.com')
+      const secondCreated = yield* repository.add('new.user@example.com', 'boomslang.a@gmail.com')
+      const contains = yield* repository.contains('new.user@example.com')
+      const emails = yield* repository.list()
+      return { contains, emails, firstCreated, secondCreated }
+    }).pipe(
+      Effect.provide(
+        MongoAllowedEmailRepository.layer(
+          `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`,
+          'integration',
+        ),
+      ),
+    )
+
+    await expect(Effect.runPromise(program)).resolves.toEqual({
+      contains: true,
+      emails: ['new.user@example.com'],
+      firstCreated: true,
+      secondCreated: false,
+    })
   }, 30_000)
 })

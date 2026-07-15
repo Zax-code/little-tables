@@ -6,6 +6,11 @@ import { fileURLToPath } from 'node:url'
 import { resolve, sep } from 'node:path'
 
 import { AccessControl } from '../application/access-control.js'
+import {
+  AllowedEmailAccess,
+  AllowedEmailAccessError,
+  administratorEmail,
+} from '../application/allowed-email-access.js'
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
 import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
@@ -33,6 +38,7 @@ const SyncRequestSchema = Schema.Struct({
 })
 
 const GoogleCredentialSchema = Schema.Struct({ credential: Schema.NonEmptyString })
+const AllowedEmailSchema = Schema.Struct({ email: Schema.String })
 const PushSubscriptionSchema = Schema.Struct({
   endpoint: Schema.NonEmptyString,
   expirationTime: Schema.optionalWith(Schema.NullOr(Schema.NonNegative), {
@@ -83,6 +89,7 @@ const authorizedIdentity = Effect.gen(function* () {
     return {
       authMethod: 'google',
       displayName: 'léa',
+      email: administratorEmail,
       expiresAt: null,
       googleSubject: 'development',
       profileId: 'lou',
@@ -105,6 +112,7 @@ const authStatus = Effect.gen(function* () {
     authenticationRequired: authConfig !== null,
     displayName: identity?.displayName ?? null,
     googleClientId: authConfig?.google.clientId ?? null,
+    isAdmin: identity !== null && AllowedEmailAccess.isAdministrator(identity.email),
     sessionExpiresAt: identity?.expiresAt ?? null,
   })
 })
@@ -118,15 +126,17 @@ const googleSignIn = Effect.gen(function* () {
   const { credential } = yield* HttpServerRequest.schemaBodyJson(GoogleCredentialSchema)
   const identity = yield* Effect.tryPromise(() =>
     verifyGoogleCredential({
-      allowedEmails: google.allowedEmails,
       clientId: google.clientId,
       credential,
     }),
   )
-  if (identity === null) return yield* json({ error: 'google_account_not_allowed' }, 401)
+  if (identity === null) return yield* json({ error: 'invalid_google_credential' }, 401)
+  const allowed = yield* AllowedEmailAccess.isAllowed(identity.email, google.allowedEmails)
+  if (!allowed) return yield* json({ error: 'google_account_not_allowed' }, 401)
   const session = Identity.issue({
     authMethod: 'google',
     displayName: identity.displayName,
+    email: identity.email,
     googleSubject: identity.subject,
     now: new Date(),
     profileId: identity.profileId,
@@ -137,6 +147,39 @@ const googleSignIn = Effect.gen(function* () {
     session,
   )
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_google_credential' }, 401)))
+
+const listAllowedEmails = Effect.gen(function* () {
+  const identity = yield* authorizedIdentity
+  if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
+  if (!AllowedEmailAccess.isAdministrator(identity.email)) {
+    return yield* json({ error: 'forbidden' }, 403)
+  }
+  const emails = yield* AllowedEmailAccess.list({
+    actorEmail: identity.email,
+    configuredEmails: googleAllowedEmails,
+  })
+  return yield* json({ emails })
+}).pipe(Effect.catchAll(() => json({ error: 'allowed_emails_unavailable' }, 503)))
+
+const addAllowedEmail = Effect.gen(function* () {
+  const identity = yield* authorizedIdentity
+  if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
+  if (!AllowedEmailAccess.isAdministrator(identity.email)) {
+    return yield* json({ error: 'forbidden' }, 403)
+  }
+  const body = yield* HttpServerRequest.schemaBodyJson(AllowedEmailSchema).pipe(
+    Effect.catchAll(() => Effect.succeed(null)),
+  )
+  if (body === null) return yield* json({ error: 'invalid_email' }, 400)
+  const result = yield* AllowedEmailAccess.add({ actorEmail: identity.email, email: body.email })
+  return yield* json(result, result.created ? 201 : 200)
+}).pipe(
+  Effect.catchAll((error) =>
+    error instanceof AllowedEmailAccessError && error.reason === 'invalid_email'
+      ? json({ error: 'invalid_email' }, 400)
+      : json({ error: 'allowed_email_save_failed' }, 503),
+  ),
+)
 
 const refreshSession = Effect.gen(function* () {
   if (authConfig === null) return yield* json({ status: 'development_auth_disabled' })
@@ -267,6 +310,8 @@ export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.get('/health/ready', ready),
   HttpRouter.get('/api/v1/auth/status', authStatus),
   HttpRouter.post('/api/v1/auth/google', googleSignIn),
+  HttpRouter.get('/api/v1/admin/allowed-emails', listAllowedEmails),
+  HttpRouter.post('/api/v1/admin/allowed-emails', addAllowedEmail),
   HttpRouter.post('/api/v1/session/refresh', refreshSession),
   HttpRouter.get('/api/v1/bootstrap', bootstrap),
   HttpRouter.post('/api/v1/attempts/sync', sync),

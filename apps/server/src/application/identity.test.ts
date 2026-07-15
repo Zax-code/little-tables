@@ -19,6 +19,7 @@ describe('Identity', () => {
     const session = Identity.issue({
       authMethod: 'google',
       displayName: 'lea',
+      email: 'boomslang.a@gmail.com',
       googleSubject: 'google-account-id',
       now,
       profileId: 'lou',
@@ -27,6 +28,7 @@ describe('Identity', () => {
     const identity = {
       authMethod: 'google',
       displayName: 'lea',
+      email: 'boomslang.a@gmail.com',
       expiresAt: new Date('2026-08-11T12:00:00.000Z').getTime(),
       googleSubject: 'google-account-id',
       profileId: 'lou',
@@ -45,6 +47,7 @@ describe('Identity', () => {
     const session = Identity.issue({
       authMethod: 'google',
       displayName: 'lea',
+      email: 'boomslang.a@gmail.com',
       googleSubject: 'google-account-id',
       now,
       profileId: 'lou',

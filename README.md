@@ -61,12 +61,16 @@ repository for local development. The daily reminder worker sends at 18:00 in
 each subscribed device's timezone and skips the notification when practice was
 already completed that local day.
 
-Production access requires a verified Google account from the configured
-allowlist. Navigation without a valid Google-authenticated session redirects to
-`/sign-in`, and protected API requests return `401`. After the server verifies a
-Google session, the PWA remembers only its display name and real session expiry
-so that local practice continues offline until that session expires. First-time,
-expired, legacy, and server-rejected sessions remain locked.
+Production access requires a verified Google account from the configured or
+Mongo-backed allowlist. The owner account, `boomslang.a@gmail.com`, can open
+**manage who can join** from the home screen to add an address; the link and
+management screen are hidden from other users, and the server rejects their
+management requests with `403`. Navigation without a valid Google-authenticated
+session redirects to `/sign-in`, and protected API requests return `401`. After
+the server verifies a Google session, the PWA remembers only its display name
+and real session expiry so that local practice continues offline until that
+session expires. First-time, expired, legacy, and server-rejected sessions
+remain locked.
 
 ## Google sign-in setup
 
@@ -96,6 +100,8 @@ For production, add those two lines to
 merge a deployment PR). For local development, export them in the shell that
 runs `corepack pnpm dev:server`; `.env.example` documents the values but is not a
 secret file to fill in or commit. `GOOGLE_ALLOWED_EMAILS` is a comma-separated
-allowlist; production should contain only `boomslang.a@gmail.com`,
-`belmudeslea@gmail.com`, and `zh.wener@gmail.com`. The client ID is intentionally
-returned to the browser; never add a Google client secret to the web app.
+bootstrap allowlist for addresses managed through deployment configuration.
+Addresses added through the owner screen are normalized and stored in MongoDB,
+so they survive deployments without changing the environment file. The client
+ID is intentionally returned to the browser; never add a Google client secret
+to the web app.

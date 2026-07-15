@@ -75,5 +75,6 @@ export const authStatusFromOfflineGrant = (grant: OfflineAuthGrant): AuthStatus 
   authenticationRequired: true,
   displayName: grant.displayName,
   googleClientId: null,
+  isAdmin: false,
   sessionExpiresAt: grant.expiresAt,
 })

@@ -7,6 +7,7 @@ import { useState } from 'react'
 import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
 import { Bunny } from '../components/bunny.js'
 import { InstallCard } from '../components/install-card.js'
+import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
 import { syncStatusQueryKey } from '../components/sync-manager.js'
 import { Screen } from '../components/screen.js'
@@ -170,6 +171,7 @@ export function HomeScreen() {
         </div>
         <ReminderCard />
         <InstallCard completedSessions={data?.completedSessions ?? 0} />
+        <OwnerAccessLink isAdmin={auth.data?.isAdmin === true} />
       </section>
     </Screen>
   )
