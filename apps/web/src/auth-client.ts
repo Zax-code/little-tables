@@ -5,6 +5,7 @@ const AuthStatusSchema = Schema.Struct({
   authenticationRequired: Schema.Boolean,
   displayName: Schema.NullOr(Schema.String),
   googleClientId: Schema.NullOr(Schema.String),
+  isAdmin: Schema.Boolean,
   sessionExpiresAt: Schema.NullOr(Schema.NonNegative),
 })
 

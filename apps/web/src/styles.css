@@ -239,6 +239,91 @@ a:focus-visible {
   background: var(--surface-canvas);
 }
 
+.owner-access-link,
+.access-back-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  color: var(--action-primary-deep);
+  font-weight: 700;
+}
+.owner-access-link {
+  justify-content: center;
+  margin: 8px auto 0;
+}
+.access-screen {
+  display: grid;
+  gap: 24px;
+}
+.access-screen header > p:last-child {
+  margin-bottom: 0;
+}
+.access-form {
+  display: grid;
+  gap: 8px;
+}
+.access-form label {
+  font-weight: 700;
+}
+.access-form > div {
+  display: grid;
+  gap: 10px;
+}
+.access-form input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  color: var(--ink-primary);
+  background: var(--surface-card);
+  border: 2px solid var(--line-soft);
+  border-radius: 14px;
+  font: inherit;
+}
+.access-form input:focus {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+.access-form .primary-button {
+  min-height: 50px;
+}
+.access-message {
+  min-height: 24px;
+  color: var(--action-primary-deep);
+  font-weight: 650;
+}
+.allowed-email-card {
+  padding: 18px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-neutral);
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+}
+.allowed-email-card h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+.allowed-email-card ul {
+  padding: 0;
+  margin: 14px 0 0;
+  list-style: none;
+}
+.allowed-email-card li {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border-top: 1px solid var(--line-neutral);
+}
+.allowed-email-card li span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.allowed-email-card li strong {
+  color: var(--action-primary-deep);
+  font-size: 0.8rem;
+}
+
 .eyebrow {
   margin: 0 0 8px;
   color: var(--action-primary-deep);

@@ -5,17 +5,15 @@ import { createServer } from 'node:http'
 
 import { httpApp } from './http/app.js'
 import { DailyReminders } from './application/daily-reminders.js'
+import { InMemoryAllowedEmailRepository } from './repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from './repositories/in-memory-attempt-repository.js'
+import { MongoAllowedEmailRepository } from './repositories/mongo-allowed-email-repository.js'
 import { MongoAttemptRepository } from './repositories/mongo-attempt-repository.js'
 
 const port = Number(process.env.PORT ?? 3000)
 const host = process.env.HOST ?? '127.0.0.1'
 const unsafeEphemeral = process.env.LITTLE_TABLES_UNSAFE_EPHEMERAL === 'true'
-const googleConfigComplete = Boolean(
-  process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_ALLOWED_EMAILS,
-)
-const googleConfigPartial =
-  process.env.GOOGLE_CLIENT_ID !== undefined || process.env.GOOGLE_ALLOWED_EMAILS !== undefined
+const googleConfigComplete = Boolean(process.env.GOOGLE_CLIENT_ID)
 const vapidConfig =
   process.env.VAPID_PUBLIC_KEY && process.env.VAPID_PRIVATE_KEY
     ? {
@@ -24,10 +22,8 @@ const vapidConfig =
         subject: process.env.VAPID_SUBJECT ?? 'https://math.leaetzak.love',
       }
     : null
-if (googleConfigPartial && !googleConfigComplete) {
-  throw new Error(
-    'Google authentication requires GOOGLE_CLIENT_ID and GOOGLE_ALLOWED_EMAILS together.',
-  )
+if (process.env.GOOGLE_ALLOWED_EMAILS !== undefined && !googleConfigComplete) {
+  throw new Error('GOOGLE_ALLOWED_EMAILS requires GOOGLE_CLIENT_ID.')
 }
 if (
   process.env.NODE_ENV === 'production' &&
@@ -38,12 +34,15 @@ if (
     vapidConfig === null)
 ) {
   throw new Error(
-    'Production requires MONGODB_URI, SESSION_SECRET, GOOGLE_CLIENT_ID, GOOGLE_ALLOWED_EMAILS, VAPID_PUBLIC_KEY, and VAPID_PRIVATE_KEY. Set LITTLE_TABLES_UNSAFE_EPHEMERAL=true only for an explicit disposable smoke test.',
+    'Production requires MONGODB_URI, SESSION_SECRET, GOOGLE_CLIENT_ID, VAPID_PUBLIC_KEY, and VAPID_PRIVATE_KEY. Set LITTLE_TABLES_UNSAFE_EPHEMERAL=true only for an explicit disposable smoke test.',
   )
 }
 const repositoryLayer = process.env.MONGODB_URI
-  ? MongoAttemptRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE)
-  : InMemoryAttemptRepository.layer()
+  ? Layer.merge(
+      MongoAttemptRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
+      MongoAllowedEmailRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
+    )
+  : Layer.merge(InMemoryAttemptRepository.layer(), InMemoryAllowedEmailRepository.layer())
 
 const httpLayer = HttpServer.serve(httpApp).pipe(
   Layer.provide(NodeHttpServer.layer(createServer, { host, port })),

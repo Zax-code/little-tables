@@ -1,4 +1,5 @@
 import { createHmac, timingSafeEqual } from 'node:crypto'
+import { Either, Schema } from 'effect'
 
 type VerifyInput = Readonly<{
   now: Date
@@ -9,11 +10,21 @@ type VerifyInput = Readonly<{
 type IssueInput = Readonly<{
   authMethod: 'google'
   displayName: string
+  email: string
   googleSubject: string
   now: Date
   profileId: 'lou'
   secret: string
 }>
+
+const SessionPayloadSchema = Schema.Struct({
+  authMethod: Schema.Literal('google'),
+  displayName: Schema.NonEmptyString,
+  email: Schema.NonEmptyString,
+  expiresAt: Schema.NonNegative,
+  googleSubject: Schema.NonEmptyString,
+  profileId: Schema.Literal('lou'),
+})
 
 const digest = (value: string, secret: string): Buffer =>
   createHmac('sha256', secret).update(value).digest()
@@ -24,15 +35,22 @@ const equalDigest = (first: Buffer, second: Buffer): boolean =>
 const issue = ({
   authMethod,
   displayName,
+  email,
   googleSubject,
   now,
   profileId,
   secret,
 }: IssueInput): string => {
   const expiresAt = now.getTime() + 30 * 24 * 60 * 60 * 1000
-  const payload = Buffer.from(
-    JSON.stringify({ authMethod, displayName, expiresAt, googleSubject, profileId }),
-  ).toString('base64url')
+  const sessionPayload = Schema.encodeSync(SessionPayloadSchema)({
+    authMethod,
+    displayName,
+    email,
+    expiresAt,
+    googleSubject,
+    profileId,
+  })
+  const payload = Buffer.from(JSON.stringify(sessionPayload)).toString('base64url')
   const signature = digest(payload, secret).toString('base64url')
   return `${payload}.${signature}`
 }
@@ -44,6 +62,7 @@ const verify = ({
 }: VerifyInput): Readonly<{
   authMethod: 'google'
   displayName: string
+  email: string
   expiresAt: number
   googleSubject: string
   profileId: 'lou'
@@ -53,23 +72,21 @@ const verify = ({
   if (!equalDigest(digest(payload, secret), Buffer.from(signature, 'base64url'))) return null
   try {
     const value: unknown = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'))
-    if (typeof value !== 'object' || value === null) return null
-    const record = value as Record<string, unknown>
+    const decoded = Schema.decodeUnknownEither(SessionPayloadSchema)(value)
+    if (Either.isLeft(decoded)) return null
+    const record = decoded.right
     if (
-      record.authMethod !== 'google' ||
-      typeof record.displayName !== 'string' ||
       record.displayName.trim() === '' ||
-      typeof record.googleSubject !== 'string' ||
+      record.email.trim() === '' ||
       record.googleSubject.trim() === '' ||
-      record.profileId !== 'lou' ||
-      typeof record.expiresAt !== 'number'
+      record.expiresAt <= now.getTime()
     ) {
       return null
     }
-    if (record.expiresAt <= now.getTime()) return null
     return {
       authMethod: 'google',
       displayName: record.displayName,
+      email: record.email,
       expiresAt: record.expiresAt,
       googleSubject: record.googleSubject,
       profileId: 'lou',
@@ -86,6 +103,7 @@ const renew = (input: VerifyInput): string | null => {
     : issue({
         authMethod: identity.authMethod,
         displayName: identity.displayName,
+        email: identity.email,
         googleSubject: identity.googleSubject,
         now: input.now,
         profileId: identity.profileId,

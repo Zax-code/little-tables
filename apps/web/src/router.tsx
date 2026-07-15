@@ -4,10 +4,16 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  redirect,
 } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
 import { PwaManager } from './components/pwa-manager.js'
+import { fetchAuthStatus } from './auth-client.js'
+
+const AccessScreen = lazy(() =>
+  import('./screens/access-screen.js').then((module) => ({ default: module.AccessScreen })),
+)
 
 const CelebrationScreen = lazy(() =>
   import('./screens/celebration-screen.js').then((module) => ({
@@ -65,6 +71,20 @@ const statsRoute = createRoute({
   path: '/stats',
   component: StatsScreen,
 })
+const accessRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/access',
+  beforeLoad: async () => {
+    try {
+      const auth = await fetchAuthStatus()
+      if (auth.isAdmin) return
+    } catch {
+      // Management requires a fresh server-confirmed owner session.
+    }
+    return redirect({ throw: true, to: '/' })
+  },
+  component: AccessScreen,
+})
 
 const routeTree = rootRoute.addChildren([
   homeRoute,
@@ -72,6 +92,7 @@ const routeTree = rootRoute.addChildren([
   celebrationRoute,
   gardenRoute,
   statsRoute,
+  accessRoute,
 ])
 
 export const router = createRouter({ routeTree, context: { queryClient: undefined } })

@@ -8,6 +8,8 @@ import {
   type AttemptRepositoryService,
   type PushSubscriptionInput,
 } from '../repositories/attempt-repository.js'
+import { InMemoryAllowedEmailRepository } from '../repositories/in-memory-allowed-email-repository.js'
+import { InMemoryAttemptRepository } from '../repositories/in-memory-attempt-repository.js'
 import { httpApp } from './app.js'
 
 describe('notification subscriptions', () => {
@@ -28,7 +30,10 @@ describe('notification subscriptions', () => {
     }
     const { dispose, handler } = HttpApp.toWebHandlerLayer(
       httpApp,
-      Layer.merge(NodeHttpPlatform.layer, Layer.succeed(AttemptRepository, repository)),
+      Layer.merge(
+        Layer.merge(NodeHttpPlatform.layer, Layer.succeed(AttemptRepository, repository)),
+        InMemoryAllowedEmailRepository.layer(),
+      ),
     )
     const response = await handler(
       new Request('http://little-tables.local/api/v1/notifications/subscriptions', {
@@ -51,5 +56,31 @@ describe('notification subscriptions', () => {
       expirationTime: null,
       timezone: 'America/New_York',
     })
+  })
+})
+
+describe('allowed email management', () => {
+  it('fails closed when real Google authentication is disabled', async () => {
+    const { dispose, handler } = HttpApp.toWebHandlerLayer(
+      httpApp,
+      Layer.merge(
+        NodeHttpPlatform.layer,
+        Layer.merge(InMemoryAttemptRepository.layer(), InMemoryAllowedEmailRepository.layer()),
+      ),
+    )
+    const added = await handler(
+      new Request('http://little-tables.local/api/v1/admin/allowed-emails', {
+        body: JSON.stringify({ email: 'new.user@example.com' }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+      }),
+    )
+    const listed = await handler(
+      new Request('http://little-tables.local/api/v1/admin/allowed-emails'),
+    )
+    await dispose()
+
+    expect(added.status).toBe(401)
+    expect(listed.status).toBe(401)
   })
 })
