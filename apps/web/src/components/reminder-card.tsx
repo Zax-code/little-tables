@@ -12,6 +12,14 @@ const applicationServerKey = (value: string): Uint8Array<ArrayBuffer> => {
 const supported = () =>
   'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
 
+export const serializePushSubscription = (
+  subscription: Pick<PushSubscription, 'endpoint' | 'expirationTime' | 'toJSON'>,
+) => ({
+  ...subscription.toJSON(),
+  endpoint: subscription.endpoint,
+  expirationTime: subscription.expirationTime,
+})
+
 export function ReminderCard() {
   const [state, setState] = useState<ReminderState>(() =>
     supported() ? 'checking' : 'unsupported',
@@ -50,7 +58,7 @@ export function ReminderCard() {
       })
       const response = await fetch('/api/v1/notifications/subscriptions', {
         body: JSON.stringify({
-          subscription: subscription.toJSON(),
+          subscription: serializePushSubscription(subscription),
           timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
         }),
         headers: { 'content-type': 'application/json' },

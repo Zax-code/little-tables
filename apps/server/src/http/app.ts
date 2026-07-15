@@ -35,7 +35,9 @@ const SyncRequestSchema = Schema.Struct({
 const GoogleCredentialSchema = Schema.Struct({ credential: Schema.NonEmptyString })
 const PushSubscriptionSchema = Schema.Struct({
   endpoint: Schema.NonEmptyString,
-  expirationTime: Schema.NullOr(Schema.NonNegative),
+  expirationTime: Schema.optionalWith(Schema.NullOr(Schema.NonNegative), {
+    default: () => null,
+  }),
   keys: Schema.Struct({ auth: Schema.NonEmptyString, p256dh: Schema.NonEmptyString }),
 })
 const SavePushSubscriptionSchema = Schema.Struct({
