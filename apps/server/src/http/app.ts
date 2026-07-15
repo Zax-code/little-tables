@@ -55,13 +55,12 @@ const googleAllowedEmails = (process.env.GOOGLE_ALLOWED_EMAILS ?? '')
   .split(',')
   .map((email) => email.trim())
   .filter((email) => email !== '')
-const googleAuthConfig =
-  process.env.GOOGLE_CLIENT_ID && googleAllowedEmails.length > 0
-    ? {
-        allowedEmails: googleAllowedEmails,
-        clientId: process.env.GOOGLE_CLIENT_ID,
-      }
-    : null
+const googleAuthConfig = process.env.GOOGLE_CLIENT_ID
+  ? {
+      allowedEmails: googleAllowedEmails,
+      clientId: process.env.GOOGLE_CLIENT_ID,
+    }
+  : null
 const authConfig =
   process.env.SESSION_SECRET && googleAuthConfig !== null
     ? {
@@ -112,7 +111,10 @@ const authStatus = Effect.gen(function* () {
     authenticationRequired: authConfig !== null,
     displayName: identity?.displayName ?? null,
     googleClientId: authConfig?.google.clientId ?? null,
-    isAdmin: identity !== null && AllowedEmailAccess.isAdministrator(identity.email),
+    isAdmin:
+      authConfig !== null &&
+      identity !== null &&
+      AllowedEmailAccess.isAdministrator(identity.email),
     sessionExpiresAt: identity?.expiresAt ?? null,
   })
 })
@@ -149,6 +151,7 @@ const googleSignIn = Effect.gen(function* () {
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_google_credential' }, 401)))
 
 const listAllowedEmails = Effect.gen(function* () {
+  if (authConfig === null) return yield* json({ error: 'unauthorized' }, 401)
   const identity = yield* authorizedIdentity
   if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
   if (!AllowedEmailAccess.isAdministrator(identity.email)) {
@@ -162,6 +165,7 @@ const listAllowedEmails = Effect.gen(function* () {
 }).pipe(Effect.catchAll(() => json({ error: 'allowed_emails_unavailable' }, 503)))
 
 const addAllowedEmail = Effect.gen(function* () {
+  if (authConfig === null) return yield* json({ error: 'unauthorized' }, 401)
   const identity = yield* authorizedIdentity
   if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
   if (!AllowedEmailAccess.isAdministrator(identity.email)) {

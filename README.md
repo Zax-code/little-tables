@@ -54,12 +54,12 @@ deployable image, including deep-link fallback routes, with:
 corepack pnpm smoke:docker
 ```
 
-Set `MONGODB_URI`, `MONGODB_DATABASE`, `SESSION_SECRET`, `VAPID_PUBLIC_KEY`, and
-`VAPID_PRIVATE_KEY`, `GOOGLE_CLIENT_ID`, and `GOOGLE_ALLOWED_EMAILS` in
-production. Without MongoDB, the server intentionally uses its in-memory
-repository for local development. The daily reminder worker sends at 18:00 in
-each subscribed device's timezone and skips the notification when practice was
-already completed that local day.
+Set `MONGODB_URI`, `MONGODB_DATABASE`, `SESSION_SECRET`, `VAPID_PUBLIC_KEY`,
+`VAPID_PRIVATE_KEY`, and `GOOGLE_CLIENT_ID` in production.
+`GOOGLE_ALLOWED_EMAILS` is optional. Without MongoDB, the server intentionally
+uses its in-memory repository for local development. The daily reminder worker
+sends at 18:00 in each subscribed device's timezone and skips the notification
+when practice was already completed that local day.
 
 Production access requires a verified Google account from the configured or
 Mongo-backed allowlist. The owner account, `boomslang.a@gmail.com`, can open
@@ -70,7 +70,8 @@ session redirects to `/sign-in`, and protected API requests return `401`. After
 the server verifies a Google session, the PWA remembers only its display name
 and real session expiry so that local practice continues offline until that
 session expires. First-time, expired, legacy, and server-rejected sessions
-remain locked.
+remain locked. Deploying the owner-managed allowlist changes the signed session
+payload, so existing users will be asked to sign in once after rollout.
 
 ## Google sign-in setup
 

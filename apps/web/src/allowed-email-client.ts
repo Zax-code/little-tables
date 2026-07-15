@@ -1,4 +1,4 @@
-import { Schema } from 'effect'
+import { Data, Schema } from 'effect'
 
 const AllowedEmailsSchema = Schema.Struct({ emails: Schema.Array(Schema.String) })
 const AddAllowedEmailResultSchema = Schema.Struct({
@@ -8,11 +8,21 @@ const AddAllowedEmailResultSchema = Schema.Struct({
 
 export const allowedEmailsQueryKey = ['allowed-emails'] as const
 
+export class AllowedEmailClientError extends Data.TaggedError('AllowedEmailClientError')<{
+  message: string
+  reason: 'invalid_email' | 'load_failed' | 'save_failed'
+}> {}
+
 export async function fetchAllowedEmails(
   fetcher: typeof fetch = fetch,
 ): Promise<ReadonlyArray<string>> {
   const response = await fetcher('/api/v1/admin/allowed-emails')
-  if (!response.ok) throw new Error('Allowed email addresses could not be loaded.')
+  if (!response.ok) {
+    throw new AllowedEmailClientError({
+      message: 'Allowed email addresses could not be loaded.',
+      reason: 'load_failed',
+    })
+  }
   const result = await Schema.decodeUnknownPromise(AllowedEmailsSchema)(await response.json())
   return result.emails
 }
@@ -27,10 +37,10 @@ export async function addAllowedEmail(
     method: 'POST',
   })
   if (!response.ok) {
-    throw new Error(
+    throw new AllowedEmailClientError(
       response.status === 400
-        ? 'Enter a valid email address.'
-        : 'That email address could not be allowed.',
+        ? { message: 'Enter a valid email address.', reason: 'invalid_email' }
+        : { message: 'That email address could not be allowed.', reason: 'save_failed' },
     )
   }
   return Schema.decodeUnknownPromise(AddAllowedEmailResultSchema)(await response.json())

@@ -28,4 +28,13 @@ describe('allowed email client', () => {
       }),
     )
   })
+
+  it('reports invalid addresses as a tagged expected failure', async () => {
+    const fetcher = vi.fn<typeof fetch>().mockResolvedValue(new Response(null, { status: 400 }))
+
+    await expect(addAllowedEmail('not an email', fetcher)).rejects.toMatchObject({
+      _tag: 'AllowedEmailClientError',
+      reason: 'invalid_email',
+    })
+  })
 })

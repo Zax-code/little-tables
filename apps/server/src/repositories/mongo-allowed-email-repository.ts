@@ -1,4 +1,4 @@
-import { Effect, Layer } from 'effect'
+import { Effect, Layer, Schema } from 'effect'
 import { MongoClient, type Collection } from 'mongodb'
 
 import {
@@ -7,11 +7,13 @@ import {
   type AllowedEmailRepositoryService,
 } from './allowed-email-repository.js'
 
-type AllowedEmailDocument = Readonly<{
-  _id: string
-  addedAt: Date
-  addedBy: string
-}>
+const AllowedEmailDocumentSchema = Schema.Struct({
+  _id: Schema.NonEmptyString,
+  addedAt: Schema.ValidDateFromSelf,
+  addedBy: Schema.NonEmptyString,
+})
+
+type AllowedEmailDocument = typeof AllowedEmailDocumentSchema.Type
 
 const makeService = (
   collection: Collection<AllowedEmailDocument>,
@@ -35,13 +37,15 @@ const makeService = (
     }),
   list: () =>
     Effect.tryPromise({
-      try: async () =>
-        (
-          await collection
-            .find({}, { projection: { _id: 1 } })
-            .sort({ _id: 1 })
-            .toArray()
-        ).map(({ _id }) => _id),
+      try: async () => {
+        const documents = await collection.find().sort({ _id: 1 }).toArray()
+        const decoded = await Promise.all(
+          documents.map((document) =>
+            Schema.decodeUnknownPromise(AllowedEmailDocumentSchema)(document),
+          ),
+        )
+        return decoded.map(({ _id }) => _id)
+      },
       catch: (cause) => new AllowedEmailRepositoryError({ cause, operation: 'list' }),
     }),
 })

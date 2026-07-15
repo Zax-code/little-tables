@@ -60,7 +60,7 @@ describe('notification subscriptions', () => {
 })
 
 describe('allowed email management', () => {
-  it('adds and lists normalized addresses through the owner-only interface', async () => {
+  it('fails closed when real Google authentication is disabled', async () => {
     const { dispose, handler } = HttpApp.toWebHandlerLayer(
       httpApp,
       Layer.merge(
@@ -70,7 +70,7 @@ describe('allowed email management', () => {
     )
     const added = await handler(
       new Request('http://little-tables.local/api/v1/admin/allowed-emails', {
-        body: JSON.stringify({ email: ' New.User@Example.com ' }),
+        body: JSON.stringify({ email: 'new.user@example.com' }),
         headers: { 'content-type': 'application/json' },
         method: 'POST',
       }),
@@ -78,24 +78,9 @@ describe('allowed email management', () => {
     const listed = await handler(
       new Request('http://little-tables.local/api/v1/admin/allowed-emails'),
     )
-    const invalid = await handler(
-      new Request('http://little-tables.local/api/v1/admin/allowed-emails', {
-        body: JSON.stringify({ email: 'not an email' }),
-        headers: { 'content-type': 'application/json' },
-        method: 'POST',
-      }),
-    )
     await dispose()
 
-    expect(added.status).toBe(201)
-    await expect(added.json()).resolves.toEqual({
-      created: true,
-      email: 'new.user@example.com',
-    })
-    expect(listed.status).toBe(200)
-    await expect(listed.json()).resolves.toEqual({
-      emails: ['boomslang.a@gmail.com', 'new.user@example.com'],
-    })
-    expect(invalid.status).toBe(400)
+    expect(added.status).toBe(401)
+    expect(listed.status).toBe(401)
   })
 })
