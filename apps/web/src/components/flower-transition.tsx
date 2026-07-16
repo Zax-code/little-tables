@@ -1,62 +1,23 @@
 import { m, useReducedMotion } from 'motion/react'
+import { type PropsWithChildren, useCallback, useRef, useState } from 'react'
+
 import {
-  createContext,
-  type PropsWithChildren,
-  useCallback,
-  useContext,
-  useRef,
-  useState,
-} from 'react'
+  FlowerTransitionContext,
+  runFlowerTransition,
+  type TransitionAction,
+  type TransitionPhase,
+} from '../flower-transition.js'
 
-type TransitionPhase = 'covering' | 'idle' | 'uncovering'
-type TransitionAction = () => Promise<void> | void
 type Wait = (milliseconds: number) => Promise<void>
-
-type RunFlowerTransitionOptions = Readonly<{
-  action: TransitionAction
-  onPhaseChange: (phase: TransitionPhase) => void
-  reduceMotion: boolean
-  wait: Wait
-}>
-
-const coverDuration = 230
-const uncoverDuration = 260
 const flowerCount = 30
 const flowerIndexes = Array.from({ length: flowerCount }, (_, index) => index)
-
-const FlowerTransitionContext = createContext<((action: TransitionAction) => Promise<void>) | null>(
-  null,
-)
 
 const delay: Wait = (milliseconds) =>
   new Promise((resolve) => {
     window.setTimeout(resolve, milliseconds)
   })
 
-export async function runFlowerTransition({
-  action,
-  onPhaseChange,
-  reduceMotion,
-  wait,
-}: RunFlowerTransitionOptions) {
-  if (reduceMotion) {
-    await action()
-    return
-  }
-
-  onPhaseChange('covering')
-  await wait(coverDuration)
-
-  try {
-    await action()
-  } finally {
-    onPhaseChange('uncovering')
-    await wait(uncoverDuration)
-    onPhaseChange('idle')
-  }
-}
-
-export function FlowerTransitionProvider({ children }: PropsWithChildren) {
+export function FlowerTransitionProvider({ children }: Readonly<PropsWithChildren>) {
   const [phase, setPhase] = useState<TransitionPhase>('idle')
   const reduceMotion = useReducedMotion() === true
   const running = useRef(false)
@@ -85,12 +46,6 @@ export function FlowerTransitionProvider({ children }: PropsWithChildren) {
       {phase === 'idle' ? null : <FlowerCurtain phase={phase} />}
     </FlowerTransitionContext>
   )
-}
-
-export function useFlowerTransition() {
-  const transition = useContext(FlowerTransitionContext)
-  if (transition === null) throw new Error('FlowerTransitionProvider is missing')
-  return transition
 }
 
 function FlowerCurtain({ phase }: Readonly<{ phase: Exclude<TransitionPhase, 'idle'> }>) {

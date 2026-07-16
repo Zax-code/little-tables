@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { runFlowerTransition } from './flower-transition.js'
+import { runFlowerTransition } from '../flower-transition.js'
 
 describe('flower transition', () => {
   it('changes the page while the flower curtain is closed', async () => {

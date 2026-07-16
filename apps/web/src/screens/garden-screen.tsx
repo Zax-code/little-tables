@@ -3,8 +3,9 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
 import { GardenPlot } from '../components/garden-plot.js'
-import { useFlowerTransition } from '../components/flower-transition.js'
+import { useFlowerTransition } from '../flower-transition.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
+import { launchPracticeSession } from '../practice-session-launch.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 
 export function GardenScreen() {
@@ -57,9 +58,12 @@ export function GardenScreen() {
       seed: crypto.getRandomValues(new Uint32Array(1))[0] ?? Date.now(),
       snapshot,
     })
-    await practiceStore.startSession(session, snapshot)
-    await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
-    await transition(() => navigate({ to: '/practice' }))
+    await launchPracticeSession({
+      invalidate: () => queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey }),
+      navigate: () => navigate({ to: '/practice' }),
+      persist: () => practiceStore.startSession(session, snapshot),
+      transition,
+    })
   }
 
   return (

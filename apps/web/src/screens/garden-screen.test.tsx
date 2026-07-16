@@ -13,7 +13,7 @@ vi.mock('../components/garden-plot.js', () => ({
   GardenPlot: () => <div data-testid="garden-plot" />,
 }))
 
-vi.mock('../components/flower-transition.js', () => ({
+vi.mock('../flower-transition.js', () => ({
   useFlowerTransition: () => (action: () => Promise<void>) => action(),
 }))
 

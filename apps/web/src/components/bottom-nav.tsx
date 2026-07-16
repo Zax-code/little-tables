@@ -1,7 +1,8 @@
 import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
 import type { MouseEvent } from 'react'
 
-import { useFlowerTransition } from './flower-transition.js'
+import { useFlowerTransition } from '../flower-transition.js'
+import { transitionBetweenTabs } from '../tab-navigation.js'
 
 const items = [
   { icon: 'home', label: 'home', path: '/' },
@@ -43,12 +44,13 @@ export function BottomNav() {
     event: MouseEvent<HTMLAnchorElement>,
     path: (typeof items)[number]['path'],
   ) => {
-    if (pathname === path || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
-      return
-    }
-
-    event.preventDefault()
-    void transition(() => navigate({ to: path }))
+    void transitionBetweenTabs({
+      currentPath: pathname,
+      event,
+      navigate: () => navigate({ to: path }),
+      nextPath: path,
+      transition,
+    })
   }
 
   return (
