@@ -5,6 +5,7 @@ import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { PracticeBunny } from '../components/practice-bunny.js'
+import { FactRescue } from '../components/fact-rescue.js'
 import { ProgressDots } from '../components/progress-dots.js'
 import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
 import { Screen } from '../components/screen.js'
@@ -33,6 +34,15 @@ export function PracticeScreen() {
   const session = data?.activeSession ?? null
   const question = session?.questions[session.currentIndex]
   const displayedQuestion = feedback?.question ?? question
+  const displayedAnswer =
+    displayedQuestion === undefined ? null : LearningEngine.correctAnswer(displayedQuestion)
+  const rescueStrategies =
+    feedback === null || feedback.correct
+      ? []
+      : LearningEngine.deriveRescueStrategies({
+          question: feedback.question,
+          snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
+        })
 
   const finishSession = useCallback(async () => {
     if (finishing.current) return
@@ -103,7 +113,7 @@ export function PracticeScreen() {
     if (result.correct) playSuccessSound()
     queryClient.setQueryData(localBootstrapQueryKey, {
       ...data,
-      activeSession: session,
+      activeSession: result.session,
       snapshot,
     })
     setFeedback({ correct: result.correct, question: displayedQuestion, selected })
@@ -158,13 +168,17 @@ export function PracticeScreen() {
             className="question-stage"
           >
             <p className="sr-only">
-              {t('practice.times', {
+              {t(displayedQuestion.operation === 'divide' ? 'practice.divide' : 'practice.times', {
                 left: displayedQuestion.left,
                 right: displayedQuestion.right,
               })}
             </p>
-            <div aria-hidden="true" className="equation">
-              {displayedQuestion.left} × {displayedQuestion.right}
+            <div
+              aria-hidden="true"
+              className={`equation${displayedQuestion.operation === 'divide' ? ' equation-division' : ''}`}
+            >
+              {displayedQuestion.left} {displayedQuestion.operation === 'divide' ? '÷' : '×'}{' '}
+              {displayedQuestion.right}
             </div>
 
             {displayedQuestion.answerMode === 'choice' ? (
@@ -198,16 +212,16 @@ export function PracticeScreen() {
               <strong>
                 {feedback.correct
                   ? t('practice.yes', {
-                      answer: displayedQuestion.left * displayedQuestion.right,
+                      answer: displayedAnswer ?? 0,
                     })
                   : t('practice.almost', {
-                      answer: displayedQuestion.left * displayedQuestion.right,
+                      answer: displayedAnswer ?? 0,
                     })}
               </strong>
               <span>
                 {feedback.correct
                   ? t('practice.perfect')
-                  : `${displayedQuestion.left} × ${displayedQuestion.right} = ${displayedQuestion.left * displayedQuestion.right}`}
+                  : `${displayedQuestion.left} ${displayedQuestion.operation === 'divide' ? '÷' : '×'} ${displayedQuestion.right} = ${displayedAnswer ?? 0}`}
               </span>
             </div>
             {!feedback.correct && !showExplanation ? (
@@ -216,11 +230,11 @@ export function PracticeScreen() {
                 onClick={() => setShowExplanation(true)}
                 type="button"
               >
-                {t('practice.showMe')}
+                {t('rescue.offer')}
               </button>
             ) : null}
             {!feedback.correct && showExplanation ? (
-              <FactArray question={displayedQuestion} />
+              <FactRescue question={displayedQuestion} strategies={rescueStrategies} />
             ) : null}
             <button className="next-button" onClick={() => void next()} type="button">
               {t('practice.next')}
@@ -232,36 +246,6 @@ export function PracticeScreen() {
   )
 }
 
-function FactArray({ question }: Readonly<{ question: PracticeQuestion }>) {
-  const { t } = useI18n()
-  return (
-    <div
-      className="fact-array"
-      aria-label={t('practice.factArray', {
-        answer: question.left * question.right,
-        left: question.left,
-        right: question.right,
-      })}
-    >
-      <div
-        className="fact-array-dots"
-        style={{ gridTemplateColumns: `repeat(${question.right}, 1fr)` }}
-      >
-        {Array.from({ length: question.left * question.right }, (_, index) => (
-          <i key={index} />
-        ))}
-      </div>
-      <strong>
-        {t('practice.groups', {
-          answer: question.left * question.right,
-          left: question.left,
-          right: question.right,
-        })}
-      </strong>
-    </div>
-  )
-}
-
 type AnswerProps = Readonly<{
   feedback: Feedback | null
   onChoose: (selected: number) => Promise<void>
@@ -269,7 +253,7 @@ type AnswerProps = Readonly<{
 }>
 
 function ChoiceGrid({ feedback, onChoose, question }: AnswerProps) {
-  const answer = question.left * question.right
+  const answer = LearningEngine.correctAnswer(question)
   return (
     <div className="answer-grid">
       {question.choices.map((choice) => {
@@ -346,7 +330,10 @@ function Keypad({
       </div>
       <span className="recall-note">{t('practice.recallNote')}</span>
       <span className="sr-only">
-        {t('practice.answerFor', { left: question.left, right: question.right })}
+        {t(question.operation === 'divide' ? 'practice.divide' : 'practice.answerFor', {
+          left: question.left,
+          right: question.right,
+        })}
       </span>
     </div>
   )

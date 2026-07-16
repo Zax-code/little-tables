@@ -1,5 +1,6 @@
 import { HttpApp } from '@effect/platform'
 import { NodeHttpPlatform } from '@effect/platform-node'
+import type { AttemptEvent } from '@little-tables/domain'
 import { Effect, Layer } from 'effect'
 import { describe, expect, it } from 'vitest'
 
@@ -12,6 +13,165 @@ import { InMemoryAllowedEmailRepository } from '../repositories/in-memory-allowe
 import { InMemoryAttemptRepository } from '../repositories/in-memory-attempt-repository.js'
 import { InMemoryProfileRepository } from '../repositories/in-memory-profile-repository.js'
 import { httpApp } from './app.js'
+
+const baseAttempt: AttemptEvent = {
+  answerMode: 'keypad',
+  answeredAt: new Date('2026-07-16T03:30:00.000Z'),
+  choices: [],
+  correct: true,
+  eventId: 'attempt-1',
+  factKey: '7:8',
+  latencyMs: 1_700,
+  left: 7,
+  right: 8,
+  questionCount: 1,
+  selected: 56,
+  sequence: 0,
+  sessionId: 'session-1',
+}
+
+const repositoryWithAttempts = (
+  attempts: ReadonlyArray<AttemptEvent>,
+): AttemptRepositoryService => ({
+  health: Effect.void,
+  insert: (_profileId, inserted) =>
+    Effect.succeed({ accepted: inserted.map(({ eventId }) => eventId), duplicates: [] }),
+  list: () => Effect.succeed(attempts),
+  listPushSubscriptions: () => Effect.succeed([]),
+  markPushSubscriptionSent: () => Effect.void,
+  removePushSubscription: () => Effect.void,
+  upsertPushSubscription: () => Effect.void,
+})
+
+const webHandler = (repository: AttemptRepositoryService) =>
+  HttpApp.toWebHandlerLayer(
+    httpApp,
+    Layer.mergeAll(
+      NodeHttpPlatform.layer,
+      Layer.succeed(AttemptRepository, repository),
+      InMemoryAllowedEmailRepository.layer(),
+      InMemoryProfileRepository.layer(),
+    ),
+  )
+
+describe('practice HTTP interface', () => {
+  it('accepts and preserves an operation-aware attempt', async () => {
+    let stored: ReadonlyArray<AttemptEvent> = []
+    const repository: AttemptRepositoryService = {
+      ...repositoryWithAttempts([]),
+      insert: (_profileId, attempts) =>
+        Effect.sync(() => {
+          stored = attempts
+          return { accepted: attempts.map(({ eventId }) => eventId), duplicates: [] }
+        }),
+    }
+    const { dispose, handler } = webHandler(repository)
+    const response = await handler(
+      new Request('http://little-tables.local/api/v1/attempts/sync', {
+        body: JSON.stringify({
+          attempts: [
+            {
+              ...baseAttempt,
+              answeredAt: baseAttempt.answeredAt.toISOString(),
+              eventId: 'division-attempt',
+              factKey: 'divide:56:7',
+              learningDayKey: '2026-07-15',
+              left: 56,
+              operation: 'divide',
+              right: 7,
+              selected: 8,
+            },
+          ],
+          profileId: 'client-profile-id-is-ignored',
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+      }),
+    )
+    await dispose()
+
+    expect(response.status).toBe(200)
+    await expect(response.json()).resolves.toEqual({
+      accepted: ['division-attempt'],
+      duplicates: [],
+      rejected: [],
+    })
+    expect(stored[0]).toMatchObject({
+      answeredAt: baseAttempt.answeredAt,
+      learningDayKey: '2026-07-15',
+      operation: 'divide',
+    })
+  })
+
+  it('continues to accept legacy multiplication attempts without phase-two fields', async () => {
+    let stored: ReadonlyArray<AttemptEvent> = []
+    const repository: AttemptRepositoryService = {
+      ...repositoryWithAttempts([]),
+      insert: (_profileId, attempts) =>
+        Effect.sync(() => {
+          stored = attempts
+          return { accepted: attempts.map(({ eventId }) => eventId), duplicates: [] }
+        }),
+    }
+    const { dispose, handler } = webHandler(repository)
+    const response = await handler(
+      new Request('http://little-tables.local/api/v1/attempts/sync', {
+        body: JSON.stringify({
+          attempts: [{ ...baseAttempt, answeredAt: baseAttempt.answeredAt.toISOString() }],
+          profileId: 'legacy-client-profile',
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+      }),
+    )
+    await dispose()
+
+    expect(response.status).toBe(200)
+    expect(stored).toHaveLength(1)
+    expect(stored[0]).toMatchObject({ eventId: 'attempt-1', operation: 'multiply' })
+  })
+
+  it('returns learner-local practice and reward days without double-rewarding a day', async () => {
+    const attempts: ReadonlyArray<AttemptEvent> = [
+      { ...baseAttempt, learningDayKey: '2026-07-15' },
+      {
+        ...baseAttempt,
+        answeredAt: new Date('2026-07-16T15:00:00.000Z'),
+        eventId: 'attempt-2',
+        learningDayKey: '2026-07-15',
+        sessionId: 'session-2',
+        sessionKind: 'daily-watering',
+      },
+      {
+        ...baseAttempt,
+        answeredAt: new Date('2026-07-17T15:00:00.000Z'),
+        eventId: 'attempt-3',
+        sessionId: 'session-3',
+        sessionKind: 'extra-practice',
+      },
+      {
+        ...baseAttempt,
+        answeredAt: new Date('2026-07-16T16:00:00.000Z'),
+        eventId: 'attempt-in-progress',
+        learningDayKey: '2026-07-16',
+        questionCount: 2,
+        sessionId: 'session-in-progress',
+      },
+    ]
+    const { dispose, handler } = webHandler(repositoryWithAttempts(attempts))
+    const response = await handler(new Request('http://little-tables.local/api/v1/bootstrap'))
+    const body: unknown = await response.json()
+    await dispose()
+
+    expect(response.status).toBe(200)
+    expect(body).toMatchObject({
+      completedSessions: 3,
+      gardenBloomCount: 1,
+      practiceDayKeys: ['2026-07-15', '2026-07-16', '2026-07-17'],
+      rewardedDayKeys: ['2026-07-15'],
+    })
+  })
+})
 
 describe('notification subscriptions', () => {
   it('accepts a browser subscription that omits expirationTime', async () => {

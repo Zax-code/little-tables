@@ -7,6 +7,7 @@ describe('tab routing', () => {
     expect(router.options.defaultPreload).toBe('intent')
     expect(router.routesByPath['/'].parentRoute).toBe(router.routesById['/tabs'])
     expect(router.routesByPath['/garden'].parentRoute).toBe(router.routesById['/tabs'])
+    expect(router.routesByPath['/garden/collection'].parentRoute).toBe(router.routesById['/tabs'])
     expect(router.routesByPath['/stats'].parentRoute).toBe(router.routesById['/tabs'])
   })
 

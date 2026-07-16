@@ -1,13 +1,33 @@
-import type { AttemptEvent, LearningSnapshot, PracticeSession } from '@little-tables/domain'
+import {
+  LearningEngine,
+  type AttemptEvent,
+  type LearningSnapshot,
+  type PracticeQuestion,
+  type PracticeSession,
+  type SessionInsight,
+} from '@little-tables/domain'
 import Dexie, { type EntityTable } from 'dexie'
 import { Data, Either, Schema } from 'effect'
 
+type StoredPracticeQuestion = Omit<PracticeQuestion, 'operation'> &
+  Readonly<{ operation?: PracticeQuestion['operation'] | undefined }>
+
+type StoredPracticeSession = Omit<PracticeSession, 'kind' | 'questions' | 'timeZone'> &
+  Readonly<{
+    kind?: PracticeSession['kind'] | undefined
+    questions: ReadonlyArray<StoredPracticeQuestion>
+    timeZone?: string | undefined
+  }>
+
 type StateRecord = Readonly<{
-  activeSession: PracticeSession | null
+  activeSession: StoredPracticeSession | null
   completedSessions: number
+  gardenBloomCount?: number | undefined
   id: 'current'
-  lastCompletion?: SessionCompletion | null
-  practiceDayKeys?: ReadonlyArray<string>
+  lastCompletion?: unknown
+  practiceDayKeys?: ReadonlyArray<string> | undefined
+  rewardedDayKeys?: ReadonlyArray<string> | undefined
+  sessionStartSnapshot?: LearningSnapshot | null | undefined
   snapshot: LearningSnapshot
 }>
 
@@ -25,8 +45,10 @@ type PracticeDatabase = Dexie & {
 export type LocalBootstrap = Readonly<{
   activeSession: PracticeSession | null
   completedSessions: number
+  gardenBloomCount: number
   lastCompletion: SessionCompletion | null
   practiceDayKeys: ReadonlyArray<string>
+  rewardedDayKeys: ReadonlyArray<string>
   snapshot: LearningSnapshot
 }>
 
@@ -36,7 +58,11 @@ export type SessionCompletion = Readonly<{
   correctAnswers: number
   finalAnswer: number
   finalCorrect: boolean
+  gardenBloomEarned: boolean
+  learningInsight: SessionInsight | null
+  learningDayKey: string
   sessionId: string
+  sessionKind: PracticeSession['kind']
   totalAnswers: number
 }>
 
@@ -44,22 +70,164 @@ export class InvalidStoredCompletionError extends Data.TaggedError('InvalidStore
   cause: unknown
 }> {}
 
+export class InvalidStoredStateError extends Data.TaggedError('InvalidStoredStateError')<{
+  cause: unknown
+}> {}
+
+export class InvalidStoredAttemptError extends Data.TaggedError('InvalidStoredAttemptError')<{
+  cause: unknown
+}> {}
+
 const SessionCompletionSchema = Schema.Struct({
-  bloomNumber: Schema.Positive.pipe(Schema.int()),
+  bloomNumber: Schema.NonNegativeInt,
   completedAt: Schema.ValidDateFromSelf,
   correctAnswers: Schema.NonNegativeInt,
   finalAnswer: Schema.NonNegativeInt,
   finalCorrect: Schema.Boolean,
+  gardenBloomEarned: Schema.optional(Schema.Boolean),
+  learningInsight: Schema.optional(
+    Schema.NullOr(
+      Schema.Struct({
+        count: Schema.NonNegativeInt,
+        factKeys: Schema.Array(Schema.NonEmptyString),
+        kind: Schema.Literal(
+          'facts-became-familiar',
+          'facts-became-fluent',
+          'facts-practised',
+          'keypad-recalls',
+          'mistakes-recovered',
+        ),
+      }),
+    ),
+  ),
+  learningDayKey: Schema.optional(Schema.NonEmptyString),
   sessionId: Schema.NonEmptyString,
+  sessionKind: Schema.optional(Schema.Literal('daily-watering', 'extra-practice')),
   totalAnswers: Schema.Positive.pipe(Schema.int()),
 })
 
 const decodeSessionCompletion = (value: unknown): SessionCompletion | null => {
   if (value === null || value === undefined) return null
   const decoded = Schema.decodeUnknownEither(SessionCompletionSchema)(value)
-  if (Either.isRight(decoded)) return decoded.right
+  if (Either.isRight(decoded)) {
+    const completion = decoded.right
+    return {
+      ...completion,
+      gardenBloomEarned: completion.gardenBloomEarned ?? true,
+      learningInsight: completion.learningInsight ?? null,
+      learningDayKey:
+        completion.learningDayKey ?? completion.completedAt.toISOString().slice(0, 10),
+      sessionKind: completion.sessionKind ?? 'extra-practice',
+    }
+  }
   throw new InvalidStoredCompletionError({ cause: decoded.left })
 }
+
+const FactMasterySchema = Schema.Struct({
+  correctCount: Schema.NonNegativeInt,
+  correctStreak: Schema.NonNegativeInt,
+  difficulty: Schema.Number,
+  dueAt: Schema.NullOr(Schema.ValidDateFromSelf),
+  lapseCount: Schema.NonNegativeInt,
+  lastReviewedAt: Schema.NullOr(Schema.ValidDateFromSelf),
+  lastReviewedDayKey: Schema.optional(Schema.NonEmptyString),
+  latencyMs: Schema.NullOr(Schema.NonNegativeInt),
+  recallDayKeys: Schema.Array(Schema.NonEmptyString),
+  stabilityDays: Schema.NonNegative,
+  state: Schema.Literal('unseen', 'learning', 'familiar', 'fluent'),
+  successfulDayKeys: Schema.Array(Schema.NonEmptyString),
+})
+
+const LearningSnapshotSchema = Schema.Struct({
+  algorithmVersion: Schema.Literal('1'),
+  facts: Schema.Record({ key: Schema.String, value: FactMasterySchema }),
+  processedEventIds: Schema.Array(Schema.NonEmptyString),
+})
+
+const AttemptEventSchema = Schema.Struct({
+  answerMode: Schema.Literal('choice', 'keypad'),
+  answeredAt: Schema.ValidDateFromSelf,
+  choices: Schema.Array(Schema.Int),
+  correct: Schema.Boolean,
+  eventId: Schema.NonEmptyString,
+  factKey: Schema.NonEmptyString,
+  latencyMs: Schema.NonNegativeInt,
+  learningDayKey: Schema.optional(Schema.NonEmptyString),
+  left: Schema.Positive.pipe(Schema.int()),
+  operation: Schema.optional(Schema.Literal('multiply', 'divide')),
+  questionCount: Schema.Positive.pipe(Schema.int()),
+  right: Schema.Positive.pipe(Schema.int()),
+  selected: Schema.NonNegativeInt,
+  sequence: Schema.NonNegativeInt,
+  sessionId: Schema.NonEmptyString,
+  sessionKind: Schema.optional(Schema.Literal('daily-watering', 'extra-practice')),
+})
+
+const StoredPracticeQuestionSchema = Schema.Struct({
+  answerMode: Schema.Literal('choice', 'keypad'),
+  choices: Schema.Array(Schema.Int),
+  factKey: Schema.NonEmptyString,
+  id: Schema.NonEmptyString,
+  left: Schema.Positive.pipe(Schema.int()),
+  operation: Schema.optional(Schema.Literal('multiply', 'divide')),
+  right: Schema.Positive.pipe(Schema.int()),
+})
+
+const StoredPracticeSessionSchema = Schema.Struct({
+  createdAt: Schema.ValidDateFromSelf,
+  currentIndex: Schema.NonNegativeInt,
+  currentQuestionStartedAt: Schema.ValidDateFromSelf,
+  id: Schema.NonEmptyString,
+  kind: Schema.optional(Schema.Literal('daily-watering', 'extra-practice')),
+  questions: Schema.Array(StoredPracticeQuestionSchema),
+  seed: Schema.Int,
+  timeZone: Schema.optional(Schema.NonEmptyString),
+})
+
+const StateRecordSchema = Schema.Struct({
+  activeSession: Schema.NullOr(StoredPracticeSessionSchema),
+  completedSessions: Schema.NonNegativeInt,
+  gardenBloomCount: Schema.optional(Schema.NonNegativeInt),
+  id: Schema.Literal('current'),
+  lastCompletion: Schema.optional(Schema.Unknown),
+  practiceDayKeys: Schema.optional(Schema.Array(Schema.NonEmptyString)),
+  rewardedDayKeys: Schema.optional(Schema.Array(Schema.NonEmptyString)),
+  sessionStartSnapshot: Schema.optional(Schema.NullOr(LearningSnapshotSchema)),
+  snapshot: LearningSnapshotSchema,
+})
+
+const decodeStateRecord = (value: unknown): StateRecord | undefined => {
+  if (value === undefined) return undefined
+  const decoded = Schema.decodeUnknownEither(StateRecordSchema)(value)
+  if (Either.isRight(decoded)) return decoded.right
+  throw new InvalidStoredStateError({ cause: decoded.left })
+}
+
+const decodeAttemptEvent = (value: unknown): AttemptEvent => {
+  const decoded = Schema.decodeUnknownEither(AttemptEventSchema)(value)
+  if (Either.isRight(decoded)) return decoded.right
+  throw new InvalidStoredAttemptError({ cause: decoded.left })
+}
+
+const gardenRewardLedgerFor = (state: StateRecord | undefined) =>
+  LearningEngine.deriveGardenRewardLedger({
+    completions: [],
+    gardenBloomCount: state?.gardenBloomCount,
+    rewardedDayKeys: state?.rewardedDayKeys ?? state?.practiceDayKeys ?? [],
+  })
+
+const normalizeStoredSession = (session: StoredPracticeSession | null): PracticeSession | null =>
+  session === null
+    ? null
+    : {
+        ...session,
+        kind: session.kind ?? 'extra-practice',
+        questions: session.questions.map((question) => ({
+          ...question,
+          operation: question.operation ?? 'multiply',
+        })),
+        timeZone: session.timeZone ?? 'UTC',
+      }
 
 export type CommitAnswerInput = Readonly<{
   attempt: AttemptEvent
@@ -103,19 +271,26 @@ export class IndexedDbPracticeStore {
   }
 
   async load(): Promise<LocalBootstrap> {
-    const state = await this.#database.state.get('current')
+    const state = decodeStateRecord(await this.#database.state.get('current'))
+    const gardenRewards = gardenRewardLedgerFor(state)
     return state === undefined
       ? {
           activeSession: null,
           completedSessions: 0,
+          gardenBloomCount: 0,
           lastCompletion: null,
           practiceDayKeys: [],
+          rewardedDayKeys: [],
           snapshot: { algorithmVersion: '1', facts: {}, processedEventIds: [] },
         }
       : {
-          ...state,
+          activeSession: normalizeStoredSession(state.activeSession),
+          completedSessions: state.completedSessions,
+          gardenBloomCount: gardenRewards.gardenBloomCount,
           lastCompletion: decodeSessionCompletion(state.lastCompletion),
           practiceDayKeys: state.practiceDayKeys ?? [],
+          rewardedDayKeys: gardenRewards.rewardedDayKeys,
+          snapshot: state.snapshot,
         }
   }
 
@@ -124,20 +299,25 @@ export class IndexedDbPracticeStore {
       'rw',
       [this.#database.attempts, this.#database.outbox, this.#database.state],
       async () => {
-        const current = await this.#database.state.get('current')
+        const current = decodeStateRecord(await this.#database.state.get('current'))
+        const gardenRewards = gardenRewardLedgerFor(current)
         await this.#database.attempts.put(attempt)
         await this.#database.outbox.put({ attemptId: attempt.eventId, createdAt: new Date() })
+        const practiceDayKey =
+          attempt.learningDayKey ??
+          LearningEngine.learningDayKey({
+            at: attempt.answeredAt,
+            timeZone: session.timeZone,
+          })
         await this.#database.state.put({
           activeSession: session,
           completedSessions: current?.completedSessions ?? 0,
+          gardenBloomCount: gardenRewards.gardenBloomCount,
           id: 'current',
           lastCompletion: decodeSessionCompletion(current?.lastCompletion),
-          practiceDayKeys: [
-            ...new Set([
-              ...(current?.practiceDayKeys ?? []),
-              attempt.answeredAt.toISOString().slice(0, 10),
-            ]),
-          ],
+          practiceDayKeys: [...new Set([...(current?.practiceDayKeys ?? []), practiceDayKey])],
+          rewardedDayKeys: gardenRewards.rewardedDayKeys,
+          sessionStartSnapshot: current?.sessionStartSnapshot ?? null,
           snapshot,
         })
       },
@@ -145,13 +325,18 @@ export class IndexedDbPracticeStore {
   }
 
   async startSession(session: PracticeSession, snapshot: LearningSnapshot): Promise<void> {
-    const current = await this.#database.state.get('current')
+    const current = decodeStateRecord(await this.#database.state.get('current'))
+    const gardenRewards = gardenRewardLedgerFor(current)
+    const continuingSession = current?.activeSession?.id === session.id
     await this.#database.state.put({
       activeSession: session,
       completedSessions: current?.completedSessions ?? 0,
+      gardenBloomCount: gardenRewards.gardenBloomCount,
       id: 'current',
       lastCompletion: decodeSessionCompletion(current?.lastCompletion),
       practiceDayKeys: current?.practiceDayKeys ?? [],
+      rewardedDayKeys: gardenRewards.rewardedDayKeys,
+      sessionStartSnapshot: continuingSession ? (current.sessionStartSnapshot ?? null) : snapshot,
       snapshot,
     })
   }
@@ -159,7 +344,11 @@ export class IndexedDbPracticeStore {
   async pendingBatch(limit: number): Promise<SyncBatch> {
     const outbox = await this.#database.outbox.orderBy('createdAt').limit(limit).toArray()
     const attempts = await this.#database.attempts.bulkGet(outbox.map((record) => record.attemptId))
-    return { attempts: attempts.filter((attempt) => attempt !== undefined) }
+    return {
+      attempts: attempts
+        .filter((attempt) => attempt !== undefined)
+        .map((attempt) => decodeAttemptEvent(attempt)),
+    }
   }
 
   async acknowledge(attemptIds: ReadonlyArray<string>): Promise<void> {
@@ -175,12 +364,12 @@ export class IndexedDbPracticeStore {
       'rw',
       [this.#database.attempts, this.#database.state],
       async () => {
-        const current = await this.#database.state.get('current')
+        const current = decodeStateRecord(await this.#database.state.get('current'))
         if (current === undefined) return null
         const previousCompletion = decodeSessionCompletion(current.lastCompletion)
         if (previousCompletion?.sessionId === sessionId) return previousCompletion
 
-        const session = current.activeSession
+        const session = normalizeStoredSession(current.activeSession)
         if (session === null) return null
         if (session.id !== sessionId || session.currentIndex < session.questions.length) {
           return null
@@ -188,29 +377,52 @@ export class IndexedDbPracticeStore {
 
         const finalQuestion = session.questions[session.questions.length - 1]
         if (finalQuestion === undefined) return null
-        const attempts = await this.#database.attempts
-          .where('sessionId')
-          .equals(sessionId)
-          .sortBy('sequence')
+        const attempts = (
+          await this.#database.attempts.where('sessionId').equals(sessionId).sortBy('sequence')
+        ).map((attempt) => decodeAttemptEvent(attempt))
         const finalAttempt = attempts[attempts.length - 1]
         if (finalAttempt === undefined) return null
 
         const completedSessions = current.completedSessions + 1
+        const currentGardenRewards = gardenRewardLedgerFor(current)
+        const learningDayKey =
+          finalAttempt.learningDayKey ??
+          LearningEngine.learningDayKey({
+            at: completedAt,
+            timeZone: session.timeZone,
+          })
+        const gardenRewards = LearningEngine.deriveGardenRewardLedger({
+          completions: [{ learningDayKey, sessionKind: session.kind }],
+          gardenBloomCount: currentGardenRewards.gardenBloomCount,
+          rewardedDayKeys: currentGardenRewards.rewardedDayKeys,
+        })
+        const gardenBloomEarned = gardenRewards.gardenBloomsEarned === 1
         const completion: SessionCompletion = {
-          bloomNumber: completedSessions,
+          bloomNumber: gardenRewards.gardenBloomCount,
           completedAt,
           correctAnswers: attempts.filter(({ correct }) => correct).length,
-          finalAnswer: finalQuestion.left * finalQuestion.right,
+          finalAnswer: LearningEngine.correctAnswer(finalQuestion),
           finalCorrect: finalAttempt.correct,
+          gardenBloomEarned,
+          learningInsight: LearningEngine.deriveSessionInsight({
+            attempts,
+            snapshot: current.sessionStartSnapshot ?? current.snapshot,
+            timeZone: session.timeZone,
+          }),
+          learningDayKey,
           sessionId,
+          sessionKind: session.kind,
           totalAnswers: attempts.length,
         }
         await this.#database.state.put({
           activeSession: null,
           completedSessions,
+          gardenBloomCount: gardenRewards.gardenBloomCount,
           id: 'current',
           lastCompletion: completion,
           practiceDayKeys: current.practiceDayKeys ?? [],
+          rewardedDayKeys: gardenRewards.rewardedDayKeys,
+          sessionStartSnapshot: null,
           snapshot,
         })
         return completion
@@ -222,17 +434,32 @@ export class IndexedDbPracticeStore {
     snapshot: LearningSnapshot,
     serverState?: Readonly<{
       completedSessions: number
+      gardenBloomCount?: number
       practiceDayKeys: ReadonlyArray<string>
+      rewardedDayKeys?: ReadonlyArray<string>
     }>,
   ): Promise<void> {
+    const stored = decodeStateRecord(await this.#database.state.get('current'))
     const current = await this.load()
+    const serverGardenRewards = LearningEngine.deriveGardenRewardLedger({
+      completions: [],
+      gardenBloomCount: serverState?.gardenBloomCount,
+      rewardedDayKeys: serverState?.rewardedDayKeys ?? [],
+    })
+    const gardenRewards = LearningEngine.mergeGardenRewardLedgers({
+      ledgers: [current, serverGardenRewards],
+    })
     await this.#database.state.put({
       ...current,
       completedSessions: Math.max(current.completedSessions, serverState?.completedSessions ?? 0),
+      gardenBloomCount: gardenRewards.gardenBloomCount,
       id: 'current',
       practiceDayKeys: [
         ...new Set([...current.practiceDayKeys, ...(serverState?.practiceDayKeys ?? [])]),
       ],
+      rewardedDayKeys: gardenRewards.rewardedDayKeys,
+      sessionStartSnapshot:
+        stored?.sessionStartSnapshot ?? (current.activeSession === null ? null : current.snapshot),
       snapshot,
     })
   }

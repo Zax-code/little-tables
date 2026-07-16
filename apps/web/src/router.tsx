@@ -38,6 +38,10 @@ const CelebrationScreen = lazyRouteComponent(
   'CelebrationScreen',
 )
 const GardenScreen = lazyRouteComponent(() => import('./screens/garden-screen.js'), 'GardenScreen')
+const GardenCollectionScreen = lazyRouteComponent(
+  () => import('./screens/garden-collection-screen.js'),
+  'GardenCollectionScreen',
+)
 const HomeScreen = lazyRouteComponent(() => import('./screens/home-screen.js'), 'HomeScreen')
 const PracticeScreen = lazyRouteComponent(
   () => import('./screens/practice-screen.js'),
@@ -52,7 +56,9 @@ function TabsLayout() {
   const { t } = useI18n()
 
   return (
-    <Screen {...(pathname === '/garden' ? { contentClassName: 'screen-content-garden' } : {})}>
+    <Screen
+      {...(pathname.startsWith('/garden') ? { contentClassName: 'screen-content-garden' } : {})}
+    >
       <Suspense fallback={<div className="loading-state">{t('app.openingGarden')}</div>}>
         <Outlet />
       </Suspense>
@@ -115,6 +121,12 @@ const gardenRoute = createRoute({
   loader: () => decodeRouteImages('garden', [gardenWalkingSprite.src, gardenWateringSprite.src]),
   component: GardenScreen,
 })
+const gardenCollectionRoute = createRoute({
+  getParentRoute: () => tabsRoute,
+  path: '/garden/collection',
+  loader: () => decodeRouteImages('garden', [gardenWalkingSprite.src, gardenWateringSprite.src]),
+  component: GardenCollectionScreen,
+})
 const statsRoute = createRoute({
   getParentRoute: () => tabsRoute,
   path: '/stats',
@@ -141,7 +153,7 @@ const accessRoute = createRoute({
 })
 
 const routeTree = rootRoute.addChildren([
-  tabsRoute.addChildren([homeRoute, gardenRoute, statsRoute]),
+  tabsRoute.addChildren([homeRoute, gardenRoute, gardenCollectionRoute, statsRoute]),
   practiceRoute,
   celebrationRoute,
   accessRoute,

@@ -1,4 +1,4 @@
-import type { AttemptEvent } from '@little-tables/domain'
+import { LearningEngine, type AttemptEvent } from '@little-tables/domain'
 import { Effect } from 'effect'
 
 import { AttemptRepository } from '../repositories/attempt-repository.js'
@@ -22,17 +22,47 @@ const ingest = ({ attempts, profileId }: IngestInput) =>
     const valid: AttemptEvent[] = []
 
     for (const attempt of attempts) {
+      const operation = attempt.operation ?? 'multiply'
+      const validOperands =
+        operation === 'multiply'
+          ? attempt.left >= 1 && attempt.left <= 12 && attempt.right >= 1 && attempt.right <= 12
+          : attempt.left >= 1 &&
+            attempt.left <= 144 &&
+            attempt.right >= 1 &&
+            attempt.right <= 12 &&
+            Number.isInteger(attempt.left / attempt.right) &&
+            attempt.left / attempt.right >= 1 &&
+            attempt.left / attempt.right <= 12
+      const correctAnswer = validOperands
+        ? LearningEngine.correctAnswer({
+            left: attempt.left,
+            operation,
+            right: attempt.right,
+          })
+        : null
+      const parsedLearningDay =
+        attempt.learningDayKey === undefined
+          ? null
+          : new Date(`${attempt.learningDayKey}T00:00:00.000Z`)
+      const validLearningDayKey =
+        attempt.learningDayKey === undefined ||
+        (!Number.isNaN(parsedLearningDay?.getTime()) &&
+          parsedLearningDay?.toISOString().slice(0, 10) === attempt.learningDayKey)
+
       if (seen.has(attempt.eventId)) {
         rejected.push({ eventId: attempt.eventId, reason: 'duplicate_in_batch' })
       } else if (attempt.selected < 0 || !Number.isInteger(attempt.selected)) {
         rejected.push({ eventId: attempt.eventId, reason: 'invalid_answer' })
       } else if (
+        !validOperands ||
+        correctAnswer === null ||
+        !validLearningDayKey ||
         attempt.factKey !==
-          `${Math.min(attempt.left, attempt.right)}:${Math.max(attempt.left, attempt.right)}` ||
-        attempt.correct !== (attempt.selected === attempt.left * attempt.right) ||
+          LearningEngine.factKey({ left: attempt.left, operation, right: attempt.right }) ||
+        attempt.correct !== (attempt.selected === correctAnswer) ||
         (attempt.answerMode === 'choice' &&
           (!attempt.choices.includes(attempt.selected) ||
-            !attempt.choices.includes(attempt.left * attempt.right))) ||
+            !attempt.choices.includes(correctAnswer))) ||
         (attempt.answerMode === 'keypad' && attempt.choices.length !== 0) ||
         attempt.sequence >= attempt.questionCount
       ) {

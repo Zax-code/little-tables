@@ -1,21 +1,19 @@
 import { LearningEngine } from '@little-tables/domain'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { useQuery } from '@tanstack/react-query'
 import { m } from 'motion/react'
 import { useState } from 'react'
 
 import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
 import { Bunny } from '../components/bunny.js'
-import { useFlowerTransition } from '../flower-transition.js'
 import { InstallCard } from '../components/install-card.js'
 import { LanguageToggle } from '../components/language-toggle.js'
 import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
 import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
+import { deriveDailyPracticeView } from '../daily-practice-view-model.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
-import { localBootstrapQueryKey, practiceStore } from '../store.js'
+import { usePracticeLauncher } from '../hooks/use-practice-launcher.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
-import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
 import { useI18n } from '../i18n.js'
 
 export function HomeScreen() {
@@ -32,54 +30,77 @@ export function HomeScreen() {
     queryFn: () => Promise.resolve(navigator.onLine ? 'synced' : 'saved'),
     staleTime: Infinity,
   })
-  const navigate = useNavigate()
-  const transition = useFlowerTransition()
-  const queryClient = useQueryClient()
   const data = bootstrap.data
+  const launcher = usePracticeLauncher(data)
   const [showModes, setShowModes] = useState(false)
   const [sound, setSound] = useState(soundEnabled)
   const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
   const displayName = auth.data?.displayName ?? 'léa'
   const garden = LearningEngine.deriveGardenProgress({
-    completedSessions: data?.completedSessions ?? 0,
+    completedSessions: data?.gardenBloomCount ?? 0,
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
   })
   const today = new Date()
-  const recentDayKeys = new Set(
-    Array.from({ length: 7 }, (_, offset) => {
-      const day = new Date(today)
-      day.setDate(day.getDate() - offset)
-      return day.toISOString().slice(0, 10)
-    }),
-  )
-  const glow = data?.practiceDayKeys.filter((day) => recentDayKeys.has(day)).length ?? 0
-  const petalCount = Math.min(5, data?.completedSessions ?? 0)
-
-  const start = async (policy: Readonly<{ focusTable?: number; questionCount: number }>) => {
-    const snapshot = data?.snapshot ?? LearningEngine.emptySnapshot()
-    const session = LearningEngine.createSession({
-      now: new Date(),
-      policy,
-      seed: crypto.getRandomValues(new Uint32Array(1))[0] ?? Date.now(),
-      snapshot,
-    })
-    await launchPracticeSession({
-      invalidate: () => queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey }),
-      navigate: () => navigate({ to: '/practice' }),
-      persist: () => practiceStore.startSession(session, snapshot),
-      transition,
-    })
-  }
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  const todayKey = LearningEngine.learningDayKey({ at: today, timeZone })
+  const dailyView = deriveDailyPracticeView({
+    activeSession:
+      data?.activeSession === null || data?.activeSession === undefined
+        ? null
+        : {
+            currentIndex: data.activeSession.currentIndex,
+            kind: data.activeSession.kind,
+            questionCount: data.activeSession.questions.length,
+          },
+    practiceDayKeys: data?.practiceDayKeys ?? [],
+    rewardedDayKeys: data?.rewardedDayKeys ?? [],
+    todayKey,
+  })
+  const dailyQuestionCount =
+    data?.activeSession?.kind === 'daily-watering'
+      ? data.activeSession.questions.length
+      : LearningEngine.createSession({
+          now: today,
+          policy: { kind: 'daily-watering' },
+          seed: 0,
+          snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
+          timeZone,
+        }).questions.length
+  const wateringMinutes = Math.max(1, Math.ceil(dailyQuestionCount / 5))
   const primaryAction = async () => {
     if (data?.activeSession !== null && data?.activeSession !== undefined) {
-      await resumePracticeSession({
-        navigate: () => navigate({ to: '/practice' }),
-        transition,
-      })
+      await launcher.resume()
       return
     }
-    await start({ questionCount: firstVisit ? 8 : 10 })
+    if (dailyView.dailyWateringDone) {
+      await launcher.startQuick()
+      return
+    }
+    await launcher.startDaily()
   }
+  const primaryCopy = data?.activeSession
+    ? data.activeSession.kind === 'daily-watering'
+      ? t('watering.resume')
+      : t('home.resume')
+    : dailyView.dailyWateringDone
+      ? t('watering.extra')
+      : t('watering.start')
+  const welcomeHeading =
+    dailyView.comeback === 'none'
+      ? firstVisit
+        ? t('home.firstVisitHeading', { name: displayName })
+        : t('home.returningHeading', { name: displayName })
+      : t('comeback.heading', { name: displayName })
+  const welcomeCopy =
+    dailyView.comeback === 'long'
+      ? t('comeback.long')
+      : dailyView.comeback === 'short'
+        ? t('comeback.short')
+        : firstVisit
+          ? t('home.firstVisitIntro')
+          : dailyView.dailyWateringDone
+            ? t('watering.doneCopy')
+            : t('home.ready')
 
   return (
     <section className="home-screen">
@@ -100,12 +121,8 @@ export function HomeScreen() {
         <div className="home-intro">
           <header className="welcome-copy">
             <p className="eyebrow">little tables.</p>
-            <h1>
-              {firstVisit
-                ? t('home.firstVisitHeading', { name: displayName })
-                : t('home.returningHeading', { name: displayName })}
-            </h1>
-            <p>{firstVisit ? t('home.firstVisitIntro') : t('home.ready')}</p>
+            <h1>{welcomeHeading}</h1>
+            <p>{welcomeCopy}</p>
           </header>
 
           <m.button
@@ -114,7 +131,7 @@ export function HomeScreen() {
             type="button"
             whileTap={{ scale: 0.97 }}
           >
-            {data?.activeSession ? t('home.resume') : firstVisit ? t('home.start') : t('home.play')}
+            {primaryCopy}
           </m.button>
           <button
             className="mode-link"
@@ -126,7 +143,7 @@ export function HomeScreen() {
           </button>
           {showModes ? (
             <div className="mode-sheet">
-              <button onClick={() => void start({ questionCount: 5 })} type="button">
+              <button onClick={() => void launcher.startQuick()} type="button">
                 <strong>{t('home.fiveQuick')}</strong>
                 <span>{t('home.lowEnergy')}</span>
               </button>
@@ -136,7 +153,7 @@ export function HomeScreen() {
                   {[2, 5, 10, 3, 4, 6, 7, 8, 9].map((table) => (
                     <button
                       key={table}
-                      onClick={() => void start({ focusTable: table, questionCount: 10 })}
+                      onClick={() => void launcher.startTable(table)}
                       type="button"
                     >
                       {table}
@@ -151,22 +168,40 @@ export function HomeScreen() {
       </div>
 
       <div className="home-dashboard">
-        <div className="glow-card">
+        <div className="glow-card weekly-card">
           <span className="flower-badge" aria-hidden="true">
             ✿
           </span>
           <div>
-            <strong>{t(glow === 1 ? 'home.glowDay' : 'home.glowDays', { count: glow })}</strong>
-            <div className="glow-track">
-              <span style={{ width: `${(glow / 7) * 100}%` }} />
+            <strong>{t('week.heading')}</strong>
+            <span className="weekly-count">
+              {t(dailyView.weeklyPracticeDays === 1 ? 'week.countOne' : 'week.countMany', {
+                count: dailyView.weeklyPracticeDays,
+              })}
+            </span>
+            <div aria-hidden="true" className="week-day-row">
+              {dailyView.week.map((day) => (
+                <i
+                  className={`${day.practiced ? 'week-day week-day-practiced' : 'week-day'}${day.today ? ' week-day-today' : ''}`}
+                  key={day.dayKey}
+                />
+              ))}
             </div>
+            <small>
+              {dailyView.visitsUntilBloomingWeek === 0
+                ? t('week.complete')
+                : t(dailyView.visitsUntilBloomingWeek === 1 ? 'week.oneToGo' : 'week.manyToGo', {
+                    count: dailyView.visitsUntilBloomingWeek,
+                  })}
+            </small>
+            <small className="week-explainer">{t('week.explainer')}</small>
           </div>
           <span className="sync-copy">{t(`sync.${syncStatus.data}`)}</span>
         </div>
 
-        <div className="today-card">
+        <div className="today-card watering-card">
           <div className="card-heading">
-            <strong>{t('home.today')}</strong>
+            <strong>{t('watering.heading')}</strong>
             <span>
               {t('garden.bloomCount', {
                 bloom: t(garden.bloomCount === 1 ? 'common.bloom' : 'common.blooms'),
@@ -176,19 +211,30 @@ export function HomeScreen() {
           </div>
           <div
             className="petal-row"
-            aria-label={t(petalCount === 1 ? 'home.petal' : 'home.petals', { count: petalCount })}
+            aria-label={t(dailyView.petalCount === 1 ? 'home.petal' : 'home.petals', {
+              count: dailyView.petalCount,
+            })}
           >
             {Array.from({ length: 5 }, (_, index) => (
               <span
-                className={
-                  index < Math.min(5, data?.completedSessions ?? 0) ? 'petal petal-filled' : 'petal'
-                }
+                className={index < dailyView.petalCount ? 'petal petal-filled' : 'petal'}
                 key={index}
               >
                 ✿
               </span>
             ))}
           </div>
+          <p>
+            {dailyView.dailyWateringDone
+              ? t('watering.done')
+              : t(dailyQuestionCount === 1 ? 'watering.dueOne' : 'watering.dueMany', {
+                  count: dailyQuestionCount,
+                  minutes: wateringMinutes,
+                })}
+          </p>
+          <small>
+            {t(dailyView.dailyWateringDone ? 'watering.rewardEarned' : 'watering.rewardReady')}
+          </small>
         </div>
         <ReminderCard />
         <InstallCard completedSessions={data?.completedSessions ?? 0} />

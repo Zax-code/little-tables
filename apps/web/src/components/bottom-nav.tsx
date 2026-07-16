@@ -42,6 +42,8 @@ export function BottomNav() {
   const navigate = useNavigate()
   const transition = useFlowerTransition()
   const { t } = useI18n()
+  const isCurrent = (path: (typeof items)[number]['path']) =>
+    pathname === path || (path === '/garden' && pathname.startsWith('/garden/'))
 
   const changeTab = (
     event: MouseEvent<HTMLAnchorElement>,
@@ -63,7 +65,7 @@ export function BottomNav() {
       </p>
       {items.map((item) => (
         <Link
-          aria-current={pathname === item.path ? 'page' : undefined}
+          aria-current={isCurrent(item.path) ? 'page' : undefined}
           className="nav-item"
           key={item.path}
           onClick={(event) => changeTab(event, item.path)}

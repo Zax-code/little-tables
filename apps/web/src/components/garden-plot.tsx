@@ -1,6 +1,6 @@
 import { m, useReducedMotion } from 'motion/react'
 import type { GardenPlantStage, GardenProgress } from '@little-tables/domain'
-import type { CSSProperties } from 'react'
+import type { CSSProperties, RefObject } from 'react'
 import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { gardenPlantDefinition, type GardenPlantDefinition } from './garden-plant-catalog.js'
@@ -33,6 +33,12 @@ const sparkles = [
   { id: 'middle', symbol: '✧' },
   { id: 'right', symbol: '✦' },
 ] as const
+
+const chapterNameKey = (chapterId: string) => {
+  if (chapterId === 'secret-greenhouse') return 'chapter.secret-greenhouse' as const
+  if (chapterId === 'starlit-garden') return 'chapter.starlit-garden' as const
+  return 'chapter.sunny-meadow' as const
+}
 
 type CaretakerPhase = 'walking' | 'watering'
 
@@ -217,12 +223,228 @@ function WateringLanding({
   )
 }
 
+type PlantPage = ReadonlyArray<GardenPlantDefinition>
+
+function ChapterHeading({ chapter }: Readonly<{ chapter: GardenProgress['chapters'][number] }>) {
+  const { t } = useI18n()
+
+  return (
+    <header className="garden-plot__chapter-heading">
+      <div>
+        <span>{t('chapter.heading')}</span>
+        <strong>{t(chapterNameKey(chapter.id))}</strong>
+      </div>
+      <p>
+        {t('chapter.progress', {
+          current: chapter.collectedCount,
+          total: chapter.totalCount,
+        })}
+      </p>
+    </header>
+  )
+}
+
+function PlantPages({
+  activePage,
+  caretakerPhase,
+  currentTargetId,
+  lastPage,
+  onActivePageChange,
+  pages,
+  pagesRef,
+  reduceMotion,
+}: Readonly<{
+  activePage: number
+  caretakerPhase: CaretakerPhase
+  currentTargetId: string | undefined
+  lastPage: number
+  onActivePageChange: (page: number) => void
+  pages: ReadonlyArray<PlantPage>
+  pagesRef: RefObject<HTMLDivElement | null>
+  reduceMotion: boolean
+}>) {
+  return (
+    <div
+      className="garden-plot__pages"
+      onScroll={(event) => {
+        const pageWidth = event.currentTarget.clientWidth
+        if (pageWidth === 0) return
+        onActivePageChange(
+          Math.max(0, Math.min(lastPage, Math.round(event.currentTarget.scrollLeft / pageWidth))),
+        )
+      }}
+      ref={pagesRef}
+    >
+      {pages.map((page, pageIndex) => (
+        <div
+          className="garden-plot__grid"
+          data-garden-page={pageIndex}
+          key={page[0]?.id ?? `plot-${pageIndex + 1}`}
+        >
+          {page.map((definition) => {
+            const isWateredPlant =
+              pageIndex === activePage &&
+              caretakerPhase === 'watering' &&
+              currentTargetId === definition.id
+            return (
+              <div
+                className={`garden-plot__slot garden-plot__slot--${definition.id} garden-plot__slot--${definition.stage}${isWateredPlant ? ' garden-plot__slot--watered' : ''}`}
+                data-locked={definition.stage === 'locked'}
+                data-plant-id={definition.id}
+                key={definition.id}
+              >
+                {definition.stage === 'locked' ? (
+                  <LockedPlot definition={definition} reduceMotion={reduceMotion} />
+                ) : (
+                  <Plant
+                    definition={definition}
+                    reduceMotion={reduceMotion}
+                    stage={definition.stage}
+                  />
+                )}
+              </div>
+            )
+          })}
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function GardenCaretaker({
+  phase,
+  reduceMotion,
+  target,
+  walkDuration,
+  walkFacing,
+  onWalkComplete,
+}: Readonly<{
+  phase: CaretakerPhase
+  reduceMotion: boolean
+  target: WateringTarget
+  walkDuration: number
+  walkFacing: 'left' | 'right'
+  onWalkComplete: () => void
+}>) {
+  return (
+    <>
+      <m.div
+        aria-hidden="true"
+        animate={{ x: target.caretakerX, y: target.caretakerY }}
+        className="garden-plot__caretaker"
+        initial={false}
+        onAnimationComplete={() => {
+          if (phase === 'walking') onWalkComplete()
+        }}
+        transition={
+          reduceMotion
+            ? { duration: 0 }
+            : {
+                duration: phase === 'walking' ? walkDuration : 0.18,
+                ease: phase === 'walking' ? 'easeInOut' : 'easeOut',
+              }
+        }
+      >
+        {phase === 'walking' && !reduceMotion ? (
+          <GardenWalkingSprite facing={walkFacing} />
+        ) : (
+          <GardenWateringSprite facing={target.facing} reduceMotion={reduceMotion} />
+        )}
+      </m.div>
+      {phase === 'watering' ? (
+        <WateringLanding
+          reduceMotion={reduceMotion}
+          style={{ left: target.waterX, top: target.waterY }}
+        />
+      ) : null}
+    </>
+  )
+}
+
+function GardenSparkles({ reduceMotion }: Readonly<{ reduceMotion: boolean }>) {
+  return (
+    <div className="garden-plot__sparkles">
+      {sparkles.map((sparkle, index) => (
+        <m.span
+          className={`garden-plot__sparkle garden-plot__sparkle--${index + 1}`}
+          key={sparkle.id}
+          initial={reduceMotion ? false : { opacity: 0, scale: 0.4 }}
+          animate={
+            reduceMotion
+              ? { opacity: 1, scale: 1 }
+              : { opacity: [0, 1, 0.75], scale: [0.4, 1.18, 1] }
+          }
+          transition={{ delay: 0.35 + index * 0.16, duration: reduceMotion ? 0 : 0.6 }}
+        >
+          {sparkle.symbol}
+        </m.span>
+      ))}
+    </div>
+  )
+}
+
+function GardenPagination({
+  activePage,
+  lastPage,
+  onShowPage,
+  pages,
+}: Readonly<{
+  activePage: number
+  lastPage: number
+  onShowPage: (page: number) => void
+  pages: ReadonlyArray<PlantPage>
+}>) {
+  const { t } = useI18n()
+
+  return (
+    <div className="garden-plot__pagination" aria-label={t('garden.pagination')}>
+      <button
+        aria-label={t('garden.paginationPrevious')}
+        disabled={activePage === 0}
+        onClick={() => onShowPage(activePage - 1)}
+        type="button"
+      >
+        ‹
+      </button>
+      <div className="garden-plot__page-dots" aria-hidden="true">
+        {pages.map((page, pageIndex) => (
+          <i
+            className={pageIndex === activePage ? 'garden-plot__page-dot--active' : undefined}
+            key={page[0]?.id ?? `plot-dot-${pageIndex + 1}`}
+          />
+        ))}
+      </div>
+      <span className="sr-only" aria-live="polite">
+        {t('garden.paginationStatus', {
+          current: activePage + 1,
+          total: pages.length,
+        })}
+      </span>
+      <button
+        aria-label={t('garden.paginationNext')}
+        disabled={activePage === lastPage}
+        onClick={() => onShowPage(activePage + 1)}
+        type="button"
+      >
+        ›
+      </button>
+    </div>
+  )
+}
+
 export function GardenPlot({ progress }: GardenPlotProps) {
   const { locale, t } = useI18n()
   const reduceMotion = useReducedMotion() === true
   const canvasRef = useRef<HTMLDivElement>(null)
   const pagesRef = useRef<HTMLDivElement>(null)
-  const [activePage, setActivePage] = useState(0)
+  const [activePage, setActivePage] = useState(() => {
+    const growingChapter = progress.chapters.findIndex(({ stage }) => stage === 'growing')
+    if (growingChapter >= 0) return growingChapter
+    return Math.max(
+      0,
+      progress.chapters.findLastIndex(({ stage }) => stage !== 'locked'),
+    )
+  })
   const [caretakerPhase, setCaretakerPhase] = useState<CaretakerPhase>('watering')
   const [currentTargetIndex, setCurrentTargetIndex] = useState(0)
   const [walkFacing, setWalkFacing] = useState<'left' | 'right'>('right')
@@ -236,9 +458,11 @@ export function GardenPlot({ progress }: GardenPlotProps) {
       ),
     [plants],
   )
-  const matureCount = plants.filter(({ stage }) => stage === 'mature').length
-  const growingCount = plants.filter(({ stage }) => stage === 'growing').length
-  const lockedPlants = plants.filter(({ stage }) => stage === 'locked')
+  const activePlants = plantPages[activePage] ?? plants
+  const activeChapter = progress.chapters[activePage]
+  const matureCount = activePlants.filter(({ stage }) => stage === 'mature').length
+  const growingCount = activePlants.filter(({ stage }) => stage === 'growing').length
+  const lockedPlants = activePlants.filter(({ stage }) => stage === 'locked')
   const hasSparkle = progress.rewards.some(({ kind }) => kind === 'sparkle')
   const growthDescription =
     growingCount === 0
@@ -251,12 +475,17 @@ export function GardenPlot({ progress }: GardenPlotProps) {
     lockedPlants.length === 0
       ? t('garden.plotNoneLocked')
       : lockedPlants
-          .map(({ id, startAt }) =>
-            t('garden.plotLocked', {
-              bloom: t(startAt === 1 ? 'common.bloom' : 'common.blooms'),
-              count: startAt,
-              plant: translatePlantName(locale, id),
-            }),
+          .map(({ id, masteryRemaining, startAt }) =>
+            masteryRemaining > 0
+              ? `${translatePlantName(locale, id)} : ${t(
+                  masteryRemaining === 1 ? 'chapter.oneToGo' : 'chapter.manyToGo',
+                  { count: masteryRemaining },
+                )}`
+              : t('garden.plotLocked', {
+                  bloom: t(startAt === 1 ? 'common.bloom' : 'common.blooms'),
+                  count: startAt,
+                  plant: translatePlantName(locale, id),
+                }),
           )
           .join(', ')
   const ariaLabel = t('garden.plotAria', {
@@ -395,140 +624,37 @@ export function GardenPlot({ progress }: GardenPlotProps) {
 
   return (
     <div className={className}>
+      {activeChapter === undefined ? null : <ChapterHeading chapter={activeChapter} />}
       <div className="garden-plot__canvas" ref={canvasRef} role="img" aria-label={ariaLabel}>
-        <div
-          className="garden-plot__pages"
-          onScroll={(event) => {
-            const pageWidth = event.currentTarget.clientWidth
-            if (pageWidth === 0) return
-            updateActivePage(
-              Math.max(
-                0,
-                Math.min(lastPage, Math.round(event.currentTarget.scrollLeft / pageWidth)),
-              ),
-            )
-          }}
-          ref={pagesRef}
-        >
-          {plantPages.map((page, pageIndex) => (
-            <div
-              className="garden-plot__grid"
-              data-garden-page={pageIndex}
-              key={page[0]?.id ?? `plot-${pageIndex + 1}`}
-            >
-              {page.map((definition) => {
-                const isWateredPlant =
-                  pageIndex === activePage &&
-                  caretakerPhase === 'watering' &&
-                  currentTarget?.id === definition.id
-                return (
-                  <div
-                    className={`garden-plot__slot garden-plot__slot--${definition.id} garden-plot__slot--${definition.stage}${isWateredPlant ? ' garden-plot__slot--watered' : ''}`}
-                    data-locked={definition.stage === 'locked'}
-                    data-plant-id={definition.id}
-                    key={definition.id}
-                  >
-                    {definition.stage === 'locked' ? (
-                      <LockedPlot definition={definition} reduceMotion={reduceMotion} />
-                    ) : (
-                      <Plant
-                        definition={definition}
-                        reduceMotion={reduceMotion}
-                        stage={definition.stage}
-                      />
-                    )}
-                  </div>
-                )
-              })}
-            </div>
-          ))}
-        </div>
+        <PlantPages
+          activePage={activePage}
+          caretakerPhase={caretakerPhase}
+          currentTargetId={currentTarget?.id}
+          lastPage={lastPage}
+          onActivePageChange={updateActivePage}
+          pages={plantPages}
+          pagesRef={pagesRef}
+          reduceMotion={reduceMotion}
+        />
         {currentTarget === undefined ? null : (
-          <>
-            <m.div
-              aria-hidden="true"
-              animate={{ x: currentTarget.caretakerX, y: currentTarget.caretakerY }}
-              className="garden-plot__caretaker"
-              initial={false}
-              onAnimationComplete={() => {
-                if (caretakerPhase === 'walking') setCaretakerPhase('watering')
-              }}
-              transition={
-                reduceMotion
-                  ? { duration: 0 }
-                  : {
-                      duration: caretakerPhase === 'walking' ? walkDuration : 0.18,
-                      ease: caretakerPhase === 'walking' ? 'easeInOut' : 'easeOut',
-                    }
-              }
-            >
-              {caretakerPhase === 'walking' && !reduceMotion ? (
-                <GardenWalkingSprite facing={walkFacing} />
-              ) : (
-                <GardenWateringSprite facing={currentTarget.facing} reduceMotion={reduceMotion} />
-              )}
-            </m.div>
-            {caretakerPhase === 'watering' ? (
-              <WateringLanding
-                reduceMotion={reduceMotion}
-                style={{ left: currentTarget.waterX, top: currentTarget.waterY }}
-              />
-            ) : null}
-          </>
+          <GardenCaretaker
+            onWalkComplete={() => setCaretakerPhase('watering')}
+            phase={caretakerPhase}
+            reduceMotion={reduceMotion}
+            target={currentTarget}
+            walkDuration={walkDuration}
+            walkFacing={walkFacing}
+          />
         )}
-        {hasSparkle ? (
-          <div className="garden-plot__sparkles">
-            {sparkles.map((sparkle, index) => (
-              <m.span
-                className={`garden-plot__sparkle garden-plot__sparkle--${index + 1}`}
-                key={sparkle.id}
-                initial={reduceMotion ? false : { opacity: 0, scale: 0.4 }}
-                animate={
-                  reduceMotion
-                    ? { opacity: 1, scale: 1 }
-                    : { opacity: [0, 1, 0.75], scale: [0.4, 1.18, 1] }
-                }
-                transition={{ delay: 0.35 + index * 0.16, duration: reduceMotion ? 0 : 0.6 }}
-              >
-                {sparkle.symbol}
-              </m.span>
-            ))}
-          </div>
-        ) : null}
+        {hasSparkle ? <GardenSparkles reduceMotion={reduceMotion} /> : null}
       </div>
       {plantPages.length > 1 ? (
-        <div className="garden-plot__pagination" aria-label={t('garden.pagination')}>
-          <button
-            aria-label={t('garden.paginationPrevious')}
-            disabled={activePage === 0}
-            onClick={() => showPage(activePage - 1)}
-            type="button"
-          >
-            ‹
-          </button>
-          <div className="garden-plot__page-dots" aria-hidden="true">
-            {plantPages.map((page, pageIndex) => (
-              <i
-                className={pageIndex === activePage ? 'garden-plot__page-dot--active' : undefined}
-                key={page[0]?.id ?? `plot-dot-${pageIndex + 1}`}
-              />
-            ))}
-          </div>
-          <span className="sr-only" aria-live="polite">
-            {t('garden.paginationStatus', {
-              current: activePage + 1,
-              total: plantPages.length,
-            })}
-          </span>
-          <button
-            aria-label={t('garden.paginationNext')}
-            disabled={activePage === lastPage}
-            onClick={() => showPage(activePage + 1)}
-            type="button"
-          >
-            ›
-          </button>
-        </div>
+        <GardenPagination
+          activePage={activePage}
+          lastPage={lastPage}
+          onShowPage={showPage}
+          pages={plantPages}
+        />
       ) : null}
     </div>
   )

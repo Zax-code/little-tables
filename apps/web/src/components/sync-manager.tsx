@@ -6,7 +6,7 @@ import { scheduleInitialSync } from '../initial-sync.js'
 import { practiceStore } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
 import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
-import type { LearningSnapshot } from '@little-tables/domain'
+import { decodeServerBootstrap } from '../bootstrap-client.js'
 
 export function SyncManager() {
   const queryClient = useQueryClient()
@@ -35,32 +35,13 @@ export function SyncManager() {
               return
             }
             if (!response.ok) return
-            const body: unknown = await response.json()
-            if (typeof body !== 'object' || body === null || !('snapshot' in body)) return
-            const server = body as {
-              completedSessions?: number
-              practiceDayKeys?: ReadonlyArray<string>
-              snapshot: LearningSnapshot
-            }
-            const snapshot = server.snapshot
-            const facts = Object.fromEntries(
-              Object.entries(snapshot.facts).map(([key, fact]) => [
-                key,
-                {
-                  ...fact,
-                  dueAt: fact.dueAt === null ? null : new Date(fact.dueAt),
-                  lastReviewedAt:
-                    fact.lastReviewedAt === null ? null : new Date(fact.lastReviewedAt),
-                },
-              ]),
-            )
-            await practiceStore.replaceSnapshot(
-              { ...snapshot, facts },
-              {
-                completedSessions: server.completedSessions ?? 0,
-                practiceDayKeys: server.practiceDayKeys ?? [],
-              },
-            )
+            const server = await decodeServerBootstrap(await response.json())
+            await practiceStore.replaceSnapshot(server.snapshot, {
+              completedSessions: server.completedSessions,
+              gardenBloomCount: server.gardenBloomCount,
+              practiceDayKeys: server.practiceDayKeys,
+              rewardedDayKeys: server.rewardedDayKeys,
+            })
             const refresh = await fetch('/api/v1/session/refresh', { method: 'POST' })
             if (refresh.status === 401) {
               await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })

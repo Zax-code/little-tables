@@ -28,12 +28,21 @@ const AttemptEventSchema = Schema.Struct({
   eventId: Schema.NonEmptyString,
   factKey: Schema.NonEmptyString,
   latencyMs: Schema.NonNegativeInt,
-  left: Schema.Int.pipe(Schema.between(1, 12)),
+  learningDayKey: Schema.optionalWith(Schema.String.pipe(Schema.pattern(/^\d{4}-\d{2}-\d{2}$/)), {
+    exact: true,
+  }),
+  left: Schema.Int.pipe(Schema.between(1, 144)),
+  operation: Schema.optionalWith(Schema.Literal('multiply', 'divide'), {
+    default: () => 'multiply' as const,
+  }),
   right: Schema.Int.pipe(Schema.between(1, 12)),
   questionCount: Schema.Int.pipe(Schema.between(1, 100)),
   selected: Schema.NonNegativeInt,
   sequence: Schema.NonNegativeInt,
   sessionId: Schema.NonEmptyString,
+  sessionKind: Schema.optionalWith(Schema.Literal('daily-watering', 'extra-practice'), {
+    exact: true,
+  }),
 })
 
 const SyncRequestSchema = Schema.Struct({
@@ -306,20 +315,37 @@ const bootstrap = Effect.gen(function* () {
   const repository = yield* AttemptRepository
   const attempts = yield* repository.list(identity.profileId)
   const snapshot = LearningEngine.reduce({ attempts, snapshot: LearningEngine.emptySnapshot() })
-  const completedSessions = new Set(
-    attempts
-      .filter(({ questionCount, sequence }) => sequence === questionCount - 1)
-      .map(({ sessionId }) => sessionId),
-  ).size
-  const practiceDayKeys = [
-    ...new Set(attempts.map(({ answeredAt }) => answeredAt.toISOString().slice(0, 10))),
-  ]
+  const completedAttemptBySession = new Map<string, (typeof attempts)[number]>()
+  for (const attempt of attempts) {
+    if (
+      attempt.sequence === attempt.questionCount - 1 &&
+      !completedAttemptBySession.has(attempt.sessionId)
+    ) {
+      completedAttemptBySession.set(attempt.sessionId, attempt)
+    }
+  }
+  const completedAttempts = [...completedAttemptBySession.values()]
+  const completedSessions = completedAttempts.length
+  const dayKeyFor = ({ answeredAt, learningDayKey }: (typeof attempts)[number]) =>
+    learningDayKey ?? answeredAt.toISOString().slice(0, 10)
+  const practiceDayKeys = [...new Set(attempts.map(dayKeyFor))].sort()
+  const gardenRewards = LearningEngine.deriveGardenRewardLedger({
+    completions: completedAttempts.map((attempt) => ({
+      learningDayKey: dayKeyFor(attempt),
+      sessionKind: attempt.sessionKind,
+    })),
+  })
   return yield* json({
     algorithmVersion: snapshot.algorithmVersion,
     profile: { displayName: identity.displayName, id: identity.profileId },
     completedSessions,
+    gardenBloomCount: gardenRewards.gardenBloomCount,
     practiceDayKeys,
-    rewards: LearningEngine.deriveRewards({ completedSessions, snapshot }),
+    rewardedDayKeys: gardenRewards.rewardedDayKeys,
+    rewards: LearningEngine.deriveRewards({
+      completedSessions: gardenRewards.gardenBloomCount,
+      snapshot,
+    }),
     snapshot,
   })
 }).pipe(Effect.catchAll(() => json({ error: 'bootstrap_unavailable' }, 503)))

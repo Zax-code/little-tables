@@ -27,12 +27,12 @@ describe('celebration reward copy', () => {
     expect(celebrationRewardCopy(progress)).toBe('Tulipe corail vient d’éclore pour de bon.')
   })
 
-  it('explains that the garden is complete after the final milestone', () => {
+  it('explains a mastery-gated showcase plant without claiming the garden is complete', () => {
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions: 15,
       snapshot: LearningEngine.emptySnapshot(),
     })
 
-    expect(celebrationRewardCopy(progress)).toBe('Tout le petit jardin est en fleurs.')
+    expect(celebrationRewardCopy(progress)).toBe('encore 5 calculs bien ancrés pour ouvrir ce coin')
   })
 })
