@@ -14,6 +14,13 @@ import { fetchAuthStatus } from './auth-client.js'
 const AccessScreen = lazy(() =>
   import('./screens/access-screen.js').then((module) => ({ default: module.AccessScreen })),
 )
+const DevelopmentTools = import.meta.env.DEV
+  ? lazy(() =>
+      import('./components/development-tools.js').then((module) => ({
+        default: module.DevelopmentTools,
+      })),
+    )
+  : null
 
 const CelebrationScreen = lazy(() =>
   import('./screens/celebration-screen.js').then((module) => ({
@@ -42,6 +49,11 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
         <Outlet />
       </Suspense>
       <PwaManager />
+      {DevelopmentTools === null ? null : (
+        <Suspense fallback={null}>
+          <DevelopmentTools />
+        </Suspense>
+      )}
     </>
   ),
 })

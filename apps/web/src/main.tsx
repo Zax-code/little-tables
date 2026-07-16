@@ -20,7 +20,14 @@ const queryClient = new QueryClient({
 const root = document.querySelector('#root')
 if (root === null) throw new Error('Missing #root element')
 
-void preloadAppImages().then(() => {
+async function enableReactScan() {
+  if (!import.meta.env.DEV) return
+
+  const { scan } = await import('react-scan')
+  scan({ enabled: true, showFPS: true, showToolbar: true })
+}
+
+void Promise.all([preloadAppImages(), enableReactScan().catch(() => undefined)]).then(() => {
   createRoot(root).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>

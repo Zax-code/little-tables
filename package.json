@@ -12,6 +12,7 @@
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm build",
     "dev": "pnpm --filter @little-tables/web dev",
     "dev:server": "pnpm --filter @little-tables/server dev",
+    "doctor": "react-doctor apps/web --yes",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -27,6 +28,7 @@
     "eslint-plugin-react-hooks": "^7.1.1",
     "fast-check": "^4.9.0",
     "prettier": "^3.9.5",
+    "react-doctor": "0.7.8",
     "typescript": "^6.0.2",
     "typescript-eslint": "^8.64.0",
     "vitest": "^4.1.10"
