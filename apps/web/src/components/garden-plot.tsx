@@ -18,6 +18,7 @@ import {
   initialGardenCaretakerState as initialCaretakerState,
   transitionGardenCaretaker as caretakerReducer,
   type GardenCaretakerPhase as CaretakerPhase,
+  type GardenCaretakerState as CaretakerState,
   type GardenCaretakerTarget as WateringTarget,
 } from './garden-caretaker-state.js'
 import {
@@ -44,7 +45,7 @@ type LockedPlotProps = Readonly<{
 }>
 
 const plantsPerPlot = 6
-const fallbackCaretakerSize = 190
+const fallbackCaretakerSize = 150
 const wateringCycleMs = 3_600
 const betweenGardensTravelMs = 650
 const sparkles = [
@@ -260,10 +261,9 @@ function ChapterHeading({ chapter }: Readonly<{ chapter: GardenProgress['chapter
   )
 }
 
-function PlantPages({
+export function PlantPages({
   activePage,
-  caretakerPhase,
-  currentTargetId,
+  caretaker,
   lastPage,
   onActivePageChange,
   pages,
@@ -271,8 +271,7 @@ function PlantPages({
   reduceMotion,
 }: Readonly<{
   activePage: number
-  caretakerPhase: CaretakerPhase
-  currentTargetId: string | undefined
+  caretaker: CaretakerState
   lastPage: number
   onActivePageChange: (page: number) => void
   pages: ReadonlyArray<PlantPage>
@@ -300,8 +299,8 @@ function PlantPages({
           {page.map((definition) => {
             const isWateredPlant =
               pageIndex === activePage &&
-              caretakerPhase === 'watering' &&
-              currentTargetId === definition.id
+              caretaker.phase === 'watering' &&
+              caretaker.target?.id === definition.id
             return (
               <div
                 className={`garden-plot__slot garden-plot__slot--${definition.id} garden-plot__slot--${definition.stage}${isWateredPlant ? ' garden-plot__slot--watered' : ''}`}
@@ -321,6 +320,15 @@ function PlantPages({
               </div>
             )
           })}
+          {caretaker.target?.pageIndex !== pageIndex || caretaker.phase === 'traveling' ? null : (
+            <GardenCaretaker
+              phase={caretaker.phase}
+              reduceMotion={reduceMotion}
+              target={caretaker.target}
+              walkDuration={caretaker.walkDuration}
+              walkFacing={caretaker.walkFacing}
+            />
+          )}
         </div>
       ))}
     </div>
@@ -453,8 +461,6 @@ function useGardenCaretaker(reduceMotion: boolean, caretakerPage: number) {
     const pages = pagesRef.current
     if (canvas === null || pages === null) return
 
-    const canvasRect = canvas.getBoundingClientRect()
-    const pagesRect = pages.getBoundingClientRect()
     const caretakerSize = caretakerSizeFor(canvas)
     const measuredTargets = Array.from(
       pages.querySelectorAll<HTMLElement>('[data-garden-page]'),
@@ -468,10 +474,9 @@ function useGardenCaretaker(reduceMotion: boolean, caretakerPage: number) {
         if (soil === null || id === undefined) return []
 
         const soilRect = soil.getBoundingClientRect()
-        const waterX =
-          pagesRect.left - canvasRect.left + soilRect.left - gridRect.left + soilRect.width / 2
-        const waterY = soilRect.top - canvasRect.top + soilRect.height / 2
-        const facing = waterX < canvasRect.width / 2 ? 'left' : 'right'
+        const waterX = soilRect.left - gridRect.left + soilRect.width / 2
+        const waterY = soilRect.top - gridRect.top + soilRect.height / 2
+        const facing = waterX < gridRect.width / 2 ? 'left' : 'right'
         const pourPointX = facing === 'right' ? 0.8 : 0.2
 
         return [
@@ -737,23 +742,13 @@ export function GardenPlot({ progress }: GardenPlotProps) {
       >
         <PlantPages
           activePage={activePage}
-          caretakerPhase={caretaker.phase}
-          currentTargetId={caretaker.target?.id}
+          caretaker={caretaker}
           lastPage={lastPage}
           onActivePageChange={updateActivePage}
           pages={plantPages}
           pagesRef={pagesRef}
           reduceMotion={reduceMotion}
         />
-        {caretaker.target?.pageIndex !== activePage || caretaker.phase === 'traveling' ? null : (
-          <GardenCaretaker
-            phase={caretaker.phase}
-            reduceMotion={reduceMotion}
-            target={caretaker.target}
-            walkDuration={caretaker.walkDuration}
-            walkFacing={caretaker.walkFacing}
-          />
-        )}
         {hasSparkle ? <GardenSparkles reduceMotion={reduceMotion} /> : null}
       </div>
       {plantPages.length > 1 ? (

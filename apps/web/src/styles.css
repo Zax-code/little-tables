@@ -1716,7 +1716,7 @@ p {
   font-weight: 750;
 }
 .garden-plot__canvas {
-  --garden-caretaker-size: 190px;
+  --garden-caretaker-size: 150px;
 
   position: absolute;
   inset: 58px 0 0;
