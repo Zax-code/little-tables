@@ -4,21 +4,11 @@ type GardenTarget = Readonly<{
   id: string
 }>
 
-type GardenPageTarget = GardenTarget &
-  Readonly<{
-    pageIndex: number
-  }>
+export const gardenWateringCycleMs = 3_000
 
-type GardenJourneyTarget = GardenTarget &
-  Readonly<{
-    caretakerX: number
-    pageIndex: number
-  }>
-
-type GardenJourneyBounds = Readonly<{
-  canvasWidth: number
-  caretakerWidth: number
-}>
+export function gardenWorldX(pageIndex: number, pageWidth: number, localX: number) {
+  return pageIndex * pageWidth + localX
+}
 
 export function pickNextGardenTarget<Target extends GardenTarget>(
   currentTargetId: string,
@@ -40,55 +30,13 @@ export function pickNextGardenTarget<Target extends GardenTarget>(
   return targets[(currentIndex + offset) % targets.length]
 }
 
-export function gardenTargetsForPage<Target extends GardenPageTarget>(
-  pageIndex: number,
-  targets: readonly Target[],
-): readonly Target[] {
-  return targets.filter((target) => target.pageIndex === pageIndex)
-}
-
-export function pickNextGardenTargetInGarden<Target extends GardenPageTarget>(
-  currentTarget: Target,
-  targets: readonly Target[],
-  random: RandomSource = Math.random,
-): Target | undefined {
-  const gardenTargets = gardenTargetsForPage(currentTarget.pageIndex, targets)
-  if (gardenTargets.length < 2) return undefined
-  return pickNextGardenTarget(currentTarget.id, gardenTargets, random)
-}
-
 export function selectGardenCaretakerTarget<Target extends GardenTarget>(
   currentTargetId: string | undefined,
   targets: readonly Target[],
   random: RandomSource = Math.random,
+  initialTargets: readonly Target[] = targets,
 ): Target | undefined {
-  return (
-    targets.find(({ id }) => id === currentTargetId) ?? pickNextGardenTarget('', targets, random)
-  )
-}
-
-export function planGardenJourney<Target extends GardenJourneyTarget>(
-  source: Target,
-  destination: Target,
-  { canvasWidth, caretakerWidth }: GardenJourneyBounds,
-) {
-  if (source.pageIndex === destination.pageIndex) {
-    return { destination, kind: 'within-garden' as const }
-  }
-
-  const direction =
-    destination.pageIndex > source.pageIndex ? ('right' as const) : ('left' as const)
-  return {
-    arrival: {
-      ...destination,
-      caretakerX: direction === 'right' ? -caretakerWidth : canvasWidth,
-    },
-    departure: {
-      ...source,
-      caretakerX: direction === 'right' ? canvasWidth : -caretakerWidth,
-    },
-    destination,
-    direction,
-    kind: 'between-gardens' as const,
-  }
+  const currentTarget = targets.find(({ id }) => id === currentTargetId)
+  if (currentTarget !== undefined) return currentTarget
+  return pickNextGardenTarget('', currentTargetId === undefined ? initialTargets : targets, random)
 }

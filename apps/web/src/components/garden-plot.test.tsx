@@ -31,7 +31,18 @@ describe('GardenPlot', () => {
     expect(markup).not.toContain('1 fleurs')
   })
 
-  it('keeps Miffy mounted inside her garden page while another garden is displayed', () => {
+  it('uses box-centered icons for both garden navigation buttons', () => {
+    const progress = LearningEngine.deriveGardenProgress({
+      completedSessions: 0,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+
+    expect(markup.match(/garden-plot__pagination-icon/g)).toHaveLength(2)
+    expect(markup).not.toMatch(/[‹›]/u)
+  })
+
+  it('mounts Miffy once in the shared garden world while another garden is displayed', () => {
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions: 12,
       snapshot: LearningEngine.emptySnapshot(),
@@ -49,9 +60,7 @@ describe('GardenPlot', () => {
     }
     const markup = renderToStaticMarkup(
       <PlantPages
-        activePage={1}
         caretaker={{
-          crossGardenJourney: undefined,
           phase: 'watering',
           target,
           walkDuration: 1,
@@ -64,13 +73,14 @@ describe('GardenPlot', () => {
         reduceMotion
       />,
     )
+    const worldStart = markup.indexOf('garden-plot__world')
     const firstPageStart = markup.indexOf('data-garden-page="0"')
-    const caretakerStart = markup.indexOf('garden-plot__caretaker')
-    const secondPageStart = markup.indexOf('data-garden-page="1"')
+    const lastPageStart = markup.indexOf('data-garden-page="2"')
+    const caretakerStart = markup.indexOf('class="garden-plot__caretaker"')
 
+    expect(worldStart).toBeGreaterThanOrEqual(0)
     expect(firstPageStart).toBeGreaterThanOrEqual(0)
-    expect(caretakerStart).toBeGreaterThan(firstPageStart)
-    expect(caretakerStart).toBeLessThan(secondPageStart)
-    expect(markup.match(/garden-plot__caretaker/g)).toHaveLength(1)
+    expect(caretakerStart).toBeGreaterThan(lastPageStart)
+    expect(markup.match(/class="garden-plot__caretaker"/g)).toHaveLength(1)
   })
 })

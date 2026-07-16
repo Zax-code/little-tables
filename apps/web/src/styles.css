@@ -1717,6 +1717,7 @@ p {
 }
 .garden-plot__canvas {
   --garden-caretaker-size: 150px;
+  --garden-watering-cycle: 3s;
 
   position: absolute;
   inset: 58px 0 0;
@@ -1729,7 +1730,6 @@ p {
   position: absolute;
   z-index: 2;
   inset: 0 10px 5px;
-  display: flex;
   overflow-x: auto;
   scroll-snap-type: x mandatory;
   scrollbar-width: none;
@@ -1740,15 +1740,21 @@ p {
 .garden-plot--paged .garden-plot__pages {
   bottom: 52px;
 }
+.garden-plot__world {
+  position: relative;
+  min-width: 100%;
+  height: 100%;
+  display: flex;
+}
 .garden-plot__grid {
   --garden-row-height: 146px;
   --garden-row-gap: clamp(12px, 2.5dvh, 22px);
 
   position: relative;
   isolation: isolate;
-  min-width: 100%;
+  min-width: 0;
   display: grid;
-  flex: 0 0 100%;
+  flex: 1 1 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   grid-template-rows: repeat(2, minmax(0, var(--garden-row-height)));
   align-content: center;
@@ -1788,6 +1794,7 @@ p {
 .garden-plot__pagination button {
   width: 44px;
   height: 44px;
+  padding: 0;
   display: grid;
   place-items: center;
   border: 1px solid var(--line-garden);
@@ -1795,8 +1802,16 @@ p {
   background: var(--surface-card);
   box-shadow: 0 3px 0 var(--shadow-control-edge);
   color: var(--ink-primary);
-  font-size: 1.6rem;
-  line-height: 1;
+}
+.garden-plot__pagination-icon {
+  width: 22px;
+  height: 22px;
+  display: block;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
 }
 .garden-plot__pagination button:disabled {
   opacity: 0.38;
@@ -1866,7 +1881,7 @@ p {
   will-change: background-position;
 }
 .garden-watering-sprite__sheet {
-  animation: garden-watering-sprite 3.6s steps(1, end) infinite;
+  animation: garden-watering-sprite var(--garden-watering-cycle) steps(1, end) infinite;
 }
 .garden-walking-sprite__sheet {
   animation: garden-walking-sprite 0.58s steps(1, end) infinite;
@@ -1895,7 +1910,7 @@ p {
   position: absolute;
   display: block;
   opacity: 0;
-  animation: garden-water-landing 3.6s ease-out infinite;
+  animation: garden-water-landing var(--garden-watering-cycle) ease-out infinite;
 }
 .garden-plot__watering-landing i {
   width: 7px;
@@ -1936,7 +1951,7 @@ p {
 }
 .garden-plot__slot--watered .garden-plot__plant-illustration {
   transform-origin: 50% 100%;
-  animation: garden-plant-drink 3.6s ease-in-out infinite;
+  animation: garden-plant-drink var(--garden-watering-cycle) ease-in-out infinite;
 }
 @keyframes garden-watering-sprite {
   0%,
