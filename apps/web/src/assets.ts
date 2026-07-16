@@ -34,7 +34,7 @@ export const celebrationSprite = {
 export const updateRecoveryAsset: CharacterAsset = {
   altKey: 'asset.updateRecovery',
   source: 'gpt-image-built-in',
-  src: '/generated/miffy-update-recovery-v2.webp',
+  src: '/generated/miffy-update-recovery-v3.webp',
 }
 
 export const characterAssets: Readonly<Record<CharacterScene, CharacterAsset>> = {
