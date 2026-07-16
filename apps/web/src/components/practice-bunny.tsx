@@ -2,6 +2,7 @@ import { m, useReducedMotion } from 'motion/react'
 import { useEffect } from 'react'
 
 import { characterAssets, type CharacterScene } from '../assets.js'
+import { useI18n } from '../i18n.js'
 
 export type PracticeReaction = 'correct' | 'encourage' | 'idle'
 
@@ -17,6 +18,7 @@ const reactionScenes: Readonly<Record<PracticeReaction, CharacterScene>> = {
 }
 
 export function PracticeBunny({ className = '', reaction }: PracticeBunnyProps) {
+  const { t } = useI18n()
   const reduceMotion = useReducedMotion()
   const asset = characterAssets[reactionScenes[reaction]]
   const reacting = reaction !== 'idle'
@@ -35,7 +37,7 @@ export function PracticeBunny({ className = '', reaction }: PracticeBunnyProps) 
   return (
     <div className={`practice-bunny-slot practice-bunny-${reaction} ${className}`.trim()}>
       <m.img
-        alt={asset.alt}
+        alt={t(asset.altKey)}
         className="practice-bunny-asset"
         initial={reduceMotion || !reacting ? false : reactionInitial}
         animate={

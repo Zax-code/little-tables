@@ -1,65 +1,84 @@
 import { useEffect, useState } from 'react'
+import { Data } from 'effect'
 
-import {
-  createPushSubscription,
-  serializePushSubscription,
-  supportsPushNotifications,
-} from '../push-subscription.js'
+import { createPushSubscription, supportsPushNotifications } from '../push-subscription.js'
+import { saveReminderSubscription } from '../reminder-subscription.js'
+import { useI18n, type TranslationKey } from '../i18n.js'
 
 type ReminderState = 'checking' | 'disabled' | 'enabled' | 'unsupported' | 'working'
+type ReminderErrorReason = 'save_failed' | 'service_unavailable' | 'sign_in_first'
+
+class ReminderEnableError extends Data.TaggedError('ReminderEnableError')<{
+  reason: ReminderErrorReason
+}> {}
+
+const reminderErrorMessages = {
+  save_failed: 'reminder.saveFailed',
+  service_unavailable: 'reminder.serviceUnavailable',
+  sign_in_first: 'reminder.signInFirst',
+} as const satisfies Readonly<Record<ReminderErrorReason, TranslationKey>>
 
 export function ReminderCard() {
+  const { locale, t } = useI18n()
   const [state, setState] = useState<ReminderState>(() =>
     supportsPushNotifications() ? 'checking' : 'unsupported',
   )
-  const [message, setMessage] = useState('a gentle nudge at 6:00 pm')
+  const [messageKey, setMessageKey] = useState<TranslationKey>('reminder.initial')
 
   useEffect(() => {
     if (!supportsPushNotifications()) return
+    let active = true
     void navigator.serviceWorker.ready
       .then((registration) => registration.pushManager.getSubscription())
-      .then((subscription) => setState(subscription === null ? 'disabled' : 'enabled'))
-      .catch(() => setState('disabled'))
+      .then((subscription) => {
+        if (!active) return
+        setState(subscription === null ? 'disabled' : 'enabled')
+      })
+      .catch(() => {
+        if (active) setState('disabled')
+      })
+    return () => {
+      active = false
+    }
   }, [])
 
   if (state === 'unsupported') return null
 
   const enable = async () => {
     setState('working')
-    setMessage('asking this device…')
+    setMessageKey('reminder.asking')
     try {
       const permission = await Notification.requestPermission()
       if (permission !== 'granted') {
         setState('disabled')
-        setMessage('notifications are blocked on this device')
+        setMessageKey('reminder.blocked')
         return
       }
       const [registration, configResponse] = await Promise.all([
         navigator.serviceWorker.ready,
         fetch('/api/v1/notifications/config'),
       ])
-      if (!configResponse.ok) throw new Error('Reminder service unavailable')
+      if (!configResponse.ok) {
+        throw new ReminderEnableError({ reason: 'service_unavailable' })
+      }
       const config = (await configResponse.json()) as { publicKey: string }
       const subscription = await createPushSubscription(registration, config.publicKey)
-      const response = await fetch('/api/v1/notifications/subscriptions', {
-        body: JSON.stringify({
-          subscription: serializePushSubscription(subscription),
-          timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        }),
-        headers: { 'content-type': 'application/json' },
-        method: 'POST',
-      })
+      const response = await saveReminderSubscription(subscription, locale)
       if (!response.ok) {
         await subscription.unsubscribe()
-        throw new Error(
-          response.status === 401 ? 'Sign in with Google first' : 'Could not save reminder',
-        )
+        throw new ReminderEnableError({
+          reason: response.status === 401 ? 'sign_in_first' : 'save_failed',
+        })
       }
       setState('enabled')
-      setMessage('daily at 6:00 pm · quiet after you practice')
+      setMessageKey('reminder.daily')
     } catch (error) {
       setState('disabled')
-      setMessage(error instanceof Error ? error.message : 'could not enable reminders')
+      setMessageKey(
+        error instanceof ReminderEnableError
+          ? reminderErrorMessages[error.reason]
+          : 'reminder.enableFailed',
+      )
     }
   }
 
@@ -71,15 +90,15 @@ export function ReminderCard() {
         ♡
       </span>
       <div>
-        <strong>remember your tiny win</strong>
-        <p>{message}</p>
+        <strong>{t('reminder.title')}</strong>
+        <p>{t(messageKey)}</p>
       </div>
       <button
         disabled={state === 'checking' || state === 'working'}
         onClick={() => void enable()}
         type="button"
       >
-        {state === 'working' ? 'wait…' : 'turn on'}
+        {state === 'working' ? t('reminder.wait') : t('reminder.turnOn')}
       </button>
     </aside>
   )

@@ -1,13 +1,15 @@
 import { useReducedMotion } from 'motion/react'
 
 import { celebrationSprite } from '../assets.js'
+import { useI18n } from '../i18n.js'
 
 export function CelebrationSprite() {
+  const { t } = useI18n()
   const reduceMotion = useReducedMotion() === true
 
   return (
     <div
-      aria-label={celebrationSprite.alt}
+      aria-label={t(celebrationSprite.altKey)}
       className={`celebration-sprite${reduceMotion ? ' celebration-sprite--static' : ''}`}
       role="img"
     >

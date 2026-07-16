@@ -1,6 +1,7 @@
 import { m, useReducedMotion } from 'motion/react'
 
 import { characterAssets, type CharacterScene } from '../assets.js'
+import { useI18n } from '../i18n.js'
 
 type BunnyProps = Readonly<{
   className?: string
@@ -8,11 +9,12 @@ type BunnyProps = Readonly<{
 }>
 
 export function Bunny({ className, scene }: BunnyProps) {
+  const { t } = useI18n()
   const asset = characterAssets[scene]
   const reduceMotion = useReducedMotion() === true
   return (
     <m.img
-      alt={asset.alt}
+      alt={t(asset.altKey)}
       className={className}
       initial={false}
       animate={reduceMotion ? { rotate: 0, y: 0 } : { y: [0, -2, 0] }}

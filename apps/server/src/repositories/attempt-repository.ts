@@ -1,5 +1,5 @@
 import type { AttemptEvent } from '@little-tables/domain'
-import { Context, Data, type Effect } from 'effect'
+import { Context, Data, Schema, type Effect } from 'effect'
 
 export class AttemptRepositoryError extends Data.TaggedError('AttemptRepositoryError')<{
   cause: unknown
@@ -18,11 +18,15 @@ export type AttemptInsertResult = Readonly<{
   duplicates: ReadonlyArray<string>
 }>
 
+export const ReminderLocaleSchema = Schema.Literal('en', 'fr')
+export type ReminderLocale = typeof ReminderLocaleSchema.Type
+
 export type PushSubscriptionRecord = Readonly<{
   endpoint: string
   expirationTime: number | null
   keys: Readonly<{ auth: string; p256dh: string }>
   lastSentDayKey: string | null
+  locale: ReminderLocale
   profileId: string
   reminderHour: number
   timezone: string

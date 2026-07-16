@@ -7,8 +7,10 @@ import { useFlowerTransition } from '../flower-transition.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
+import { translatePlantName, useI18n } from '../i18n.js'
 
 export function GardenScreen() {
+  const { locale, t } = useI18n()
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
   const transition = useFlowerTransition()
@@ -26,23 +28,34 @@ export function GardenScreen() {
   })
   const bloomCount = progress.bloomCount
   const nextStep = progress.nextStep
+  const nextPlant = nextStep === null ? '' : translatePlantName(locale, nextStep.plant.id)
   const nextTitle =
     nextStep === null
-      ? 'garden in full bloom'
+      ? t('garden.nextFull')
       : nextStep.unlocksPot
-        ? 'next: unlock a new pot'
+        ? t('garden.nextUnlock')
         : nextStep.targetStage === 'mature'
-          ? `next: bloom ${nextStep.plant.name}`
-          : `next: grow ${nextStep.plant.name}`
-  const bloomWord = nextStep?.bloomsRemaining === 1 ? 'bloom' : 'blooms'
+          ? t('garden.nextBloom', { plant: nextPlant })
+          : t('garden.nextGrow', { plant: nextPlant })
+  const bloomWord = t(nextStep?.bloomsRemaining === 1 ? 'common.bloom' : 'common.blooms')
   const nextCopy =
     nextStep === null
-      ? 'every little plant is blooming'
+      ? t('garden.allBlooming')
       : nextStep.unlocksPot
-        ? `${nextStep.bloomsRemaining} more ${bloomWord} opens the ${nextStep.plant.name} pot`
+        ? t('garden.nextUnlockCopy', {
+            bloom: bloomWord,
+            count: nextStep.bloomsRemaining,
+            plant: nextPlant,
+          })
         : nextStep.targetStage === 'mature'
-          ? `${nextStep.bloomsRemaining} more ${bloomWord} finishes this flower`
-          : `${nextStep.bloomsRemaining} more ${bloomWord} starts this bud`
+          ? t('garden.nextFinishes', {
+              bloom: bloomWord,
+              count: nextStep.bloomsRemaining,
+            })
+          : t('garden.nextStarts', {
+              bloom: bloomWord,
+              count: nextStep.bloomsRemaining,
+            })
 
   const practice = async () => {
     if (data?.activeSession !== null && data?.activeSession !== undefined) {
@@ -72,15 +85,18 @@ export function GardenScreen() {
   return (
     <section className="garden-screen">
       <header className="garden-heading">
-        <h1>your little garden</h1>
+        <h1>{t('garden.heading')}</h1>
         <p className="garden-bloom-count">
-          {bloomCount} {bloomCount === 1 ? 'bloom' : 'blooms'}
+          {t('garden.bloomCount', {
+            bloom: t(bloomCount === 1 ? 'common.bloom' : 'common.blooms'),
+            count: bloomCount,
+          })}
         </p>
       </header>
       <div className="garden-ground-region">
         <GardenPlot progress={progress} />
         <button
-          aria-label={`${nextTitle}. Practice now`}
+          aria-label={t('garden.ariaPractice', { title: nextTitle })}
           className="tomorrow-card"
           disabled={bootstrap.isLoading}
           onClick={() => void practice()}

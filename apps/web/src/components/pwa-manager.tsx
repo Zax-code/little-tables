@@ -1,7 +1,10 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
 import { useRouterState } from '@tanstack/react-router'
 
+import { useI18n } from '../i18n.js'
+
 export function PwaManager() {
+  const { t } = useI18n()
   const inPractice = useRouterState({ select: ({ location }) => location.pathname === '/practice' })
   const {
     needRefresh: [needRefresh, setNeedRefresh],
@@ -13,18 +16,18 @@ export function PwaManager() {
 
   return (
     <aside className="pwa-toast" role="status">
-      <span>{needRefresh ? 'a fresh little version is ready' : 'ready for offline tiny wins'}</span>
+      <span>{needRefresh ? t('pwa.refreshReady') : t('pwa.offlineReady')}</span>
       {needRefresh ? (
         <button onClick={() => void updateServiceWorker(true)} type="button">
-          update
+          {t('pwa.update')}
         </button>
       ) : (
         <button onClick={() => setOfflineReady(false)} type="button">
-          okay
+          {t('pwa.okay')}
         </button>
       )}
       <button
-        aria-label="Dismiss"
+        aria-label={t('common.dismiss')}
         onClick={() => {
           setNeedRefresh(false)
           setOfflineReady(false)

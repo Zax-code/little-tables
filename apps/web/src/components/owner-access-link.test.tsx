@@ -20,7 +20,7 @@ describe('OwnerAccessLink', () => {
     expect(renderToStaticMarkup(<OwnerAccessLink isAdmin={false} />)).toBe('')
     const ownerMarkup = renderToStaticMarkup(<OwnerAccessLink isAdmin />)
 
-    expect(ownerMarkup).toContain('manage who can join')
+    expect(ownerMarkup).toContain('gérer les accès au jardin')
     expect(ownerMarkup).toContain('data-router-link="true"')
     expect(ownerMarkup).toContain('data-preload="render"')
   })

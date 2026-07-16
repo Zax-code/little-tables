@@ -14,7 +14,7 @@ import {
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
 import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
-import { AttemptRepository } from '../repositories/attempt-repository.js'
+import { AttemptRepository, ReminderLocaleSchema } from '../repositories/attempt-repository.js'
 
 const AttemptEventSchema = Schema.Struct({
   answerMode: Schema.Literal('choice', 'keypad'),
@@ -47,6 +47,7 @@ const PushSubscriptionSchema = Schema.Struct({
   keys: Schema.Struct({ auth: Schema.NonEmptyString, p256dh: Schema.NonEmptyString }),
 })
 const SavePushSubscriptionSchema = Schema.Struct({
+  locale: Schema.optionalWith(ReminderLocaleSchema, { default: () => 'fr' as const }),
   subscription: PushSubscriptionSchema,
   timezone: Schema.NonEmptyString,
 })
@@ -293,7 +294,7 @@ const notificationConfig = Effect.gen(function* () {
 const savePushSubscription = Effect.gen(function* () {
   const profileId = yield* authorizedProfile
   if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
-  const { subscription, timezone } = yield* HttpServerRequest.schemaBodyJson(
+  const { locale, subscription, timezone } = yield* HttpServerRequest.schemaBodyJson(
     SavePushSubscriptionSchema,
   )
   try {
@@ -304,6 +305,7 @@ const savePushSubscription = Effect.gen(function* () {
   const repository = yield* AttemptRepository
   yield* repository.upsertPushSubscription(profileId, {
     ...subscription,
+    locale,
     reminderHour: 18,
     timezone,
   })

@@ -22,6 +22,7 @@ import {
   gardenWateringSprite,
 } from './assets.js'
 import { decodeRouteImages } from './preload-images.js'
+import { useI18n } from './i18n.js'
 
 const AccessScreen = lazyRouteComponent(() => import('./screens/access-screen.js'), 'AccessScreen')
 const DevelopmentTools = import.meta.env.DEV
@@ -48,10 +49,11 @@ type RouterContext = Readonly<{ queryClient: QueryClient | undefined }>
 
 function TabsLayout() {
   const pathname = useLocation({ select: (location) => location.pathname })
+  const { t } = useI18n()
 
   return (
     <Screen {...(pathname === '/garden' ? { contentClassName: 'screen-content-garden' } : {})}>
-      <Suspense fallback={<div className="loading-state">opening your garden…</div>}>
+      <Suspense fallback={<div className="loading-state">{t('app.openingGarden')}</div>}>
         <Outlet />
       </Suspense>
     </Screen>
@@ -59,9 +61,10 @@ function TabsLayout() {
 }
 
 function RootLayout() {
+  const { t } = useI18n()
   return (
     <FlowerTransitionProvider>
-      <Suspense fallback={<div className="loading-state">opening your garden…</div>}>
+      <Suspense fallback={<div className="loading-state">{t('app.openingGarden')}</div>}>
         <Outlet />
       </Suspense>
       <PwaManager />

@@ -8,7 +8,7 @@ describe('GoogleConnectButtonArtwork', () => {
     const markup = renderToStaticMarkup(<GoogleConnectButtonArtwork />)
 
     expect(markup).toContain('/generated/miffy-google-connect.webp')
-    expect(markup).toContain('connect with google')
+    expect(markup).toContain('se connecter avec google')
     expect(markup).toContain('aria-hidden="true"')
   })
 })

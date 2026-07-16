@@ -12,8 +12,10 @@ import { useFlowerTransition } from '../flower-transition.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { returnToGardenAfterPractice } from '../practice-session-launch.js'
 import { celebrationRewardCopy } from './celebration-reward-copy.js'
+import { useI18n } from '../i18n.js'
 
 export function CelebrationScreen() {
+  const { locale, t } = useI18n()
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
   const transition = useFlowerTransition()
@@ -27,7 +29,7 @@ export function CelebrationScreen() {
   if (data === undefined || completion === null) {
     return (
       <Screen footer={false}>
-        <div className="loading-state">gathering your tiny win…</div>
+        <div className="loading-state">{t('celebration.gathering')}</div>
       </Screen>
     )
   }
@@ -38,9 +40,11 @@ export function CelebrationScreen() {
   })
   const featuredPlant = progress.featuredPlant
   const bloomKind = featuredPlant === null ? 'tulip' : gardenPlantVisuals[featuredPlant.id].kind
-  const rewardCopy = celebrationRewardCopy(progress)
+  const rewardCopy = celebrationRewardCopy(progress, locale)
   const perfectSession = completion.correctAnswers === completion.totalAnswers
-  const heading = completion.finalCorrect ? `yes! ${completion.finalAnswer} ♡` : 'you did it ♡'
+  const heading = completion.finalCorrect
+    ? t('celebration.headingAnswer', { answer: completion.finalAnswer })
+    : t('celebration.heading')
 
   return (
     <Screen footer={false}>
@@ -54,7 +58,7 @@ export function CelebrationScreen() {
         </div>
         <header className="celebration-copy">
           <h1>{heading}</h1>
-          <p>{perfectSession ? 'perfect little streak' : 'tiny win complete'}</p>
+          <p>{perfectSession ? t('celebration.perfect') : t('celebration.complete')}</p>
         </header>
         <CelebrationSprite />
         <div className="reward-summary">
@@ -66,7 +70,7 @@ export function CelebrationScreen() {
               reduceMotion ? { duration: 0 } : { delay: 0.22, type: 'spring', stiffness: 280 }
             }
           >
-            <GardenRewardFlower kind={bloomKind} /> +1 garden bloom
+            <GardenRewardFlower kind={bloomKind} /> {t('celebration.gardenBloom')}
           </m.div>
           <p className="reward-explanation">{rewardCopy}</p>
         </div>
@@ -81,7 +85,7 @@ export function CelebrationScreen() {
             }
             type="button"
           >
-            next
+            {t('celebration.next')}
           </button>
         </div>
       </section>

@@ -1,6 +1,8 @@
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
+import { useI18n } from '../i18n.js'
 
 export function StatsScreen() {
+  const { t } = useI18n()
   const bootstrap = useLocalBootstrap()
   const data = bootstrap.data
   const facts = Object.values(data?.snapshot.facts ?? {})
@@ -11,37 +13,35 @@ export function StatsScreen() {
   return (
     <section className="stats-screen">
       <header>
-        <p className="eyebrow">your progress</p>
-        <h1>look what’s growing</h1>
-        <p>There’s no score to beat—only your own little garden.</p>
+        <p className="eyebrow">{t('stats.progress')}</p>
+        <h1>{t('stats.heading')}</h1>
+        <p>{t('stats.intro')}</p>
       </header>
       <div className="stat-hero">
         <strong>{fluent}</strong>
-        <span>facts fluent</span>
+        <span>{t('stats.factsFluent')}</span>
       </div>
       <div className="stat-grid">
         <div>
           <strong>{familiar}</strong>
-          <span>familiar</span>
+          <span>{t('stats.familiar')}</span>
         </div>
         <div>
           <strong>{growing}</strong>
-          <span>growing</span>
+          <span>{t('stats.growing')}</span>
         </div>
         <div>
           <strong>{data?.completedSessions ?? 0}</strong>
-          <span>tiny wins</span>
+          <span>{t('stats.tinyWins')}</span>
         </div>
         <div>
           <strong>{facts.length}</strong>
-          <span>facts met</span>
+          <span>{t('stats.factsMet')}</span>
         </div>
       </div>
       <div className="progress-note">
         <span aria-hidden="true">✿</span>
-        <p>
-          Correct but slower answers still count as learning. Fluency grows across separate days.
-        </p>
+        <p>{t('stats.note')}</p>
       </div>
     </section>
   )

@@ -1,4 +1,5 @@
 import { gardenWateringSprite } from '../assets.js'
+import { useI18n } from '../i18n.js'
 
 type GardenWateringSpriteProps = Readonly<{
   facing: 'left' | 'right'
@@ -6,9 +7,10 @@ type GardenWateringSpriteProps = Readonly<{
 }>
 
 export function GardenWateringSprite({ facing, reduceMotion }: GardenWateringSpriteProps) {
+  const { t } = useI18n()
   return (
     <div
-      aria-label={gardenWateringSprite.alt}
+      aria-label={t(gardenWateringSprite.altKey)}
       className={`garden-watering-sprite garden-watering-sprite--facing-${facing}${reduceMotion ? ' garden-watering-sprite--static' : ''}`}
       role="img"
     >

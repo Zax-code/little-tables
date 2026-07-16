@@ -3,8 +3,14 @@ import type { PropsWithChildren } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { googleConnectIcon } from '../assets.js'
-import { authStatusQueryKey, fetchAuthStatus, signInWithGoogle } from '../auth-client.js'
+import {
+  authStatusQueryKey,
+  fetchAuthStatus,
+  GoogleSignInError,
+  signInWithGoogle,
+} from '../auth-client.js'
 import { renderGoogleSignInButton } from '../google-identity.js'
+import { useI18n } from '../i18n.js'
 import {
   authStatusFromOfflineGrant,
   clearOfflineAuthGrant,
@@ -16,15 +22,17 @@ import { Bunny } from './bunny.js'
 import { Screen } from './screen.js'
 
 export function GoogleConnectButtonArtwork() {
+  const { t } = useI18n()
   return (
     <span aria-hidden="true" className="google-button-artwork">
       <img alt="" src={googleConnectIcon.src} />
-      <span>connect with google</span>
+      <span>{t('auth.connectGoogle')}</span>
     </span>
   )
 }
 
 function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
+  const { locale, t } = useI18n()
   const button = useRef<HTMLDivElement>(null)
   const [error, setError] = useState<string>()
   const [pending, setPending] = useState(false)
@@ -36,6 +44,7 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
     void renderGoogleSignInButton({
       clientId,
       element,
+      locale,
       onCredential: (credential) => {
         if (!active) return
         setError(undefined)
@@ -44,23 +53,23 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
           .then(() => window.location.replace('/'))
           .catch((cause: unknown) => {
             setError(
-              cause instanceof Error ? cause.message : 'Google sign-in could not be completed.',
+              cause instanceof GoogleSignInError && cause.reason === 'unauthorized'
+                ? t('auth.unauthorized')
+                : t('auth.signInFailed'),
             )
           })
           .finally(() => setPending(false))
       },
-    }).catch((cause: unknown) => {
+    }).catch((_cause: unknown) => {
       if (active) {
-        setError(
-          cause instanceof Error ? cause.message : 'The Google sign-in button could not be loaded.',
-        )
+        setError(t('auth.buttonLoadFailed'))
       }
     })
     return () => {
       active = false
       element.replaceChildren()
     }
-  }, [clientId])
+  }, [clientId, locale, t])
 
   return (
     <div className="google-sign-in-area">
@@ -68,7 +77,7 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
         <GoogleConnectButtonArtwork />
         <div className="google-button-provider" ref={button} />
       </div>
-      {pending ? <p role="status">opening your garden…</p> : null}
+      {pending ? <p role="status">{t('auth.opening')}</p> : null}
       {error ? (
         <p className="auth-error" role="alert">
           {error}
@@ -79,6 +88,7 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
 }
 
 export function AuthGate({ children }: PropsWithChildren) {
+  const { t } = useI18n()
   const [offlineGrant, setOfflineGrant] = useState(() => readOfflineAuthGrant())
   const auth = useQuery({
     initialData: offlineGrant === null ? undefined : authStatusFromOfflineGrant(offlineGrant),
@@ -125,15 +135,15 @@ export function AuthGate({ children }: PropsWithChildren) {
   }, [mustSignIn])
 
   if (canAccess) return children
-  if (auth.isPending) return <div className="app-loading">opening your garden…</div>
+  if (auth.isPending) return <div className="app-loading">{t('app.openingGarden')}</div>
   if (auth.isError) {
     return (
       <Screen footer={false}>
         <section className="auth-screen">
           <div>
             <p className="eyebrow">little tables.</p>
-            <h1>sign-in is required</h1>
-            <p>Connect to the internet so we can safely check your account.</p>
+            <h1>{t('auth.required')}</h1>
+            <p>{t('auth.internetRequired')}</p>
           </div>
           <Bunny className="auth-bunny" scene="home" />
           <button
@@ -141,7 +151,7 @@ export function AuthGate({ children }: PropsWithChildren) {
             onClick={() => void auth.refetch()}
             type="button"
           >
-            try again
+            {t('auth.retry')}
           </button>
         </section>
       </Screen>
@@ -152,13 +162,13 @@ export function AuthGate({ children }: PropsWithChildren) {
       <section className="auth-screen">
         <div>
           <p className="eyebrow">little tables.</p>
-          <h1>your garden is waiting ♡</h1>
-          <p>Sign in to safely bring your progress with you.</p>
+          <h1>{t('auth.waitingTitle')}</h1>
+          <p>{t('auth.waitingCopy')}</p>
         </div>
         <Bunny className="auth-bunny" scene="home" />
         {auth.data?.googleClientId === null || auth.data?.googleClientId === undefined ? (
           <p className="auth-error" role="alert">
-            Google sign-in is temporarily unavailable.
+            {t('auth.signInUnavailable')}
           </p>
         ) : (
           <GoogleSignInButton clientId={auth.data.googleClientId} />

@@ -2,39 +2,56 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useState, type SyntheticEvent } from 'react'
 
-import { addAllowedEmail, removeAllowedEmail } from '../allowed-email-client.js'
+import {
+  addAllowedEmail,
+  AllowedEmailClientError,
+  removeAllowedEmail,
+} from '../allowed-email-client.js'
 import {
   allowedEmailsQueryOptions,
   removeAllowedEmailFromCache,
   updateAllowedEmailsCache,
 } from '../allowed-email-query.js'
 import { Screen } from '../components/screen.js'
+import { useI18n, type TranslationKey } from '../i18n.js'
+
+type AccessNotice = Readonly<{
+  email: string
+  key: TranslationKey
+}>
+
+const accessErrorKey = (error: unknown): TranslationKey => {
+  if (!(error instanceof AllowedEmailClientError)) return 'access.saveFailed'
+  if (error.reason === 'invalid_email') return 'access.invalidEmail'
+  if (error.reason === 'load_failed') return 'access.loadFailed'
+  if (error.reason === 'remove_failed') return 'access.removeFailed'
+  return 'access.saveFailed'
+}
 
 export function AccessScreen() {
+  const { t } = useI18n()
   const queryClient = useQueryClient()
   const [email, setEmail] = useState('')
-  const [notice, setNotice] = useState<string | null>(null)
+  const [notice, setNotice] = useState<AccessNotice | null>(null)
   const allowedEmails = useQuery(allowedEmailsQueryOptions)
   const addEmail = useMutation({
     mutationFn: (value: string) => addAllowedEmail(value),
     onSuccess: (result) => {
       setEmail('')
-      setNotice(
-        result.created
-          ? `${result.email} can now sign in.`
-          : `${result.email} was already allowed.`,
-      )
+      setNotice({
+        email: result.email,
+        key: result.created ? 'access.created' : 'access.existing',
+      })
       updateAllowedEmailsCache(queryClient, result)
     },
   })
   const removeEmail = useMutation({
     mutationFn: (value: string) => removeAllowedEmail(value),
     onSuccess: (result) => {
-      setNotice(
-        result.removed
-          ? `${result.email} can no longer sign in.`
-          : `${result.email} was already removed.`,
-      )
+      setNotice({
+        email: result.email,
+        key: result.removed ? 'access.removed' : 'access.wasRemoved',
+      })
       removeAllowedEmailFromCache(queryClient, result)
     },
   })
@@ -49,19 +66,16 @@ export function AccessScreen() {
     <Screen footer={false}>
       <section className="access-screen">
         <Link className="access-back-link" preload="render" to="/">
-          ← back to the garden
+          {t('access.back')}
         </Link>
         <header>
-          <p className="eyebrow">owner controls</p>
-          <h1>who can join</h1>
-          <p>
-            Add the Google email address a new learner will use to sign in. Removing an address
-            signs that learner out on their next connection.
-          </p>
+          <p className="eyebrow">{t('access.ownerControls')}</p>
+          <h1>{t('access.title')}</h1>
+          <p>{t('access.intro')}</p>
         </header>
 
         <form className="access-form" onSubmit={submit}>
-          <label htmlFor="allowed-email">Google email address</label>
+          <label htmlFor="allowed-email">{t('access.emailLabel')}</label>
           <div>
             <input
               autoCapitalize="none"
@@ -76,31 +90,29 @@ export function AccessScreen() {
               value={email}
             />
             <button className="primary-button" disabled={addEmail.isPending} type="submit">
-              {addEmail.isPending ? 'adding…' : 'allow email'}
+              {addEmail.isPending ? t('access.adding') : t('access.allowEmail')}
             </button>
           </div>
         </form>
 
         <div aria-live="polite" className="access-message">
           {removeEmail.isError
-            ? removeEmail.error instanceof Error
-              ? removeEmail.error.message
-              : 'That email address could not be removed.'
+            ? t(accessErrorKey(removeEmail.error))
             : addEmail.isError
-              ? addEmail.error instanceof Error
-                ? addEmail.error.message
-                : 'That email address could not be allowed.'
-              : notice}
+              ? t(accessErrorKey(addEmail.error))
+              : notice === null
+                ? null
+                : t(notice.key, { email: notice.email })}
         </div>
 
         <section aria-labelledby="allowed-email-heading" className="allowed-email-card">
           <div className="card-heading">
-            <h2 id="allowed-email-heading">allowed now</h2>
+            <h2 id="allowed-email-heading">{t('access.allowedCountHeading')}</h2>
             <span>{allowedEmails.data?.length ?? 0}</span>
           </div>
-          {allowedEmails.isPending ? <p>loading addresses…</p> : null}
+          {allowedEmails.isPending ? <p>{t('access.loading')}</p> : null}
           {allowedEmails.isError ? (
-            <p role="alert">Allowed email addresses could not be loaded.</p>
+            <p role="alert">{t(accessErrorKey(allowedEmails.error))}</p>
           ) : null}
           {allowedEmails.data ? (
             <ul>
@@ -108,10 +120,10 @@ export function AccessScreen() {
                 <li key={allowedEmail}>
                   <span>{allowedEmail}</span>
                   {allowedEmail === 'boomslang.a@gmail.com' ? (
-                    <strong>owner</strong>
+                    <strong>{t('access.owner')}</strong>
                   ) : (
                     <button
-                      aria-label={`Remove ${allowedEmail} from the allowlist`}
+                      aria-label={t('access.removeAria', { email: allowedEmail })}
                       className="remove-allowed-email-button"
                       disabled={removeEmail.isPending}
                       onClick={() => {
@@ -121,8 +133,8 @@ export function AccessScreen() {
                       type="button"
                     >
                       {removeEmail.isPending && removeEmail.variables === allowedEmail
-                        ? 'removing…'
-                        : 'remove'}
+                        ? t('access.removing')
+                        : t('access.remove')}
                     </button>
                   )}
                 </li>

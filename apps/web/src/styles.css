@@ -10,6 +10,7 @@
   text-rendering: optimizeLegibility;
   --surface-canvas: #fff8ed;
   --surface-card: #fffdf9;
+  --surface-control: rgb(255 253 249 / 80%);
   --surface-soft: #f9e3e8;
   --action-primary: #f28ba2;
   --action-primary-deep: #e96e8b;
@@ -488,18 +489,26 @@ p {
   flex-direction: column;
   align-items: stretch;
 }
+.language-toggle,
 .sound-toggle {
   position: absolute;
-  right: 22px;
   top: max(18px, env(safe-area-inset-top));
   width: 44px;
   height: 44px;
   border: 1px solid var(--line-soft);
   border-radius: 50%;
-  background: rgb(255 253 249 / 80%);
+  background: var(--surface-control);
   color: var(--action-primary-deep);
   font-size: 1.15rem;
   font-weight: 800;
+}
+.language-toggle {
+  left: 22px;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+}
+.sound-toggle {
+  right: 22px;
 }
 .welcome-copy {
   text-align: center;

@@ -7,6 +7,7 @@ import { domAnimation, LazyMotion, MotionConfig } from 'motion/react'
 import { router } from './router.js'
 import { AuthGate } from './components/auth-gate.js'
 import { SyncManager } from './components/sync-manager.js'
+import { I18nProvider } from './i18n.js'
 import { decodeStartupImages } from './preload-images.js'
 import './styles.css'
 
@@ -31,14 +32,16 @@ void Promise.all([decodeStartupImages(), enableReactScan().catch(() => undefined
   createRoot(root).render(
     <StrictMode>
       <QueryClientProvider client={queryClient}>
-        <AuthGate>
-          <LazyMotion features={domAnimation} strict>
-            <MotionConfig reducedMotion="user">
-              <SyncManager />
-              <RouterProvider router={router} context={{ queryClient }} />
-            </MotionConfig>
-          </LazyMotion>
-        </AuthGate>
+        <I18nProvider>
+          <AuthGate>
+            <LazyMotion features={domAnimation} strict>
+              <MotionConfig reducedMotion="user">
+                <SyncManager />
+                <RouterProvider router={router} context={{ queryClient }} />
+              </MotionConfig>
+            </LazyMotion>
+          </AuthGate>
+        </I18nProvider>
       </QueryClientProvider>
     </StrictMode>,
   )
