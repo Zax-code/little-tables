@@ -54,6 +54,7 @@ describe('notification subscriptions', () => {
     expect(saved).toMatchObject({
       endpoint: 'https://push.example/subscription',
       expirationTime: null,
+      locale: 'fr',
       timezone: 'America/New_York',
     })
   })

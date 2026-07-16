@@ -5,7 +5,7 @@ import { authStatusQueryKey } from '../auth-client.js'
 import { scheduleInitialSync } from '../initial-sync.js'
 import { practiceStore } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
-import { syncStatusQueryKey } from '../sync-status.js'
+import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
 import type { LearningSnapshot } from '@little-tables/domain'
 
 export function SyncManager() {
@@ -13,13 +13,13 @@ export function SyncManager() {
   const sync = useMutation({
     mutationFn: () => flushAllPendingAttempts({ profileId: 'lou', store: practiceStore }),
     onError: (error) => {
-      queryClient.setQueryData(syncStatusQueryKey, 'saved on this phone')
+      queryClient.setQueryData<SyncStatus>(syncStatusQueryKey, 'saved')
       if (error instanceof SyncAuthenticationError) {
         void queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
       }
     },
-    onMutate: () => queryClient.setQueryData(syncStatusQueryKey, 'syncing'),
-    onSuccess: () => queryClient.setQueryData(syncStatusQueryKey, 'synced'),
+    onMutate: () => queryClient.setQueryData<SyncStatus>(syncStatusQueryKey, 'syncing'),
+    onSuccess: () => queryClient.setQueryData<SyncStatus>(syncStatusQueryKey, 'synced'),
   })
   const { mutate } = sync
 
@@ -70,7 +70,7 @@ export function SyncManager() {
               await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
             }
             await queryClient.invalidateQueries({ queryKey: ['local-bootstrap'] })
-          })().catch(() => queryClient.setQueryData(syncStatusQueryKey, 'saved on this phone'))
+          })().catch(() => queryClient.setQueryData<SyncStatus>(syncStatusQueryKey, 'saved'))
         },
       })
     }

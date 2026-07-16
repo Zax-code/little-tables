@@ -1,10 +1,11 @@
 import type { AttemptEvent } from '@little-tables/domain'
-import { Effect, Layer } from 'effect'
+import { Effect, Layer, Schema } from 'effect'
 import { MongoClient, type Collection } from 'mongodb'
 
 import {
   AttemptRepository,
   AttemptRepositoryError,
+  ReminderLocaleSchema,
   type AttemptRepositoryService,
   type PushSubscriptionRecord,
 } from './attempt-repository.js'
@@ -16,9 +17,10 @@ type AttemptDocument = Readonly<{
   receivedAt: Date
 }>
 
-type PushSubscriptionDocument = PushSubscriptionRecord &
+type PushSubscriptionDocument = Omit<PushSubscriptionRecord, 'locale'> &
   Readonly<{
     _id: string
+    locale?: unknown
     updatedAt: Date
   }>
 
@@ -80,9 +82,10 @@ const makeService = (
   listPushSubscriptions: () =>
     Effect.tryPromise({
       try: async () =>
-        (await pushSubscriptions.find().toArray()).map(
-          ({ _id: _, updatedAt: __, ...record }) => record,
-        ),
+        (await pushSubscriptions.find().toArray()).map(({ _id: _, updatedAt: __, ...record }) => ({
+          ...record,
+          locale: Schema.is(ReminderLocaleSchema)(record.locale) ? record.locale : 'fr',
+        })),
       catch: (cause) => new AttemptRepositoryError({ cause, operation: 'list-push-subscriptions' }),
     }),
   markPushSubscriptionSent: (endpoint, dayKey) =>

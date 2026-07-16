@@ -1,4 +1,4 @@
-import { Schema } from 'effect'
+import { Data, Schema } from 'effect'
 
 const AuthStatusSchema = Schema.Struct({
   authenticated: Schema.Boolean,
@@ -12,6 +12,10 @@ const AuthStatusSchema = Schema.Struct({
 export type AuthStatus = typeof AuthStatusSchema.Type
 
 export const authStatusQueryKey = ['auth-status'] as const
+
+export class GoogleSignInError extends Data.TaggedError('GoogleSignInError')<{
+  reason: 'failed' | 'unauthorized'
+}> {}
 
 export async function fetchAuthStatus(fetcher: typeof fetch = fetch): Promise<AuthStatus> {
   const response = await fetcher('/api/v1/auth/status')
@@ -29,10 +33,6 @@ export async function signInWithGoogle(
     method: 'POST',
   })
   if (!response.ok) {
-    throw new Error(
-      response.status === 401
-        ? 'That Google account is not allowed to open this garden.'
-        : 'Google sign-in could not be completed.',
-    )
+    throw new GoogleSignInError({ reason: response.status === 401 ? 'unauthorized' : 'failed' })
   }
 }

@@ -10,7 +10,12 @@ describe('celebration reward copy', () => {
       snapshot: LearningEngine.emptySnapshot(),
     })
 
-    expect(celebrationRewardCopy(progress)).toBe('Red tulip is growing—2 more blooms to finish it.')
+    expect(celebrationRewardCopy(progress)).toBe(
+      'Tulipe rouge grandit joliment — encore 2 fleurs avant l’éclosion.',
+    )
+    expect(celebrationRewardCopy(progress, 'en')).toBe(
+      'Red tulip is growing—2 more blooms to finish it.',
+    )
   })
 
   it('celebrates when the earned bloom finishes a flower', () => {
@@ -19,7 +24,7 @@ describe('celebration reward copy', () => {
       snapshot: LearningEngine.emptySnapshot(),
     })
 
-    expect(celebrationRewardCopy(progress)).toBe('Coral tulip is now fully grown.')
+    expect(celebrationRewardCopy(progress)).toBe('Tulipe corail vient d’éclore pour de bon.')
   })
 
   it('explains that the garden is complete after the final milestone', () => {
@@ -28,6 +33,6 @@ describe('celebration reward copy', () => {
       snapshot: LearningEngine.emptySnapshot(),
     })
 
-    expect(celebrationRewardCopy(progress)).toBe('Every little plant is blooming.')
+    expect(celebrationRewardCopy(progress)).toBe('Tout le petit jardin est en fleurs.')
   })
 })

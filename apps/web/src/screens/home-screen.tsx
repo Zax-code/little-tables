@@ -8,25 +8,28 @@ import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
 import { Bunny } from '../components/bunny.js'
 import { useFlowerTransition } from '../flower-transition.js'
 import { InstallCard } from '../components/install-card.js'
+import { LanguageToggle } from '../components/language-toggle.js'
 import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
-import { syncStatusQueryKey } from '../sync-status.js'
+import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
 import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
+import { useI18n } from '../i18n.js'
 
 export function HomeScreen() {
+  const { t } = useI18n()
   const auth = useQuery({
     queryKey: authStatusQueryKey,
     queryFn: () => fetchAuthStatus(),
     staleTime: 30_000,
   })
   const bootstrap = useLocalBootstrap()
-  const syncStatus = useQuery({
-    initialData: navigator.onLine ? 'syncing' : 'saved on this phone',
+  const syncStatus = useQuery<SyncStatus>({
+    initialData: navigator.onLine ? 'syncing' : 'saved',
     queryKey: syncStatusQueryKey,
-    queryFn: () => Promise.resolve(navigator.onLine ? 'synced' : 'saved on this phone'),
+    queryFn: () => Promise.resolve(navigator.onLine ? 'synced' : 'saved'),
     staleTime: Infinity,
   })
   const navigate = useNavigate()
@@ -50,6 +53,7 @@ export function HomeScreen() {
     }),
   )
   const glow = data?.practiceDayKeys.filter((day) => recentDayKeys.has(day)).length ?? 0
+  const petalCount = Math.min(5, data?.completedSessions ?? 0)
 
   const start = async (policy: Readonly<{ focusTable?: number; questionCount: number }>) => {
     const snapshot = data?.snapshot ?? LearningEngine.emptySnapshot()
@@ -79,8 +83,9 @@ export function HomeScreen() {
 
   return (
     <section className="home-screen">
+      <LanguageToggle />
       <button
-        aria-label={sound ? 'Turn sound off' : 'Turn sound on'}
+        aria-label={sound ? t('home.soundOff') : t('home.soundOn')}
         className="sound-toggle"
         onClick={() => {
           const next = !sound
@@ -93,8 +98,12 @@ export function HomeScreen() {
       </button>
       <header className="welcome-copy">
         <p className="eyebrow">little tables.</p>
-        <h1>{firstVisit ? `a tiny hello, ${displayName} ♡` : `good morning, ${displayName} ♡`}</h1>
-        <p>{firstVisit ? 'let’s find your easiest starting place.' : 'ready for a tiny win?'}</p>
+        <h1>
+          {firstVisit
+            ? t('home.firstVisitHeading', { name: displayName })
+            : t('home.returningHeading', { name: displayName })}
+        </h1>
+        <p>{firstVisit ? t('home.firstVisitIntro') : t('home.ready')}</p>
       </header>
 
       <m.button
@@ -103,11 +112,7 @@ export function HomeScreen() {
         type="button"
         whileTap={{ scale: 0.97 }}
       >
-        {data?.activeSession
-          ? 'resume your tiny win'
-          : firstVisit
-            ? 'start a gentle check-in'
-            : 'play 90 sec'}
+        {data?.activeSession ? t('home.resume') : firstVisit ? t('home.start') : t('home.play')}
       </m.button>
       <button
         className="mode-link"
@@ -115,16 +120,16 @@ export function HomeScreen() {
         onClick={() => setShowModes((visible) => !visible)}
         type="button"
       >
-        {showModes ? 'hide practice choices' : 'choose a tiny mode'}
+        {showModes ? t('home.hideModes') : t('home.mode')}
       </button>
       {showModes ? (
         <div className="mode-sheet">
           <button onClick={() => void start({ questionCount: 5 })} type="button">
-            <strong>five quick</strong>
-            <span>for a low-energy day</span>
+            <strong>{t('home.fiveQuick')}</strong>
+            <span>{t('home.lowEnergy')}</span>
           </button>
           <div className="table-picker">
-            <strong>focus a table</strong>
+            <strong>{t('home.focusTable')}</strong>
             <div>
               {[2, 5, 10, 3, 4, 6, 7, 8, 9].map((table) => (
                 <button
@@ -145,26 +150,29 @@ export function HomeScreen() {
           ✿
         </span>
         <div>
-          <strong>{glow} day glow</strong>
+          <strong>{t(glow === 1 ? 'home.glowDay' : 'home.glowDays', { count: glow })}</strong>
           <div className="glow-track">
             <span style={{ width: `${(glow / 7) * 100}%` }} />
           </div>
         </div>
-        <span className="sync-copy">{syncStatus.data}</span>
+        <span className="sync-copy">{t(`sync.${syncStatus.data}`)}</span>
       </div>
 
       <Bunny className="home-bunny" scene="home" />
 
       <div className="today-card">
         <div className="card-heading">
-          <strong>today</strong>
+          <strong>{t('home.today')}</strong>
           <span>
-            {garden.bloomCount} {garden.bloomCount === 1 ? 'bloom' : 'blooms'}
+            {t('garden.bloomCount', {
+              bloom: t(garden.bloomCount === 1 ? 'common.bloom' : 'common.blooms'),
+              count: garden.bloomCount,
+            })}
           </span>
         </div>
         <div
           className="petal-row"
-          aria-label={`${Math.min(5, data?.completedSessions ?? 0)} of 5 petals`}
+          aria-label={t(petalCount === 1 ? 'home.petal' : 'home.petals', { count: petalCount })}
         >
           {Array.from({ length: 5 }, (_, index) => (
             <span

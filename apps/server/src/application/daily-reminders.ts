@@ -5,7 +5,15 @@ import {
   AttemptRepository,
   type AttemptRepositoryService,
   type PushSubscriptionRecord,
+  type ReminderLocale,
 } from '../repositories/attempt-repository.js'
+
+const reminderCopies = {
+  en: { body: 'A tiny tables win will make your garden grow ♡', title: 'little tables.' },
+  fr: { body: 'Une petite séance fera pousser ton jardin ♡', title: 'little tables.' },
+} as const satisfies Readonly<Record<ReminderLocale, Readonly<{ body: string; title: string }>>>
+
+export const reminderCopy = (locale: ReminderLocale) => reminderCopies[locale]
 
 export type ReminderClock = Readonly<{
   dayKey: string
@@ -57,6 +65,7 @@ const sendDueReminders = async (repository: AttemptRepositoryService, now: Date)
       continue
     }
     try {
+      const copy = reminderCopy(subscription.locale)
       await webPush.sendNotification(
         {
           endpoint: subscription.endpoint,
@@ -64,10 +73,10 @@ const sendDueReminders = async (repository: AttemptRepositoryService, now: Date)
           keys: subscription.keys,
         },
         JSON.stringify({
-          body: 'A tiny tables win will make your garden grow ♡',
+          body: copy.body,
           icon: '/icons/icon-192.png',
           tag: `little-tables-${dayKey}`,
-          title: 'little tables.',
+          title: copy.title,
           url: '/',
         }),
         { TTL: 60 * 60 * 6, urgency: 'normal' },

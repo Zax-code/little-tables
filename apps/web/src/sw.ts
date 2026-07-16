@@ -33,7 +33,7 @@ self.addEventListener('message', (event) => {
 
 self.addEventListener('push', (event) => {
   const fallback = {
-    body: 'Ready for a tiny tables win? ♡',
+    body: 'Prête pour une petite séance ? ♡',
     icon: '/icons/icon-192.png',
     tag: 'little-tables-daily',
     title: 'little tables.',

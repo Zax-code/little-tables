@@ -34,7 +34,7 @@ describe('access screen', () => {
       </QueryClientProvider>,
     )
 
-    expect(markup).toContain('← back to the garden')
+    expect(markup).toContain('← retour au jardin')
     expect(markup).toContain('data-router-link="true"')
     expect(markup).toContain('data-preload="render"')
   })
@@ -52,7 +52,7 @@ describe('access screen', () => {
       </QueryClientProvider>,
     )
 
-    expect(markup).toContain('Remove learner@example.com from the allowlist')
-    expect(markup).not.toContain('Remove boomslang.a@gmail.com from the allowlist')
+    expect(markup).toContain('Retirer learner@example.com des adresses autorisées')
+    expect(markup).not.toContain('Retirer boomslang.a@gmail.com des adresses autorisées')
   })
 })

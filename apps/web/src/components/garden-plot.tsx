@@ -8,6 +8,7 @@ import { GardenGrowingBud, GardenMatureHead } from './garden-plant-renderers.js'
 import { GardenWateringSprite } from './garden-watering-sprite.js'
 import { pickNextGardenTarget } from './garden-watering-route.js'
 import { GardenWalkingSprite } from './garden-walking-sprite.js'
+import { translatePlantName, useI18n } from '../i18n.js'
 
 type GardenPlotProps = Readonly<{
   progress: GardenProgress
@@ -216,11 +217,8 @@ function WateringLanding({
   )
 }
 
-function pluralize(count: number, singular: string) {
-  return count === 1 ? singular : `${singular}s`
-}
-
 export function GardenPlot({ progress }: GardenPlotProps) {
+  const { locale, t } = useI18n()
   const reduceMotion = useReducedMotion() === true
   const canvasRef = useRef<HTMLDivElement>(null)
   const pagesRef = useRef<HTMLDivElement>(null)
@@ -243,12 +241,37 @@ export function GardenPlot({ progress }: GardenPlotProps) {
   const lockedPlants = plants.filter(({ stage }) => stage === 'locked')
   const hasSparkle = progress.rewards.some(({ kind }) => kind === 'sparkle')
   const growthDescription =
-    growingCount === 0 ? '' : `, ${growingCount} growing ${pluralize(growingCount, 'plant')}`
+    growingCount === 0
+      ? t('garden.plotNoneGrowing')
+      : t('garden.plotGrowing', {
+          count: growingCount,
+          plant: t(growingCount === 1 ? 'common.plant' : 'common.plants'),
+        })
   const lockDescription =
     lockedPlants.length === 0
-      ? ''
-      : `, and ${lockedPlants.map(({ name, startAt }) => `${name} locked until ${startAt} blooms`).join(', ')}`
-  const ariaLabel = `Little garden earned from ${progress.bloomCount} ${pluralize(progress.bloomCount, 'bloom')}: ${matureCount} mature ${pluralize(matureCount, 'flower')}${growthDescription}${lockDescription}${hasSparkle ? ', with a mastery sparkle' : ''}. Miffy is watering the garden.`
+      ? t('garden.plotNoneLocked')
+      : lockedPlants
+          .map(({ id, startAt }) =>
+            t('garden.plotLocked', {
+              bloom: t(startAt === 1 ? 'common.bloom' : 'common.blooms'),
+              count: startAt,
+              plant: translatePlantName(locale, id),
+            }),
+          )
+          .join(', ')
+  const ariaLabel = t('garden.plotAria', {
+    blooms: t('garden.bloomCount', {
+      bloom: t(progress.bloomCount === 1 ? 'common.bloom' : 'common.blooms'),
+      count: progress.bloomCount,
+    }),
+    growing: growthDescription,
+    locked: lockDescription,
+    mature: t('garden.plotMature', {
+      count: matureCount,
+      flower: t(matureCount === 1 ? 'common.flower' : 'common.flowers'),
+    }),
+    sparkle: hasSparkle ? t('garden.plotSparkle') : '',
+  })
   const lastPage = plantPages.length - 1
   const measureWateringTargets = useCallback(() => {
     const canvas = canvasRef.current
@@ -474,9 +497,9 @@ export function GardenPlot({ progress }: GardenPlotProps) {
         ) : null}
       </div>
       {plantPages.length > 1 ? (
-        <div className="garden-plot__pagination" aria-label="Garden pages">
+        <div className="garden-plot__pagination" aria-label={t('garden.pagination')}>
           <button
-            aria-label="Previous garden page"
+            aria-label={t('garden.paginationPrevious')}
             disabled={activePage === 0}
             onClick={() => showPage(activePage - 1)}
             type="button"
@@ -492,10 +515,13 @@ export function GardenPlot({ progress }: GardenPlotProps) {
             ))}
           </div>
           <span className="sr-only" aria-live="polite">
-            Garden page {activePage + 1} of {plantPages.length}
+            {t('garden.paginationStatus', {
+              current: activePage + 1,
+              total: plantPages.length,
+            })}
           </span>
           <button
-            aria-label="Next garden page"
+            aria-label={t('garden.paginationNext')}
             disabled={activePage === lastPage}
             onClick={() => showPage(activePage + 1)}
             type="button"

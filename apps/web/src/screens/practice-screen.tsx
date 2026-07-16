@@ -11,6 +11,7 @@ import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 import { playSuccessSound, prepareSuccessSound } from '../sound.js'
+import { useI18n } from '../i18n.js'
 
 type Feedback = Readonly<{
   correct: boolean
@@ -19,6 +20,7 @@ type Feedback = Readonly<{
 }>
 
 export function PracticeScreen() {
+  const { t } = useI18n()
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -76,7 +78,7 @@ export function PracticeScreen() {
   if (session === null || displayedQuestion === undefined || data === undefined) {
     return (
       <Screen footer={false}>
-        <div className="loading-state">growing your questions…</div>
+        <div className="loading-state">{t('practice.loading')}</div>
       </Screen>
     )
   }
@@ -131,14 +133,16 @@ export function PracticeScreen() {
       <section className="practice-screen">
         <div className="practice-topline">
           <button
-            aria-label="Leave practice"
+            aria-label={t('practice.leave')}
             className="icon-button"
             onClick={() => void navigate({ to: '/' })}
             type="button"
           >
             ×
           </button>
-          <span className="streak-pill">{session.currentIndex} growing</span>
+          <span className="streak-pill">
+            {t('practice.growing', { count: session.currentIndex })}
+          </span>
           <span className="question-count">
             {session.currentIndex + 1}/{session.questions.length}
           </span>
@@ -154,7 +158,10 @@ export function PracticeScreen() {
             className="question-stage"
           >
             <p className="sr-only">
-              {displayedQuestion.left} times {displayedQuestion.right}
+              {t('practice.times', {
+                left: displayedQuestion.left,
+                right: displayedQuestion.right,
+              })}
             </p>
             <div aria-hidden="true" className="equation">
               {displayedQuestion.left} × {displayedQuestion.right}
@@ -190,12 +197,16 @@ export function PracticeScreen() {
             <div>
               <strong>
                 {feedback.correct
-                  ? `yes! ${displayedQuestion.left * displayedQuestion.right} ♡`
-                  : `almost — it’s ${displayedQuestion.left * displayedQuestion.right}`}
+                  ? t('practice.yes', {
+                      answer: displayedQuestion.left * displayedQuestion.right,
+                    })
+                  : t('practice.almost', {
+                      answer: displayedQuestion.left * displayedQuestion.right,
+                    })}
               </strong>
               <span>
                 {feedback.correct
-                  ? 'perfect little practice'
+                  ? t('practice.perfect')
                   : `${displayedQuestion.left} × ${displayedQuestion.right} = ${displayedQuestion.left * displayedQuestion.right}`}
               </span>
             </div>
@@ -205,14 +216,14 @@ export function PracticeScreen() {
                 onClick={() => setShowExplanation(true)}
                 type="button"
               >
-                show me
+                {t('practice.showMe')}
               </button>
             ) : null}
             {!feedback.correct && showExplanation ? (
               <FactArray question={displayedQuestion} />
             ) : null}
             <button className="next-button" onClick={() => void next()} type="button">
-              next
+              {t('practice.next')}
             </button>
           </div>
         )}
@@ -222,10 +233,15 @@ export function PracticeScreen() {
 }
 
 function FactArray({ question }: Readonly<{ question: PracticeQuestion }>) {
+  const { t } = useI18n()
   return (
     <div
       className="fact-array"
-      aria-label={`${question.left} rows of ${question.right}, making ${question.left * question.right}`}
+      aria-label={t('practice.factArray', {
+        answer: question.left * question.right,
+        left: question.left,
+        right: question.right,
+      })}
     >
       <div
         className="fact-array-dots"
@@ -236,7 +252,11 @@ function FactArray({ question }: Readonly<{ question: PracticeQuestion }>) {
         ))}
       </div>
       <strong>
-        {question.left} groups of {question.right} = {question.left * question.right}
+        {t('practice.groups', {
+          answer: question.left * question.right,
+          left: question.left,
+          right: question.right,
+        })}
       </strong>
     </div>
   )
@@ -285,6 +305,7 @@ function Keypad({
   setValue,
   value,
 }: AnswerProps & Readonly<{ setValue: (value: string) => void; value: string }>) {
+  const { t } = useI18n()
   const press = (digit: string) => setValue(value.length >= 3 ? value : `${value}${digit}`)
   return (
     <div className="keypad-wrap">
@@ -303,7 +324,7 @@ function Keypad({
           </button>
         ))}
         <button
-          aria-label="Delete"
+          aria-label={t('practice.delete')}
           disabled={feedback !== null}
           onClick={() => setValue(value.slice(0, -1))}
           type="button"
@@ -314,7 +335,7 @@ function Keypad({
           0
         </button>
         <button
-          aria-label="Submit answer"
+          aria-label={t('practice.submit')}
           className="keypad-submit"
           disabled={feedback !== null || value.length === 0}
           onClick={() => void onChoose(Number(value))}
@@ -323,9 +344,9 @@ function Keypad({
           ✓
         </button>
       </div>
-      <span className="recall-note">you know this one well enough to say it yourself</span>
+      <span className="recall-note">{t('practice.recallNote')}</span>
       <span className="sr-only">
-        Answer for {question.left} times {question.right}
+        {t('practice.answerFor', { left: question.left, right: question.right })}
       </span>
     </div>
   )

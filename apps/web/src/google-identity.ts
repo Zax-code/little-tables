@@ -61,10 +61,12 @@ const loadGoogleIdentity = (): Promise<GoogleIdentityApi> => {
 export async function renderGoogleSignInButton({
   clientId,
   element,
+  locale,
   onCredential,
 }: Readonly<{
   clientId: string
   element: HTMLElement
+  locale: string
   onCredential: (credential: string) => void
 }>): Promise<void> {
   const identity = await loadGoogleIdentity()
@@ -78,7 +80,7 @@ export async function renderGoogleSignInButton({
   }
   element.replaceChildren()
   identity.renderButton(element, {
-    locale: 'en',
+    locale,
     shape: 'pill',
     size: 'large',
     text: 'signin_with',

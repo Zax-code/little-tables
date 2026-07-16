@@ -1,52 +1,54 @@
+import type { TranslationKey } from './i18n.js'
+
 export type CharacterScene = 'home' | 'practice' | 'practiceCorrect' | 'practiceEncourage'
 
 type CharacterAsset = Readonly<{
-  alt: string
+  altKey: TranslationKey
   source: 'gpt-image-built-in'
   src: string
 }>
 
 export const googleConnectIcon: CharacterAsset = {
-  alt: 'Miffy face',
+  altKey: 'asset.google',
   source: 'gpt-image-built-in',
   src: '/generated/miffy-google-connect.webp',
 }
 
 export const gardenWateringSprite: CharacterAsset = {
-  alt: 'Miffy tipping her blue watering can over the garden plants',
+  altKey: 'asset.watering',
   source: 'gpt-image-built-in',
   src: '/generated/miffy-garden-watering-sprite.webp',
 }
 
 export const gardenWalkingSprite: CharacterAsset = {
-  alt: 'Miffy walking through the garden with her blue watering can',
+  altKey: 'asset.walking',
   source: 'gpt-image-built-in',
   src: '/generated/miffy-garden-walking-sprite.webp',
 }
 
 export const celebrationSprite = {
-  alt: 'Miffy making a small joyful hop',
+  altKey: 'asset.celebration',
   src: '/generated/miffy-celebration-sprite-simple.webp',
 } as const
 
 export const characterAssets: Readonly<Record<CharacterScene, CharacterAsset>> = {
   home: {
-    alt: 'Miffy holding a red tulip',
+    altKey: 'asset.home',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-home.webp',
   },
   practice: {
-    alt: 'Miffy peeking over the bottom of the question',
+    altKey: 'asset.practice',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-practice.webp',
   },
   practiceCorrect: {
-    alt: 'Miffy popping up with a happy little cheer',
+    altKey: 'asset.practiceCorrect',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-practice-correct.webp',
   },
   practiceEncourage: {
-    alt: 'Miffy popping up with a calm, thoughtful pose',
+    altKey: 'asset.practiceEncourage',
     source: 'gpt-image-built-in',
     src: '/generated/miffy-practice-encourage.webp',
   },

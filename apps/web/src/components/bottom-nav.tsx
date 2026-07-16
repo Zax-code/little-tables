@@ -4,10 +4,12 @@ import type { MouseEvent } from 'react'
 import { useFlowerTransition } from '../flower-transition.js'
 import { transitionBetweenTabs } from '../tab-navigation.js'
 
+import { useI18n } from '../i18n.js'
+
 const items = [
-  { icon: 'home', label: 'home', path: '/' },
-  { icon: 'garden', label: 'garden', path: '/garden' },
-  { icon: 'stats', label: 'stats', path: '/stats' },
+  { icon: 'home', label: 'nav.home', path: '/' },
+  { icon: 'garden', label: 'nav.garden', path: '/garden' },
+  { icon: 'stats', label: 'nav.stats', path: '/stats' },
 ] as const
 
 type NavIconName = (typeof items)[number]['icon']
@@ -39,6 +41,7 @@ export function BottomNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
   const navigate = useNavigate()
   const transition = useFlowerTransition()
+  const { t } = useI18n()
 
   const changeTab = (
     event: MouseEvent<HTMLAnchorElement>,
@@ -54,7 +57,7 @@ export function BottomNav() {
   }
 
   return (
-    <nav aria-label="Main navigation" className="bottom-nav">
+    <nav aria-label={t('nav.label')} className="bottom-nav">
       {items.map((item) => (
         <Link
           aria-current={pathname === item.path ? 'page' : undefined}
@@ -65,7 +68,7 @@ export function BottomNav() {
           to={item.path}
         >
           <NavIcon name={item.icon} />
-          <span>{item.label}</span>
+          <span>{t(item.label)}</span>
         </Link>
       ))}
     </nav>
