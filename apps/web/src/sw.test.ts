@@ -41,10 +41,9 @@ describe('service worker updates', () => {
     expect(skipWaiting).toHaveBeenCalledOnce()
   })
 
-  it('activates this recovery release immediately for already-installed PWAs', async () => {
+  it('keeps an update waiting so the current release retains its cached chunks', async () => {
     const listeners = new Map<string, EventListener>()
-    const activation = Promise.resolve()
-    const skipWaiting = vi.fn(() => activation)
+    const skipWaiting = vi.fn()
 
     vi.stubGlobal('self', {
       __WB_MANIFEST: [],
@@ -59,11 +58,8 @@ describe('service worker updates', () => {
 
     await import('./sw.js')
 
-    const waitUntil = vi.fn()
-    listeners.get('install')?.({ waitUntil } as unknown as ExtendableEvent)
-
-    expect(skipWaiting).toHaveBeenCalledOnce()
-    expect(waitUntil).toHaveBeenCalledWith(activation)
+    expect(listeners.has('install')).toBe(false)
+    expect(skipWaiting).not.toHaveBeenCalled()
   })
 
   it('deletes the legacy cache that may contain authenticated bootstrap data', async () => {

@@ -6,6 +6,7 @@ import { domAnimation, LazyMotion, MotionConfig } from 'motion/react'
 
 import { router } from './router.js'
 import { AuthGate } from './components/auth-gate.js'
+import { PwaManager } from './components/pwa-manager.js'
 import { SyncManager } from './components/sync-manager.js'
 import { I18nProvider } from './i18n.js'
 import { decodeStartupImages } from './preload-images.js'
@@ -33,6 +34,7 @@ void Promise.all([decodeStartupImages(), enableReactScan().catch(() => undefined
     <StrictMode>
       <QueryClientProvider client={queryClient}>
         <I18nProvider>
+          <PwaManager />
           <AuthGate>
             <LazyMotion features={domAnimation} strict>
               <MotionConfig reducedMotion="user">

@@ -10,7 +10,7 @@ import {
 } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
-import { PwaManager } from './components/pwa-manager.js'
+import { AppErrorScreen } from './components/app-error-screen.js'
 import { Screen } from './components/screen.js'
 import { FlowerTransitionProvider } from './components/flower-transition.js'
 import { loadAdministratorStatus } from './admin-access.js'
@@ -73,7 +73,6 @@ function RootLayout() {
       <Suspense fallback={<div className="loading-state">{t('app.openingGarden')}</div>}>
         <Outlet />
       </Suspense>
-      <PwaManager />
       {DevelopmentTools === null ? null : (
         <Suspense fallback={null}>
           <DevelopmentTools />
@@ -85,6 +84,7 @@ function RootLayout() {
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: RootLayout,
+  errorComponent: AppErrorScreen,
 })
 
 const tabsRoute = createRoute({

@@ -2468,7 +2468,7 @@ p {
   position: fixed;
   z-index: 60;
   left: 50%;
-  bottom: max(98px, calc(92px + env(safe-area-inset-bottom)));
+  top: max(16px, env(safe-area-inset-top));
   width: min(calc(100% - 32px), 440px);
   min-height: 60px;
   padding: 9px 10px 9px 16px;
@@ -2494,6 +2494,64 @@ p {
   background: var(--surface-soft);
   box-shadow: 0 3px 0 var(--shadow-control-edge);
   font-weight: 750;
+}
+
+.app-error-screen {
+  min-height: 100dvh;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 16%, rgb(255 255 255 / 86%), transparent 34%),
+    var(--surface-canvas);
+}
+
+.app-error-card {
+  width: min(100%, 520px);
+  padding: clamp(18px, 4vw, 28px);
+  display: grid;
+  gap: 18px;
+  text-align: center;
+  border: 1px solid var(--line-soft);
+  border-radius: 32px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
+}
+
+.app-error-card img {
+  width: min(100%, 310px);
+  max-height: 42dvh;
+  margin: 0 auto;
+  object-fit: contain;
+  border-radius: 24px;
+}
+
+.app-error-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.app-error-copy > * {
+  margin: 0;
+}
+
+.app-error-copy h1 {
+  font-size: clamp(1.8rem, 7vw, 2.6rem);
+  line-height: 1;
+}
+
+.app-error-copy > p:last-child {
+  color: var(--ink-muted);
+  line-height: 1.55;
+}
+
+.app-error-actions {
+  display: grid;
+  gap: 10px;
+}
+
+.app-error-actions .primary-button {
+  width: 100%;
 }
 
 .mode-link:not(:disabled):active,
@@ -3002,6 +3060,7 @@ p {
   }
 
   .pwa-toast {
+    top: auto;
     bottom: 28px;
   }
 }
