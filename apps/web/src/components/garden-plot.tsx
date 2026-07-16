@@ -1,7 +1,7 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { m, useReducedMotion } from 'motion/react'
 import type { GardenPlantStage, GardenProgress } from '@little-tables/domain'
 import type { CSSProperties } from 'react'
-import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 
 import { gardenPlantDefinition, type GardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenGrowingBud, GardenMatureHead } from './garden-plant-renderers.js'
@@ -15,20 +15,23 @@ type GardenPlotProps = Readonly<{
 
 type PlantProps = Readonly<{
   definition: GardenPlantDefinition
-  index: number
   reduceMotion: boolean
   stage: Exclude<GardenPlantStage, 'locked'>
 }>
 
 type LockedPlotProps = Readonly<{
   definition: GardenPlantDefinition
-  index: number
   reduceMotion: boolean
 }>
 
 const plantsPerPlot = 6
 const caretakerSize = 190
 const wateringCycleMs = 3_600
+const sparkles = [
+  { id: 'left', symbol: '✦' },
+  { id: 'middle', symbol: '✧' },
+  { id: 'right', symbol: '✦' },
+] as const
 
 type CaretakerPhase = 'walking' | 'watering'
 
@@ -118,25 +121,15 @@ function Pot({ color }: Readonly<{ color: string }>) {
   )
 }
 
-function Plant({ definition, index, reduceMotion, stage }: PlantProps) {
+function Plant({ definition, reduceMotion, stage }: PlantProps) {
   const stageScale = stage === 'dormant' ? 0.82 : stage === 'growing' ? 0.92 : 1
   return (
-    <motion.div
+    <m.div
       className={`garden-plot__plant garden-plot__plant--${stage}`}
-      initial={reduceMotion ? false : { opacity: 0, scale: 0.65, y: 14 }}
-      animate={
-        reduceMotion
-          ? { opacity: 1, rotate: 0, scale: stageScale, y: 0 }
-          : {
-              opacity: [0, 1, 1],
-              rotate: stage === 'mature' ? [0, -1.8, 1.2, 0] : [0, -0.7, 0],
-              scale: [0.65, stageScale * 1.04, stageScale],
-              y: [14, -2, 0],
-            }
-      }
+      initial={false}
+      animate={{ opacity: 1, rotate: 0, scale: stageScale, y: 0 }}
       transition={{
-        delay: reduceMotion ? 0 : index * 0.11,
-        duration: reduceMotion ? 0 : 0.76,
+        duration: reduceMotion ? 0 : 0.2,
         ease: 'easeOut',
       }}
     >
@@ -161,17 +154,17 @@ function Plant({ definition, index, reduceMotion, stage }: PlantProps) {
         ) : null}
         <Pot color={definition.potColor} />
       </svg>
-    </motion.div>
+    </m.div>
   )
 }
 
-function LockedPlot({ definition, index, reduceMotion }: LockedPlotProps) {
+function LockedPlot({ definition, reduceMotion }: LockedPlotProps) {
   return (
-    <motion.div
+    <m.div
       className="garden-plot__locked-plot"
-      initial={reduceMotion ? false : { opacity: 0, scale: 0.84 }}
+      initial={false}
       animate={{ opacity: 1, scale: 1 }}
-      transition={{ delay: reduceMotion ? 0 : index * 0.11, duration: reduceMotion ? 0 : 0.5 }}
+      transition={{ duration: reduceMotion ? 0 : 0.18 }}
     >
       <svg
         className="garden-plot__locked-illustration"
@@ -201,7 +194,7 @@ function LockedPlot({ definition, index, reduceMotion }: LockedPlotProps) {
         </g>
         <Pot color={definition.potColor} />
       </svg>
-    </motion.div>
+    </m.div>
   )
 }
 
@@ -237,11 +230,13 @@ export function GardenPlot({ progress }: GardenPlotProps) {
   const [walkFacing, setWalkFacing] = useState<'left' | 'right'>('right')
   const [walkDuration, setWalkDuration] = useState(1)
   const [wateringTargets, setWateringTargets] = useState<readonly WateringTarget[]>([])
-  const plants = progress.plants.map(gardenPlantDefinition)
-  const plantPages = Array.from(
-    { length: Math.ceil(plants.length / plantsPerPlot) },
-    (_, pageIndex) =>
-      plants.slice(pageIndex * plantsPerPlot, pageIndex * plantsPerPlot + plantsPerPlot),
+  const plants = useMemo(() => progress.plants.map(gardenPlantDefinition), [progress.plants])
+  const plantPages = useMemo(
+    () =>
+      Array.from({ length: Math.ceil(plants.length / plantsPerPlot) }, (_, pageIndex) =>
+        plants.slice(pageIndex * plantsPerPlot, pageIndex * plantsPerPlot + plantsPerPlot),
+      ),
+    [plants],
   )
   const matureCount = plants.filter(({ stage }) => stage === 'mature').length
   const growingCount = plants.filter(({ stage }) => stage === 'growing').length
@@ -310,7 +305,6 @@ export function GardenPlot({ progress }: GardenPlotProps) {
     if (pages === null || canvas === null) return
 
     let frame = window.requestAnimationFrame(measureWateringTargets)
-    const settledMeasurement = window.setTimeout(measureWateringTargets, 950)
     const scheduleMeasurement = () => {
       window.cancelAnimationFrame(frame)
       frame = window.requestAnimationFrame(measureWateringTargets)
@@ -322,7 +316,6 @@ export function GardenPlot({ progress }: GardenPlotProps) {
     resizeObserver?.observe(canvas)
     return () => {
       window.cancelAnimationFrame(frame)
-      window.clearTimeout(settledMeasurement)
       pages.removeEventListener('scroll', scheduleMeasurement)
       resizeObserver?.disconnect()
     }
@@ -339,26 +332,24 @@ export function GardenPlot({ progress }: GardenPlotProps) {
     if (reduceMotion || caretakerPhase !== 'watering' || wateringTargets.length < 2) return
 
     const timeout = window.setTimeout(() => {
-      setCurrentTargetIndex((currentIndex) => {
-        const normalizedCurrentIndex = currentIndex % wateringTargets.length
-        const nextIndex = pickNextGardenTarget(currentIndex, wateringTargets.length)
-        const currentTarget = wateringTargets[normalizedCurrentIndex]
-        const nextTarget = wateringTargets[nextIndex]
-        if (currentTarget === undefined || nextTarget === undefined) return currentIndex
+      const normalizedCurrentIndex = currentTargetIndex % wateringTargets.length
+      const nextIndex = pickNextGardenTarget(currentTargetIndex, wateringTargets.length)
+      const previousTarget = wateringTargets[normalizedCurrentIndex]
+      const nextTarget = wateringTargets[nextIndex]
+      if (previousTarget === undefined || nextTarget === undefined) return
 
-        const distance = Math.hypot(
-          nextTarget.caretakerX - currentTarget.caretakerX,
-          nextTarget.caretakerY - currentTarget.caretakerY,
-        )
-        setWalkFacing(nextTarget.caretakerX >= currentTarget.caretakerX ? 'right' : 'left')
-        setWalkDuration(Math.min(1.7, Math.max(0.8, distance / 115)))
-        setCaretakerPhase('walking')
-        return nextIndex
-      })
+      const distance = Math.hypot(
+        nextTarget.caretakerX - previousTarget.caretakerX,
+        nextTarget.caretakerY - previousTarget.caretakerY,
+      )
+      setWalkFacing(nextTarget.caretakerX >= previousTarget.caretakerX ? 'right' : 'left')
+      setWalkDuration(Math.min(1.7, Math.max(0.8, distance / 115)))
+      setCaretakerPhase('walking')
+      setCurrentTargetIndex(nextIndex)
     }, wateringCycleMs)
 
     return () => window.clearTimeout(timeout)
-  }, [caretakerPhase, reduceMotion, wateringTargets])
+  }, [caretakerPhase, currentTargetIndex, reduceMotion, wateringTargets])
 
   const currentTarget = wateringTargets[currentTargetIndex % wateringTargets.length]
   const showPage = (pageIndex: number) => {
@@ -402,7 +393,7 @@ export function GardenPlot({ progress }: GardenPlotProps) {
               data-garden-page={pageIndex}
               key={page[0]?.id ?? `plot-${pageIndex + 1}`}
             >
-              {page.map((definition, index) => {
+              {page.map((definition) => {
                 const isWateredPlant =
                   pageIndex === activePage &&
                   caretakerPhase === 'watering' &&
@@ -415,15 +406,10 @@ export function GardenPlot({ progress }: GardenPlotProps) {
                     key={definition.id}
                   >
                     {definition.stage === 'locked' ? (
-                      <LockedPlot
-                        definition={definition}
-                        index={pageIndex * plantsPerPlot + index}
-                        reduceMotion={reduceMotion}
-                      />
+                      <LockedPlot definition={definition} reduceMotion={reduceMotion} />
                     ) : (
                       <Plant
                         definition={definition}
-                        index={pageIndex * plantsPerPlot + index}
                         reduceMotion={reduceMotion}
                         stage={definition.stage}
                       />
@@ -436,7 +422,7 @@ export function GardenPlot({ progress }: GardenPlotProps) {
         </div>
         {currentTarget === undefined ? null : (
           <>
-            <motion.div
+            <m.div
               aria-hidden="true"
               animate={{ x: currentTarget.caretakerX, y: currentTarget.caretakerY }}
               className="garden-plot__caretaker"
@@ -458,7 +444,7 @@ export function GardenPlot({ progress }: GardenPlotProps) {
               ) : (
                 <GardenWateringSprite facing={currentTarget.facing} reduceMotion={reduceMotion} />
               )}
-            </motion.div>
+            </m.div>
             {caretakerPhase === 'watering' ? (
               <WateringLanding
                 reduceMotion={reduceMotion}
@@ -469,10 +455,10 @@ export function GardenPlot({ progress }: GardenPlotProps) {
         )}
         {hasSparkle ? (
           <div className="garden-plot__sparkles">
-            {['✦', '✧', '✦'].map((sparkle, index) => (
-              <motion.span
+            {sparkles.map((sparkle, index) => (
+              <m.span
                 className={`garden-plot__sparkle garden-plot__sparkle--${index + 1}`}
-                key={`${sparkle}-${index}`}
+                key={sparkle.id}
                 initial={reduceMotion ? false : { opacity: 0, scale: 0.4 }}
                 animate={
                   reduceMotion
@@ -481,8 +467,8 @@ export function GardenPlot({ progress }: GardenPlotProps) {
                 }
                 transition={{ delay: 0.35 + index * 0.16, duration: reduceMotion ? 0 : 0.6 }}
               >
-                {sparkle}
-              </motion.span>
+                {sparkle.symbol}
+              </m.span>
             ))}
           </div>
         ) : null}

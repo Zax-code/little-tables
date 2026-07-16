@@ -40,6 +40,7 @@ export function BottomNav() {
           aria-current={pathname === item.path ? 'page' : undefined}
           className="nav-item"
           key={item.path}
+          preload="render"
           to={item.path}
         >
           <NavIcon name={item.icon} />

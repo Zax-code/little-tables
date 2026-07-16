@@ -19,6 +19,7 @@ export function InstallCard({ completedSessions }: Readonly<{ completedSessions:
           localStorage.setItem(DISMISSED_KEY, 'yes')
           setDismissed(true)
         }}
+        type="button"
       >
         ×
       </button>

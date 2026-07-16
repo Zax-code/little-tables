@@ -168,7 +168,7 @@ function DaisyRewardBloom() {
   )
 }
 
-export const gardenPlantRenderers = {
+const gardenPlantRenderers = {
   daisy: {
     GrowingBud: DaisyGrowingBud,
     MatureHead: DaisyMatureHead,

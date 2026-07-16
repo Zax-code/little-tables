@@ -7,6 +7,7 @@ export type PreloadableImage = {
 }
 
 type ImageFactory = () => PreloadableImage
+const routeImageDecodes = new Map<string, Promise<void>>()
 
 function preloadImageSource(
   source: string,
@@ -49,10 +50,19 @@ export async function preloadImageSources(
   await Promise.all(sources.map((source) => preloadImageSource(source, createImage, timeoutMs)))
 }
 
-export function preloadAppImages(): Promise<void> {
+export function decodeStartupImages(): Promise<void> {
   const sources = Array.from(
-    document.querySelectorAll<HTMLLinkElement>('link[data-app-image]'),
+    document.querySelectorAll<HTMLLinkElement>('link[data-app-image][data-startup-image]'),
     ({ href }) => href,
   )
   return preloadImageSources(sources)
+}
+
+export function decodeRouteImages(route: string, sources: readonly string[]): Promise<void> {
+  const existing = routeImageDecodes.get(route)
+  if (existing !== undefined) return existing
+
+  const decoding = preloadImageSources(sources)
+  routeImageDecodes.set(route, decoding)
+  return decoding
 }

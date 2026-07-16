@@ -17,6 +17,15 @@ Run all verification with:
 corepack pnpm check
 ```
 
+Run the React static audit with:
+
+```sh
+corepack pnpm doctor
+```
+
+The development web app also enables React Scan and TanStack Router Devtools. Both tools are
+excluded from production builds.
+
 The web app runs on port 5173 and proxies `/api` to the Effect server on port 3000. Start the server in another terminal with `corepack pnpm dev:server`.
 
 ## CI/CD

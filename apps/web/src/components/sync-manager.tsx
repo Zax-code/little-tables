@@ -2,11 +2,11 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { authStatusQueryKey } from '../auth-client.js'
+import { scheduleInitialSync } from '../initial-sync.js'
 import { practiceStore } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
+import { syncStatusQueryKey } from '../sync-status.js'
 import type { LearningSnapshot } from '@little-tables/domain'
-
-export const syncStatusQueryKey = ['sync-status'] as const
 
 export function SyncManager() {
   const queryClient = useQueryClient()
@@ -77,10 +77,11 @@ export function SyncManager() {
     const onVisibility = () => {
       if (document.visibilityState === 'visible') flush()
     }
-    flush()
+    const cancelInitialFlush = scheduleInitialSync(flush)
     window.addEventListener('online', flush)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
+      cancelInitialFlush()
       window.removeEventListener('online', flush)
       document.removeEventListener('visibilitychange', onVisibility)
     }

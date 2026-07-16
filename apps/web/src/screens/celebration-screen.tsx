@@ -1,6 +1,6 @@
 import { LearningEngine } from '@little-tables/domain'
 import { useNavigate } from '@tanstack/react-router'
-import { motion, useReducedMotion } from 'motion/react'
+import { m, useReducedMotion } from 'motion/react'
 import { useEffect } from 'react'
 
 import { CelebrationSprite } from '../components/celebration-sprite.js'
@@ -55,7 +55,7 @@ export function CelebrationScreen() {
         </header>
         <CelebrationSprite />
         <div className="reward-summary">
-          <motion.div
+          <m.div
             className="reward-chip"
             initial={reduceMotion ? false : { scale: 0.8 }}
             animate={{ scale: 1 }}
@@ -64,11 +64,15 @@ export function CelebrationScreen() {
             }
           >
             <GardenRewardFlower kind={bloomKind} /> +1 garden bloom
-          </motion.div>
+          </m.div>
           <p className="reward-explanation">{rewardCopy}</p>
         </div>
         <div className="celebration-actions">
-          <button className="primary-button" onClick={() => void navigate({ to: '/garden' })}>
+          <button
+            className="primary-button"
+            onClick={() => void navigate({ to: '/garden' })}
+            type="button"
+          >
             next
           </button>
         </div>
