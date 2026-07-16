@@ -4,7 +4,10 @@ import { describe, expect, it } from 'vitest'
 import { Screen } from './screen.js'
 
 describe('Screen', () => {
-  it('renders a footerless authentication screen without a router provider', () => {
-    expect(renderToStaticMarkup(<Screen footer={false}>sign in</Screen>)).toContain('sign in')
+  it('marks a footerless screen as a standalone layout', () => {
+    const markup = renderToStaticMarkup(<Screen footer={false}>sign in</Screen>)
+
+    expect(markup).toContain('class="app-shell app-shell-standalone"')
+    expect(markup).toContain('sign in')
   })
 })
