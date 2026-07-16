@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'motion/react'
+import { m, useReducedMotion } from 'motion/react'
 import { useEffect } from 'react'
 
 import { characterAssets, type CharacterScene } from '../assets.js'
@@ -34,7 +34,7 @@ export function PracticeBunny({ className = '', reaction }: PracticeBunnyProps) 
 
   return (
     <div className={`practice-bunny-slot practice-bunny-${reaction} ${className}`.trim()}>
-      <motion.img
+      <m.img
         alt={asset.alt}
         className="practice-bunny-asset"
         initial={reduceMotion || !reacting ? false : reactionInitial}

@@ -13,7 +13,8 @@ vi.mock('react', async (importOriginal) => ({
   useState,
 }))
 
-import { ReminderCard, serializePushSubscription } from './reminder-card.js'
+import { ReminderCard } from './reminder-card.js'
+import { serializePushSubscription } from '../push-subscription.js'
 
 describe('reminder card', () => {
   it('normalizes an omitted expirationTime before saving a subscription', () => {

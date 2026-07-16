@@ -49,9 +49,9 @@ export async function preloadImageSources(
   await Promise.all(sources.map((source) => preloadImageSource(source, createImage, timeoutMs)))
 }
 
-export function preloadAppImages(): Promise<void> {
+export function decodeStartupImages(): Promise<void> {
   const sources = Array.from(
-    document.querySelectorAll<HTMLLinkElement>('link[data-app-image]'),
+    document.querySelectorAll<HTMLLinkElement>('link[data-app-image][data-startup-image]'),
     ({ href }) => href,
   )
   return preloadImageSources(sources)

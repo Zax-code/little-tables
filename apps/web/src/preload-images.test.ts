@@ -1,6 +1,10 @@
-import { describe, expect, it, vi } from 'vitest'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { preloadImageSources, type PreloadableImage } from './preload-images.js'
+import {
+  decodeStartupImages,
+  preloadImageSources,
+  type PreloadableImage,
+} from './preload-images.js'
 
 function createPendingImage(): PreloadableImage {
   return {
@@ -13,6 +17,34 @@ function createPendingImage(): PreloadableImage {
 }
 
 describe('preloadImageSources', () => {
+  afterEach(() => vi.unstubAllGlobals())
+
+  it('only gates rendering on images marked for the first screen', async () => {
+    const querySelectorAll = vi.fn(() => [
+      { href: 'https://little-tables.test/miffy-home.webp' },
+      { href: 'https://little-tables.test/miffy-google-connect.webp' },
+    ])
+    const images: PreloadableImage[] = []
+    class ImageConstructor implements PreloadableImage {
+      complete = true
+      decode = vi.fn(() => Promise.resolve())
+      onerror = null
+      onload = null
+      src = ''
+
+      constructor() {
+        images.push(this)
+      }
+    }
+    vi.stubGlobal('document', { querySelectorAll })
+    vi.stubGlobal('Image', ImageConstructor)
+
+    await decodeStartupImages()
+
+    expect(querySelectorAll).toHaveBeenCalledWith('link[data-app-image][data-startup-image]')
+    expect(images).toHaveLength(2)
+  })
+
   it('waits for every image to load and decode before resolving', async () => {
     const images = [createPendingImage(), createPendingImage()]
     const preload = preloadImageSources(['/first.png', '/second.png'], () => {

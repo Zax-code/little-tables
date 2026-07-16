@@ -16,7 +16,6 @@
     "@little-tables/local-store": "workspace:*",
     "@tanstack/react-query": "^5.101.2",
     "@tanstack/react-router": "^1.170.18",
-    "dexie": "^4.4.4",
     "effect": "^3.21.4",
     "motion": "^12.42.2",
     "react": "^19.2.7",

@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -12,10 +11,6 @@ vi.mock('@tanstack/react-router', () => ({
 
 vi.mock('../components/garden-plot.js', () => ({
   GardenPlot: () => <div data-testid="garden-plot" />,
-}))
-
-vi.mock('../components/screen.js', () => ({
-  Screen: ({ children }: { readonly children: ReactNode }) => <main>{children}</main>,
 }))
 
 vi.mock('../hooks/use-local-bootstrap.js', () => ({

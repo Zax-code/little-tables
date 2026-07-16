@@ -1,7 +1,7 @@
 import { LearningEngine } from '@little-tables/domain'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { motion } from 'motion/react'
+import { m } from 'motion/react'
 import { useState } from 'react'
 
 import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
@@ -9,8 +9,7 @@ import { Bunny } from '../components/bunny.js'
 import { InstallCard } from '../components/install-card.js'
 import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
-import { syncStatusQueryKey } from '../components/sync-manager.js'
-import { Screen } from '../components/screen.js'
+import { syncStatusQueryKey } from '../sync-status.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
@@ -70,109 +69,109 @@ export function HomeScreen() {
   }
 
   return (
-    <Screen>
-      <section className="home-screen">
-        <button
-          aria-label={sound ? 'Turn sound off' : 'Turn sound on'}
-          className="sound-toggle"
-          onClick={() => {
-            const next = !sound
-            setSound(next)
-            setSoundEnabled(next)
-          }}
-        >
-          {sound ? '♪' : '♩̸'}
-        </button>
-        <header className="welcome-copy">
-          <p className="eyebrow">little tables.</p>
-          <h1>
-            {firstVisit ? `a tiny hello, ${displayName} ♡` : `good morning, ${displayName} ♡`}
-          </h1>
-          <p>{firstVisit ? 'let’s find your easiest starting place.' : 'ready for a tiny win?'}</p>
-        </header>
+    <section className="home-screen">
+      <button
+        aria-label={sound ? 'Turn sound off' : 'Turn sound on'}
+        className="sound-toggle"
+        onClick={() => {
+          const next = !sound
+          setSound(next)
+          setSoundEnabled(next)
+        }}
+        type="button"
+      >
+        {sound ? '♪' : '♩̸'}
+      </button>
+      <header className="welcome-copy">
+        <p className="eyebrow">little tables.</p>
+        <h1>{firstVisit ? `a tiny hello, ${displayName} ♡` : `good morning, ${displayName} ♡`}</h1>
+        <p>{firstVisit ? 'let’s find your easiest starting place.' : 'ready for a tiny win?'}</p>
+      </header>
 
-        <motion.button
-          className="primary-button"
-          onClick={() => void primaryAction()}
-          whileTap={{ scale: 0.97 }}
-        >
-          {data?.activeSession
-            ? 'resume your tiny win'
-            : firstVisit
-              ? 'start a gentle check-in'
-              : 'play 90 sec'}
-        </motion.button>
-        <button
-          className="mode-link"
-          disabled={data?.activeSession !== null && data?.activeSession !== undefined}
-          onClick={() => setShowModes((visible) => !visible)}
-        >
-          {showModes ? 'hide practice choices' : 'choose a tiny mode'}
-        </button>
-        {showModes ? (
-          <div className="mode-sheet">
-            <button onClick={() => void start({ questionCount: 5 })}>
-              <strong>five quick</strong>
-              <span>for a low-energy day</span>
-            </button>
-            <div className="table-picker">
-              <strong>focus a table</strong>
-              <div>
-                {[2, 5, 10, 3, 4, 6, 7, 8, 9].map((table) => (
-                  <button
-                    key={table}
-                    onClick={() => void start({ focusTable: table, questionCount: 10 })}
-                  >
-                    {table}
-                  </button>
-                ))}
-              </div>
+      <m.button
+        className="primary-button"
+        onClick={() => void primaryAction()}
+        type="button"
+        whileTap={{ scale: 0.97 }}
+      >
+        {data?.activeSession
+          ? 'resume your tiny win'
+          : firstVisit
+            ? 'start a gentle check-in'
+            : 'play 90 sec'}
+      </m.button>
+      <button
+        className="mode-link"
+        disabled={data?.activeSession !== null && data?.activeSession !== undefined}
+        onClick={() => setShowModes((visible) => !visible)}
+        type="button"
+      >
+        {showModes ? 'hide practice choices' : 'choose a tiny mode'}
+      </button>
+      {showModes ? (
+        <div className="mode-sheet">
+          <button onClick={() => void start({ questionCount: 5 })} type="button">
+            <strong>five quick</strong>
+            <span>for a low-energy day</span>
+          </button>
+          <div className="table-picker">
+            <strong>focus a table</strong>
+            <div>
+              {[2, 5, 10, 3, 4, 6, 7, 8, 9].map((table) => (
+                <button
+                  key={table}
+                  onClick={() => void start({ focusTable: table, questionCount: 10 })}
+                  type="button"
+                >
+                  {table}
+                </button>
+              ))}
             </div>
           </div>
-        ) : null}
+        </div>
+      ) : null}
 
-        <div className="glow-card">
-          <span className="flower-badge" aria-hidden="true">
-            ✿
+      <div className="glow-card">
+        <span className="flower-badge" aria-hidden="true">
+          ✿
+        </span>
+        <div>
+          <strong>{glow} day glow</strong>
+          <div className="glow-track">
+            <span style={{ width: `${(glow / 7) * 100}%` }} />
+          </div>
+        </div>
+        <span className="sync-copy">{syncStatus.data}</span>
+      </div>
+
+      <Bunny className="home-bunny" scene="home" />
+
+      <div className="today-card">
+        <div className="card-heading">
+          <strong>today</strong>
+          <span>
+            {garden.bloomCount} {garden.bloomCount === 1 ? 'bloom' : 'blooms'}
           </span>
-          <div>
-            <strong>{glow} day glow</strong>
-            <div className="glow-track">
-              <span style={{ width: `${(glow / 7) * 100}%` }} />
-            </div>
-          </div>
-          <span className="sync-copy">{syncStatus.data}</span>
         </div>
-
-        <Bunny className="home-bunny" scene="home" />
-
-        <div className="today-card">
-          <div className="card-heading">
-            <strong>today</strong>
-            <span>
-              {garden.bloomCount} {garden.bloomCount === 1 ? 'bloom' : 'blooms'}
+        <div
+          className="petal-row"
+          aria-label={`${Math.min(5, data?.completedSessions ?? 0)} of 5 petals`}
+        >
+          {Array.from({ length: 5 }, (_, index) => (
+            <span
+              className={
+                index < Math.min(5, data?.completedSessions ?? 0) ? 'petal petal-filled' : 'petal'
+              }
+              key={index}
+            >
+              ✿
             </span>
-          </div>
-          <div
-            className="petal-row"
-            aria-label={`${Math.min(5, data?.completedSessions ?? 0)} of 5 petals`}
-          >
-            {Array.from({ length: 5 }, (_, index) => (
-              <span
-                className={
-                  index < Math.min(5, data?.completedSessions ?? 0) ? 'petal petal-filled' : 'petal'
-                }
-                key={index}
-              >
-                ✿
-              </span>
-            ))}
-          </div>
+          ))}
         </div>
-        <ReminderCard />
-        <InstallCard completedSessions={data?.completedSessions ?? 0} />
-        <OwnerAccessLink isAdmin={auth.data?.isAdmin === true} />
-      </section>
-    </Screen>
+      </div>
+      <ReminderCard />
+      <InstallCard completedSessions={data?.completedSessions ?? 0} />
+      <OwnerAccessLink isAdmin={auth.data?.isAdmin === true} />
+    </section>
   )
 }

@@ -61,8 +61,8 @@ export default defineConfig({
         ],
       },
       injectManifest: {
-        globIgnores: ['icons/*.png'],
-        globPatterns: ['**/*.{js,css,html,png,webp,woff2}'],
+        globIgnores: ['generated/miffy-celebration-loop.webp'],
+        globPatterns: ['**/*.{js,css,html,woff2}', 'generated/*.webp'],
       },
       devOptions: { enabled: false },
     }),

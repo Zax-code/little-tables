@@ -135,7 +135,11 @@ export function AuthGate({ children }: PropsWithChildren) {
             <p>Connect to the internet so we can safely check your account.</p>
           </div>
           <Bunny className="auth-bunny" scene="home" />
-          <button className="primary-button auth-retry" onClick={() => void auth.refetch()}>
+          <button
+            className="primary-button auth-retry"
+            onClick={() => void auth.refetch()}
+            type="button"
+          >
             try again
           </button>
         </section>

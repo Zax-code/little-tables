@@ -1,7 +1,7 @@
 import { LearningEngine, type PracticeQuestion } from '@little-tables/domain'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
-import { AnimatePresence, motion } from 'motion/react'
+import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { PracticeBunny } from '../components/practice-bunny.js'
@@ -134,6 +134,7 @@ export function PracticeScreen() {
             aria-label="Leave practice"
             className="icon-button"
             onClick={() => void navigate({ to: '/' })}
+            type="button"
           >
             ×
           </button>
@@ -145,7 +146,7 @@ export function PracticeScreen() {
         <ProgressDots current={session.currentIndex} total={session.questions.length} />
 
         <AnimatePresence mode="wait">
-          <motion.div
+          <m.div
             key={displayedQuestion.id}
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
@@ -172,7 +173,7 @@ export function PracticeScreen() {
             )}
 
             {feedback === null ? <PracticeBunny reaction="idle" /> : null}
-          </motion.div>
+          </m.div>
         </AnimatePresence>
 
         {feedback?.correct ? <CorrectAnswerConfetti key={feedback.question.id} /> : null}
@@ -199,14 +200,18 @@ export function PracticeScreen() {
               </span>
             </div>
             {!feedback.correct && !showExplanation ? (
-              <button className="show-me-button" onClick={() => setShowExplanation(true)}>
+              <button
+                className="show-me-button"
+                onClick={() => setShowExplanation(true)}
+                type="button"
+              >
                 show me
               </button>
             ) : null}
             {!feedback.correct && showExplanation ? (
               <FactArray question={displayedQuestion} />
             ) : null}
-            <button className="next-button" onClick={() => void next()}>
+            <button className="next-button" onClick={() => void next()} type="button">
               next
             </button>
           </div>
@@ -257,15 +262,16 @@ function ChoiceGrid({ feedback, onChoose, question }: AnswerProps) {
                 ? 'answer-tile answer-try-again'
                 : 'answer-tile answer-muted'
         return (
-          <motion.button
+          <m.button
             className={className}
             disabled={feedback !== null}
             key={choice}
             onClick={() => void onChoose(choice)}
+            type="button"
             whileTap={{ scale: 0.96 }}
           >
             {choice}
-          </motion.button>
+          </m.button>
         )
       })}
     </div>
@@ -287,7 +293,12 @@ function Keypad({
       </div>
       <div className="keypad-grid">
         {['1', '2', '3', '4', '5', '6', '7', '8', '9'].map((digit) => (
-          <button disabled={feedback !== null} key={digit} onClick={() => press(digit)}>
+          <button
+            disabled={feedback !== null}
+            key={digit}
+            onClick={() => press(digit)}
+            type="button"
+          >
             {digit}
           </button>
         ))}
@@ -295,10 +306,11 @@ function Keypad({
           aria-label="Delete"
           disabled={feedback !== null}
           onClick={() => setValue(value.slice(0, -1))}
+          type="button"
         >
           ⌫
         </button>
-        <button disabled={feedback !== null} onClick={() => press('0')}>
+        <button disabled={feedback !== null} onClick={() => press('0')} type="button">
           0
         </button>
         <button
@@ -306,6 +318,7 @@ function Keypad({
           className="keypad-submit"
           disabled={feedback !== null || value.length === 0}
           onClick={() => void onChoose(Number(value))}
+          type="button"
         >
           ✓
         </button>

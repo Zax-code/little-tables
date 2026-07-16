@@ -4,9 +4,8 @@ import { useEffect } from 'react'
 import { authStatusQueryKey } from '../auth-client.js'
 import { practiceStore } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
+import { syncStatusQueryKey } from '../sync-status.js'
 import type { LearningSnapshot } from '@little-tables/domain'
-
-export const syncStatusQueryKey = ['sync-status'] as const
 
 export function SyncManager() {
   const queryClient = useQueryClient()
@@ -77,10 +76,11 @@ export function SyncManager() {
     const onVisibility = () => {
       if (document.visibilityState === 'visible') flush()
     }
-    flush()
+    const initialFlush = window.setTimeout(flush, 1_500)
     window.addEventListener('online', flush)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
+      window.clearTimeout(initialFlush)
       window.removeEventListener('online', flush)
       document.removeEventListener('visibilitychange', onVisibility)
     }

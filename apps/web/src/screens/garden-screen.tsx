@@ -3,7 +3,6 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
 import { GardenPlot } from '../components/garden-plot.js'
-import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 
@@ -62,36 +61,34 @@ export function GardenScreen() {
   }
 
   return (
-    <Screen contentClassName="screen-content-garden">
-      <section className="garden-screen">
-        <header className="garden-heading">
-          <h1>your little garden</h1>
-          <p className="garden-bloom-count">
-            {bloomCount} {bloomCount === 1 ? 'bloom' : 'blooms'}
-          </p>
-        </header>
-        <div className="garden-ground-region">
-          <GardenPlot progress={progress} />
-          <button
-            aria-label={`${nextTitle}. Practice now`}
-            className="tomorrow-card"
-            disabled={bootstrap.isLoading}
-            onClick={() => void practice()}
-            type="button"
-          >
-            <span aria-hidden="true" className="next-pot-icon">
-              ♧
-            </span>
-            <div>
-              <strong>{nextTitle}</strong>
-              <p>{nextCopy}</p>
-            </div>
-            <span aria-hidden="true" className="tomorrow-chevron">
-              ›
-            </span>
-          </button>
-        </div>
-      </section>
-    </Screen>
+    <section className="garden-screen">
+      <header className="garden-heading">
+        <h1>your little garden</h1>
+        <p className="garden-bloom-count">
+          {bloomCount} {bloomCount === 1 ? 'bloom' : 'blooms'}
+        </p>
+      </header>
+      <div className="garden-ground-region">
+        <GardenPlot progress={progress} />
+        <button
+          aria-label={`${nextTitle}. Practice now`}
+          className="tomorrow-card"
+          disabled={bootstrap.isLoading}
+          onClick={() => void practice()}
+          type="button"
+        >
+          <span aria-hidden="true" className="next-pot-icon">
+            ♧
+          </span>
+          <div>
+            <strong>{nextTitle}</strong>
+            <p>{nextCopy}</p>
+          </div>
+          <span aria-hidden="true" className="tomorrow-chevron">
+            ›
+          </span>
+        </button>
+      </div>
+    </section>
   )
 }

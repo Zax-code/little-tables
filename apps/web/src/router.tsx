@@ -4,16 +4,17 @@ import {
   createRootRouteWithContext,
   createRoute,
   createRouter,
+  lazyRouteComponent,
   redirect,
+  useLocation,
 } from '@tanstack/react-router'
 import { lazy, Suspense } from 'react'
 
 import { PwaManager } from './components/pwa-manager.js'
+import { Screen } from './components/screen.js'
 import { fetchAuthStatus } from './auth-client.js'
 
-const AccessScreen = lazy(() =>
-  import('./screens/access-screen.js').then((module) => ({ default: module.AccessScreen })),
-)
+const AccessScreen = lazyRouteComponent(() => import('./screens/access-screen.js'), 'AccessScreen')
 const DevelopmentTools = import.meta.env.DEV
   ? lazy(() =>
       import('./components/development-tools.js').then((module) => ({
@@ -22,25 +23,31 @@ const DevelopmentTools = import.meta.env.DEV
     )
   : null
 
-const CelebrationScreen = lazy(() =>
-  import('./screens/celebration-screen.js').then((module) => ({
-    default: module.CelebrationScreen,
-  })),
+const CelebrationScreen = lazyRouteComponent(
+  () => import('./screens/celebration-screen.js'),
+  'CelebrationScreen',
 )
-const GardenScreen = lazy(() =>
-  import('./screens/garden-screen.js').then((module) => ({ default: module.GardenScreen })),
+const GardenScreen = lazyRouteComponent(() => import('./screens/garden-screen.js'), 'GardenScreen')
+const HomeScreen = lazyRouteComponent(() => import('./screens/home-screen.js'), 'HomeScreen')
+const PracticeScreen = lazyRouteComponent(
+  () => import('./screens/practice-screen.js'),
+  'PracticeScreen',
 )
-const HomeScreen = lazy(() =>
-  import('./screens/home-screen.js').then((module) => ({ default: module.HomeScreen })),
-)
-const PracticeScreen = lazy(() =>
-  import('./screens/practice-screen.js').then((module) => ({ default: module.PracticeScreen })),
-)
-const StatsScreen = lazy(() =>
-  import('./screens/stats-screen.js').then((module) => ({ default: module.StatsScreen })),
-)
+const StatsScreen = lazyRouteComponent(() => import('./screens/stats-screen.js'), 'StatsScreen')
 
 type RouterContext = Readonly<{ queryClient: QueryClient | undefined }>
+
+function TabsLayout() {
+  const pathname = useLocation({ select: (location) => location.pathname })
+
+  return (
+    <Screen {...(pathname === '/garden' ? { contentClassName: 'screen-content-garden' } : {})}>
+      <Suspense fallback={<div className="loading-state">opening your garden…</div>}>
+        <Outlet />
+      </Suspense>
+    </Screen>
+  )
+}
 
 const rootRoute = createRootRouteWithContext<RouterContext>()({
   component: () => (
@@ -58,8 +65,14 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
   ),
 })
 
-const homeRoute = createRoute({
+const tabsRoute = createRoute({
   getParentRoute: () => rootRoute,
+  id: 'tabs',
+  component: TabsLayout,
+})
+
+const homeRoute = createRoute({
+  getParentRoute: () => tabsRoute,
   path: '/',
   component: HomeScreen,
 })
@@ -74,12 +87,12 @@ const celebrationRoute = createRoute({
   component: CelebrationScreen,
 })
 const gardenRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => tabsRoute,
   path: '/garden',
   component: GardenScreen,
 })
 const statsRoute = createRoute({
-  getParentRoute: () => rootRoute,
+  getParentRoute: () => tabsRoute,
   path: '/stats',
   component: StatsScreen,
 })
@@ -99,15 +112,17 @@ const accessRoute = createRoute({
 })
 
 const routeTree = rootRoute.addChildren([
-  homeRoute,
+  tabsRoute.addChildren([homeRoute, gardenRoute, statsRoute]),
   practiceRoute,
   celebrationRoute,
-  gardenRoute,
-  statsRoute,
   accessRoute,
 ])
 
-export const router = createRouter({ routeTree, context: { queryClient: undefined } })
+export const router = createRouter({
+  routeTree,
+  context: { queryClient: undefined },
+  defaultPreload: 'intent',
+})
 
 declare module '@tanstack/react-router' {
   interface Register {

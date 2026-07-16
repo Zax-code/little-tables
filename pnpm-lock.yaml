@@ -93,9 +93,6 @@ importers:
       '@tanstack/react-router':
         specifier: ^1.170.18
         version: 1.170.18(react-dom@19.2.7(react@19.2.7))(react@19.2.7)
-      dexie:
-        specifier: ^4.4.4
-        version: 4.4.4
       effect:
         specifier: ^3.21.4
         version: 3.21.4

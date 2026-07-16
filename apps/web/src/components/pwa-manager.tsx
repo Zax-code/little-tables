@@ -15,9 +15,13 @@ export function PwaManager() {
     <aside className="pwa-toast" role="status">
       <span>{needRefresh ? 'a fresh little version is ready' : 'ready for offline tiny wins'}</span>
       {needRefresh ? (
-        <button onClick={() => void updateServiceWorker(true)}>update</button>
+        <button onClick={() => void updateServiceWorker(true)} type="button">
+          update
+        </button>
       ) : (
-        <button onClick={() => setOfflineReady(false)}>okay</button>
+        <button onClick={() => setOfflineReady(false)} type="button">
+          okay
+        </button>
       )}
       <button
         aria-label="Dismiss"
@@ -25,6 +29,7 @@ export function PwaManager() {
           setNeedRefresh(false)
           setOfflineReady(false)
         }}
+        type="button"
       >
         ×
       </button>

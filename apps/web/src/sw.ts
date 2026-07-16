@@ -10,11 +10,6 @@ declare const self: ServiceWorkerGlobalScope
 clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
 
-self.addEventListener('install', (event) => {
-  // Immediately replace the release whose signed-out screen crashed before it could request updates.
-  event.waitUntil(self.skipWaiting())
-})
-
 self.addEventListener('activate', (event) => {
   event.waitUntil(caches.delete('little-tables-bootstrap-v1'))
 })

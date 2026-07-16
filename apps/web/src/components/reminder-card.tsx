@@ -1,33 +1,21 @@
 import { useEffect, useState } from 'react'
 
+import {
+  createPushSubscription,
+  serializePushSubscription,
+  supportsPushNotifications,
+} from '../push-subscription.js'
+
 type ReminderState = 'checking' | 'disabled' | 'enabled' | 'unsupported' | 'working'
-
-const applicationServerKey = (value: string): Uint8Array<ArrayBuffer> => {
-  const padding = '='.repeat((4 - (value.length % 4)) % 4)
-  const base64 = (value + padding).replaceAll('-', '+').replaceAll('_', '/')
-  const bytes = Uint8Array.from(atob(base64), (character) => character.charCodeAt(0))
-  return new Uint8Array(bytes.buffer)
-}
-
-const supported = () =>
-  'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window
-
-export const serializePushSubscription = (
-  subscription: Pick<PushSubscription, 'endpoint' | 'expirationTime' | 'toJSON'>,
-) => ({
-  ...subscription.toJSON(),
-  endpoint: subscription.endpoint,
-  expirationTime: subscription.expirationTime,
-})
 
 export function ReminderCard() {
   const [state, setState] = useState<ReminderState>(() =>
-    supported() ? 'checking' : 'unsupported',
+    supportsPushNotifications() ? 'checking' : 'unsupported',
   )
   const [message, setMessage] = useState('a gentle nudge at 6:00 pm')
 
   useEffect(() => {
-    if (!supported()) return
+    if (!supportsPushNotifications()) return
     void navigator.serviceWorker.ready
       .then((registration) => registration.pushManager.getSubscription())
       .then((subscription) => setState(subscription === null ? 'disabled' : 'enabled'))
@@ -52,10 +40,7 @@ export function ReminderCard() {
       ])
       if (!configResponse.ok) throw new Error('Reminder service unavailable')
       const config = (await configResponse.json()) as { publicKey: string }
-      const subscription = await registration.pushManager.subscribe({
-        applicationServerKey: applicationServerKey(config.publicKey),
-        userVisibleOnly: true,
-      })
+      const subscription = await createPushSubscription(registration, config.publicKey)
       const response = await fetch('/api/v1/notifications/subscriptions', {
         body: JSON.stringify({
           subscription: serializePushSubscription(subscription),
@@ -89,7 +74,11 @@ export function ReminderCard() {
         <strong>remember your tiny win</strong>
         <p>{message}</p>
       </div>
-      <button disabled={state === 'checking' || state === 'working'} onClick={() => void enable()}>
+      <button
+        disabled={state === 'checking' || state === 'working'}
+        onClick={() => void enable()}
+        type="button"
+      >
         {state === 'working' ? 'wait…' : 'turn on'}
       </button>
     </aside>
