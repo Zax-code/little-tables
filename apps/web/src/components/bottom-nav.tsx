@@ -1,4 +1,7 @@
-import { Link, useRouterState } from '@tanstack/react-router'
+import { Link, useNavigate, useRouterState } from '@tanstack/react-router'
+import type { MouseEvent } from 'react'
+
+import { useFlowerTransition } from './flower-transition.js'
 
 const items = [
   { icon: 'home', label: 'home', path: '/' },
@@ -33,6 +36,21 @@ function NavIcon({ name }: Readonly<{ name: NavIconName }>) {
 
 export function BottomNav() {
   const pathname = useRouterState({ select: (state) => state.location.pathname })
+  const navigate = useNavigate()
+  const transition = useFlowerTransition()
+
+  const changeTab = (
+    event: MouseEvent<HTMLAnchorElement>,
+    path: (typeof items)[number]['path'],
+  ) => {
+    if (pathname === path || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return
+    }
+
+    event.preventDefault()
+    void transition(() => navigate({ to: path }))
+  }
+
   return (
     <nav aria-label="Main navigation" className="bottom-nav">
       {items.map((item) => (
@@ -40,6 +58,7 @@ export function BottomNav() {
           aria-current={pathname === item.path ? 'page' : undefined}
           className="nav-item"
           key={item.path}
+          onClick={(event) => changeTab(event, item.path)}
           preload="render"
           to={item.path}
         >

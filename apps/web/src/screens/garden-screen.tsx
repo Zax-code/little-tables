@@ -3,12 +3,14 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 
 import { GardenPlot } from '../components/garden-plot.js'
+import { useFlowerTransition } from '../components/flower-transition.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 
 export function GardenScreen() {
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
+  const transition = useFlowerTransition()
   const queryClient = useQueryClient()
   const data = bootstrap.data
   const previewValue = import.meta.env.DEV
@@ -57,7 +59,7 @@ export function GardenScreen() {
     })
     await practiceStore.startSession(session, snapshot)
     await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
-    await navigate({ to: '/practice' })
+    await transition(() => navigate({ to: '/practice' }))
   }
 
   return (

@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
 import { Bunny } from '../components/bunny.js'
+import { useFlowerTransition } from '../components/flower-transition.js'
 import { InstallCard } from '../components/install-card.js'
 import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
@@ -28,6 +29,7 @@ export function HomeScreen() {
     staleTime: Infinity,
   })
   const navigate = useNavigate()
+  const transition = useFlowerTransition()
   const queryClient = useQueryClient()
   const data = bootstrap.data
   const [showModes, setShowModes] = useState(false)
@@ -58,7 +60,7 @@ export function HomeScreen() {
     })
     await practiceStore.startSession(session, snapshot)
     await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
-    await navigate({ to: '/practice' })
+    await transition(() => navigate({ to: '/practice' }))
   }
   const primaryAction = async () => {
     if (data?.activeSession !== null && data?.activeSession !== undefined) {
