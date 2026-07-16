@@ -5,7 +5,7 @@ import { updateRecoveryAsset } from '../assets.js'
 import { reloadWithLatestServiceWorker } from '../service-worker-updates.js'
 import { useI18n } from '../i18n.js'
 
-export function AppErrorScreen({ reset }: ErrorComponentProps) {
+export function AppErrorScreen(_props: ErrorComponentProps) {
   const { t } = useI18n()
   const [updating, setUpdating] = useState(false)
 
@@ -29,9 +29,6 @@ export function AppErrorScreen({ reset }: ErrorComponentProps) {
             type="button"
           >
             {t(updating ? 'error.updating' : 'error.update')}
-          </button>
-          <button className="mode-link" onClick={reset} type="button">
-            {t('error.retry')}
           </button>
         </div>
       </div>

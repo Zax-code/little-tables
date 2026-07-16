@@ -4,6 +4,11 @@ type GardenTarget = Readonly<{
   id: string
 }>
 
+type GardenPageTarget = GardenTarget &
+  Readonly<{
+    pageIndex: number
+  }>
+
 type GardenJourneyTarget = GardenTarget &
   Readonly<{
     caretakerX: number
@@ -33,6 +38,23 @@ export function pickNextGardenTarget<Target extends GardenTarget>(
   const offset = 1 + Math.floor(randomValue * (targets.length - 1))
 
   return targets[(currentIndex + offset) % targets.length]
+}
+
+export function gardenTargetsForPage<Target extends GardenPageTarget>(
+  pageIndex: number,
+  targets: readonly Target[],
+): readonly Target[] {
+  return targets.filter((target) => target.pageIndex === pageIndex)
+}
+
+export function pickNextGardenTargetInGarden<Target extends GardenPageTarget>(
+  currentTarget: Target,
+  targets: readonly Target[],
+  random: RandomSource = Math.random,
+): Target | undefined {
+  const gardenTargets = gardenTargetsForPage(currentTarget.pageIndex, targets)
+  if (gardenTargets.length < 2) return undefined
+  return pickNextGardenTarget(currentTarget.id, gardenTargets, random)
 }
 
 export function selectGardenCaretakerTarget<Target extends GardenTarget>(

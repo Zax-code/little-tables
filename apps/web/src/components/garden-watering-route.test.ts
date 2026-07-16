@@ -1,13 +1,25 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  gardenTargetsForPage,
   pickNextGardenTarget,
+  pickNextGardenTargetInGarden,
   planGardenJourney,
   selectGardenCaretakerTarget,
 } from './garden-watering-route.js'
 
 describe('garden watering route', () => {
-  it('lets Miffy choose plants across every garden independently of the displayed garden', () => {
+  it('starts Miffy with targets from her displayed garden only', () => {
+    const targets = [
+      { id: 'tulip', pageIndex: 0 },
+      { id: 'lavender', pageIndex: 1 },
+      { id: 'cosmos', pageIndex: 2 },
+    ] as const
+
+    expect(gardenTargetsForPage(1, targets)).toEqual([targets[1]])
+  })
+
+  it("keeps autonomous movement inside Miffy's current garden", () => {
     const targets = [
       { id: 'tulip', pageIndex: 0 },
       { id: 'daisy', pageIndex: 0 },
@@ -17,13 +29,11 @@ describe('garden watering route', () => {
       { id: 'star-bloom', pageIndex: 2 },
     ] as const
     const selected = [0, 0.24, 0.49, 0.74, 0.999].map((randomValue) =>
-      pickNextGardenTarget('lavender', targets, () => randomValue),
+      pickNextGardenTargetInGarden(targets[2], targets, () => randomValue),
     )
 
-    expect(new Set(selected.map((target) => target?.id))).toEqual(
-      new Set(['tulip', 'daisy', 'moonflower', 'cosmos', 'star-bloom']),
-    )
-    expect(new Set(selected.map((target) => target?.pageIndex))).toEqual(new Set([0, 1, 2]))
+    expect(new Set(selected.map((target) => target?.id))).toEqual(new Set(['moonflower']))
+    expect(new Set(selected.map((target) => target?.pageIndex))).toEqual(new Set([1]))
     expect(selected).not.toContainEqual(targets[2])
   })
 
@@ -31,6 +41,15 @@ describe('garden watering route', () => {
     const onlyTarget = { id: 'tulip', pageIndex: 0 }
 
     expect(pickNextGardenTarget(onlyTarget.id, [onlyTarget], () => 0.75)).toBe(onlyTarget)
+  })
+
+  it('does not start a walk when Miffy is the only caretaker in her garden', () => {
+    const currentTarget = { id: 'tulip', pageIndex: 0 }
+    const otherGardenTarget = { id: 'cosmos', pageIndex: 1 }
+
+    expect(
+      pickNextGardenTargetInGarden(currentTarget, [currentTarget, otherGardenTarget], () => 0.75),
+    ).toBeUndefined()
   })
 
   it('keeps Miffy in her garden when the player displays a different garden', () => {

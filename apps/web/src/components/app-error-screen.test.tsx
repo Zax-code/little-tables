@@ -16,6 +16,8 @@ describe('AppErrorScreen', () => {
     expect(markup).toContain('/generated/miffy-update-recovery-v3.webp')
     expect(markup).toContain('un tout petit arrêt au jardin')
     expect(markup).toContain('mettre à jour et rouvrir')
+    expect(markup.match(/<button/g)).toHaveLength(1)
+    expect(markup).not.toContain('réessayer cet écran')
     expect(markup).not.toContain('MIME type mismatch')
   })
 })

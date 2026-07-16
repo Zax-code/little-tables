@@ -1716,9 +1716,11 @@ p {
   font-weight: 750;
 }
 .garden-plot__canvas {
+  --garden-caretaker-size: 190px;
+
   position: absolute;
   inset: 58px 0 0;
-  overflow: visible;
+  overflow: hidden;
   border: 1px solid var(--line-garden);
   border-radius: inherit;
   background: var(--surface-garden);
@@ -1841,7 +1843,7 @@ p {
   z-index: 4;
   top: 0;
   left: 0;
-  width: 190px;
+  width: var(--garden-caretaker-size);
   aspect-ratio: 1;
   transform-origin: 50% 100%;
   pointer-events: none;
@@ -2888,8 +2890,8 @@ p {
   .garden-plot__locked-plot {
     width: min(100%, 138px);
   }
-  .garden-plot__caretaker {
-    width: 220px;
+  .garden-plot__canvas {
+    --garden-caretaker-size: 220px;
   }
   .tomorrow-card {
     max-width: 720px;

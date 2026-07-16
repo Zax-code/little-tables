@@ -136,7 +136,6 @@ const english = {
   'error.copy':
     'A little piece of the app did not open. Your progress is safe. Update, and we will pick up where you left off.',
   'error.eyebrow': 'a tiny garden pause',
-  'error.retry': 'try this screen again',
   'error.title': 'let’s freshen things up',
   'error.update': 'update and reopen',
   'error.updating': 'opening the fresh version…',
@@ -456,7 +455,6 @@ const french: Record<TranslationKey, string> = {
   'error.copy':
     'Un petit bout de l’application ne s’est pas ouvert. Tes progrès sont bien gardés. Mets à jour et reprends exactement où tu en étais.',
   'error.eyebrow': 'un tout petit arrêt au jardin',
-  'error.retry': 'réessayer cet écran',
   'error.title': 'on remet tout au frais',
   'error.update': 'mettre à jour et rouvrir',
   'error.updating': 'on ouvre la nouvelle version…',
