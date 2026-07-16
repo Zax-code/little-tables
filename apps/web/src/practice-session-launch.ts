@@ -8,7 +8,7 @@ type LaunchPracticeSessionOptions = Readonly<{
   transition: Transition
 }>
 
-type ResumePracticeSessionOptions = Readonly<{
+type TransitionPracticeNavigationOptions = Readonly<{
   navigate: Task
   transition: Transition
 }>
@@ -27,6 +27,13 @@ export async function launchPracticeSession({
 export async function resumePracticeSession({
   navigate,
   transition,
-}: ResumePracticeSessionOptions) {
+}: TransitionPracticeNavigationOptions) {
+  await transition(navigate)
+}
+
+export async function returnToGardenAfterPractice({
+  navigate,
+  transition,
+}: TransitionPracticeNavigationOptions) {
   await transition(navigate)
 }

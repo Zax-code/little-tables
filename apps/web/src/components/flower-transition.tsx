@@ -9,6 +9,7 @@ import {
 } from '../flower-transition.js'
 
 type Wait = (milliseconds: number) => Promise<void>
+type FlowerCurtainPhase = Extract<TransitionPhase, { type: 'covering' | 'uncovering' }>
 const flowerCount = 30
 const flowerIndexes = Array.from({ length: flowerCount }, (_, index) => index)
 
@@ -18,7 +19,7 @@ const delay: Wait = (milliseconds) =>
   })
 
 export function FlowerTransitionProvider({ children }: Readonly<PropsWithChildren>) {
-  const [phase, setPhase] = useState<TransitionPhase>('idle')
+  const [phase, setPhase] = useState<TransitionPhase>({ type: 'idle' })
   const reduceMotion = useReducedMotion() === true
   const running = useRef(false)
 
@@ -43,13 +44,14 @@ export function FlowerTransitionProvider({ children }: Readonly<PropsWithChildre
   return (
     <FlowerTransitionContext value={transition}>
       {children}
-      {phase === 'idle' ? null : <FlowerCurtain phase={phase} />}
+      {phase.type === 'idle' ? null : <FlowerCurtain phase={phase} />}
     </FlowerTransitionContext>
   )
 }
 
-function FlowerCurtain({ phase }: Readonly<{ phase: Exclude<TransitionPhase, 'idle'> }>) {
-  const covering = phase === 'covering'
+function FlowerCurtain({ phase }: Readonly<{ phase: FlowerCurtainPhase }>) {
+  const covering = phase.type === 'covering'
+  const uncoverScale = phase.type === 'uncovering' ? phase.duration / 500 : 1
 
   return (
     <m.div
@@ -57,7 +59,7 @@ function FlowerCurtain({ phase }: Readonly<{ phase: Exclude<TransitionPhase, 'id
       aria-hidden="true"
       className="flower-transition"
       initial={{ opacity: 0 }}
-      transition={{ duration: covering ? 0.12 : 0.27, ease: 'easeInOut' }}
+      transition={{ duration: (covering ? 0.22 : 0.48) * uncoverScale, ease: 'easeInOut' }}
     >
       {flowerIndexes.map((index) => {
         const direction = index % 2 === 0 ? -1 : 1
@@ -73,8 +75,8 @@ function FlowerCurtain({ phase }: Readonly<{ phase: Exclude<TransitionPhase, 'id
             initial={{ opacity: 0, rotate: direction * -18, scale: 0.2 }}
             key={index}
             transition={{
-              delay: delayIndex * (covering ? 0.012 : 0.0145),
-              duration: 0.16,
+              delay: delayIndex * 0.022 * uncoverScale,
+              duration: 0.28 * uncoverScale,
               ease: covering ? 'backOut' : 'easeIn',
             }}
             viewBox="0 0 64 64"

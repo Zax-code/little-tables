@@ -10,7 +10,8 @@ describe('flower transition', () => {
       action: () => {
         events.push('navigate')
       },
-      onPhaseChange: (phase) => events.push(phase),
+      now: () => 0,
+      onPhaseChange: (phase) => events.push(phase.type),
       reduceMotion: false,
       wait: (milliseconds) => {
         events.push(`wait:${milliseconds}`)
@@ -18,7 +19,7 @@ describe('flower transition', () => {
       },
     })
 
-    expect(events).toEqual(['covering', 'wait:280', 'navigate', 'uncovering', 'wait:320', 'idle'])
+    expect(events).toEqual(['covering', 'wait:500', 'navigate', 'uncovering', 'wait:500', 'idle'])
   })
 
   it('navigates immediately when reduced motion is requested', async () => {
@@ -31,5 +32,31 @@ describe('flower transition', () => {
     expect(action).toHaveBeenCalledOnce()
     expect(onPhaseChange).not.toHaveBeenCalled()
     expect(wait).not.toHaveBeenCalled()
+  })
+
+  it('counts navigation time within the one-second transition', async () => {
+    let elapsed = 0
+    const waits: Array<number> = []
+    const uncoverDurations: Array<number> = []
+
+    await runFlowerTransition({
+      action: () => {
+        elapsed += 125
+      },
+      now: () => elapsed,
+      onPhaseChange: (phase) => {
+        if (phase.type === 'uncovering') uncoverDurations.push(phase.duration)
+      },
+      reduceMotion: false,
+      wait: (milliseconds) => {
+        waits.push(milliseconds)
+        elapsed += milliseconds
+        return Promise.resolve()
+      },
+    })
+
+    expect(waits).toEqual([500, 375])
+    expect(uncoverDurations).toEqual([375])
+    expect(elapsed).toBe(1_000)
   })
 })

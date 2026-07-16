@@ -1,6 +1,10 @@
 import { describe, expect, it } from 'vitest'
 
-import { launchPracticeSession, resumePracticeSession } from './practice-session-launch.js'
+import {
+  launchPracticeSession,
+  resumePracticeSession,
+  returnToGardenAfterPractice,
+} from './practice-session-launch.js'
 
 describe('practice session launch', () => {
   it('saves the new session before revealing its first question through the transition', async () => {
@@ -39,5 +43,21 @@ describe('practice session launch', () => {
     })
 
     expect(events).toEqual(['transition', 'navigate'])
+  })
+
+  it('reveals the garden through the transition after practice', async () => {
+    const events: Array<string> = []
+
+    await returnToGardenAfterPractice({
+      navigate: () => {
+        events.push('garden')
+      },
+      transition: async (navigate) => {
+        events.push('transition')
+        await navigate()
+      },
+    })
+
+    expect(events).toEqual(['transition', 'garden'])
   })
 })

@@ -8,12 +8,15 @@ import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
 import { gardenPlantVisuals } from '../components/garden-plant-catalog.js'
 import { GardenRewardFlower } from '../components/garden-plant-renderers.js'
 import { Screen } from '../components/screen.js'
+import { useFlowerTransition } from '../flower-transition.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
+import { returnToGardenAfterPractice } from '../practice-session-launch.js'
 import { celebrationRewardCopy } from './celebration-reward-copy.js'
 
 export function CelebrationScreen() {
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
+  const transition = useFlowerTransition()
   const reduceMotion = useReducedMotion() === true
   const data = bootstrap.data
   const completion = data?.lastCompletion ?? null
@@ -70,7 +73,12 @@ export function CelebrationScreen() {
         <div className="celebration-actions">
           <button
             className="primary-button"
-            onClick={() => void navigate({ to: '/garden' })}
+            onClick={() =>
+              void returnToGardenAfterPractice({
+                navigate: () => navigate({ to: '/garden' }),
+                transition,
+              })
+            }
             type="button"
           >
             next
