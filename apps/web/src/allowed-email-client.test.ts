@@ -1,9 +1,9 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { addAllowedEmail, fetchAllowedEmails } from './allowed-email-client.js'
+import { addAllowedEmail, fetchAllowedEmails, removeAllowedEmail } from './allowed-email-client.js'
 
 describe('allowed email client', () => {
-  it('lists and adds addresses through the owner management endpoints', async () => {
+  it('lists, adds, and removes addresses through the owner management endpoints', async () => {
     const fetcher = vi
       .fn<typeof fetch>()
       .mockResolvedValueOnce(
@@ -12,6 +12,11 @@ describe('allowed email client', () => {
       .mockResolvedValueOnce(
         new Response(JSON.stringify({ created: true, email: 'new.user@example.com' }), {
           status: 201,
+        }),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ email: 'new.user@example.com', removed: true }), {
+          status: 200,
         }),
       )
 
@@ -25,6 +30,17 @@ describe('allowed email client', () => {
       expect.objectContaining({
         body: JSON.stringify({ email: 'new.user@example.com' }),
         method: 'POST',
+      }),
+    )
+    await expect(removeAllowedEmail('new.user@example.com', fetcher)).resolves.toEqual({
+      email: 'new.user@example.com',
+      removed: true,
+    })
+    expect(fetcher).toHaveBeenLastCalledWith(
+      '/api/v1/admin/allowed-emails',
+      expect.objectContaining({
+        body: JSON.stringify({ email: 'new.user@example.com' }),
+        method: 'DELETE',
       }),
     )
   })

@@ -2,8 +2,12 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import { Link } from '@tanstack/react-router'
 import { useState, type SyntheticEvent } from 'react'
 
-import { addAllowedEmail } from '../allowed-email-client.js'
-import { allowedEmailsQueryOptions, updateAllowedEmailsCache } from '../allowed-email-query.js'
+import { addAllowedEmail, removeAllowedEmail } from '../allowed-email-client.js'
+import {
+  allowedEmailsQueryOptions,
+  removeAllowedEmailFromCache,
+  updateAllowedEmailsCache,
+} from '../allowed-email-query.js'
 import { Screen } from '../components/screen.js'
 
 export function AccessScreen() {
@@ -23,6 +27,17 @@ export function AccessScreen() {
       updateAllowedEmailsCache(queryClient, result)
     },
   })
+  const removeEmail = useMutation({
+    mutationFn: (value: string) => removeAllowedEmail(value),
+    onSuccess: (result) => {
+      setNotice(
+        result.removed
+          ? `${result.email} can no longer sign in.`
+          : `${result.email} was already removed.`,
+      )
+      removeAllowedEmailFromCache(queryClient, result)
+    },
+  })
 
   const submit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -39,7 +54,10 @@ export function AccessScreen() {
         <header>
           <p className="eyebrow">owner controls</p>
           <h1>who can join</h1>
-          <p>Add the Google email address a new learner will use to sign in.</p>
+          <p>
+            Add the Google email address a new learner will use to sign in. Removing an address
+            signs that learner out on their next connection.
+          </p>
         </header>
 
         <form className="access-form" onSubmit={submit}>
@@ -64,11 +82,15 @@ export function AccessScreen() {
         </form>
 
         <div aria-live="polite" className="access-message">
-          {addEmail.isError
-            ? addEmail.error instanceof Error
-              ? addEmail.error.message
-              : 'That email address could not be allowed.'
-            : notice}
+          {removeEmail.isError
+            ? removeEmail.error instanceof Error
+              ? removeEmail.error.message
+              : 'That email address could not be removed.'
+            : addEmail.isError
+              ? addEmail.error instanceof Error
+                ? addEmail.error.message
+                : 'That email address could not be allowed.'
+              : notice}
         </div>
 
         <section aria-labelledby="allowed-email-heading" className="allowed-email-card">
@@ -85,7 +107,24 @@ export function AccessScreen() {
               {allowedEmails.data.map((allowedEmail) => (
                 <li key={allowedEmail}>
                   <span>{allowedEmail}</span>
-                  {allowedEmail === 'boomslang.a@gmail.com' ? <strong>owner</strong> : null}
+                  {allowedEmail === 'boomslang.a@gmail.com' ? (
+                    <strong>owner</strong>
+                  ) : (
+                    <button
+                      aria-label={`Remove ${allowedEmail} from the allowlist`}
+                      className="remove-allowed-email-button"
+                      disabled={removeEmail.isPending}
+                      onClick={() => {
+                        setNotice(null)
+                        removeEmail.mutate(allowedEmail)
+                      }}
+                      type="button"
+                    >
+                      {removeEmail.isPending && removeEmail.variables === allowedEmail
+                        ? 'removing…'
+                        : 'remove'}
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>

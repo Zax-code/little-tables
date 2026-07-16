@@ -97,7 +97,14 @@ const authorizedIdentity = Effect.gen(function* () {
   const request = yield* HttpServerRequest.HttpServerRequest
   const session = request.cookies['little-tables-session']
   if (session === undefined) return null
-  return Identity.verify({ now: new Date(), secret: authConfig.secret, session })
+  const identity = Identity.verify({ now: new Date(), secret: authConfig.secret, session })
+  if (identity === null) return null
+  const allowed = yield* AllowedEmailAccess.isSessionAllowed(
+    identity.email,
+    identity.sessionVersion,
+    authConfig.google.allowedEmails,
+  ).pipe(Effect.catchAll(() => Effect.succeed(false)))
+  return allowed ? identity : null
 })
 
 const authorizedProfile = authorizedIdentity.pipe(
@@ -135,6 +142,7 @@ const googleSignIn = Effect.gen(function* () {
   if (identity === null) return yield* json({ error: 'invalid_google_credential' }, 401)
   const allowed = yield* AllowedEmailAccess.isAllowed(identity.email, google.allowedEmails)
   if (!allowed) return yield* json({ error: 'google_account_not_allowed' }, 401)
+  const sessionVersion = yield* AllowedEmailAccess.sessionVersion(identity.email)
   const session = Identity.issue({
     authMethod: 'google',
     displayName: identity.displayName,
@@ -143,6 +151,7 @@ const googleSignIn = Effect.gen(function* () {
     now: new Date(),
     profileId: identity.profileId,
     secret,
+    sessionVersion,
   })
   return sessionCookie(
     yield* json({ profileId: identity.profileId, status: 'authenticated' }),
@@ -185,8 +194,37 @@ const addAllowedEmail = Effect.gen(function* () {
   ),
 )
 
+const removeAllowedEmail = Effect.gen(function* () {
+  if (authConfig === null) return yield* json({ error: 'unauthorized' }, 401)
+  const identity = yield* authorizedIdentity
+  if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
+  if (!AllowedEmailAccess.isAdministrator(identity.email)) {
+    return yield* json({ error: 'forbidden' }, 403)
+  }
+  const body = yield* HttpServerRequest.schemaBodyJson(AllowedEmailSchema).pipe(
+    Effect.catchAll(() => Effect.succeed(null)),
+  )
+  if (body === null) return yield* json({ error: 'invalid_email' }, 400)
+  const result = yield* AllowedEmailAccess.remove({
+    actorEmail: identity.email,
+    configuredEmails: googleAllowedEmails,
+    email: body.email,
+  })
+  return yield* json(result)
+}).pipe(
+  Effect.catchAll((error) => {
+    if (error instanceof AllowedEmailAccessError) {
+      if (error.reason === 'invalid_email') return json({ error: 'invalid_email' }, 400)
+      if (error.reason === 'protected_email') return json({ error: 'protected_email' }, 409)
+    }
+    return json({ error: 'allowed_email_remove_failed' }, 503)
+  }),
+)
+
 const refreshSession = Effect.gen(function* () {
   if (authConfig === null) return yield* json({ status: 'development_auth_disabled' })
+  const identity = yield* authorizedIdentity
+  if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
   const request = yield* HttpServerRequest.HttpServerRequest
   const current = request.cookies['little-tables-session']
   if (current === undefined) return yield* json({ error: 'unauthorized' }, 401)
@@ -316,6 +354,7 @@ export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.post('/api/v1/auth/google', googleSignIn),
   HttpRouter.get('/api/v1/admin/allowed-emails', listAllowedEmails),
   HttpRouter.post('/api/v1/admin/allowed-emails', addAllowedEmail),
+  HttpRouter.del('/api/v1/admin/allowed-emails', removeAllowedEmail),
   HttpRouter.post('/api/v1/session/refresh', refreshSession),
   HttpRouter.get('/api/v1/bootstrap', bootstrap),
   HttpRouter.post('/api/v1/attempts/sync', sync),

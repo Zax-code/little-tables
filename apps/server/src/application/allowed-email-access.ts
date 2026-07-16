@@ -5,7 +5,7 @@ import { AllowedEmailRepository } from '../repositories/allowed-email-repository
 export const administratorEmail = 'boomslang.a@gmail.com'
 
 export class AllowedEmailAccessError extends Data.TaggedError('AllowedEmailAccessError')<{
-  reason: 'forbidden' | 'invalid_email'
+  reason: 'forbidden' | 'invalid_email' | 'protected_email'
 }> {}
 
 const normalizeEmail = (email: string): string | null => {
@@ -23,10 +23,29 @@ const isAllowed = (email: string, configuredEmails: ReadonlyArray<string>) =>
     const normalized = normalizeEmail(email)
     if (normalized === null) return false
     if (normalized === administratorEmail) return true
+    const repository = yield* AllowedEmailRepository
+    if (yield* repository.isBlocked(normalized)) return false
     if (configuredEmails.some((configured) => normalizeEmail(configured) === normalized))
       return true
-    const repository = yield* AllowedEmailRepository
     return yield* repository.contains(normalized)
+  })
+
+const sessionVersion = (email: string) =>
+  Effect.gen(function* () {
+    const normalized = normalizeEmail(email)
+    if (normalized === null || normalized === administratorEmail) return 0
+    const repository = yield* AllowedEmailRepository
+    return yield* repository.sessionVersion(normalized)
+  })
+
+const isSessionAllowed = (
+  email: string,
+  version: number,
+  configuredEmails: ReadonlyArray<string>,
+) =>
+  Effect.gen(function* () {
+    if (!(yield* isAllowed(email, configuredEmails))) return false
+    return (yield* sessionVersion(email)) === version
   })
 
 const add = ({ actorEmail, email }: Readonly<{ actorEmail: string; email: string }>) =>
@@ -53,12 +72,47 @@ const list = ({
     }
     const repository = yield* AllowedEmailRepository
     const storedEmails = yield* repository.list()
+    const blockedEmails = new Set(yield* repository.listBlocked())
     const emails = new Set([administratorEmail, ...storedEmails])
     for (const configuredEmail of configuredEmails) {
       const normalized = normalizeEmail(configuredEmail)
-      if (normalized !== null) emails.add(normalized)
+      if (normalized !== null && !blockedEmails.has(normalized)) emails.add(normalized)
     }
     return [...emails].sort()
   })
 
-export const AllowedEmailAccess = { add, isAdministrator, isAllowed, list } as const
+const remove = ({
+  actorEmail,
+  configuredEmails,
+  email,
+}: Readonly<{
+  actorEmail: string
+  configuredEmails: ReadonlyArray<string>
+  email: string
+}>) =>
+  Effect.gen(function* () {
+    if (!isAdministrator(actorEmail)) {
+      return yield* new AllowedEmailAccessError({ reason: 'forbidden' })
+    }
+    const normalized = normalizeEmail(email)
+    if (normalized === null) {
+      return yield* new AllowedEmailAccessError({ reason: 'invalid_email' })
+    }
+    if (normalized === administratorEmail) {
+      return yield* new AllowedEmailAccessError({ reason: 'protected_email' })
+    }
+    const wasAllowed = yield* isAllowed(normalized, configuredEmails)
+    const repository = yield* AllowedEmailRepository
+    yield* repository.remove(normalized, administratorEmail)
+    return { email: normalized, removed: wasAllowed } as const
+  })
+
+export const AllowedEmailAccess = {
+  add,
+  isAdministrator,
+  isAllowed,
+  isSessionAllowed,
+  list,
+  remove,
+  sessionVersion,
+} as const

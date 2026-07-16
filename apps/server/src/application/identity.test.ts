@@ -32,6 +32,7 @@ describe('Identity', () => {
       expiresAt: new Date('2026-08-11T12:00:00.000Z').getTime(),
       googleSubject: 'google-account-id',
       profileId: 'lou',
+      sessionVersion: 0,
     }
 
     expect(Identity.verify({ now, secret, session })).toEqual(identity)

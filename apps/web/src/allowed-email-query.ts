@@ -4,6 +4,7 @@ import {
   allowedEmailsQueryKey,
   fetchAllowedEmails,
   type AddAllowedEmailResult,
+  type RemoveAllowedEmailResult,
 } from './allowed-email-client.js'
 
 export const allowedEmailsQueryOptions = queryOptions({
@@ -22,5 +23,14 @@ export function updateAllowedEmailsCache(
 ): void {
   queryClient.setQueryData<ReadonlyArray<string>>(allowedEmailsQueryKey, (current = []) =>
     [...new Set([...current, result.email])].sort(),
+  )
+}
+
+export function removeAllowedEmailFromCache(
+  queryClient: QueryClient,
+  result: RemoveAllowedEmailResult,
+): void {
+  queryClient.setQueryData<ReadonlyArray<string>>(allowedEmailsQueryKey, (current = []) =>
+    current.filter((email) => email !== result.email),
   )
 }

@@ -5,14 +5,19 @@ const AddAllowedEmailResultSchema = Schema.Struct({
   created: Schema.Boolean,
   email: Schema.String,
 })
+const RemoveAllowedEmailResultSchema = Schema.Struct({
+  email: Schema.String,
+  removed: Schema.Boolean,
+})
 
 export const allowedEmailsQueryKey = ['allowed-emails'] as const
 
 export type AddAllowedEmailResult = Readonly<{ created: boolean; email: string }>
+export type RemoveAllowedEmailResult = Readonly<{ email: string; removed: boolean }>
 
 export class AllowedEmailClientError extends Data.TaggedError('AllowedEmailClientError')<{
   message: string
-  reason: 'invalid_email' | 'load_failed' | 'save_failed'
+  reason: 'invalid_email' | 'load_failed' | 'remove_failed' | 'save_failed'
 }> {}
 
 export async function fetchAllowedEmails(
@@ -46,4 +51,22 @@ export async function addAllowedEmail(
     )
   }
   return Schema.decodeUnknownPromise(AddAllowedEmailResultSchema)(await response.json())
+}
+
+export async function removeAllowedEmail(
+  email: string,
+  fetcher: typeof fetch = fetch,
+): Promise<RemoveAllowedEmailResult> {
+  const response = await fetcher('/api/v1/admin/allowed-emails', {
+    body: JSON.stringify({ email }),
+    headers: { 'content-type': 'application/json' },
+    method: 'DELETE',
+  })
+  if (!response.ok) {
+    throw new AllowedEmailClientError({
+      message: 'That email address could not be removed.',
+      reason: 'remove_failed',
+    })
+  }
+  return Schema.decodeUnknownPromise(RemoveAllowedEmailResultSchema)(await response.json())
 }

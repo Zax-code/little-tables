@@ -38,4 +38,21 @@ describe('access screen', () => {
     expect(markup).toContain('data-router-link="true"')
     expect(markup).toContain('data-preload="render"')
   })
+
+  it('offers removal for learners while protecting the owner address', () => {
+    const queryClient = new QueryClient()
+    queryClient.setQueryData(allowedEmailsQueryKey, [
+      'boomslang.a@gmail.com',
+      'learner@example.com',
+    ])
+
+    const markup = renderToStaticMarkup(
+      <QueryClientProvider client={queryClient}>
+        <AccessScreen />
+      </QueryClientProvider>,
+    )
+
+    expect(markup).toContain('Remove learner@example.com from the allowlist')
+    expect(markup).not.toContain('Remove boomslang.a@gmail.com from the allowlist')
+  })
 })
