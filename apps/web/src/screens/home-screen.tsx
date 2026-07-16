@@ -96,99 +96,104 @@ export function HomeScreen() {
       >
         {sound ? '♪' : '♩̸'}
       </button>
-      <header className="welcome-copy">
-        <p className="eyebrow">little tables.</p>
-        <h1>
-          {firstVisit
-            ? t('home.firstVisitHeading', { name: displayName })
-            : t('home.returningHeading', { name: displayName })}
-        </h1>
-        <p>{firstVisit ? t('home.firstVisitIntro') : t('home.ready')}</p>
-      </header>
+      <div className="home-hero">
+        <div className="home-intro">
+          <header className="welcome-copy">
+            <p className="eyebrow">little tables.</p>
+            <h1>
+              {firstVisit
+                ? t('home.firstVisitHeading', { name: displayName })
+                : t('home.returningHeading', { name: displayName })}
+            </h1>
+            <p>{firstVisit ? t('home.firstVisitIntro') : t('home.ready')}</p>
+          </header>
 
-      <m.button
-        className="primary-button"
-        onClick={() => void primaryAction()}
-        type="button"
-        whileTap={{ scale: 0.97 }}
-      >
-        {data?.activeSession ? t('home.resume') : firstVisit ? t('home.start') : t('home.play')}
-      </m.button>
-      <button
-        className="mode-link"
-        disabled={data?.activeSession !== null && data?.activeSession !== undefined}
-        onClick={() => setShowModes((visible) => !visible)}
-        type="button"
-      >
-        {showModes ? t('home.hideModes') : t('home.mode')}
-      </button>
-      {showModes ? (
-        <div className="mode-sheet">
-          <button onClick={() => void start({ questionCount: 5 })} type="button">
-            <strong>{t('home.fiveQuick')}</strong>
-            <span>{t('home.lowEnergy')}</span>
+          <m.button
+            className="primary-button"
+            onClick={() => void primaryAction()}
+            type="button"
+            whileTap={{ scale: 0.97 }}
+          >
+            {data?.activeSession ? t('home.resume') : firstVisit ? t('home.start') : t('home.play')}
+          </m.button>
+          <button
+            className="mode-link"
+            disabled={data?.activeSession !== null && data?.activeSession !== undefined}
+            onClick={() => setShowModes((visible) => !visible)}
+            type="button"
+          >
+            {showModes ? t('home.hideModes') : t('home.mode')}
           </button>
-          <div className="table-picker">
-            <strong>{t('home.focusTable')}</strong>
-            <div>
-              {[2, 5, 10, 3, 4, 6, 7, 8, 9].map((table) => (
-                <button
-                  key={table}
-                  onClick={() => void start({ focusTable: table, questionCount: 10 })}
-                  type="button"
-                >
-                  {table}
-                </button>
-              ))}
+          {showModes ? (
+            <div className="mode-sheet">
+              <button onClick={() => void start({ questionCount: 5 })} type="button">
+                <strong>{t('home.fiveQuick')}</strong>
+                <span>{t('home.lowEnergy')}</span>
+              </button>
+              <div className="table-picker">
+                <strong>{t('home.focusTable')}</strong>
+                <div>
+                  {[2, 5, 10, 3, 4, 6, 7, 8, 9].map((table) => (
+                    <button
+                      key={table}
+                      onClick={() => void start({ focusTable: table, questionCount: 10 })}
+                      type="button"
+                    >
+                      {table}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+        <Bunny className="home-bunny" scene="home" />
+      </div>
+
+      <div className="home-dashboard">
+        <div className="glow-card">
+          <span className="flower-badge" aria-hidden="true">
+            ✿
+          </span>
+          <div>
+            <strong>{t(glow === 1 ? 'home.glowDay' : 'home.glowDays', { count: glow })}</strong>
+            <div className="glow-track">
+              <span style={{ width: `${(glow / 7) * 100}%` }} />
             </div>
           </div>
+          <span className="sync-copy">{t(`sync.${syncStatus.data}`)}</span>
         </div>
-      ) : null}
 
-      <div className="glow-card">
-        <span className="flower-badge" aria-hidden="true">
-          ✿
-        </span>
-        <div>
-          <strong>{t(glow === 1 ? 'home.glowDay' : 'home.glowDays', { count: glow })}</strong>
-          <div className="glow-track">
-            <span style={{ width: `${(glow / 7) * 100}%` }} />
+        <div className="today-card">
+          <div className="card-heading">
+            <strong>{t('home.today')}</strong>
+            <span>
+              {t('garden.bloomCount', {
+                bloom: t(garden.bloomCount === 1 ? 'common.bloom' : 'common.blooms'),
+                count: garden.bloomCount,
+              })}
+            </span>
+          </div>
+          <div
+            className="petal-row"
+            aria-label={t(petalCount === 1 ? 'home.petal' : 'home.petals', { count: petalCount })}
+          >
+            {Array.from({ length: 5 }, (_, index) => (
+              <span
+                className={
+                  index < Math.min(5, data?.completedSessions ?? 0) ? 'petal petal-filled' : 'petal'
+                }
+                key={index}
+              >
+                ✿
+              </span>
+            ))}
           </div>
         </div>
-        <span className="sync-copy">{t(`sync.${syncStatus.data}`)}</span>
+        <ReminderCard />
+        <InstallCard completedSessions={data?.completedSessions ?? 0} />
+        <OwnerAccessLink isAdmin={auth.data?.isAdmin === true} />
       </div>
-
-      <Bunny className="home-bunny" scene="home" />
-
-      <div className="today-card">
-        <div className="card-heading">
-          <strong>{t('home.today')}</strong>
-          <span>
-            {t('garden.bloomCount', {
-              bloom: t(garden.bloomCount === 1 ? 'common.bloom' : 'common.blooms'),
-              count: garden.bloomCount,
-            })}
-          </span>
-        </div>
-        <div
-          className="petal-row"
-          aria-label={t(petalCount === 1 ? 'home.petal' : 'home.petals', { count: petalCount })}
-        >
-          {Array.from({ length: 5 }, (_, index) => (
-            <span
-              className={
-                index < Math.min(5, data?.completedSessions ?? 0) ? 'petal petal-filled' : 'petal'
-              }
-              key={index}
-            >
-              ✿
-            </span>
-          ))}
-        </div>
-      </div>
-      <ReminderCard />
-      <InstallCard completedSessions={data?.completedSessions ?? 0} />
-      <OwnerAccessLink isAdmin={auth.data?.isAdmin === true} />
     </section>
   )
 }

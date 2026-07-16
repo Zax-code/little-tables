@@ -56,38 +56,40 @@ export function CelebrationScreen() {
           <i>✾</i>
           <i>❁</i>
         </div>
-        <header className="celebration-copy">
-          <h1>{heading}</h1>
-          <p>{perfectSession ? t('celebration.perfect') : t('celebration.complete')}</p>
-        </header>
+        <div className="celebration-details">
+          <header className="celebration-copy">
+            <h1>{heading}</h1>
+            <p>{perfectSession ? t('celebration.perfect') : t('celebration.complete')}</p>
+          </header>
+          <div className="reward-summary">
+            <m.div
+              className="reward-chip"
+              initial={reduceMotion ? false : { scale: 0.8 }}
+              animate={{ scale: 1 }}
+              transition={
+                reduceMotion ? { duration: 0 } : { delay: 0.22, type: 'spring', stiffness: 280 }
+              }
+            >
+              <GardenRewardFlower kind={bloomKind} /> {t('celebration.gardenBloom')}
+            </m.div>
+            <p className="reward-explanation">{rewardCopy}</p>
+          </div>
+          <div className="celebration-actions">
+            <button
+              className="primary-button"
+              onClick={() =>
+                void returnToGardenAfterPractice({
+                  navigate: () => navigate({ to: '/garden' }),
+                  transition,
+                })
+              }
+              type="button"
+            >
+              {t('celebration.next')}
+            </button>
+          </div>
+        </div>
         <CelebrationSprite />
-        <div className="reward-summary">
-          <m.div
-            className="reward-chip"
-            initial={reduceMotion ? false : { scale: 0.8 }}
-            animate={{ scale: 1 }}
-            transition={
-              reduceMotion ? { duration: 0 } : { delay: 0.22, type: 'spring', stiffness: 280 }
-            }
-          >
-            <GardenRewardFlower kind={bloomKind} /> {t('celebration.gardenBloom')}
-          </m.div>
-          <p className="reward-explanation">{rewardCopy}</p>
-        </div>
-        <div className="celebration-actions">
-          <button
-            className="primary-button"
-            onClick={() =>
-              void returnToGardenAfterPractice({
-                navigate: () => navigate({ to: '/garden' }),
-                transition,
-              })
-            }
-            type="button"
-          >
-            {t('celebration.next')}
-          </button>
-        </div>
       </section>
     </Screen>
   )

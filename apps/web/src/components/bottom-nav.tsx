@@ -58,6 +58,9 @@ export function BottomNav() {
 
   return (
     <nav aria-label={t('nav.label')} className="bottom-nav">
+      <p aria-hidden="true" className="nav-brand">
+        little tables<span>.</span>
+      </p>
       {items.map((item) => (
         <Link
           aria-current={pathname === item.path ? 'page' : undefined}

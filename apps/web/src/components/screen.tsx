@@ -11,6 +11,7 @@ type ScreenProps = PropsWithChildren<
 >
 
 export function Screen({ children, contentClassName, footer = true, header }: ScreenProps) {
+  const shellClassName = footer ? 'app-shell app-shell-tabs' : 'app-shell app-shell-standalone'
   const mainClassName = [
     footer ? 'screen-content' : 'screen-content screen-content-full',
     contentClassName,
@@ -19,7 +20,7 @@ export function Screen({ children, contentClassName, footer = true, header }: Sc
     .join(' ')
 
   return (
-    <div className="app-shell">
+    <div className={shellClassName}>
       {header}
       <main className={mainClassName}>{children}</main>
       {footer ? <BottomNav /> : null}
