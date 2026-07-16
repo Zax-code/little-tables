@@ -8,6 +8,8 @@ const AddAllowedEmailResultSchema = Schema.Struct({
 
 export const allowedEmailsQueryKey = ['allowed-emails'] as const
 
+export type AddAllowedEmailResult = Readonly<{ created: boolean; email: string }>
+
 export class AllowedEmailClientError extends Data.TaggedError('AllowedEmailClientError')<{
   message: string
   reason: 'invalid_email' | 'load_failed' | 'save_failed'
@@ -30,7 +32,7 @@ export async function fetchAllowedEmails(
 export async function addAllowedEmail(
   email: string,
   fetcher: typeof fetch = fetch,
-): Promise<Readonly<{ created: boolean; email: string }>> {
+): Promise<AddAllowedEmailResult> {
   const response = await fetcher('/api/v1/admin/allowed-emails', {
     body: JSON.stringify({ email }),
     headers: { 'content-type': 'application/json' },

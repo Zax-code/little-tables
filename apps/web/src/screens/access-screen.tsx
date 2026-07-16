@@ -1,31 +1,26 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { Link } from '@tanstack/react-router'
 import { useState, type SyntheticEvent } from 'react'
 
-import {
-  addAllowedEmail,
-  allowedEmailsQueryKey,
-  fetchAllowedEmails,
-} from '../allowed-email-client.js'
+import { addAllowedEmail } from '../allowed-email-client.js'
+import { allowedEmailsQueryOptions, updateAllowedEmailsCache } from '../allowed-email-query.js'
 import { Screen } from '../components/screen.js'
 
 export function AccessScreen() {
   const queryClient = useQueryClient()
   const [email, setEmail] = useState('')
   const [notice, setNotice] = useState<string | null>(null)
-  const allowedEmails = useQuery({
-    queryKey: allowedEmailsQueryKey,
-    queryFn: () => fetchAllowedEmails(),
-  })
+  const allowedEmails = useQuery(allowedEmailsQueryOptions)
   const addEmail = useMutation({
     mutationFn: (value: string) => addAllowedEmail(value),
-    onSuccess: async (result) => {
+    onSuccess: (result) => {
       setEmail('')
       setNotice(
         result.created
           ? `${result.email} can now sign in.`
           : `${result.email} was already allowed.`,
       )
-      await queryClient.invalidateQueries({ queryKey: allowedEmailsQueryKey })
+      updateAllowedEmailsCache(queryClient, result)
     },
   })
 
@@ -38,9 +33,9 @@ export function AccessScreen() {
   return (
     <Screen footer={false}>
       <section className="access-screen">
-        <a className="access-back-link" href="/">
+        <Link className="access-back-link" preload="render" to="/">
           ← back to the garden
-        </a>
+        </Link>
         <header>
           <p className="eyebrow">owner controls</p>
           <h1>who can join</h1>
