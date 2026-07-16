@@ -12,6 +12,7 @@ import { lazy, Suspense } from 'react'
 
 import { PwaManager } from './components/pwa-manager.js'
 import { Screen } from './components/screen.js'
+import { FlowerTransitionProvider } from './components/flower-transition.js'
 import { loadAdministratorStatus } from './admin-access.js'
 import { prefetchAllowedEmails } from './allowed-email-query.js'
 import {
@@ -57,9 +58,9 @@ function TabsLayout() {
   )
 }
 
-const rootRoute = createRootRouteWithContext<RouterContext>()({
-  component: () => (
-    <>
+function RootLayout() {
+  return (
+    <FlowerTransitionProvider>
       <Suspense fallback={<div className="loading-state">opening your garden…</div>}>
         <Outlet />
       </Suspense>
@@ -69,8 +70,12 @@ const rootRoute = createRootRouteWithContext<RouterContext>()({
           <DevelopmentTools />
         </Suspense>
       )}
-    </>
-  ),
+    </FlowerTransitionProvider>
+  )
+}
+
+const rootRoute = createRootRouteWithContext<RouterContext>()({
+  component: RootLayout,
 })
 
 const tabsRoute = createRoute({

@@ -6,6 +6,7 @@ import { useState } from 'react'
 
 import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
 import { Bunny } from '../components/bunny.js'
+import { useFlowerTransition } from '../flower-transition.js'
 import { InstallCard } from '../components/install-card.js'
 import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
@@ -13,6 +14,7 @@ import { syncStatusQueryKey } from '../sync-status.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
+import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
 
 export function HomeScreen() {
   const auth = useQuery({
@@ -28,6 +30,7 @@ export function HomeScreen() {
     staleTime: Infinity,
   })
   const navigate = useNavigate()
+  const transition = useFlowerTransition()
   const queryClient = useQueryClient()
   const data = bootstrap.data
   const [showModes, setShowModes] = useState(false)
@@ -56,13 +59,19 @@ export function HomeScreen() {
       seed: crypto.getRandomValues(new Uint32Array(1))[0] ?? Date.now(),
       snapshot,
     })
-    await practiceStore.startSession(session, snapshot)
-    await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
-    await navigate({ to: '/practice' })
+    await launchPracticeSession({
+      invalidate: () => queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey }),
+      navigate: () => navigate({ to: '/practice' }),
+      persist: () => practiceStore.startSession(session, snapshot),
+      transition,
+    })
   }
   const primaryAction = async () => {
     if (data?.activeSession !== null && data?.activeSession !== undefined) {
-      await navigate({ to: '/practice' })
+      await resumePracticeSession({
+        navigate: () => navigate({ to: '/practice' }),
+        transition,
+      })
       return
     }
     await start({ questionCount: firstVisit ? 8 : 10 })

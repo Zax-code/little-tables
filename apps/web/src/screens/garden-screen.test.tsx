@@ -13,6 +13,10 @@ vi.mock('../components/garden-plot.js', () => ({
   GardenPlot: () => <div data-testid="garden-plot" />,
 }))
 
+vi.mock('../flower-transition.js', () => ({
+  useFlowerTransition: () => (action: () => Promise<void>) => action(),
+}))
+
 vi.mock('../hooks/use-local-bootstrap.js', () => ({
   useLocalBootstrap: () => ({ data: undefined, isLoading: false }),
 }))
