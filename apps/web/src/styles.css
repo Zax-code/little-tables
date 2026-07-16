@@ -2228,7 +2228,7 @@ p {
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
     grid-template-rows: 1fr;
-    column-gap: clamp(40px, 8vw, 120px);
+    column-gap: clamp(24px, 3vw, 56px);
     align-items: center;
     text-align: left;
   }
@@ -2239,17 +2239,19 @@ p {
     grid-row: 1;
     flex-direction: column;
     align-items: flex-start;
+    align-self: stretch;
     justify-content: center;
-    justify-self: center;
+    justify-self: end;
   }
   .celebration-screen h1 {
     font-size: clamp(3.4rem, 6vw, 5.8rem);
   }
   .celebration-sprite {
     width: min(100%, 470px);
-    margin: 0 auto;
+    margin: 0;
     grid-column: 2;
     grid-row: 1;
+    justify-self: start;
   }
   .reward-summary {
     justify-items: start;
