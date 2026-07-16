@@ -1157,6 +1157,9 @@ p {
   position: relative;
   z-index: 2;
 }
+.celebration-details {
+  display: contents;
+}
 .celebration-copy p {
   color: var(--ink-primary);
   font-size: 1.05rem;
@@ -1871,6 +1874,18 @@ p {
   .home-dashboard > .owner-access-link {
     order: 6;
   }
+  .celebration-copy {
+    order: 1;
+  }
+  .celebration-sprite {
+    order: 2;
+  }
+  .reward-summary {
+    order: 3;
+  }
+  .celebration-actions {
+    order: 4;
+  }
 }
 
 @media (min-width: 900px) {
@@ -2212,13 +2227,20 @@ p {
     padding: 72px clamp(64px, 9vw, 140px) 56px;
     display: grid;
     grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
-    grid-template-rows: auto auto 1fr;
+    grid-template-rows: 1fr;
     column-gap: clamp(40px, 8vw, 120px);
     align-items: center;
     text-align: left;
   }
-  .celebration-copy {
-    align-self: end;
+  .celebration-details {
+    width: min(100%, 470px);
+    display: flex;
+    grid-column: 1;
+    grid-row: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    justify-self: center;
   }
   .celebration-screen h1 {
     font-size: clamp(3.4rem, 6vw, 5.8rem);
@@ -2227,7 +2249,7 @@ p {
     width: min(100%, 470px);
     margin: 0 auto;
     grid-column: 2;
-    grid-row: 1 / 4;
+    grid-row: 1;
   }
   .reward-summary {
     justify-items: start;
