@@ -271,6 +271,37 @@ a:focus-visible {
 .auth-retry {
   width: min(100%, 320px);
 }
+.name-choice-form {
+  width: min(100%, 320px);
+  display: grid;
+  gap: 10px;
+  text-align: left;
+}
+.name-choice-form label {
+  padding-left: 4px;
+  font-weight: 700;
+}
+.name-choice-form input {
+  width: 100%;
+  min-height: 52px;
+  padding: 0 16px;
+  color: var(--ink-primary);
+  background: var(--surface-card);
+  border: 2px solid var(--line-soft);
+  border-radius: 14px;
+  font: inherit;
+}
+.name-choice-form input:focus {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+.name-choice-form .primary-button {
+  min-height: 52px;
+  margin-top: 4px;
+}
+.name-choice-form .auth-error {
+  text-align: center;
+}
 
 .screen-content {
   flex: 1;

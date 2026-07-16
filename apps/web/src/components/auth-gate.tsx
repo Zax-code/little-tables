@@ -1,5 +1,5 @@
-import { useQuery } from '@tanstack/react-query'
-import type { PropsWithChildren } from 'react'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
+import type { PropsWithChildren, SyntheticEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
 import { googleConnectIcon } from '../assets.js'
@@ -7,6 +7,7 @@ import {
   authStatusQueryKey,
   fetchAuthStatus,
   GoogleSignInError,
+  savePreferredName,
   signInWithGoogle,
 } from '../auth-client.js'
 import { renderGoogleSignInButton } from '../google-identity.js'
@@ -28,6 +29,60 @@ export function GoogleConnectButtonArtwork() {
       <img alt="" src={googleConnectIcon.src} />
       <span>{t('auth.connectGoogle')}</span>
     </span>
+  )
+}
+
+export function PreferredNameForm({
+  defaultName,
+  onSave,
+}: Readonly<{
+  defaultName: string
+  onSave: (displayName: string) => Promise<void>
+}>) {
+  const { t } = useI18n()
+  const [displayName, setDisplayName] = useState(defaultName)
+  const [error, setError] = useState<string>()
+  const [pending, setPending] = useState(false)
+
+  const submit = (event: SyntheticEvent<HTMLFormElement>) => {
+    event.preventDefault()
+    if (pending || displayName.trim() === '') return
+    setError(undefined)
+    setPending(true)
+    void onSave(displayName)
+      .catch(() => setError(t('auth.nameChoiceSaveFailed')))
+      .finally(() => setPending(false))
+  }
+
+  return (
+    <>
+      <div>
+        <p className="eyebrow">little tables.</p>
+        <h1>{t('auth.nameChoiceTitle')}</h1>
+        <p>{t('auth.nameChoiceCopy')}</p>
+      </div>
+      <Bunny className="auth-bunny" scene="home" />
+      <form className="name-choice-form" onSubmit={submit}>
+        <label htmlFor="preferred-name">{t('auth.nameChoiceLabel')}</label>
+        <input
+          autoComplete="nickname"
+          id="preferred-name"
+          maxLength={40}
+          onChange={(event) => setDisplayName(event.target.value)}
+          placeholder={defaultName}
+          required
+          value={displayName}
+        />
+        <button className="primary-button" disabled={pending} type="submit">
+          {pending ? t('auth.nameChoiceSaving') : t('auth.nameChoiceSave')}
+        </button>
+        {error ? (
+          <p className="auth-error" role="alert">
+            {error}
+          </p>
+        ) : null}
+      </form>
+    </>
   )
 }
 
@@ -89,6 +144,7 @@ function GoogleSignInButton({ clientId }: Readonly<{ clientId: string }>) {
 
 export function AuthGate({ children }: PropsWithChildren) {
   const { t } = useI18n()
+  const queryClient = useQueryClient()
   const [offlineGrant, setOfflineGrant] = useState(() => readOfflineAuthGrant())
   const auth = useQuery({
     initialData: offlineGrant === null ? undefined : authStatusFromOfflineGrant(offlineGrant),
@@ -134,6 +190,31 @@ export function AuthGate({ children }: PropsWithChildren) {
     }
   }, [mustSignIn])
 
+  const nameChoiceStatus =
+    canAccess && auth.data?.nameChoiceRequired === true && typeof auth.data.displayName === 'string'
+      ? { ...auth.data, displayName: auth.data.displayName }
+      : null
+  if (nameChoiceStatus !== null) {
+    return (
+      <Screen footer={false}>
+        <section className="auth-screen name-choice-screen">
+          <PreferredNameForm
+            defaultName={nameChoiceStatus.displayName}
+            onSave={async (displayName) => {
+              const savedDisplayName = await savePreferredName(displayName)
+              const status = {
+                ...nameChoiceStatus,
+                displayName: savedDisplayName,
+                nameChoiceRequired: false,
+              }
+              persistOfflineAuthGrant(status)
+              queryClient.setQueryData(authStatusQueryKey, status)
+            }}
+          />
+        </section>
+      </Screen>
+    )
+  }
   if (canAccess) return children
   if (auth.isPending) return <div className="app-loading">{t('app.openingGarden')}</div>
   if (auth.isError) {

@@ -8,6 +8,8 @@ import { AllowedEmailRepository } from './allowed-email-repository.js'
 import { AttemptRepository } from './attempt-repository.js'
 import { MongoAllowedEmailRepository } from './mongo-allowed-email-repository.js'
 import { MongoAttemptRepository } from './mongo-attempt-repository.js'
+import { MongoProfileRepository } from './mongo-profile-repository.js'
+import { ProfileRepository } from './profile-repository.js'
 
 describe('MongoAttemptRepository', () => {
   let container: StartedMongoDBContainer | undefined
@@ -101,6 +103,33 @@ describe('MongoAttemptRepository', () => {
       restored: true,
       secondCreated: false,
       sessionVersion: 1,
+    })
+  }, 30_000)
+
+  it('persists a preferred name for each Google account', async () => {
+    const program = Effect.gen(function* () {
+      const repository = yield* ProfileRepository
+      const missing = yield* repository.findPreferredName('google-subject')
+      const created = yield* repository.savePreferredName('google-subject', 'Lulu')
+      const saved = yield* repository.findPreferredName('google-subject')
+      const replaced = yield* repository.savePreferredName('google-subject', 'Lou')
+      const retained = yield* repository.findPreferredName('google-subject')
+      return { created, missing, replaced, retained, saved }
+    }).pipe(
+      Effect.provide(
+        MongoProfileRepository.layer(
+          `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`,
+          'integration',
+        ),
+      ),
+    )
+
+    await expect(Effect.runPromise(program)).resolves.toEqual({
+      created: true,
+      missing: null,
+      replaced: false,
+      retained: 'Lulu',
+      saved: 'Lulu',
     })
   }, 30_000)
 })

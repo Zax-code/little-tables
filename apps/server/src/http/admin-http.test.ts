@@ -6,6 +6,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 import { Identity } from '../application/identity.js'
 import { InMemoryAllowedEmailRepository } from '../repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from '../repositories/in-memory-attempt-repository.js'
+import { InMemoryProfileRepository } from '../repositories/in-memory-profile-repository.js'
 
 const secret = 'admin-http-test-session-secret'
 
@@ -35,9 +36,11 @@ describe('owner-only allowed email HTTP interface', () => {
     const { httpApp } = await import('./app.js')
     const { dispose, handler } = HttpApp.toWebHandlerLayer(
       httpApp,
-      Layer.merge(
+      Layer.mergeAll(
         NodeHttpPlatform.layer,
-        Layer.merge(InMemoryAttemptRepository.layer(), InMemoryAllowedEmailRepository.layer()),
+        InMemoryAttemptRepository.layer(),
+        InMemoryAllowedEmailRepository.layer(),
+        InMemoryProfileRepository.layer(),
       ),
     )
 
@@ -79,9 +82,11 @@ describe('owner-only allowed email HTTP interface', () => {
     const { httpApp } = await import('./app.js')
     const { dispose, handler } = HttpApp.toWebHandlerLayer(
       httpApp,
-      Layer.merge(
+      Layer.mergeAll(
         NodeHttpPlatform.layer,
-        Layer.merge(InMemoryAttemptRepository.layer(), InMemoryAllowedEmailRepository.layer()),
+        InMemoryAttemptRepository.layer(),
+        InMemoryAllowedEmailRepository.layer(),
+        InMemoryProfileRepository.layer(),
       ),
     )
     const learnerCookie = `little-tables-session=${sessionFor('configured@example.com')}`

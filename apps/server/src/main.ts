@@ -7,8 +7,10 @@ import { httpApp } from './http/app.js'
 import { DailyReminders } from './application/daily-reminders.js'
 import { InMemoryAllowedEmailRepository } from './repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from './repositories/in-memory-attempt-repository.js'
+import { InMemoryProfileRepository } from './repositories/in-memory-profile-repository.js'
 import { MongoAllowedEmailRepository } from './repositories/mongo-allowed-email-repository.js'
 import { MongoAttemptRepository } from './repositories/mongo-attempt-repository.js'
+import { MongoProfileRepository } from './repositories/mongo-profile-repository.js'
 
 const port = Number(process.env.PORT ?? 3000)
 const host = process.env.HOST ?? '127.0.0.1'
@@ -38,11 +40,16 @@ if (
   )
 }
 const repositoryLayer = process.env.MONGODB_URI
-  ? Layer.merge(
+  ? Layer.mergeAll(
       MongoAttemptRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
       MongoAllowedEmailRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
+      MongoProfileRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
     )
-  : Layer.merge(InMemoryAttemptRepository.layer(), InMemoryAllowedEmailRepository.layer())
+  : Layer.mergeAll(
+      InMemoryAttemptRepository.layer(),
+      InMemoryAllowedEmailRepository.layer(),
+      InMemoryProfileRepository.layer(),
+    )
 
 const httpLayer = HttpServer.serve(httpApp).pipe(
   Layer.provide(NodeHttpServer.layer(createServer, { host, port })),

@@ -13,6 +13,7 @@ type IssueInput = Readonly<{
   email: string
   googleSubject: string
   now: Date
+  nameChoiceRequired?: boolean
   profileId: 'lou'
   secret: string
   sessionVersion?: number
@@ -24,6 +25,7 @@ const SessionPayloadSchema = Schema.Struct({
   email: Schema.NonEmptyString,
   expiresAt: Schema.NonNegative,
   googleSubject: Schema.NonEmptyString,
+  nameChoiceRequired: Schema.optional(Schema.Boolean),
   profileId: Schema.Literal('lou'),
   sessionVersion: Schema.optional(Schema.NonNegativeInt),
 })
@@ -40,6 +42,7 @@ const issue = ({
   email,
   googleSubject,
   now,
+  nameChoiceRequired = false,
   profileId,
   secret,
   sessionVersion = 0,
@@ -51,6 +54,7 @@ const issue = ({
     email,
     expiresAt,
     googleSubject,
+    nameChoiceRequired,
     profileId,
     sessionVersion,
   })
@@ -69,6 +73,7 @@ const verify = ({
   email: string
   expiresAt: number
   googleSubject: string
+  nameChoiceRequired: boolean
   profileId: 'lou'
   sessionVersion: number
 }> | null => {
@@ -94,6 +99,7 @@ const verify = ({
       email: record.email,
       expiresAt: record.expiresAt,
       googleSubject: record.googleSubject,
+      nameChoiceRequired: record.nameChoiceRequired ?? false,
       profileId: 'lou',
       sessionVersion: record.sessionVersion ?? 0,
     }
@@ -112,6 +118,7 @@ const renew = (input: VerifyInput): string | null => {
         email: identity.email,
         googleSubject: identity.googleSubject,
         now: input.now,
+        nameChoiceRequired: identity.nameChoiceRequired,
         profileId: identity.profileId,
         secret: input.secret,
         sessionVersion: identity.sessionVersion,
