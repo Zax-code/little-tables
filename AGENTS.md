@@ -23,11 +23,14 @@ corepack pnpm install        # install the workspace from pnpm-lock.yaml
 corepack pnpm dev            # start the web app on port 5173
 corepack pnpm dev:server     # start the API on port 3000
 corepack pnpm check          # format, lint, typecheck, test, and build
+corepack pnpm doctor         # run the full React Doctor audit for the web app
 corepack pnpm build          # create all production bundles
 corepack pnpm smoke:docker   # build and probe the production container
 ```
 
-The full test suite requires a Docker-compatible runtime for the Mongo Testcontainers test.
+The full test suite requires a Docker-compatible runtime for the Mongo Testcontainers test. For
+every feature or fix, run both `corepack pnpm check` and `corepack pnpm doctor` before pushing, and
+resolve any new React Doctor findings.
 
 ## Coding Style & Naming Conventions
 

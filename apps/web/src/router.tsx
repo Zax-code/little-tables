@@ -12,7 +12,8 @@ import { lazy, Suspense } from 'react'
 
 import { PwaManager } from './components/pwa-manager.js'
 import { Screen } from './components/screen.js'
-import { fetchAuthStatus } from './auth-client.js'
+import { loadAdministratorStatus } from './admin-access.js'
+import { prefetchAllowedEmails } from './allowed-email-query.js'
 import {
   celebrationSprite,
   characterAssets,
@@ -114,14 +115,19 @@ const statsRoute = createRoute({
 const accessRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/access',
-  beforeLoad: async () => {
+  beforeLoad: async ({ context }) => {
+    if (context.queryClient === undefined) return redirect({ throw: true, to: '/' })
     try {
-      const auth = await fetchAuthStatus()
+      const auth = await loadAdministratorStatus(context.queryClient)
       if (auth.isAdmin) return
     } catch {
       // Management requires a fresh server-confirmed owner session.
     }
     return redirect({ throw: true, to: '/' })
+  },
+  loader: ({ context }) => {
+    if (context.queryClient === undefined) throw new Error('Missing router query client')
+    return prefetchAllowedEmails(context.queryClient)
   },
   component: AccessScreen,
 })

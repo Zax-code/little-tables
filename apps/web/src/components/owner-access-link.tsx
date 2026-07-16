@@ -1,8 +1,10 @@
+import { Link } from '@tanstack/react-router'
+
 export function OwnerAccessLink({ isAdmin }: Readonly<{ isAdmin: boolean }>) {
   if (!isAdmin) return null
   return (
-    <a className="owner-access-link" href="/access">
+    <Link className="owner-access-link" preload="render" to="/access">
       manage who can join
-    </a>
+    </Link>
   )
 }

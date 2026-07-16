@@ -9,4 +9,8 @@ describe('tab routing', () => {
     expect(router.routesByPath['/garden'].parentRoute).toBe(router.routesById['/tabs'])
     expect(router.routesByPath['/stats'].parentRoute).toBe(router.routesById['/tabs'])
   })
+
+  it('loads the allowlist before committing the administrator screen', () => {
+    expect(router.routesByPath['/access'].options.loader).toEqual(expect.any(Function))
+  })
 })
