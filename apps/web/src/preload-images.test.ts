@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
   decodeStartupImages,
+  decodeRouteImages,
   preloadImageSources,
   type PreloadableImage,
 } from './preload-images.js'
@@ -43,6 +44,29 @@ describe('preloadImageSources', () => {
 
     expect(querySelectorAll).toHaveBeenCalledWith('link[data-app-image][data-startup-image]')
     expect(images).toHaveLength(2)
+  })
+
+  it('reuses decoded route images on later visits', async () => {
+    const images: PreloadableImage[] = []
+    class ImageConstructor implements PreloadableImage {
+      complete = true
+      decode = vi.fn(() => Promise.resolve())
+      onerror = null
+      onload = null
+      src = ''
+
+      constructor() {
+        images.push(this)
+      }
+    }
+    vi.stubGlobal('Image', ImageConstructor)
+
+    const firstVisit = decodeRouteImages('test-route', ['/route-image.webp'])
+    const laterVisit = decodeRouteImages('test-route', ['/route-image.webp'])
+
+    expect(laterVisit).toBe(firstVisit)
+    await expect(firstVisit).resolves.toBeUndefined()
+    expect(images).toHaveLength(1)
   })
 
   it('waits for every image to load and decode before resolving', async () => {

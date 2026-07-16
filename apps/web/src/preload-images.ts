@@ -7,6 +7,7 @@ export type PreloadableImage = {
 }
 
 type ImageFactory = () => PreloadableImage
+const routeImageDecodes = new Map<string, Promise<void>>()
 
 function preloadImageSource(
   source: string,
@@ -55,4 +56,13 @@ export function decodeStartupImages(): Promise<void> {
     ({ href }) => href,
   )
   return preloadImageSources(sources)
+}
+
+export function decodeRouteImages(route: string, sources: readonly string[]): Promise<void> {
+  const existing = routeImageDecodes.get(route)
+  if (existing !== undefined) return existing
+
+  const decoding = preloadImageSources(sources)
+  routeImageDecodes.set(route, decoding)
+  return decoding
 }

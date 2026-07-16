@@ -13,6 +13,13 @@ import { lazy, Suspense } from 'react'
 import { PwaManager } from './components/pwa-manager.js'
 import { Screen } from './components/screen.js'
 import { fetchAuthStatus } from './auth-client.js'
+import {
+  celebrationSprite,
+  characterAssets,
+  gardenWalkingSprite,
+  gardenWateringSprite,
+} from './assets.js'
+import { decodeRouteImages } from './preload-images.js'
 
 const AccessScreen = lazyRouteComponent(() => import('./screens/access-screen.js'), 'AccessScreen')
 const DevelopmentTools = import.meta.env.DEV
@@ -79,16 +86,24 @@ const homeRoute = createRoute({
 const practiceRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/practice',
+  loader: () =>
+    decodeRouteImages('practice', [
+      characterAssets.practice.src,
+      characterAssets.practiceCorrect.src,
+      characterAssets.practiceEncourage.src,
+    ]),
   component: PracticeScreen,
 })
 const celebrationRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/celebration',
+  loader: () => decodeRouteImages('celebration', [celebrationSprite.src]),
   component: CelebrationScreen,
 })
 const gardenRoute = createRoute({
   getParentRoute: () => tabsRoute,
   path: '/garden',
+  loader: () => decodeRouteImages('garden', [gardenWalkingSprite.src, gardenWateringSprite.src]),
   component: GardenScreen,
 })
 const statsRoute = createRoute({

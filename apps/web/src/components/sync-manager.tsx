@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { authStatusQueryKey } from '../auth-client.js'
+import { scheduleInitialSync } from '../initial-sync.js'
 import { practiceStore } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
 import { syncStatusQueryKey } from '../sync-status.js'
@@ -76,11 +77,11 @@ export function SyncManager() {
     const onVisibility = () => {
       if (document.visibilityState === 'visible') flush()
     }
-    const initialFlush = window.setTimeout(flush, 1_500)
+    const cancelInitialFlush = scheduleInitialSync(flush)
     window.addEventListener('online', flush)
     document.addEventListener('visibilitychange', onVisibility)
     return () => {
-      window.clearTimeout(initialFlush)
+      cancelInitialFlush()
       window.removeEventListener('online', flush)
       document.removeEventListener('visibilitychange', onVisibility)
     }

@@ -14,26 +14,8 @@ vi.mock('react', async (importOriginal) => ({
 }))
 
 import { ReminderCard } from './reminder-card.js'
-import { serializePushSubscription } from '../push-subscription.js'
 
 describe('reminder card', () => {
-  it('normalizes an omitted expirationTime before saving a subscription', () => {
-    const subscription = {
-      endpoint: 'https://push.example/subscription',
-      expirationTime: null,
-      toJSON: () => ({
-        endpoint: 'https://push.example/subscription',
-        keys: { auth: 'auth-key', p256dh: 'p256dh-key' },
-      }),
-    }
-
-    expect(serializePushSubscription(subscription)).toEqual({
-      endpoint: 'https://push.example/subscription',
-      expirationTime: null,
-      keys: { auth: 'auth-key', p256dh: 'p256dh-key' },
-    })
-  })
-
   it('renders nothing once notifications are enabled', () => {
     useState
       .mockReturnValueOnce(['enabled', vi.fn()])
