@@ -1921,6 +1921,7 @@ p {
   .nav-brand {
     margin: 0 18px 0 10px;
     display: block;
+    align-self: center;
     color: var(--ink-primary);
     font-size: 1.28rem;
     font-weight: 700;
