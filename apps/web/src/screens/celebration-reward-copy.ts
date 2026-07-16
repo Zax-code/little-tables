@@ -10,7 +10,14 @@ export function celebrationRewardCopy(progress: GardenProgress, locale: Locale =
   if (progress.nextStep === null) return translate(locale, 'celebration.rewardAllBlooming')
 
   const plant = progress.featuredPlant
-  if (plant === null) return translate(locale, 'celebration.rewardAllBlooming')
+  if (plant === null) {
+    const remaining = progress.nextStep.fluentFactsRemaining
+    return remaining > 0
+      ? translate(locale, remaining === 1 ? 'chapter.oneToGo' : 'chapter.manyToGo', {
+          count: remaining,
+        })
+      : translate(locale, 'celebration.rewardAllBlooming')
+  }
 
   const plantName = sentenceCase(translatePlantName(locale, plant.id))
   if (plant.stage === 'mature') {

@@ -11,6 +11,7 @@
   --surface-canvas: #fff8ed;
   --surface-card: #fffdf9;
   --surface-control: rgb(255 253 249 / 80%);
+  --surface-card-muted: rgb(255 253 249 / 55%);
   --surface-soft: #f9e3e8;
   --action-primary: #f28ba2;
   --action-primary-deep: #e96e8b;
@@ -19,6 +20,7 @@
   --ink-muted: #716b67;
   --line-soft: #edcbd2;
   --line-neutral: #e8e0d8;
+  --line-today: rgb(205 93 101 / 20%);
   --surface-track: #eee8df;
   --surface-success: #e8f2e4;
   --surface-try-again: #fae9ec;
@@ -38,8 +40,26 @@
   --garden-bloom-cream: #fffaf0;
   --garden-bloom-pink: #f4a6b5;
   --garden-bloom-soft-pink: #ffd8df;
+  --garden-bloom-gold: #f4bd47;
+  --garden-bloom-indigo: #7775b7;
+  --garden-bloom-lavender: #b99bd1;
+  --garden-bloom-mint: #a9d4b5;
+  --garden-bloom-moon: #e9e8ff;
+  --garden-bloom-peach: #f4ad84;
+  --garden-bloom-rose: #e68da4;
+  --garden-bloom-ruby: #c9485f;
+  --garden-bloom-star: #fff7cf;
+  --garden-bloom-sunset: #ef9147;
+  --garden-bloom-violet: #966caf;
   --garden-center-yellow: #f5c83e;
+  --garden-center-cream: #fff7da;
+  --garden-center-russet: #8b5644;
   --garden-pot-pink: #f2a4aa;
+  --garden-pot-gold: #dfb25e;
+  --garden-pot-indigo: #8f91be;
+  --garden-pot-lilac: #b5a0c5;
+  --garden-pot-mint: #8ebda3;
+  --garden-pot-peach: #dfa079;
   --garden-pot-detail: #cf737f;
   --garden-leaf-light: #6f9853;
   --garden-leaf-deep: #5f8c49;
@@ -638,6 +658,21 @@ p {
   gap: 12px;
   align-items: center;
 }
+.weekly-card {
+  grid-template-columns: 46px minmax(0, 1fr);
+}
+.weekly-card > .sync-copy {
+  grid-column: 2;
+  grid-row: 1;
+  align-self: start;
+  justify-self: end;
+  white-space: nowrap;
+}
+.weekly-card > div {
+  grid-column: 2;
+  grid-row: 1;
+  padding-top: 18px;
+}
 .flower-badge {
   width: 42px;
   height: 42px;
@@ -650,6 +685,41 @@ p {
 }
 .glow-card strong {
   font-size: 0.95rem;
+}
+.weekly-card > div {
+  min-width: 0;
+  display: grid;
+  gap: 4px;
+}
+.weekly-count,
+.weekly-card small {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+.week-day-row {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(12px, 1fr));
+  gap: 5px;
+  margin: 3px 0;
+}
+.week-day {
+  height: 8px;
+  border: 1px solid var(--line-soft);
+  border-radius: 99px;
+  background: var(--surface-track);
+}
+.week-day-practiced {
+  border-color: var(--accent-green);
+  background: var(--accent-green);
+}
+.week-day-today {
+  outline: 2px solid var(--line-today);
+  outline-offset: 2px;
+}
+.week-explainer {
+  margin-top: 1px;
+  font-size: 0.66rem !important;
 }
 .glow-track {
   height: 7px;
@@ -680,6 +750,18 @@ p {
 .today-card {
   margin-top: auto;
   padding: 16px 18px;
+}
+.watering-card p {
+  margin: 8px 0 0;
+  color: var(--ink-primary);
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+.watering-card small {
+  display: block;
+  margin-top: 3px;
+  color: var(--ink-muted);
+  font-size: 0.7rem;
 }
 .install-card {
   margin-top: 12px;
@@ -845,6 +927,10 @@ p {
   line-height: 0.9;
   font-weight: 550;
   letter-spacing: -0.06em;
+  white-space: nowrap;
+}
+.equation-division {
+  font-size: clamp(3.6rem, 17vw, 6.6rem);
 }
 .answer-grid {
   width: 100%;
@@ -1093,6 +1179,113 @@ p {
   background: var(--surface-soft);
   font-weight: 750;
 }
+.feedback-tray:has(.fact-rescue) {
+  max-height: min(84dvh, 720px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.feedback-tray:has(.fact-rescue) > .feedback-bunny {
+  display: none;
+}
+.fact-rescue {
+  padding: 13px;
+  display: grid;
+  gap: 11px;
+  border-radius: 18px;
+  background: var(--surface-soft);
+}
+.fact-rescue header {
+  display: grid;
+  gap: 2px;
+}
+.fact-rescue header span {
+  margin: 0;
+  font-size: 0.7rem;
+}
+.fact-rescue header strong {
+  font-size: 0.95rem;
+}
+.fact-rescue p,
+.division-family-lesson strong {
+  margin: 0;
+  font-size: 0.78rem;
+  line-height: 1.45;
+}
+.rescue-array {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(100px, 0.85fr);
+  gap: 12px;
+  align-items: center;
+}
+.rescue-array-dots {
+  width: fit-content;
+  max-width: 190px;
+  display: grid;
+  gap: clamp(2px, 0.8vw, 4px);
+}
+.rescue-array-dots i {
+  width: clamp(3px, 1.45vw, 7px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--action-primary);
+}
+.fact-rescue-actions,
+.guided-recall form {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.fact-rescue-actions button,
+.guided-recall button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--surface-card);
+  font-weight: 750;
+}
+.guided-recall {
+  padding: 13px;
+  display: grid;
+  gap: 8px;
+  border-radius: 18px;
+  background: var(--surface-soft);
+}
+.guided-equation {
+  margin: 0 !important;
+  color: var(--ink-primary) !important;
+  font-size: 1.2rem;
+  font-weight: 750;
+}
+.guided-recall input {
+  width: 92px;
+  min-height: 48px;
+  padding: 0 10px;
+  border: 1.5px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--surface-card);
+  font: inherit;
+  font-size: 1.3rem;
+  font-weight: 750;
+  text-align: center;
+}
+.guided-recall-hint {
+  width: 100%;
+  margin: 0 !important;
+  font-size: 0.72rem;
+}
+.guided-recall-success {
+  display: grid;
+  gap: 2px;
+}
+.guided-recall-success span {
+  margin: 0;
+  font-size: 0.72rem;
+}
+.division-family-lesson {
+  display: grid;
+  gap: 7px;
+}
 .fact-array {
   max-height: 180px;
   display: grid;
@@ -1268,6 +1461,25 @@ p {
   gap: 8px;
   text-align: center;
 }
+.learning-summary {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 360px);
+  margin: 2px 0 14px;
+  padding: 14px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  background: var(--surface-control);
+}
+.learning-summary strong {
+  font-size: 0.9rem;
+}
+.learning-summary p {
+  margin: 5px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
 .reward-chip {
   position: relative;
   z-index: 2;
@@ -1390,17 +1602,78 @@ p {
   font-size: 1.3rem;
   font-weight: 620;
 }
+.garden-ambient-moment {
+  max-width: 340px;
+  margin: 10px auto 0;
+  display: flex;
+  justify-content: center;
+  gap: 7px;
+  color: var(--ink-muted);
+  font-size: 0.88rem;
+  line-height: 1.4;
+}
+.garden-ambient-moment span {
+  color: var(--accent-yellow);
+}
+.garden-collection-link,
+.collection-back-link {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  color: var(--action-primary-deep);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
+.garden-collection-link {
+  margin-top: 3px;
+  font-size: 0.86rem;
+}
 .garden-plot {
   position: relative;
-  height: clamp(370px, 52dvh, 430px);
-  min-height: 370px;
+  height: clamp(434px, 60dvh, 486px);
+  min-height: 434px;
   flex: 0 0 auto;
   overflow: visible;
   border-radius: 30px;
 }
+.garden-plot__chapter-heading {
+  height: 58px;
+  padding: 4px 8px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  text-align: left;
+}
+.garden-plot__chapter-heading div {
+  display: grid;
+  gap: 2px;
+}
+.garden-plot__chapter-heading span {
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+.garden-plot__chapter-heading strong {
+  font-size: 1rem;
+}
+.garden-plot__chapter-heading p {
+  margin: 0;
+  padding: 6px 10px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--surface-garden);
+  color: var(--action-primary-deep);
+  font-size: 0.74rem;
+  font-weight: 750;
+}
 .garden-plot__canvas {
   position: absolute;
-  inset: 0;
+  inset: 58px 0 0;
   overflow: visible;
   border: 1px solid var(--line-garden);
   border-radius: inherit;
@@ -1777,10 +2050,177 @@ p {
   margin: 3px 0 0;
   font-size: 0.82rem;
 }
+.garden-mastery-milestone {
+  margin-top: 5px;
+  display: block;
+  color: var(--accent-green);
+  font-size: 0.74rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
 .tomorrow-card .tomorrow-chevron {
   color: var(--ink-primary);
   font-size: 2rem;
   font-weight: 400;
+}
+
+.collection-screen {
+  min-height: calc(100dvh - 96px - env(safe-area-inset-bottom));
+  padding: max(18px, env(safe-area-inset-top)) 20px 24px;
+  background: var(--surface-canvas);
+}
+.collection-heading {
+  max-width: 660px;
+  margin: 0 auto 24px;
+  text-align: center;
+}
+.collection-back-link {
+  width: fit-content;
+  margin: 0 auto 8px;
+}
+.collection-heading .eyebrow {
+  margin-bottom: 5px;
+}
+.collection-heading .eyebrow + h1 {
+  margin-top: 0;
+}
+.collection-heading > p:not(.eyebrow) {
+  max-width: 480px;
+  margin: 10px auto;
+  line-height: 1.5;
+}
+.collection-heading > strong {
+  display: inline-block;
+  color: var(--action-primary-deep);
+  font-size: 0.9rem;
+}
+.collection-empty {
+  max-width: 420px;
+  margin: 0 auto 18px;
+  padding: 12px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  text-align: center;
+  font-size: 0.86rem;
+}
+.collection-chapters {
+  max-width: 920px;
+  margin: 0 auto;
+  display: grid;
+  gap: 20px;
+}
+.collection-chapter {
+  padding: 16px;
+  border: 1px solid var(--line-garden);
+  border-radius: 26px;
+  background: var(--surface-garden);
+  box-shadow: var(--shadow-soft);
+}
+.collection-chapter > header {
+  min-height: 44px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.collection-chapter > header p,
+.collection-chapter > header h2 {
+  margin: 0;
+}
+.collection-chapter > header p {
+  color: var(--ink-muted);
+  font-size: 0.68rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.collection-chapter > header h2 {
+  margin-top: 2px;
+  font-size: 1.18rem;
+}
+.collection-chapter > header > span {
+  padding: 6px 9px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  background: var(--surface-card);
+  color: var(--action-primary-deep);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+.collection-grid {
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  list-style: none;
+}
+.collection-plant {
+  min-width: 0;
+  min-height: 166px;
+  padding: 10px 8px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  border: 1px solid var(--line-soft);
+  border-radius: 19px;
+  background: var(--surface-control);
+  text-align: center;
+}
+.collection-plant--locked {
+  background: var(--surface-card-muted);
+}
+.collection-plant__portrait {
+  width: 92px;
+  height: 104px;
+  overflow: visible;
+}
+.collection-plant__stem,
+.collection-plant__leaf,
+.collection-plant__pot,
+.collection-plant__locked-outline {
+  stroke: var(--ink-primary);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2.5;
+}
+.collection-plant__stem {
+  fill: none;
+}
+.collection-plant__leaf {
+  fill: var(--garden-leaf-light);
+}
+.collection-plant__locked-outline {
+  fill: var(--garden-lock-surface);
+  fill-opacity: 0.5;
+  stroke: var(--garden-lock-line);
+  stroke-dasharray: 5 5;
+}
+.collection-plant__lock rect {
+  fill: var(--garden-lock-ink);
+}
+.collection-plant__lock path {
+  fill: none;
+  stroke: var(--garden-lock-ink);
+  stroke-linecap: round;
+  stroke-width: 4;
+}
+.collection-plant > strong {
+  min-height: 2.25em;
+  max-width: 100%;
+  display: grid;
+  align-items: center;
+  font-size: 0.82rem;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
+}
+.collection-plant > span {
+  margin-top: 3px;
+  color: var(--ink-muted);
+  font-size: 0.68rem;
+  font-weight: 650;
 }
 
 .stats-screen header {
@@ -1832,6 +2272,127 @@ p {
 .stat-grid span {
   color: var(--ink-muted);
   font-size: 0.82rem;
+}
+.table-progress-section,
+.curriculum-section {
+  margin-top: 28px;
+}
+.table-progress-section > header,
+.curriculum-section > header {
+  margin-bottom: 14px;
+  text-align: left;
+}
+.table-progress-section h2,
+.curriculum-section h2 {
+  margin: 0;
+  font-size: 1.65rem;
+}
+.table-progress-list {
+  display: grid;
+  gap: 12px;
+}
+.table-progress-card {
+  padding: 15px;
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  background: var(--surface-control);
+}
+.table-progress-card header {
+  margin: 0 0 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: left;
+}
+.table-progress-card header span {
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+}
+.table-progress-track {
+  height: 10px;
+  display: flex;
+  overflow: hidden;
+  border-radius: 99px;
+  background: var(--surface-track);
+}
+.table-progress-track i {
+  min-width: 0;
+}
+.table-progress-rooted {
+  background: var(--accent-green);
+}
+.table-progress-growing {
+  background: var(--action-primary);
+}
+.table-progress-new {
+  background: var(--surface-track);
+}
+.table-progress-card p {
+  margin: 8px 0;
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+  line-height: 1.4;
+}
+.table-progress-card button,
+.curriculum-card button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  color: var(--action-primary-deep);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+.curriculum-section {
+  display: grid;
+  gap: 12px;
+}
+.curriculum-section > header {
+  margin-bottom: 2px;
+}
+.curriculum-card {
+  padding: 16px;
+  display: grid;
+  gap: 13px;
+  border: 1px solid var(--line-soft);
+  border-radius: 24px;
+  background: var(--surface-card);
+}
+.curriculum-card > div:first-child {
+  display: flex;
+  gap: 13px;
+  align-items: flex-start;
+}
+.curriculum-card p {
+  margin: 5px 0 0;
+  color: var(--ink-muted);
+  font-size: 0.76rem;
+  line-height: 1.45;
+}
+.curriculum-card small {
+  color: var(--ink-muted);
+  font-size: 0.72rem;
+  line-height: 1.4;
+}
+.curriculum-card.is-locked {
+  background: var(--surface-soft);
+}
+.curriculum-symbol {
+  min-width: 48px;
+  height: 48px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--surface-track);
+  color: var(--action-primary-deep);
+  font-size: 1rem;
+  font-weight: 800;
+}
+.curriculum-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 .progress-note {
   margin-top: 16px;
@@ -1911,11 +2472,14 @@ p {
   .celebration-sprite {
     order: 2;
   }
-  .reward-summary {
+  .learning-summary {
     order: 3;
   }
-  .celebration-actions {
+  .reward-summary {
     order: 4;
+  }
+  .celebration-actions {
+    order: 5;
   }
 }
 
@@ -2129,7 +2693,7 @@ p {
   }
   .home-dashboard > .glow-card,
   .home-dashboard > .today-card {
-    min-height: 116px;
+    min-height: 154px;
   }
   .home-dashboard > .owner-access-link {
     grid-column: 1 / -1;
@@ -2145,6 +2709,13 @@ p {
     padding: 0 clamp(36px, 5vw, 72px);
     text-align: left;
   }
+  .garden-ambient-moment {
+    margin-inline: 0;
+    justify-content: flex-start;
+  }
+  .garden-collection-link {
+    justify-content: flex-start;
+  }
   .garden-heading h1 {
     font-size: clamp(2.4rem, 4vw, 3.45rem);
   }
@@ -2157,8 +2728,8 @@ p {
     padding: 0 clamp(36px, 5vw, 72px);
   }
   .garden-plot {
-    height: 390px;
-    min-height: 390px;
+    height: 448px;
+    min-height: 448px;
   }
   .garden-plot__grid {
     --garden-row-height: 244px;
@@ -2185,6 +2756,20 @@ p {
     margin: 20px auto 0;
   }
 
+  .collection-screen {
+    padding: 0 clamp(36px, 5vw, 72px) 40px;
+  }
+  .collection-heading {
+    margin-bottom: 30px;
+  }
+  .collection-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+  .collection-chapter {
+    padding: 20px;
+  }
+
   .stats-screen {
     width: min(100%, 980px);
     margin: 0 auto;
@@ -2207,6 +2792,26 @@ p {
   }
   .stat-grid {
     margin-top: 0;
+  }
+  .table-progress-section,
+  .curriculum-section {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+  }
+  .table-progress-section > header,
+  .curriculum-section > header,
+  .table-progress-card header {
+    grid-column: auto;
+    margin-bottom: 12px;
+  }
+  .table-progress-list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .curriculum-section {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .curriculum-section > header {
+    grid-column: 1 / -1;
   }
   .progress-note {
     grid-column: 1 / -1;

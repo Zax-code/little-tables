@@ -1,21 +1,17 @@
 import { LearningEngine } from '@little-tables/domain'
-import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate } from '@tanstack/react-router'
+import { Link } from '@tanstack/react-router'
 
 import { GardenPlot } from '../components/garden-plot.js'
-import { useFlowerTransition } from '../flower-transition.js'
+import { dailyGardenMoment } from '../daily-garden-moment.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
-import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
-import { localBootstrapQueryKey, practiceStore } from '../store.js'
+import { usePracticeLauncher } from '../hooks/use-practice-launcher.js'
 import { translatePlantName, useI18n } from '../i18n.js'
 
 export function GardenScreen() {
   const { locale, t } = useI18n()
   const bootstrap = useLocalBootstrap()
-  const navigate = useNavigate()
-  const transition = useFlowerTransition()
-  const queryClient = useQueryClient()
   const data = bootstrap.data
+  const launcher = usePracticeLauncher(data)
   const previewValue = import.meta.env.DEV
     ? new URLSearchParams(window.location.search).get('blooms')
     : null
@@ -23,10 +19,13 @@ export function GardenScreen() {
   const progress = LearningEngine.deriveGardenProgress({
     completedSessions: Number.isFinite(previewNumber)
       ? previewNumber
-      : (data?.completedSessions ?? 0),
+      : (data?.gardenBloomCount ?? data?.completedSessions ?? 0),
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
   })
   const bloomCount = progress.bloomCount
+  const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  const dayKey = LearningEngine.learningDayKey({ at: new Date(), timeZone })
+  const ambientMoment = dailyGardenMoment({ bloomCount, dayKey })
   const nextStep = progress.nextStep
   const nextPlant = nextStep === null ? '' : translatePlantName(locale, nextStep.plant.id)
   const nextTitle =
@@ -38,48 +37,58 @@ export function GardenScreen() {
           ? t('garden.nextBloom', { plant: nextPlant })
           : t('garden.nextGrow', { plant: nextPlant })
   const bloomWord = t(nextStep?.bloomsRemaining === 1 ? 'common.bloom' : 'common.blooms')
+  const masteryCopy =
+    nextStep === null || nextStep.fluentFactsRemaining === 0
+      ? ''
+      : t(nextStep.fluentFactsRemaining === 1 ? 'chapter.oneToGo' : 'chapter.manyToGo', {
+          count: nextStep.fluentFactsRemaining,
+        })
   const nextCopy =
     nextStep === null
       ? t('garden.allBlooming')
-      : nextStep.unlocksPot
-        ? t('garden.nextUnlockCopy', {
-            bloom: bloomWord,
-            count: nextStep.bloomsRemaining,
-            plant: nextPlant,
-          })
-        : nextStep.targetStage === 'mature'
-          ? t('garden.nextFinishes', {
+      : nextStep.blockedByMastery
+        ? masteryCopy
+        : nextStep.unlocksPot
+          ? t('garden.nextUnlockCopy', {
               bloom: bloomWord,
               count: nextStep.bloomsRemaining,
+              plant: nextPlant,
             })
-          : t('garden.nextStarts', {
-              bloom: bloomWord,
-              count: nextStep.bloomsRemaining,
-            })
+          : nextStep.targetStage === 'mature'
+            ? t('garden.nextFinishes', {
+                bloom: bloomWord,
+                count: nextStep.bloomsRemaining,
+              })
+            : t('garden.nextStarts', {
+                bloom: bloomWord,
+                count: nextStep.bloomsRemaining,
+              })
+  const activeSession = data?.activeSession ?? null
+  const dailyWateringDone = data?.rewardedDayKeys.includes(dayKey) === true
+  const actionTitle =
+    activeSession === null
+      ? dailyWateringDone
+        ? t('watering.extra')
+        : nextTitle
+      : t(activeSession.kind === 'daily-watering' ? 'watering.resume' : 'home.resume')
+  const actionCopy =
+    activeSession === null
+      ? dailyWateringDone
+        ? t('garden.extraCopy')
+        : nextCopy
+      : t('garden.resumeCopy')
+  const actionAdvancesGarden = activeSession === null && !dailyWateringDone
 
   const practice = async () => {
     if (data?.activeSession !== null && data?.activeSession !== undefined) {
-      await resumePracticeSession({
-        navigate: () => navigate({ to: '/practice' }),
-        transition,
-      })
+      await launcher.resume()
       return
     }
-
-    const snapshot = data?.snapshot ?? LearningEngine.emptySnapshot()
-    const firstVisit = snapshot.processedEventIds.length === 0
-    const session = LearningEngine.createSession({
-      now: new Date(),
-      policy: { questionCount: firstVisit ? 8 : 10 },
-      seed: crypto.getRandomValues(new Uint32Array(1))[0] ?? Date.now(),
-      snapshot,
-    })
-    await launchPracticeSession({
-      invalidate: () => queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey }),
-      navigate: () => navigate({ to: '/practice' }),
-      persist: () => practiceStore.startSession(session, snapshot),
-      transition,
-    })
+    if (dailyWateringDone) {
+      await launcher.startQuick()
+      return
+    }
+    await launcher.startDaily()
   }
 
   return (
@@ -92,11 +101,19 @@ export function GardenScreen() {
             count: bloomCount,
           })}
         </p>
+        <p className="garden-ambient-moment">
+          <span aria-hidden="true">✦</span>
+          {t(`ambient.${ambientMoment}`)}
+        </p>
+        <Link className="garden-collection-link" to="/garden/collection">
+          <span aria-hidden="true">▤</span>
+          {t('collection.open')}
+        </Link>
       </header>
       <div className="garden-ground-region">
         <GardenPlot progress={progress} />
         <button
-          aria-label={t('garden.ariaPractice', { title: nextTitle })}
+          aria-label={t('garden.ariaPractice', { title: actionTitle })}
           className="tomorrow-card"
           disabled={bootstrap.isLoading}
           onClick={() => void practice()}
@@ -106,8 +123,14 @@ export function GardenScreen() {
             ♧
           </span>
           <div>
-            <strong>{nextTitle}</strong>
-            <p>{nextCopy}</p>
+            <strong>{actionTitle}</strong>
+            <p>{actionCopy}</p>
+            {nextStep !== null &&
+            nextStep.fluentFactsRemaining > 0 &&
+            !nextStep.blockedByMastery &&
+            actionAdvancesGarden ? (
+              <small className="garden-mastery-milestone">{masteryCopy}</small>
+            ) : null}
           </div>
           <span aria-hidden="true" className="tomorrow-chevron">
             ›

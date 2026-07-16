@@ -496,34 +496,28 @@ describe('LearningEngine', () => {
         snapshot: LearningEngine.emptySnapshot(),
       })
 
-    expect(stagesAt(0).plants.map(({ stage }) => stage)).toEqual([
-      'dormant',
-      'dormant',
-      'dormant',
-      'dormant',
-      'dormant',
-      'locked',
-    ])
+    expect(
+      stagesAt(0)
+        .plants.slice(0, 6)
+        .map(({ stage }) => stage),
+    ).toEqual(['dormant', 'dormant', 'dormant', 'dormant', 'dormant', 'locked'])
     expect(stagesAt(1).featuredPlant?.name).toBe('coral tulip')
     expect(stagesAt(2).plants[0]?.stage).toBe('mature')
-    expect(stagesAt(12).plants.map(({ stage }) => stage)).toEqual([
-      'mature',
-      'mature',
-      'mature',
-      'mature',
-      'mature',
-      'locked',
-    ])
+    expect(
+      stagesAt(12)
+        .plants.slice(0, 6)
+        .map(({ stage }) => stage),
+    ).toEqual(['mature', 'mature', 'mature', 'mature', 'mature', 'locked'])
     expect(stagesAt(12).featuredPlant?.name).toBe('blush tulip')
-    expect(stagesAt(13).plants[5]?.stage).toBe('growing')
-    expect(stagesAt(15).plants[5]?.stage).toBe('mature')
+    expect(stagesAt(13).plants[5]?.stage).toBe('locked')
+    expect(stagesAt(15).plants[5]?.stage).toBe('locked')
   })
 
   it.each([
     [0, 'coral-tulip', 1, 1, 'growing', false],
     [1, 'coral-tulip', 2, 1, 'mature', false],
     [12, 'celebration-daisy', 13, 1, 'growing', true],
-    [13, 'celebration-daisy', 15, 2, 'mature', false],
+    [13, 'celebration-daisy', 13, 0, 'growing', true],
   ] as const)(
     'derives the next garden milestone after %i blooms',
     (completedSessions, plantId, targetAt, bloomsRemaining, targetStage, unlocksPot) => {
@@ -542,10 +536,28 @@ describe('LearningEngine', () => {
     },
   )
 
-  it.each([15, 16, 100])('has no next garden milestone after %i blooms', (completedSessions) => {
+  it.each([45, 46, 100])('has no next garden milestone after %i blooms', (completedSessions) => {
+    const fluentFact: FactMastery = {
+      correctCount: 5,
+      correctStreak: 5,
+      difficulty: 0.3,
+      dueAt: null,
+      lapseCount: 0,
+      lastReviewedAt: null,
+      latencyMs: 1_200,
+      recallDayKeys: ['2026-07-11', '2026-07-12'],
+      stabilityDays: 5,
+      state: 'fluent',
+      successfulDayKeys: ['2026-07-10', '2026-07-11', '2026-07-12'],
+    }
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions,
-      snapshot: LearningEngine.emptySnapshot(),
+      snapshot: {
+        ...LearningEngine.emptySnapshot(),
+        facts: Object.fromEntries(
+          Array.from({ length: 30 }, (_, index) => [`fact-${index}`, fluentFact]),
+        ),
+      },
     })
 
     expect(progress.nextStep).toBeNull()

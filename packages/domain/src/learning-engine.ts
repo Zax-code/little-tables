@@ -1,4 +1,5 @@
 export type MasteryState = 'unseen' | 'learning' | 'familiar' | 'fluent'
+export type QuestionOperation = 'divide' | 'multiply'
 
 export type FactMastery = Readonly<{
   correctCount: number
@@ -6,6 +7,7 @@ export type FactMastery = Readonly<{
   difficulty: number
   dueAt: Date | null
   lastReviewedAt: Date | null
+  lastReviewedDayKey?: string | undefined
   lapseCount: number
   latencyMs: number | null
   recallDayKeys: ReadonlyArray<string>
@@ -26,6 +28,7 @@ export type PracticeQuestion = Readonly<{
   factKey: string
   id: string
   left: number
+  operation: QuestionOperation
   right: number
 }>
 
@@ -34,8 +37,59 @@ export type PracticeSession = Readonly<{
   currentQuestionStartedAt: Date
   currentIndex: number
   id: string
+  kind: 'daily-watering' | 'extra-practice'
   questions: ReadonlyArray<PracticeQuestion>
   seed: number
+  timeZone: string
+}>
+
+export type ComebackKind = 'long' | 'none' | 'short'
+
+export type PracticeRhythm = Readonly<{
+  comeback: ComebackKind
+  dailyWateringDone: boolean
+  petalCount: number
+  totalRewardedDays: number
+  visitsUntilBloomingWeek: number
+  week: ReadonlyArray<Readonly<{ dayKey: string; practiced: boolean; today: boolean }>>
+  weeklyPracticeDays: number
+}>
+
+type DerivePracticeRhythmInput = Readonly<{
+  activeSession: Readonly<{
+    currentIndex: number
+    kind: PracticeSession['kind']
+    questionCount: number
+  }> | null
+  practiceDayKeys: ReadonlyArray<string>
+  rewardedDayKeys: ReadonlyArray<string>
+  todayKey: string
+}>
+
+export type GardenRewardLedger = Readonly<{
+  gardenBloomCount: number
+  gardenBloomsEarned: number
+  rewardedDayKeys: ReadonlyArray<string>
+}>
+
+type DeriveGardenRewardLedgerInput = Readonly<{
+  completions: ReadonlyArray<
+    Readonly<{
+      learningDayKey: string
+      sessionKind?: PracticeSession['kind'] | undefined
+    }>
+  >
+  gardenBloomCount?: number | undefined
+  rewardedDayKeys?: ReadonlyArray<string> | undefined
+}>
+
+type MergeGardenRewardLedgersInput = Readonly<{
+  ledgers: ReadonlyArray<
+    Readonly<{
+      gardenBloomCount: number
+      rewardedDayKeys: ReadonlyArray<string>
+    }>
+  >
 }>
 
 export type AttemptEvent = Readonly<{
@@ -46,12 +100,15 @@ export type AttemptEvent = Readonly<{
   eventId: string
   factKey: string
   latencyMs: number
+  learningDayKey?: string | undefined
   left: number
+  operation?: QuestionOperation | undefined
   right: number
   questionCount: number
   selected: number
   sequence: number
   sessionId: string
+  sessionKind?: PracticeSession['kind'] | undefined
 }>
 
 export type AnswerResult = Readonly<{
@@ -67,84 +124,251 @@ type AnswerInput = Readonly<{
   session: PracticeSession
 }>
 
+export type CurriculumPack = 'bonus-11-12' | 'core' | 'inverse-division'
+
+export type CurriculumPolicy = Readonly<{
+  packs?: ReadonlyArray<CurriculumPack>
+}>
+
+export type PracticePolicy =
+  | Readonly<{
+      curriculum?: CurriculumPolicy
+      focusTable?: number
+      kind?: 'extra-practice'
+      questionCount: number
+    }>
+  | Readonly<{
+      curriculum?: CurriculumPolicy
+      kind: 'daily-watering'
+    }>
+
 type CreateSessionInput = Readonly<{
   now: Date
-  policy: Readonly<{ focusTable?: number; questionCount: number }>
+  policy: PracticePolicy
   seed: number
   snapshot: LearningSnapshot
+  timeZone?: string
 }>
 
 type ReduceAttemptsInput = Readonly<{
   attempts: ReadonlyArray<AttemptEvent>
   snapshot: LearningSnapshot
+  timeZone?: string
 }>
 
 export type GardenReward = Readonly<{
   id: string
-  kind: 'flower' | 'pot' | 'sparkle'
+  kind: 'background' | 'flower' | 'pot' | 'sparkle'
   label: string
 }>
 
 export type GardenPlantStage = 'dormant' | 'growing' | 'locked' | 'mature'
+export type GardenChapterStage = 'complete' | 'growing' | 'locked'
 
 type GardenPlantMilestone = Readonly<{
   id: string
   lockedUntilStart: boolean
+  masteryRequired: number
   matureAt: number
   name: string
   startAt: number
 }>
 
-export const gardenPlantMilestones = [
+type GardenChapterMilestone = Readonly<{
+  id: string
+  matureAt: number
+  name: string
+  plants: ReadonlyArray<GardenPlantMilestone>
+  startAt: number
+}>
+
+const gardenChapterMilestones = [
   {
-    id: 'coral-tulip',
-    lockedUntilStart: false,
-    matureAt: 2,
-    name: 'coral tulip',
+    id: 'sunny-meadow',
+    matureAt: 15,
+    name: 'sunny meadow',
+    plants: [
+      {
+        id: 'coral-tulip',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 2,
+        name: 'coral tulip',
+        startAt: 1,
+      },
+      {
+        id: 'sunny-daisy',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 4,
+        name: 'sunny daisy',
+        startAt: 3,
+      },
+      {
+        id: 'red-tulip',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 7,
+        name: 'red tulip',
+        startAt: 5,
+      },
+      {
+        id: 'cloud-daisy',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 10,
+        name: 'cloud daisy',
+        startAt: 8,
+      },
+      {
+        id: 'blush-tulip',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 12,
+        name: 'blush tulip',
+        startAt: 11,
+      },
+      {
+        id: 'celebration-daisy',
+        lockedUntilStart: true,
+        masteryRequired: 5,
+        matureAt: 15,
+        name: 'celebration daisy',
+        startAt: 13,
+      },
+    ],
     startAt: 1,
   },
   {
-    id: 'sunny-daisy',
-    lockedUntilStart: false,
-    matureAt: 4,
-    name: 'sunny daisy',
-    startAt: 3,
+    id: 'secret-greenhouse',
+    matureAt: 30,
+    name: 'secret greenhouse',
+    plants: [
+      {
+        id: 'lavender-sprig',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 17,
+        name: 'lavender sprig',
+        startAt: 16,
+      },
+      {
+        id: 'golden-marigold',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 19,
+        name: 'golden marigold',
+        startAt: 18,
+      },
+      {
+        id: 'violet-pansy',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 22,
+        name: 'violet pansy',
+        startAt: 20,
+      },
+      {
+        id: 'white-cosmos',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 25,
+        name: 'white cosmos',
+        startAt: 23,
+      },
+      {
+        id: 'ruby-poppy',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 27,
+        name: 'ruby poppy',
+        startAt: 26,
+      },
+      {
+        id: 'moonflower',
+        lockedUntilStart: true,
+        masteryRequired: 15,
+        matureAt: 30,
+        name: 'moonflower',
+        startAt: 28,
+      },
+    ],
+    startAt: 16,
   },
   {
-    id: 'red-tulip',
-    lockedUntilStart: false,
-    matureAt: 7,
-    name: 'red tulip',
-    startAt: 5,
+    id: 'starlit-garden',
+    matureAt: 45,
+    name: 'starlit garden',
+    plants: [
+      {
+        id: 'mint-hydrangea',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 32,
+        name: 'mint hydrangea',
+        startAt: 31,
+      },
+      {
+        id: 'peach-dahlia',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 34,
+        name: 'peach dahlia',
+        startAt: 33,
+      },
+      {
+        id: 'star-jasmine',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 37,
+        name: 'star jasmine',
+        startAt: 35,
+      },
+      {
+        id: 'indigo-iris',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 40,
+        name: 'indigo iris',
+        startAt: 38,
+      },
+      {
+        id: 'rose-camellia',
+        lockedUntilStart: false,
+        masteryRequired: 0,
+        matureAt: 42,
+        name: 'rose camellia',
+        startAt: 41,
+      },
+      {
+        id: 'sunset-sunflower',
+        lockedUntilStart: true,
+        masteryRequired: 30,
+        matureAt: 45,
+        name: 'sunset sunflower',
+        startAt: 43,
+      },
+    ],
+    startAt: 31,
   },
-  {
-    id: 'cloud-daisy',
-    lockedUntilStart: false,
-    matureAt: 10,
-    name: 'cloud daisy',
-    startAt: 8,
-  },
-  {
-    id: 'blush-tulip',
-    lockedUntilStart: false,
-    matureAt: 12,
-    name: 'blush tulip',
-    startAt: 11,
-  },
-  {
-    id: 'celebration-daisy',
-    lockedUntilStart: true,
-    matureAt: 15,
-    name: 'celebration daisy',
-    startAt: 13,
-  },
-] as const satisfies ReadonlyArray<GardenPlantMilestone>
+] as const satisfies ReadonlyArray<GardenChapterMilestone>
 
-export type GardenPlantId = (typeof gardenPlantMilestones)[number]['id']
+export type GardenChapterId = (typeof gardenChapterMilestones)[number]['id']
+export type GardenPlantId = (typeof gardenChapterMilestones)[number]['plants'][number]['id']
+
+const gardenPlantMilestones: ReadonlyArray<
+  GardenPlantMilestone & Readonly<{ chapterId: GardenChapterId; id: GardenPlantId }>
+> = gardenChapterMilestones.flatMap((chapter) =>
+  chapter.plants.map((plant) => ({ ...plant, chapterId: chapter.id })),
+)
 
 export type GardenPlantProgress = Readonly<{
+  chapterId: GardenChapterId
+  collected: boolean
   id: GardenPlantId
   lockedUntilStart: boolean
+  masteryRemaining: number
+  masteryRequired: number
   matureAt: number
   name: string
   stage: GardenPlantStage
@@ -152,15 +376,37 @@ export type GardenPlantProgress = Readonly<{
 }>
 
 export type GardenNextStep = Readonly<{
+  blockedByMastery: boolean
   bloomsRemaining: number
+  fluentFactsRemaining: number
   plant: GardenPlantProgress
+  practiceDaysRemaining: number
   targetAt: number
   targetStage: 'growing' | 'mature'
   unlocksPot: boolean
 }>
 
+export type GardenChapterProgress = Readonly<{
+  collectedCount: number
+  id: GardenChapterId
+  matureAt: number
+  name: string
+  plants: ReadonlyArray<GardenPlantProgress>
+  stage: GardenChapterStage
+  startAt: number
+  totalCount: number
+}>
+
+export type GardenCollectionProgress = Readonly<{
+  collectedCount: number
+  complete: boolean
+  totalCount: number
+}>
+
 export type GardenProgress = Readonly<{
   bloomCount: number
+  chapters: ReadonlyArray<GardenChapterProgress>
+  collection: GardenCollectionProgress
   featuredPlant: GardenPlantProgress | null
   nextStep: GardenNextStep | null
   plants: ReadonlyArray<GardenPlantProgress>
@@ -169,6 +415,89 @@ export type GardenProgress = Readonly<{
 
 type DeriveRewardsInput = Readonly<{
   completedSessions: number
+  snapshot: LearningSnapshot
+}>
+
+export type FactProgressCounts = Readonly<{
+  familiar: number
+  fluent: number
+  growing: number
+  total: number
+  unseen: number
+}>
+
+export type TableLearningProgress = Readonly<{
+  facts: FactProgressCounts
+  table: number
+}>
+
+export type CurriculumPackUnlock = Readonly<{
+  current: number
+  reason: 'core-not-stable' | 'no-fluent-family' | null
+  required: number
+  unlocked: boolean
+}>
+
+export type CurriculumPackProgress = Readonly<{
+  bonus1112: CurriculumPackUnlock
+  core: CurriculumPackUnlock
+  inverseDivision: CurriculumPackUnlock
+}>
+
+export type LearningProgress = Readonly<{
+  divisionFacts: FactProgressCounts
+  facts: FactProgressCounts
+  packs: CurriculumPackProgress
+  tables: ReadonlyArray<TableLearningProgress>
+}>
+
+type DeriveLearningProgressInput = Readonly<{
+  curriculum?: CurriculumPolicy
+  snapshot: LearningSnapshot
+}>
+
+export type SessionInsight = Readonly<{
+  count: number
+  factKeys: ReadonlyArray<string>
+  kind:
+    | 'facts-became-familiar'
+    | 'facts-became-fluent'
+    | 'facts-practised'
+    | 'keypad-recalls'
+    | 'mistakes-recovered'
+}>
+
+type DeriveSessionInsightInput = Readonly<{
+  attempts: ReadonlyArray<AttemptEvent>
+  snapshot: LearningSnapshot
+  timeZone?: string
+}>
+
+export type RescueStrategy =
+  | Readonly<{
+      columns: number
+      kind: 'array'
+      rows: number
+      total: number
+    }>
+  | Readonly<{
+      kind: 'commutative-flip'
+      left: number
+      right: number
+      total: number
+    }>
+  | Readonly<{
+      adjustment: Readonly<{ factKey: string; factor: number; product: number }>
+      anchor: Readonly<{ factKey: string; factor: number; product: number }>
+      commonFactor: number
+      kind: 'known-fact-bridge'
+      operator: 'add' | 'subtract'
+      targetFactor: number
+      total: number
+    }>
+
+type DeriveRescueStrategiesInput = Readonly<{
+  question: PracticeQuestion
   snapshot: LearningSnapshot
 }>
 
@@ -187,7 +516,7 @@ const INITIAL_FACTS: ReadonlyArray<readonly [number, number]> = [
   [2, 4],
 ]
 
-const ALL_FACTS: ReadonlyArray<readonly [number, number]> = [
+const CORE_FACTS: ReadonlyArray<readonly [number, number]> = [
   ...INITIAL_FACTS,
   ...Array.from({ length: 10 }, (_, leftIndex) =>
     Array.from(
@@ -201,10 +530,60 @@ const ALL_FACTS: ReadonlyArray<readonly [number, number]> = [
     index,
 )
 
+const BONUS_FACTS: ReadonlyArray<readonly [number, number]> = [
+  ...Array.from({ length: 11 }, (_, index) => [index + 1, 11] as const),
+  ...Array.from({ length: 12 }, (_, index) => [index + 1, 12] as const),
+]
+
 const canonicalFactKey = (left: number, right: number): string =>
   `${Math.min(left, right)}:${Math.max(left, right)}`
 
+type QuestionOperands = Readonly<{
+  left: number
+  operation?: QuestionOperation
+  right: number
+}>
+
+type CurriculumFact = Readonly<{
+  factKey: string
+  left: number
+  operation: QuestionOperation
+  right: number
+  tables: ReadonlyArray<number>
+}>
+
+const correctAnswer = ({ left, operation = 'multiply', right }: QuestionOperands): number => {
+  if (operation === 'multiply') return left * right
+  if (right === 0 || !Number.isInteger(left / right)) {
+    throw new RangeError('Division questions require a non-zero divisor and an integer answer')
+  }
+  return left / right
+}
+
+const factKey = ({ left, operation = 'multiply', right }: QuestionOperands): string =>
+  operation === 'multiply' ? canonicalFactKey(left, right) : `divide:${left}:${right}`
+
+const divisionCurriculumFor = (snapshot: LearningSnapshot): ReadonlyArray<CurriculumFact> =>
+  Object.entries(snapshot.facts)
+    .sort(([first], [second]) => first.localeCompare(second))
+    .flatMap(([multiplicationKey, mastery]): ReadonlyArray<CurriculumFact> => {
+      const match = /^(\d+):(\d+)$/.exec(multiplicationKey)
+      if (match === null || mastery.state !== 'fluent') return []
+      const first = Number(match[1])
+      const second = Number(match[2])
+      const product = first * second
+      return [...new Set([first, second])].map((divisor) => ({
+        factKey: factKey({ left: product, operation: 'divide', right: divisor }),
+        left: product,
+        operation: 'divide',
+        right: divisor,
+        tables: first === second ? [first] : [first, second],
+      }))
+    })
+
 const WEAK_FACT_DIFFICULTY = 0.53
+const CHOICE_RECALL_STABILITY_FACTOR = 1.5
+const KEYPAD_RECALL_STABILITY_FACTOR = 2
 
 const makeRandom = (initialSeed: number): (() => number) => {
   let state = initialSeed >>> 0
@@ -226,19 +605,23 @@ const shuffle = <A>(values: ReadonlyArray<A>, random: () => number): ReadonlyArr
   return result
 }
 
-const choicesFor = (left: number, right: number, random: () => number): ReadonlyArray<number> => {
-  const answer = left * right
-  const candidates = [
-    answer,
-    left * Math.max(1, right - 1),
-    left * Math.min(10, right + 1),
-    right * Math.max(1, left - 1),
-    right * Math.min(10, left + 1),
-    answer - left,
-    answer + right,
-    answer + 2,
-    Math.max(0, answer - 2),
-  ]
+const choicesFor = (question: QuestionOperands, random: () => number): ReadonlyArray<number> => {
+  const { left, operation = 'multiply', right } = question
+  const answer = correctAnswer(question)
+  const candidates =
+    operation === 'multiply'
+      ? [
+          answer,
+          left * Math.max(1, right - 1),
+          left * Math.min(12, right + 1),
+          right * Math.max(1, left - 1),
+          right * Math.min(12, left + 1),
+          answer - left,
+          answer + right,
+          answer + 2,
+          Math.max(0, answer - 2),
+        ]
+      : [answer, Math.max(0, answer - 1), answer + 1, right, answer + 2, Math.max(0, answer - 2)]
   const distinct = [...new Set(candidates.filter((candidate) => candidate >= 0))]
   let fallback = 1
   while (distinct.length < 4) {
@@ -275,6 +658,102 @@ const EMPTY_MASTERY: FactMastery = {
 const addDays = (date: Date, days: number): Date =>
   new Date(date.getTime() + days * 24 * 60 * 60 * 1000)
 
+const learningDayKey = ({ at, timeZone }: Readonly<{ at: Date; timeZone: string }>): string => {
+  const parts = new Intl.DateTimeFormat('en-CA', {
+    day: '2-digit',
+    month: '2-digit',
+    timeZone,
+    year: 'numeric',
+  }).formatToParts(at)
+  const part = (type: Intl.DateTimeFormatPartTypes): string =>
+    parts.find((candidate) => candidate.type === type)?.value ?? ''
+
+  return `${part('year')}-${part('month')}-${part('day')}`
+}
+
+const dateForDayKey = (dayKey: string): Date => new Date(`${dayKey}T00:00:00.000Z`)
+
+const shiftDayKey = (dayKey: string, days: number): string => {
+  const date = dateForDayKey(dayKey)
+  date.setUTCDate(date.getUTCDate() + days)
+  return date.toISOString().slice(0, 10)
+}
+
+const daysBetween = (earlier: string, later: string): number =>
+  Math.max(
+    0,
+    Math.round((dateForDayKey(later).getTime() - dateForDayKey(earlier).getTime()) / 86_400_000),
+  )
+
+const derivePracticeRhythm = ({
+  activeSession,
+  practiceDayKeys,
+  rewardedDayKeys,
+  todayKey,
+}: DerivePracticeRhythmInput): PracticeRhythm => {
+  const practiced = new Set(practiceDayKeys)
+  const rewarded = new Set(rewardedDayKeys)
+  const week = Array.from({ length: 7 }, (_, index) => {
+    const dayKey = shiftDayKey(todayKey, index - 6)
+    return { dayKey, practiced: practiced.has(dayKey), today: dayKey === todayKey }
+  })
+  const weeklyPracticeDays = week.filter(({ practiced: wasPracticed }) => wasPracticed).length
+  const latestPracticeDay = [...practiced]
+    .filter((dayKey) => dayKey <= todayKey)
+    .sort()
+    .at(-1)
+  const daysAway = latestPracticeDay === undefined ? 0 : daysBetween(latestPracticeDay, todayKey)
+  const comeback: ComebackKind = daysAway >= 7 ? 'long' : daysAway >= 2 ? 'short' : 'none'
+  const dailyWateringDone = rewarded.has(todayKey)
+  const activeDaily = activeSession?.kind === 'daily-watering' ? activeSession : null
+  const partialPetals =
+    activeDaily === null || activeDaily.questionCount <= 0
+      ? 0
+      : Math.min(4, Math.ceil((activeDaily.currentIndex / activeDaily.questionCount) * 5))
+
+  return {
+    comeback,
+    dailyWateringDone,
+    petalCount: dailyWateringDone ? 5 : partialPetals,
+    totalRewardedDays: rewarded.size,
+    visitsUntilBloomingWeek: Math.max(0, 3 - weeklyPracticeDays),
+    week,
+    weeklyPracticeDays,
+  }
+}
+
+const deriveGardenRewardLedger = ({
+  completions,
+  gardenBloomCount = 0,
+  rewardedDayKeys = [],
+}: DeriveGardenRewardLedgerInput): GardenRewardLedger => {
+  const rewarded = new Set(rewardedDayKeys)
+  let bloomCount = Math.max(0, Math.floor(gardenBloomCount), rewarded.size)
+  let gardenBloomsEarned = 0
+
+  for (const completion of completions) {
+    if (completion.sessionKind === 'extra-practice' || rewarded.has(completion.learningDayKey)) {
+      continue
+    }
+    rewarded.add(completion.learningDayKey)
+    bloomCount += 1
+    gardenBloomsEarned += 1
+  }
+
+  return {
+    gardenBloomCount: bloomCount,
+    gardenBloomsEarned,
+    rewardedDayKeys: [...rewarded].sort(),
+  }
+}
+
+const mergeGardenRewardLedgers = ({ ledgers }: MergeGardenRewardLedgersInput): GardenRewardLedger =>
+  deriveGardenRewardLedger({
+    completions: [],
+    gardenBloomCount: Math.max(0, ...ledgers.map(({ gardenBloomCount }) => gardenBloomCount)),
+    rewardedDayKeys: ledgers.flatMap(({ rewardedDayKeys }) => rewardedDayKeys),
+  })
+
 const masteryState = (
   correctCount: number,
   successfulDays: number,
@@ -287,8 +766,13 @@ const masteryState = (
   return 'unseen'
 }
 
-const updateMastery = (current: FactMastery, attempt: AttemptEvent): FactMastery => {
-  const dayKey = attempt.answeredAt.toISOString().slice(0, 10)
+const updateMastery = (
+  current: FactMastery,
+  attempt: AttemptEvent,
+  timeZone: string,
+): FactMastery => {
+  const dayKey = attempt.learningDayKey ?? learningDayKey({ at: attempt.answeredAt, timeZone })
+  const isNewSuccessfulDay = attempt.correct && !current.successfulDayKeys.includes(dayKey)
   const successfulDayKeys = attempt.correct
     ? [...new Set([...current.successfulDayKeys, dayKey])]
     : current.successfulDayKeys
@@ -296,11 +780,22 @@ const updateMastery = (current: FactMastery, attempt: AttemptEvent): FactMastery
     attempt.correct && attempt.answerMode === 'keypad'
       ? [...new Set([...current.recallDayKeys, dayKey])]
       : current.recallDayKeys
-  const correctCount = current.correctCount + (attempt.correct ? 1 : 0)
+  // Durable mastery advances at most once per local learning day. Repeating a fact can still
+  // repair an error and reinforce the answer, but a long same-day session is not evidence of
+  // spaced recall.
+  const correctCount = current.correctCount + (isNewSuccessfulDay ? 1 : 0)
   const stabilityDays = attempt.correct
     ? current.stabilityDays === 0
       ? 1
-      : Math.min(60, current.stabilityDays * 1.8)
+      : isNewSuccessfulDay
+        ? Math.min(
+            60,
+            current.stabilityDays *
+              (attempt.answerMode === 'keypad'
+                ? KEYPAD_RECALL_STABILITY_FACTOR
+                : CHOICE_RECALL_STABILITY_FACTOR),
+          )
+        : current.stabilityDays
     : Math.max(0, current.stabilityDays * 0.35)
   const nextState = attempt.correct
     ? masteryState(correctCount, successfulDayKeys.length, recallDayKeys.length, current.state)
@@ -312,16 +807,24 @@ const updateMastery = (current: FactMastery, attempt: AttemptEvent): FactMastery
 
   return {
     correctCount,
-    correctStreak: attempt.correct ? current.correctStreak + 1 : 0,
-    difficulty: Math.min(1, Math.max(0, current.difficulty + (attempt.correct ? -0.02 : 0.08))),
-    dueAt: addDays(attempt.answeredAt, Math.max(0.04, stabilityDays)),
+    correctStreak: attempt.correct ? current.correctStreak + (isNewSuccessfulDay ? 1 : 0) : 0,
+    difficulty: Math.min(
+      1,
+      Math.max(0, current.difficulty + (attempt.correct ? (isNewSuccessfulDay ? -0.02 : 0) : 0.08)),
+    ),
+    dueAt:
+      attempt.correct && !isNewSuccessfulDay && current.dueAt !== null
+        ? current.dueAt
+        : addDays(attempt.answeredAt, Math.max(0.04, stabilityDays)),
     lapseCount: current.lapseCount + (attempt.correct ? 0 : 1),
     lastReviewedAt: attempt.answeredAt,
-    latencyMs: !attempt.correct
-      ? current.latencyMs
-      : current.latencyMs === null
-        ? attempt.latencyMs
-        : Math.round(current.latencyMs * 0.7 + attempt.latencyMs * 0.3),
+    lastReviewedDayKey: dayKey,
+    latencyMs:
+      !attempt.correct || !isNewSuccessfulDay
+        ? current.latencyMs
+        : current.latencyMs === null
+          ? attempt.latencyMs
+          : Math.round(current.latencyMs * 0.7 + attempt.latencyMs * 0.3),
     recallDayKeys,
     stabilityDays,
     state: nextState,
@@ -329,14 +832,22 @@ const updateMastery = (current: FactMastery, attempt: AttemptEvent): FactMastery
   }
 }
 
-const reduce = ({ attempts, snapshot }: ReduceAttemptsInput): LearningSnapshot => {
+const reduce = ({
+  attempts,
+  snapshot,
+  timeZone = 'UTC',
+}: ReduceAttemptsInput): LearningSnapshot => {
   const processed = new Set(snapshot.processedEventIds)
   const facts: Record<string, FactMastery> = { ...snapshot.facts }
   let changed = false
 
   for (const attempt of attempts) {
     if (processed.has(attempt.eventId)) continue
-    facts[attempt.factKey] = updateMastery(facts[attempt.factKey] ?? EMPTY_MASTERY, attempt)
+    facts[attempt.factKey] = updateMastery(
+      facts[attempt.factKey] ?? EMPTY_MASTERY,
+      attempt,
+      timeZone,
+    )
     processed.add(attempt.eventId)
     changed = true
   }
@@ -349,41 +860,282 @@ const reduce = ({ attempts, snapshot }: ReduceAttemptsInput): LearningSnapshot =
   }
 }
 
-const createSession = ({ now, policy, seed, snapshot }: CreateSessionInput): PracticeSession => {
-  const random = makeRandom(seed)
-  const todayKey = now.toISOString().slice(0, 10)
-  const candidateFacts = ALL_FACTS.map(([left, right], curriculumIndex) => {
-    const key = canonicalFactKey(left, right)
-    const mastery = snapshot.facts[key]
-    const due = mastery?.dueAt !== null && mastery?.dueAt !== undefined && mastery.dueAt <= now
-    const reviewedToday = mastery?.lastReviewedAt?.toISOString().slice(0, 10) === todayKey
-    const weak =
-      mastery !== undefined &&
-      (mastery.correctStreak === 0 ||
-        (mastery.lapseCount > 0 && mastery.correctStreak === 1) ||
-        mastery.difficulty >= WEAK_FACT_DIFFICULTY ||
-        (mastery.latencyMs !== null && mastery.latencyMs > 3_000))
-    const stateScore =
-      mastery === undefined
-        ? Math.max(0, 120 - curriculumIndex)
-        : mastery.state === 'learning'
-          ? 260
-          : mastery.state === 'familiar'
-            ? 210
-            : 40
-    const dueScore = due ? 220 : 0
-    const latencyScore = mastery?.latencyMs !== null && (mastery?.latencyMs ?? 0) > 3_000 ? 35 : 0
-    const difficultyScore = (mastery?.difficulty ?? 0) * 40
+const deriveCurriculumPackProgress = (snapshot: LearningSnapshot): CurriculumPackProgress => {
+  const stableCoreFacts = CORE_FACTS.filter(([left, right]) => {
+    const state = snapshot.facts[canonicalFactKey(left, right)]?.state ?? 'unseen'
+    return state === 'familiar' || state === 'fluent'
+  }).length
+  const fluentFamilies = Object.entries(snapshot.facts).filter(
+    ([candidateFactKey, mastery]) =>
+      /^\d+:\d+$/.test(candidateFactKey) && mastery.state === 'fluent',
+  ).length
+  const bonusUnlocked = stableCoreFacts === CORE_FACTS.length
+  const inverseDivisionUnlocked = fluentFamilies >= 1
+
+  return {
+    bonus1112: {
+      current: stableCoreFacts,
+      reason: bonusUnlocked ? null : 'core-not-stable',
+      required: CORE_FACTS.length,
+      unlocked: bonusUnlocked,
+    },
+    core: { current: 0, reason: null, required: 0, unlocked: true },
+    inverseDivision: {
+      current: fluentFamilies,
+      reason: inverseDivisionUnlocked ? null : 'no-fluent-family',
+      required: 1,
+      unlocked: inverseDivisionUnlocked,
+    },
+  }
+}
+
+const deriveLearningProgress = ({
+  curriculum,
+  snapshot,
+}: DeriveLearningProgressInput): LearningProgress => {
+  const packs = curriculum?.packs ?? ['core']
+  const packProgress = deriveCurriculumPackProgress(snapshot)
+  const multiplicationFacts = [
+    ...(packs.includes('core') ? CORE_FACTS : []),
+    ...(packs.includes('bonus-11-12') && packProgress.bonus1112.unlocked ? BONUS_FACTS : []),
+  ]
+  const divisionFacts =
+    packs.includes('inverse-division') && packProgress.inverseDivision.unlocked
+      ? divisionCurriculumFor(snapshot)
+      : []
+  const countsForKeys = (selectedFactKeys: ReadonlyArray<string>): FactProgressCounts => {
+    const states = selectedFactKeys.map(
+      (selectedFactKey) => snapshot.facts[selectedFactKey]?.state ?? 'unseen',
+    )
     return {
-      due,
-      left,
-      mastery,
-      reviewedToday,
-      right,
-      score: stateScore + dueScore + latencyScore + difficultyScore + random(),
-      weak,
+      familiar: states.filter((state) => state === 'familiar').length,
+      fluent: states.filter((state) => state === 'fluent').length,
+      growing: states.filter((state) => state === 'learning').length,
+      total: states.length,
+      unseen: states.filter((state) => state === 'unseen').length,
     }
-  }).sort((first, second) => second.score - first.score)
+  }
+  const multiplicationFactKeys = multiplicationFacts.map(([left, right]) =>
+    canonicalFactKey(left, right),
+  )
+  const divisionFactKeys = divisionFacts.map(({ factKey: divisionFactKey }) => divisionFactKey)
+  const tables = [...new Set(multiplicationFacts.flatMap(([left, right]) => [left, right]))].sort(
+    (first, second) => first - second,
+  )
+
+  return {
+    divisionFacts: countsForKeys(divisionFactKeys),
+    facts: countsForKeys([...multiplicationFactKeys, ...divisionFactKeys]),
+    packs: packProgress,
+    tables: tables.map((table) => ({
+      facts: countsForKeys(
+        multiplicationFacts
+          .filter(([left, right]) => left === table || right === table)
+          .map(([left, right]) => canonicalFactKey(left, right)),
+      ),
+      table,
+    })),
+  }
+}
+
+const deriveSessionInsight = ({
+  attempts,
+  snapshot,
+  timeZone = 'UTC',
+}: DeriveSessionInsightInput): SessionInsight | null => {
+  const after = reduce({ attempts, snapshot, timeZone })
+  const factKeys = [...new Set(attempts.map(({ factKey: attemptedFactKey }) => attemptedFactKey))]
+  const becameFluent = factKeys.filter(
+    (attemptedFactKey) =>
+      after.facts[attemptedFactKey]?.state === 'fluent' &&
+      snapshot.facts[attemptedFactKey]?.state !== 'fluent',
+  )
+  const becameFamiliar = factKeys.filter((attemptedFactKey) => {
+    const beforeState = snapshot.facts[attemptedFactKey]?.state ?? 'unseen'
+    const afterState = after.facts[attemptedFactKey]?.state ?? 'unseen'
+    return afterState === 'familiar' && beforeState !== 'familiar' && beforeState !== 'fluent'
+  })
+
+  if (becameFluent.length > 0) {
+    return {
+      count: becameFluent.length,
+      factKeys: becameFluent,
+      kind: 'facts-became-fluent',
+    }
+  }
+
+  if (becameFamiliar.length > 0) {
+    return {
+      count: becameFamiliar.length,
+      factKeys: becameFamiliar,
+      kind: 'facts-became-familiar',
+    }
+  }
+
+  const missed = new Set<string>()
+  const recovered = new Set<string>()
+  for (const attempt of attempts) {
+    if (!attempt.correct) missed.add(attempt.factKey)
+    else if (missed.has(attempt.factKey)) recovered.add(attempt.factKey)
+  }
+  if (recovered.size > 0) {
+    return {
+      count: recovered.size,
+      factKeys: [...recovered],
+      kind: 'mistakes-recovered',
+    }
+  }
+
+  const keypadRecalls = [
+    ...new Set(
+      attempts
+        .filter(({ answerMode, correct }) => answerMode === 'keypad' && correct)
+        .map(({ factKey: attemptedFactKey }) => attemptedFactKey),
+    ),
+  ]
+  if (keypadRecalls.length > 0) {
+    return { count: keypadRecalls.length, factKeys: keypadRecalls, kind: 'keypad-recalls' }
+  }
+
+  const practised = [
+    ...new Set(
+      attempts
+        .filter(({ correct }) => correct)
+        .map(({ factKey: attemptedFactKey }) => attemptedFactKey),
+    ),
+  ]
+  return practised.length > 0
+    ? { count: practised.length, factKeys: practised, kind: 'facts-practised' }
+    : null
+}
+
+const deriveRescueStrategies = ({
+  question,
+  snapshot,
+}: DeriveRescueStrategiesInput): ReadonlyArray<RescueStrategy> => {
+  if (question.operation !== 'multiply') return []
+
+  const total = correctAnswer(question)
+  const strategies: RescueStrategy[] = [
+    { columns: question.right, kind: 'array', rows: question.left, total },
+  ]
+  if (question.left !== question.right) {
+    strategies.push({
+      kind: 'commutative-flip',
+      left: question.right,
+      right: question.left,
+      total,
+    })
+  }
+
+  const preferredAnchors = [10, 5, 2, 1, 12, 11, 9, 8, 7, 6, 4, 3]
+  const orientations = [
+    { commonFactor: question.right, targetFactor: question.left },
+    { commonFactor: question.left, targetFactor: question.right },
+  ]
+  for (const { commonFactor, targetFactor } of orientations) {
+    for (const anchorFactor of preferredAnchors) {
+      if (anchorFactor === targetFactor) continue
+      const adjustmentFactor = Math.abs(targetFactor - anchorFactor)
+      if (adjustmentFactor === 0) continue
+      const anchorFactKey = canonicalFactKey(anchorFactor, commonFactor)
+      const adjustmentFactKey = canonicalFactKey(adjustmentFactor, commonFactor)
+      if (
+        snapshot.facts[anchorFactKey]?.state !== 'fluent' ||
+        snapshot.facts[adjustmentFactKey]?.state !== 'fluent'
+      ) {
+        continue
+      }
+      strategies.push({
+        adjustment: {
+          factKey: adjustmentFactKey,
+          factor: adjustmentFactor,
+          product: adjustmentFactor * commonFactor,
+        },
+        anchor: {
+          factKey: anchorFactKey,
+          factor: anchorFactor,
+          product: anchorFactor * commonFactor,
+        },
+        commonFactor,
+        kind: 'known-fact-bridge',
+        operator: anchorFactor < targetFactor ? 'add' : 'subtract',
+        targetFactor,
+        total,
+      })
+      return strategies
+    }
+  }
+
+  return strategies
+}
+
+const createSession = ({
+  now,
+  policy,
+  seed,
+  snapshot,
+  timeZone = 'UTC',
+}: CreateSessionInput): PracticeSession => {
+  const random = makeRandom(seed)
+  const sessionKind = policy.kind === 'daily-watering' ? 'daily-watering' : 'extra-practice'
+  const todayKey = learningDayKey({ at: now, timeZone })
+  const curriculumPacks = policy.curriculum?.packs ?? ['core']
+  const packProgress = deriveCurriculumPackProgress(snapshot)
+  const multiplicationFacts = [
+    ...(curriculumPacks.includes('core') ? CORE_FACTS : []),
+    ...(curriculumPacks.includes('bonus-11-12') && packProgress.bonus1112.unlocked
+      ? BONUS_FACTS
+      : []),
+  ]
+  const multiplicationCurriculum = multiplicationFacts.map(([left, right]): CurriculumFact => ({
+    factKey: canonicalFactKey(left, right),
+    left,
+    operation: 'multiply',
+    right,
+    tables: left === right ? [left] : [left, right],
+  }))
+  const divisionCurriculum =
+    curriculumPacks.includes('inverse-division') && packProgress.inverseDivision.unlocked
+      ? divisionCurriculumFor(snapshot)
+      : []
+  const curriculum = [...multiplicationCurriculum, ...divisionCurriculum]
+  const candidateFacts = curriculum
+    .map((curriculumFact, curriculumIndex) => {
+      const mastery = snapshot.facts[curriculumFact.factKey]
+      const due = mastery?.dueAt !== null && mastery?.dueAt !== undefined && mastery.dueAt <= now
+      const reviewedToday = mastery?.lastReviewedDayKey
+        ? mastery.lastReviewedDayKey === todayKey
+        : mastery?.lastReviewedAt !== null && mastery?.lastReviewedAt !== undefined
+          ? learningDayKey({ at: mastery.lastReviewedAt, timeZone }) === todayKey
+          : false
+      const weak =
+        mastery !== undefined &&
+        (mastery.correctStreak === 0 ||
+          (mastery.lapseCount > 0 && mastery.correctStreak === 1) ||
+          mastery.difficulty >= WEAK_FACT_DIFFICULTY ||
+          (mastery.latencyMs !== null && mastery.latencyMs > 3_000))
+      const stateScore =
+        mastery === undefined
+          ? Math.max(0, 120 - curriculumIndex)
+          : mastery.state === 'learning'
+            ? 260
+            : mastery.state === 'familiar'
+              ? 210
+              : 40
+      const dueScore = due ? 220 : 0
+      const latencyScore = mastery?.latencyMs !== null && (mastery?.latencyMs ?? 0) > 3_000 ? 35 : 0
+      const difficultyScore = (mastery?.difficulty ?? 0) * 40
+      return {
+        ...curriculumFact,
+        due,
+        mastery,
+        reviewedToday,
+        score: stateScore + dueScore + latencyScore + difficultyScore + random(),
+        weak,
+      }
+    })
+    .sort((first, second) => second.score - first.score)
   const selectBalancedFacts = (
     candidates: ReadonlyArray<(typeof candidateFacts)[number]>,
     count: number,
@@ -407,7 +1159,7 @@ const createSession = ({ now, policy, seed, snapshot }: CreateSessionInput): Pra
     const unseenTarget =
       priorityReview.length > 0 ? (count === 1 ? 0 : Math.ceil(count * 0.3)) : Math.ceil(count / 2)
     const selected = [...priorityReview.slice(0, priorityTarget), ...unseen.slice(0, unseenTarget)]
-    const selectedKeys = new Set(selected.map(({ left, right }) => canonicalFactKey(left, right)))
+    const selectedKeys = new Set(selected.map(({ factKey: selectedFactKey }) => selectedFactKey))
     const remainingPriority = priorityReview.slice(priorityTarget)
     const olderPriority = remainingPriority.filter(({ reviewedToday }) => !reviewedToday)
     const recentPriority = remainingPriority.filter(({ reviewedToday }) => reviewedToday)
@@ -424,48 +1176,81 @@ const createSession = ({ now, policy, seed, snapshot }: CreateSessionInput): Pra
           ]
         : [...olderReview, ...recentReview, ...remainingUnseen, ...candidates]
     const fill = mixedAndFallback
-      .filter(({ left, right }) => !selectedKeys.has(canonicalFactKey(left, right)))
+      .filter(({ factKey: candidateFactKey }) => !selectedKeys.has(candidateFactKey))
       .filter(
-        ({ left, right }, index, values) =>
-          values.findIndex(
-            ({ left: otherLeft, right: otherRight }) =>
-              canonicalFactKey(left, right) === canonicalFactKey(otherLeft, otherRight),
-          ) === index,
+        ({ factKey: candidateFactKey }, index, values) =>
+          values.findIndex(({ factKey: otherFactKey }) => candidateFactKey === otherFactKey) ===
+          index,
       )
       .slice(0, Math.max(0, count - selected.length))
     return [...selected, ...fill]
   }
-  const focusCount = Math.max(0, policy.questionCount - 2)
+  const selectDailyWateringFacts = (): ReadonlyArray<(typeof candidateFacts)[number]> => {
+    const priority = candidateFacts.filter(
+      ({ due, mastery, weak }) => mastery !== undefined && (due || weak),
+    )
+    const questionCount = Math.min(8, Math.max(5, priority.length))
+    const selected = priority.slice(0, questionCount)
+    const selectedKeys = new Set(selected.map(({ factKey: selectedFactKey }) => selectedFactKey))
+    const addUntilFull = (candidates: ReadonlyArray<(typeof candidateFacts)[number]>): void => {
+      for (const candidate of candidates) {
+        if (selected.length >= questionCount) return
+        if (selectedKeys.has(candidate.factKey)) continue
+        selected.push(candidate)
+        selectedKeys.add(candidate.factKey)
+      }
+    }
+
+    addUntilFull(
+      candidateFacts.filter(
+        ({ mastery, reviewedToday }) => mastery !== undefined && !reviewedToday,
+      ),
+    )
+    addUntilFull(candidateFacts.filter(({ mastery }) => mastery !== undefined))
+    const unseen = candidateFacts.filter(({ mastery }) => mastery === undefined)
+    addUntilFull(unseen.slice(0, 2))
+    // A brand-new learner has no review pool yet. Fill the five-question introduction,
+    // then future waterings cap new material at two facts while reviews are available.
+    addUntilFull(unseen)
+
+    return selected
+  }
+  const questionCount = policy.kind === 'daily-watering' ? 0 : policy.questionCount
+  const focusTable = policy.kind === 'daily-watering' ? undefined : policy.focusTable
+  const focusCount = Math.max(0, questionCount - 2)
   const selectedFacts =
-    policy.focusTable === undefined
-      ? selectBalancedFacts(candidateFacts, policy.questionCount)
-      : [
-          ...selectBalancedFacts(
-            candidateFacts.filter(
-              ({ left, right }) => left === policy.focusTable || right === policy.focusTable,
+    policy.kind === 'daily-watering'
+      ? selectDailyWateringFacts()
+      : focusTable === undefined
+        ? selectBalancedFacts(candidateFacts, questionCount)
+        : [
+            ...selectBalancedFacts(
+              candidateFacts.filter(({ tables }) => tables.includes(focusTable)),
+              focusCount,
             ),
-            focusCount,
-          ),
-          ...selectBalancedFacts(
-            candidateFacts.filter(
-              ({ left, right }) => left !== policy.focusTable && right !== policy.focusTable,
+            ...selectBalancedFacts(
+              candidateFacts.filter(({ tables }) => !tables.includes(focusTable)),
+              questionCount - focusCount,
             ),
-            policy.questionCount - focusCount,
-          ),
-        ]
+          ]
   const questions = selectedFacts.map(
-    ({ left: canonicalLeft, mastery, right: canonicalRight }, index) => {
-      const reverse = canonicalLeft !== canonicalRight && random() >= 0.5
+    (
+      { factKey: selectedFactKey, left: canonicalLeft, mastery, operation, right: canonicalRight },
+      index,
+    ) => {
+      const reverse =
+        operation === 'multiply' && canonicalLeft !== canonicalRight && random() >= 0.5
       const left = reverse ? canonicalRight : canonicalLeft
       const right = reverse ? canonicalLeft : canonicalRight
       const answerMode: PracticeQuestion['answerMode'] =
         mastery?.state === 'familiar' || mastery?.state === 'fluent' ? 'keypad' : 'choice'
       return {
         answerMode,
-        choices: answerMode === 'choice' ? choicesFor(left, right, random) : [],
-        factKey: canonicalFactKey(canonicalLeft, canonicalRight),
+        choices: answerMode === 'choice' ? choicesFor({ left, operation, right }, random) : [],
+        factKey: selectedFactKey,
         id: `q-${seed}-${index + 1}`,
         left,
+        operation,
         right,
       }
     },
@@ -476,8 +1261,10 @@ const createSession = ({ now, policy, seed, snapshot }: CreateSessionInput): Pra
     currentQuestionStartedAt: now,
     currentIndex: 0,
     id: `session-${now.getTime()}-${seed}`,
+    kind: sessionKind,
     questions,
     seed,
+    timeZone,
   }
 }
 
@@ -485,7 +1272,7 @@ const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): Answer
   const question = session.questions[session.currentIndex]
   if (question === undefined) throw new Error('The practice session is already complete')
 
-  const correct = selected === question.left * question.right
+  const correct = selected === correctAnswer(question)
   const event: AttemptEvent = {
     answerMode: question.answerMode,
     answeredAt,
@@ -494,12 +1281,15 @@ const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): Answer
     eventId,
     factKey: question.factKey,
     latencyMs: Math.max(0, answeredAt.getTime() - session.currentQuestionStartedAt.getTime()),
+    learningDayKey: learningDayKey({ at: answeredAt, timeZone: session.timeZone }),
     left: question.left,
+    operation: question.operation,
     right: question.right,
     questionCount: session.questions.length,
     selected,
     sequence: session.currentIndex,
     sessionId: session.id,
+    sessionKind: session.kind,
   }
   let questions = session.questions
   if (!correct && session.currentIndex + 1 < session.questions.length) {
@@ -544,6 +1334,23 @@ const deriveRewards = ({
   if (fluentFacts >= 10) {
     rewards.push({ id: 'mastery:ten-sparkle', kind: 'sparkle', label: 'garden sparkle' })
   }
+  if (completedSessions >= 15 && fluentFacts >= 5) {
+    rewards.push({ id: 'chapter:sunny-meadow', kind: 'pot', label: 'sunny meadow pot' })
+  }
+  if (completedSessions >= 30 && fluentFacts >= 15) {
+    rewards.push({
+      id: 'chapter:secret-greenhouse',
+      kind: 'background',
+      label: 'secret greenhouse backdrop',
+    })
+  }
+  if (completedSessions >= 45 && fluentFacts >= 30) {
+    rewards.push({
+      id: 'chapter:starlit-garden',
+      kind: 'sparkle',
+      label: 'starlit garden glow',
+    })
+  }
   return rewards
 }
 
@@ -552,51 +1359,80 @@ const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
     ? Math.max(0, Math.floor(input.completedSessions))
     : 0
 
-  const plants: ReadonlyArray<GardenPlantProgress> = gardenPlantMilestones.map((plant) => ({
-    ...plant,
-    stage:
+  const fluentFacts = Object.values(input.snapshot.facts).filter(
+    ({ state }) => state === 'fluent',
+  ).length
+  const plants: ReadonlyArray<GardenPlantProgress> = gardenPlantMilestones.map((plant) => {
+    const masteryRemaining = Math.max(0, plant.masteryRequired - fluentFacts)
+    const stage: GardenPlantStage =
       bloomCount < plant.startAt
         ? plant.lockedUntilStart
           ? 'locked'
           : 'dormant'
-        : bloomCount < plant.matureAt
-          ? 'growing'
-          : 'mature',
-  }))
-  const nextMilestone = gardenPlantMilestones
-    .flatMap((plant) => [
-      {
-        plantId: plant.id,
-        targetAt: plant.startAt,
-        targetStage: 'growing' as const,
-        unlocksPot: plant.lockedUntilStart,
-      },
-      {
-        plantId: plant.id,
-        targetAt: plant.matureAt,
-        targetStage: 'mature' as const,
-        unlocksPot: false,
-      },
-    ])
-    .filter(({ targetAt }) => targetAt > bloomCount)
-    .sort((left, right) => left.targetAt - right.targetAt)[0]
-  const nextPlant = nextMilestone
-    ? (plants.find(({ id }) => id === nextMilestone.plantId) ?? null)
+        : masteryRemaining > 0
+          ? 'locked'
+          : bloomCount < plant.matureAt
+            ? 'growing'
+            : 'mature'
+    return {
+      ...plant,
+      collected: stage === 'mature',
+      masteryRemaining,
+      stage,
+    }
+  })
+  const nextPlant = plants.find(({ stage }) => stage !== 'mature') ?? null
+  const nextTarget = nextPlant
+    ? nextPlant.stage === 'growing'
+      ? { targetAt: nextPlant.matureAt, targetStage: 'mature' as const }
+      : { targetAt: nextPlant.startAt, targetStage: 'growing' as const }
     : null
+  const practiceDaysRemaining = nextTarget ? Math.max(0, nextTarget.targetAt - bloomCount) : 0
+  const chapters: ReadonlyArray<GardenChapterProgress> = gardenChapterMilestones.map((chapter) => {
+    const chapterPlants = plants.filter(({ chapterId }) => chapterId === chapter.id)
+    const collectedCount = chapterPlants.filter(({ collected }) => collected).length
+    return {
+      collectedCount,
+      id: chapter.id,
+      matureAt: chapter.matureAt,
+      name: chapter.name,
+      plants: chapterPlants,
+      stage:
+        collectedCount === chapterPlants.length
+          ? 'complete'
+          : bloomCount >= chapter.startAt
+            ? 'growing'
+            : 'locked',
+      startAt: chapter.startAt,
+      totalCount: chapterPlants.length,
+    }
+  })
+  const collectedCount = plants.filter(({ collected }) => collected).length
 
   return {
     bloomCount,
+    chapters,
+    collection: {
+      collectedCount,
+      complete: collectedCount === plants.length,
+      totalCount: plants.length,
+    },
     featuredPlant:
-      plants.find(({ matureAt, startAt }) => bloomCount >= startAt && bloomCount <= matureAt) ??
-      null,
+      plants.find(
+        ({ matureAt, stage, startAt }) =>
+          stage !== 'locked' && bloomCount >= startAt && bloomCount <= matureAt,
+      ) ?? null,
     nextStep:
-      nextMilestone && nextPlant
+      nextTarget && nextPlant
         ? {
-            bloomsRemaining: nextMilestone.targetAt - bloomCount,
+            blockedByMastery: nextPlant.masteryRemaining > 0 && practiceDaysRemaining === 0,
+            bloomsRemaining: practiceDaysRemaining,
+            fluentFactsRemaining: nextPlant.masteryRemaining,
             plant: nextPlant,
-            targetAt: nextMilestone.targetAt,
-            targetStage: nextMilestone.targetStage,
-            unlocksPot: nextMilestone.unlocksPot,
+            practiceDaysRemaining,
+            targetAt: nextTarget.targetAt,
+            targetStage: nextTarget.targetStage,
+            unlocksPot: nextPlant.lockedUntilStart && nextTarget.targetStage === 'growing',
           }
         : null,
     plants,
@@ -606,9 +1442,18 @@ const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
 
 export const LearningEngine = {
   answer,
+  correctAnswer,
   createSession,
+  deriveGardenRewardLedger,
+  deriveLearningProgress,
   deriveGardenProgress,
+  derivePracticeRhythm,
   deriveRewards,
+  deriveRescueStrategies,
+  deriveSessionInsight,
   emptySnapshot,
+  factKey,
+  learningDayKey,
+  mergeGardenRewardLedgers,
   reduce,
 } as const

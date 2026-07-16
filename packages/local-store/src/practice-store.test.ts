@@ -4,13 +4,93 @@ import { LearningEngine } from '@little-tables/domain'
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
 
-import { IndexedDbPracticeStore, InvalidStoredCompletionError } from './practice-store.js'
+import {
+  IndexedDbPracticeStore,
+  InvalidStoredAttemptError,
+  InvalidStoredCompletionError,
+  InvalidStoredStateError,
+} from './practice-store.js'
 
 describe('IndexedDbPracticeStore', () => {
   const databases: string[] = []
 
+  const finishDailyWatering = async (
+    store: IndexedDbPracticeStore,
+    input: Readonly<{
+      at: Date
+      seed: number
+      snapshot: ReturnType<typeof LearningEngine.emptySnapshot>
+    }>,
+  ) => {
+    let snapshot = input.snapshot
+    let session = LearningEngine.createSession({
+      now: input.at,
+      policy: { kind: 'daily-watering' },
+      seed: input.seed,
+      snapshot,
+      timeZone: 'America/New_York',
+    })
+    await store.startSession(session, snapshot)
+
+    while (session.currentIndex < session.questions.length) {
+      const question = session.questions[session.currentIndex]
+      if (question === undefined) throw new Error('Expected a daily watering question')
+      const result = LearningEngine.answer({
+        answeredAt: new Date(input.at.getTime() + (session.currentIndex + 1) * 1_000),
+        eventId: `daily-${input.seed}-${session.currentIndex}`,
+        selected: LearningEngine.correctAnswer(question),
+        session,
+      })
+      snapshot = LearningEngine.reduce({ attempts: [result.event], snapshot })
+      session = result.session
+      await store.commitAnswer({ attempt: result.event, session, snapshot })
+    }
+
+    const completion = await store.completeSession({
+      completedAt: new Date(input.at.getTime() + 30_000),
+      sessionId: session.id,
+      snapshot,
+    })
+    if (completion === null) throw new Error('Expected a completed daily watering')
+    return { completion, snapshot }
+  }
+
   afterEach(async () => {
     await Promise.all(databases.splice(0).map((name) => IndexedDbPracticeStore.delete(name)))
+  })
+
+  it('earns at most one garden bloom for repeated watering on the same learner day', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const store = new IndexedDbPracticeStore(databaseName)
+    const initial = LearningEngine.emptySnapshot()
+    const first = await finishDailyWatering(store, {
+      at: new Date('2026-07-13T01:00:00.000Z'),
+      seed: 100,
+      snapshot: initial,
+    })
+    const repeated = await finishDailyWatering(store, {
+      at: new Date('2026-07-13T02:00:00.000Z'),
+      seed: 101,
+      snapshot: first.snapshot,
+    })
+
+    expect(first.completion).toMatchObject({
+      bloomNumber: 1,
+      gardenBloomEarned: true,
+      learningDayKey: '2026-07-12',
+    })
+    expect(repeated.completion).toMatchObject({
+      bloomNumber: 1,
+      gardenBloomEarned: false,
+      learningDayKey: '2026-07-12',
+    })
+    expect(await store.load()).toMatchObject({
+      completedSessions: 2,
+      gardenBloomCount: 1,
+      rewardedDayKeys: ['2026-07-12'],
+    })
+    store.close()
   })
 
   it('persists an answer and its outbox entry across store instances until acknowledged', async () => {
@@ -85,11 +165,14 @@ describe('IndexedDbPracticeStore', () => {
       snapshot: learnedSnapshot,
     })
     expect(completion).toMatchObject({
-      bloomNumber: 1,
+      bloomNumber: 0,
       correctAnswers: 1,
       finalAnswer: question.left * question.right,
       finalCorrect: true,
+      gardenBloomEarned: false,
+      learningInsight: { count: 1, kind: 'facts-practised' },
       sessionId: session.id,
+      sessionKind: 'extra-practice',
       totalAnswers: 1,
     })
     const replacement = { ...learnedSnapshot, processedEventIds: ['from-server'] }
@@ -135,12 +218,16 @@ describe('IndexedDbPracticeStore', () => {
     const completion = await store.completeSession({ completedAt, sessionId: session.id, snapshot })
 
     expect(completion).toEqual({
-      bloomNumber: 1,
+      bloomNumber: 0,
       completedAt,
       correctAnswers: 0,
       finalAnswer: question.left * question.right,
       finalCorrect: false,
+      gardenBloomEarned: false,
+      learningInsight: null,
+      learningDayKey: '2026-07-12',
       sessionId: session.id,
+      sessionKind: 'extra-practice',
       totalAnswers: 1,
     })
     expect(await store.load()).toMatchObject({
@@ -252,6 +339,123 @@ describe('IndexedDbPracticeStore', () => {
       lastCompletion: null,
       snapshot,
     })
+    store.close()
+  })
+
+  it('migrates legacy garden blooms to distinct practiced days', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const snapshot = LearningEngine.emptySnapshot()
+    const injector = new Dexie(databaseName)
+    injector.version(1).stores({
+      attempts: '&eventId, sessionId, factKey, answeredAt',
+      outbox: '&attemptId, createdAt',
+      state: '&id',
+    })
+    await injector.table('state').put({
+      activeSession: null,
+      completedSessions: 4,
+      id: 'current',
+      practiceDayKeys: ['2026-07-10', '2026-07-12'],
+      snapshot,
+    })
+    injector.close()
+
+    const store = new IndexedDbPracticeStore(databaseName)
+    expect(await store.load()).toMatchObject({
+      completedSessions: 4,
+      gardenBloomCount: 2,
+      rewardedDayKeys: ['2026-07-10', '2026-07-12'],
+    })
+    store.close()
+  })
+
+  it('normalizes an unfinished legacy multiplication session before resuming it', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const snapshot = LearningEngine.emptySnapshot()
+    const session = LearningEngine.createSession({
+      now: new Date('2026-07-12T12:00:00.000Z'),
+      policy: { questionCount: 1 },
+      seed: 55,
+      snapshot,
+    })
+    const legacySession: Record<string, unknown> = {
+      ...session,
+      questions: session.questions.map((question) => {
+        const legacyQuestion: Record<string, unknown> = { ...question }
+        delete legacyQuestion.operation
+        return legacyQuestion
+      }),
+    }
+    delete legacySession.kind
+    delete legacySession.timeZone
+    const injector = new Dexie(databaseName)
+    injector.version(1).stores({
+      attempts: '&eventId, sessionId, factKey, answeredAt',
+      outbox: '&attemptId, createdAt',
+      state: '&id',
+    })
+    await injector.table('state').put({
+      activeSession: legacySession,
+      completedSessions: 0,
+      id: 'current',
+      snapshot,
+    })
+    injector.close()
+
+    const store = new IndexedDbPracticeStore(databaseName)
+    const loaded = await store.load()
+    expect(loaded.activeSession).toMatchObject({ kind: 'extra-practice', timeZone: 'UTC' })
+    expect(loaded.activeSession?.questions[0]?.operation).toBe('multiply')
+    store.close()
+  })
+
+  it('rejects malformed persisted learning state at the IndexedDB boundary', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const injector = new Dexie(databaseName)
+    injector.version(1).stores({
+      attempts: '&eventId, sessionId, factKey, answeredAt',
+      outbox: '&attemptId, createdAt',
+      state: '&id',
+    })
+    await injector.table('state').put({
+      activeSession: null,
+      completedSessions: 0,
+      id: 'current',
+      snapshot: { algorithmVersion: '2', facts: {}, processedEventIds: [] },
+    })
+    injector.close()
+
+    const store = new IndexedDbPracticeStore(databaseName)
+    await expect(store.load()).rejects.toBeInstanceOf(InvalidStoredStateError)
+    store.close()
+  })
+
+  it('rejects malformed persisted attempts before syncing them', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const injector = new Dexie(databaseName)
+    injector.version(1).stores({
+      attempts: '&eventId, sessionId, factKey, answeredAt',
+      outbox: '&attemptId, createdAt',
+      state: '&id',
+    })
+    await injector.table('attempts').put({
+      answeredAt: new Date('2026-07-16T12:00:00.000Z'),
+      eventId: 'corrupt-attempt',
+      factKey: '2:5',
+      selected: 'ten',
+      sessionId: 'corrupt-session',
+    })
+    await injector
+      .table('outbox')
+      .put({ attemptId: 'corrupt-attempt', createdAt: new Date('2026-07-16T12:00:01.000Z') })
+    injector.close()
+
+    const store = new IndexedDbPracticeStore(databaseName)
+    await expect(store.pendingBatch(100)).rejects.toBeInstanceOf(InvalidStoredAttemptError)
     store.close()
   })
 
