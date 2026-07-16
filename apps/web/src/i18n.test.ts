@@ -73,6 +73,12 @@ describe('internationalization', () => {
     )
     expect(translate('en', 'plant.sunset-sunflower')).toBe('sunset sunflower')
     expect(translate('fr', 'plant.lavender-sprig')).toBe('brin de lavande')
+    expect(translate('fr', 'chapter.progress', { current: 1, flower: 'fleur', total: 6 })).toBe(
+      '1 fleur sur 6 dans ce coin',
+    )
+    expect(translate('en', 'chapter.progress', { current: 3, flower: 'flowers', total: 6 })).toBe(
+      '3 flowers out of 6 in this chapter',
+    )
   })
 
   it('introduces tables 11 and 12 and inverse division as optional paths', () => {

@@ -237,6 +237,7 @@ function ChapterHeading({ chapter }: Readonly<{ chapter: GardenProgress['chapter
       <p>
         {t('chapter.progress', {
           current: chapter.collectedCount,
+          flower: t(chapter.collectedCount === 1 ? 'common.flower' : 'common.flowers'),
           total: chapter.totalCount,
         })}
       </p>
