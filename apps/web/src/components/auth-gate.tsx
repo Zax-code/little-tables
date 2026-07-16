@@ -89,6 +89,7 @@ export function AuthGate({ children }: PropsWithChildren) {
       persistOfflineAuthGrant(status)
       return status
     },
+    refetchInterval: 30_000,
     retry: 1,
     staleTime: 30_000,
   })

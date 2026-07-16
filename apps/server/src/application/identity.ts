@@ -15,6 +15,7 @@ type IssueInput = Readonly<{
   now: Date
   profileId: 'lou'
   secret: string
+  sessionVersion?: number
 }>
 
 const SessionPayloadSchema = Schema.Struct({
@@ -24,6 +25,7 @@ const SessionPayloadSchema = Schema.Struct({
   expiresAt: Schema.NonNegative,
   googleSubject: Schema.NonEmptyString,
   profileId: Schema.Literal('lou'),
+  sessionVersion: Schema.optional(Schema.NonNegativeInt),
 })
 
 const digest = (value: string, secret: string): Buffer =>
@@ -40,6 +42,7 @@ const issue = ({
   now,
   profileId,
   secret,
+  sessionVersion = 0,
 }: IssueInput): string => {
   const expiresAt = now.getTime() + 30 * 24 * 60 * 60 * 1000
   const sessionPayload = Schema.encodeSync(SessionPayloadSchema)({
@@ -49,6 +52,7 @@ const issue = ({
     expiresAt,
     googleSubject,
     profileId,
+    sessionVersion,
   })
   const payload = Buffer.from(JSON.stringify(sessionPayload)).toString('base64url')
   const signature = digest(payload, secret).toString('base64url')
@@ -66,6 +70,7 @@ const verify = ({
   expiresAt: number
   googleSubject: string
   profileId: 'lou'
+  sessionVersion: number
 }> | null => {
   const [payload, signature, extra] = session.split('.')
   if (payload === undefined || signature === undefined || extra !== undefined) return null
@@ -90,6 +95,7 @@ const verify = ({
       expiresAt: record.expiresAt,
       googleSubject: record.googleSubject,
       profileId: 'lou',
+      sessionVersion: record.sessionVersion ?? 0,
     }
   } catch {
     return null
@@ -108,6 +114,7 @@ const renew = (input: VerifyInput): string | null => {
         now: input.now,
         profileId: identity.profileId,
         secret: input.secret,
+        sessionVersion: identity.sessionVersion,
       })
 }
 

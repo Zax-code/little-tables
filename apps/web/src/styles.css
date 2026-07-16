@@ -323,6 +323,28 @@ a:focus-visible {
   color: var(--action-primary-deep);
   font-size: 0.8rem;
 }
+.remove-allowed-email-button {
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 4px;
+  color: var(--ink-muted);
+  background: transparent;
+  border: 0;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.remove-allowed-email-button:focus-visible {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+.remove-allowed-email-button:disabled {
+  cursor: wait;
+  opacity: 0.6;
+}
 
 .eyebrow {
   margin: 0 0 8px;

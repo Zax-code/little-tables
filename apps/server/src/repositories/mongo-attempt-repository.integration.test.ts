@@ -63,9 +63,25 @@ describe('MongoAttemptRepository', () => {
       const repository = yield* AllowedEmailRepository
       const firstCreated = yield* repository.add('new.user@example.com', 'boomslang.a@gmail.com')
       const secondCreated = yield* repository.add('new.user@example.com', 'boomslang.a@gmail.com')
+      yield* repository.remove('new.user@example.com', 'boomslang.a@gmail.com')
+      const blocked = yield* repository.isBlocked('new.user@example.com')
+      const removedEmails = yield* repository.list()
+      const blockedEmails = yield* repository.listBlocked()
+      const restored = yield* repository.add('new.user@example.com', 'boomslang.a@gmail.com')
       const contains = yield* repository.contains('new.user@example.com')
       const emails = yield* repository.list()
-      return { contains, emails, firstCreated, secondCreated }
+      const sessionVersion = yield* repository.sessionVersion('new.user@example.com')
+      return {
+        blocked,
+        blockedEmails,
+        contains,
+        emails,
+        firstCreated,
+        removedEmails,
+        restored,
+        secondCreated,
+        sessionVersion,
+      }
     }).pipe(
       Effect.provide(
         MongoAllowedEmailRepository.layer(
@@ -76,10 +92,15 @@ describe('MongoAttemptRepository', () => {
     )
 
     await expect(Effect.runPromise(program)).resolves.toEqual({
+      blocked: true,
+      blockedEmails: ['new.user@example.com'],
       contains: true,
       emails: ['new.user@example.com'],
       firstCreated: true,
+      removedEmails: [],
+      restored: true,
       secondCreated: false,
+      sessionVersion: 1,
     })
   }, 30_000)
 })
