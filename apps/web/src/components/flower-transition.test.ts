@@ -12,13 +12,13 @@ describe('flower transition', () => {
       },
       onPhaseChange: (phase) => events.push(phase),
       reduceMotion: false,
-      wait: () => {
-        events.push('wait')
+      wait: (milliseconds) => {
+        events.push(`wait:${milliseconds}`)
         return Promise.resolve()
       },
     })
 
-    expect(events).toEqual(['covering', 'wait', 'navigate', 'uncovering', 'wait', 'idle'])
+    expect(events).toEqual(['covering', 'wait:280', 'navigate', 'uncovering', 'wait:320', 'idle'])
   })
 
   it('navigates immediately when reduced motion is requested', async () => {

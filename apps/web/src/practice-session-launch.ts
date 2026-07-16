@@ -8,6 +8,11 @@ type LaunchPracticeSessionOptions = Readonly<{
   transition: Transition
 }>
 
+type ResumePracticeSessionOptions = Readonly<{
+  navigate: Task
+  transition: Transition
+}>
+
 export async function launchPracticeSession({
   invalidate,
   navigate,
@@ -16,5 +21,12 @@ export async function launchPracticeSession({
 }: LaunchPracticeSessionOptions) {
   await persist()
   await invalidate()
+  await transition(navigate)
+}
+
+export async function resumePracticeSession({
+  navigate,
+  transition,
+}: ResumePracticeSessionOptions) {
   await transition(navigate)
 }

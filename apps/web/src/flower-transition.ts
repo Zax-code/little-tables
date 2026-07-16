@@ -11,8 +11,8 @@ type RunFlowerTransitionOptions = Readonly<{
   wait: Wait
 }>
 
-const coverDuration = 230
-const uncoverDuration = 260
+const coverDuration = 280
+const uncoverDuration = 320
 
 export const FlowerTransitionContext = createContext<
   ((action: TransitionAction) => Promise<void>) | null

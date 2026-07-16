@@ -5,7 +5,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { GardenPlot } from '../components/garden-plot.js'
 import { useFlowerTransition } from '../flower-transition.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
-import { launchPracticeSession } from '../practice-session-launch.js'
+import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 
 export function GardenScreen() {
@@ -46,7 +46,10 @@ export function GardenScreen() {
 
   const practice = async () => {
     if (data?.activeSession !== null && data?.activeSession !== undefined) {
-      await navigate({ to: '/practice' })
+      await resumePracticeSession({
+        navigate: () => navigate({ to: '/practice' }),
+        transition,
+      })
       return
     }
 

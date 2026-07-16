@@ -57,7 +57,7 @@ function FlowerCurtain({ phase }: Readonly<{ phase: Exclude<TransitionPhase, 'id
       aria-hidden="true"
       className="flower-transition"
       initial={{ opacity: 0 }}
-      transition={{ duration: covering ? 0.1 : 0.22, ease: 'easeInOut' }}
+      transition={{ duration: covering ? 0.12 : 0.27, ease: 'easeInOut' }}
     >
       {flowerIndexes.map((index) => {
         const direction = index % 2 === 0 ? -1 : 1
@@ -73,8 +73,8 @@ function FlowerCurtain({ phase }: Readonly<{ phase: Exclude<TransitionPhase, 'id
             initial={{ opacity: 0, rotate: direction * -18, scale: 0.2 }}
             key={index}
             transition={{
-              delay: delayIndex * (covering ? 0.01 : 0.012),
-              duration: 0.13,
+              delay: delayIndex * (covering ? 0.012 : 0.0145),
+              duration: 0.16,
               ease: covering ? 'backOut' : 'easeIn',
             }}
             viewBox="0 0 64 64"

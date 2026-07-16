@@ -14,7 +14,7 @@ import { syncStatusQueryKey } from '../sync-status.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { localBootstrapQueryKey, practiceStore } from '../store.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
-import { launchPracticeSession } from '../practice-session-launch.js'
+import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
 
 export function HomeScreen() {
   const auth = useQuery({
@@ -68,7 +68,10 @@ export function HomeScreen() {
   }
   const primaryAction = async () => {
     if (data?.activeSession !== null && data?.activeSession !== undefined) {
-      await navigate({ to: '/practice' })
+      await resumePracticeSession({
+        navigate: () => navigate({ to: '/practice' }),
+        transition,
+      })
       return
     }
     await start({ questionCount: firstVisit ? 8 : 10 })
