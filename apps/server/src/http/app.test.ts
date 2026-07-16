@@ -10,6 +10,7 @@ import {
 } from '../repositories/attempt-repository.js'
 import { InMemoryAllowedEmailRepository } from '../repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from '../repositories/in-memory-attempt-repository.js'
+import { InMemoryProfileRepository } from '../repositories/in-memory-profile-repository.js'
 import { httpApp } from './app.js'
 
 describe('notification subscriptions', () => {
@@ -30,9 +31,11 @@ describe('notification subscriptions', () => {
     }
     const { dispose, handler } = HttpApp.toWebHandlerLayer(
       httpApp,
-      Layer.merge(
-        Layer.merge(NodeHttpPlatform.layer, Layer.succeed(AttemptRepository, repository)),
+      Layer.mergeAll(
+        NodeHttpPlatform.layer,
+        Layer.succeed(AttemptRepository, repository),
         InMemoryAllowedEmailRepository.layer(),
+        InMemoryProfileRepository.layer(),
       ),
     )
     const response = await handler(
@@ -64,9 +67,11 @@ describe('allowed email management', () => {
   it('fails closed when real Google authentication is disabled', async () => {
     const { dispose, handler } = HttpApp.toWebHandlerLayer(
       httpApp,
-      Layer.merge(
+      Layer.mergeAll(
         NodeHttpPlatform.layer,
-        Layer.merge(InMemoryAttemptRepository.layer(), InMemoryAllowedEmailRepository.layer()),
+        InMemoryAttemptRepository.layer(),
+        InMemoryAllowedEmailRepository.layer(),
+        InMemoryProfileRepository.layer(),
       ),
     )
     const added = await handler(

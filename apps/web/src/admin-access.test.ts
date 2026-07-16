@@ -10,6 +10,7 @@ const administratorStatus: AuthStatus = {
   displayName: 'Zax',
   googleClientId: 'client.apps.googleusercontent.com',
   isAdmin: true,
+  nameChoiceRequired: false,
   sessionExpiresAt: Date.now() + 60_000,
 }
 

@@ -15,6 +15,10 @@ import { AttemptIngestion } from '../application/attempt-ingestion.js'
 import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
 import { AttemptRepository, ReminderLocaleSchema } from '../repositories/attempt-repository.js'
+import {
+  PreferredDisplayNameSchema,
+  ProfileRepository,
+} from '../repositories/profile-repository.js'
 
 const AttemptEventSchema = Schema.Struct({
   answerMode: Schema.Literal('choice', 'keypad'),
@@ -38,6 +42,7 @@ const SyncRequestSchema = Schema.Struct({
 })
 
 const GoogleCredentialSchema = Schema.Struct({ credential: Schema.NonEmptyString })
+const PreferredNameSchema = Schema.Struct({ displayName: Schema.String })
 const AllowedEmailSchema = Schema.Struct({ email: Schema.String })
 const PushSubscriptionSchema = Schema.Struct({
   endpoint: Schema.NonEmptyString,
@@ -92,7 +97,9 @@ const authorizedIdentity = Effect.gen(function* () {
       email: administratorEmail,
       expiresAt: null,
       googleSubject: 'development',
+      nameChoiceRequired: false,
       profileId: 'lou',
+      sessionVersion: 0,
     } as const
   }
   const request = yield* HttpServerRequest.HttpServerRequest
@@ -123,6 +130,7 @@ const authStatus = Effect.gen(function* () {
       authConfig !== null &&
       identity !== null &&
       AllowedEmailAccess.isAdministrator(identity.email),
+    nameChoiceRequired: identity?.nameChoiceRequired ?? false,
     sessionExpiresAt: identity?.expiresAt ?? null,
   })
 })
@@ -143,12 +151,15 @@ const googleSignIn = Effect.gen(function* () {
   if (identity === null) return yield* json({ error: 'invalid_google_credential' }, 401)
   const allowed = yield* AllowedEmailAccess.isAllowed(identity.email, google.allowedEmails)
   if (!allowed) return yield* json({ error: 'google_account_not_allowed' }, 401)
+  const profiles = yield* ProfileRepository
+  const preferredName = yield* profiles.findPreferredName(identity.subject)
   const sessionVersion = yield* AllowedEmailAccess.sessionVersion(identity.email)
   const session = Identity.issue({
     authMethod: 'google',
-    displayName: identity.displayName,
+    displayName: preferredName ?? identity.displayName,
     email: identity.email,
     googleSubject: identity.subject,
+    nameChoiceRequired: preferredName === null,
     now: new Date(),
     profileId: identity.profileId,
     secret,
@@ -159,6 +170,36 @@ const googleSignIn = Effect.gen(function* () {
     session,
   )
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_google_credential' }, 401)))
+
+const savePreferredName = Effect.gen(function* () {
+  if (authConfig === null) return yield* json({ error: 'unauthorized' }, 401)
+  const identity = yield* authorizedIdentity
+  if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
+  if (!identity.nameChoiceRequired) return yield* json({ error: 'name_already_chosen' }, 409)
+  const body = yield* HttpServerRequest.schemaBodyJson(PreferredNameSchema).pipe(
+    Effect.catchAll(() => Effect.succeed(null)),
+  )
+  if (body === null) return yield* json({ error: 'invalid_display_name' }, 400)
+  const displayName = body.displayName.trim()
+  if (!Schema.is(PreferredDisplayNameSchema)(displayName)) {
+    return yield* json({ error: 'invalid_display_name' }, 400)
+  }
+  const profiles = yield* ProfileRepository
+  const saved = yield* profiles.savePreferredName(identity.googleSubject, displayName)
+  if (!saved) return yield* json({ error: 'name_already_chosen' }, 409)
+  const session = Identity.issue({
+    authMethod: identity.authMethod,
+    displayName,
+    email: identity.email,
+    googleSubject: identity.googleSubject,
+    nameChoiceRequired: false,
+    now: new Date(),
+    profileId: identity.profileId,
+    secret: authConfig.secret,
+    sessionVersion: identity.sessionVersion,
+  })
+  return sessionCookie(yield* json({ displayName }), session)
+}).pipe(Effect.catchAll(() => json({ error: 'display_name_save_failed' }, 503)))
 
 const listAllowedEmails = Effect.gen(function* () {
   if (authConfig === null) return yield* json({ error: 'unauthorized' }, 401)
@@ -354,6 +395,7 @@ export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.get('/health/ready', ready),
   HttpRouter.get('/api/v1/auth/status', authStatus),
   HttpRouter.post('/api/v1/auth/google', googleSignIn),
+  HttpRouter.put('/api/v1/profile/name', savePreferredName),
   HttpRouter.get('/api/v1/admin/allowed-emails', listAllowedEmails),
   HttpRouter.post('/api/v1/admin/allowed-emails', addAllowedEmail),
   HttpRouter.del('/api/v1/admin/allowed-emails', removeAllowedEmail),

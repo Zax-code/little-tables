@@ -6,8 +6,10 @@ const AuthStatusSchema = Schema.Struct({
   displayName: Schema.NullOr(Schema.String),
   googleClientId: Schema.NullOr(Schema.String),
   isAdmin: Schema.Boolean,
+  nameChoiceRequired: Schema.Boolean,
   sessionExpiresAt: Schema.NullOr(Schema.NonNegative),
 })
+const PreferredNameResponseSchema = Schema.Struct({ displayName: Schema.String })
 
 export type AuthStatus = typeof AuthStatusSchema.Type
 
@@ -15,6 +17,10 @@ export const authStatusQueryKey = ['auth-status'] as const
 
 export class GoogleSignInError extends Data.TaggedError('GoogleSignInError')<{
   reason: 'failed' | 'unauthorized'
+}> {}
+
+export class PreferredNameSaveError extends Data.TaggedError('PreferredNameSaveError')<{
+  reason: 'already-chosen' | 'failed'
 }> {}
 
 export async function fetchAuthStatus(fetcher: typeof fetch = fetch): Promise<AuthStatus> {
@@ -35,4 +41,24 @@ export async function signInWithGoogle(
   if (!response.ok) {
     throw new GoogleSignInError({ reason: response.status === 401 ? 'unauthorized' : 'failed' })
   }
+}
+
+export async function savePreferredName(
+  displayName: string,
+  fetcher: typeof fetch = fetch,
+): Promise<string> {
+  const response = await fetcher('/api/v1/profile/name', {
+    body: JSON.stringify({ displayName }),
+    headers: { 'content-type': 'application/json' },
+    method: 'PUT',
+  })
+  if (!response.ok) {
+    throw new PreferredNameSaveError({
+      reason: response.status === 409 ? 'already-chosen' : 'failed',
+    })
+  }
+  const saved = await Schema.decodeUnknownPromise(PreferredNameResponseSchema)(
+    await response.json(),
+  )
+  return saved.displayName
 }

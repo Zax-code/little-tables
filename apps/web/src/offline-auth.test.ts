@@ -38,19 +38,26 @@ describe('offline authentication grant', () => {
       displayName: 'léa',
       googleClientId: 'client.apps.googleusercontent.com',
       isAdmin: true,
+      nameChoiceRequired: true,
       sessionExpiresAt: now + 60_000,
     } as const
 
     expect(persistOfflineAuthGrant(status, storage, now)).toEqual({
       displayName: 'léa',
       expiresAt: now + 60_000,
+      nameChoiceRequired: true,
     })
     const grant = readOfflineAuthGrant(storage, now)
-    expect(grant).toEqual({ displayName: 'léa', expiresAt: now + 60_000 })
+    expect(grant).toEqual({
+      displayName: 'léa',
+      expiresAt: now + 60_000,
+      nameChoiceRequired: true,
+    })
     expect(grant && authStatusFromOfflineGrant(grant)).toMatchObject({
       authenticated: true,
       displayName: 'léa',
       isAdmin: false,
+      nameChoiceRequired: true,
       sessionExpiresAt: now + 60_000,
     })
   })
@@ -63,6 +70,7 @@ describe('offline authentication grant', () => {
         displayName: 'léa',
         googleClientId: 'client.apps.googleusercontent.com',
         isAdmin: false,
+        nameChoiceRequired: false,
         sessionExpiresAt: now + 60_000,
       },
       storage,
@@ -76,6 +84,7 @@ describe('offline authentication grant', () => {
         displayName: null,
         googleClientId: 'client.apps.googleusercontent.com',
         isAdmin: false,
+        nameChoiceRequired: false,
         sessionExpiresAt: null,
       },
       storage,
@@ -94,6 +103,16 @@ describe('offline authentication grant', () => {
     expect(storage.values.size).toBe(0)
 
     storage.setItem('little-tables-google-session-v1', '{bad json')
+    expect(readOfflineAuthGrant(storage, now)).toBeNull()
+
+    storage.setItem(
+      'little-tables-google-session-v1',
+      JSON.stringify({
+        displayName: 'léa',
+        expiresAt: now + 60_000,
+        nameChoiceRequired: 'yes',
+      }),
+    )
     expect(readOfflineAuthGrant(storage, now)).toBeNull()
   })
 })

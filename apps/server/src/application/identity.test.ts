@@ -21,6 +21,7 @@ describe('Identity', () => {
       displayName: 'lea',
       email: 'boomslang.a@gmail.com',
       googleSubject: 'google-account-id',
+      nameChoiceRequired: true,
       now,
       profileId: 'lou',
       secret,
@@ -31,6 +32,7 @@ describe('Identity', () => {
       email: 'boomslang.a@gmail.com',
       expiresAt: new Date('2026-08-11T12:00:00.000Z').getTime(),
       googleSubject: 'google-account-id',
+      nameChoiceRequired: true,
       profileId: 'lou',
       sessionVersion: 0,
     }
