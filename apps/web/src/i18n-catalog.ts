@@ -145,7 +145,9 @@ const english = {
   'garden.nextUnlockCopy': '{count} more {bloom} opens the {plant} pot',
   'garden.allBlooming': 'every little plant is blooming',
   'garden.plotAria':
-    'Little garden earned from {blooms}: {mature}, {growing}, {locked}{sparkle}. Miffy is watering the garden.',
+    'Little garden earned from {blooms}: {mature}, {growing}, {locked}{sparkle}. {caretaker}',
+  'garden.plotCaretakerAway': 'Miffy is visiting another corner of the garden.',
+  'garden.plotCaretakerHere': 'Miffy is watering here.',
   'garden.plotGrowing': '{count} growing {plant}',
   'garden.plotLocked': '{plant} locked until {count} {bloom}',
   'garden.plotMature': '{count} mature {flower}',
@@ -456,7 +458,9 @@ const french: Record<TranslationKey, string> = {
   'garden.nextUnlockCopy': 'encore {count} {bloom} et le pot « {plant} » se débloque',
   'garden.allBlooming': 'chaque petite plante est en fleurs',
   'garden.plotAria':
-    'Petit jardin après {blooms} : {mature}, {growing}, {locked}{sparkle}. Miffy arrose tranquillement le jardin.',
+    'Petit jardin après {blooms} : {mature}, {growing}, {locked}{sparkle}. {caretaker}',
+  'garden.plotCaretakerAway': 'Miffy se promène dans un autre coin du jardin.',
+  'garden.plotCaretakerHere': 'Miffy arrose tranquillement ici.',
   'garden.plotGrowing': '{count} {plant} en train de pousser',
   'garden.plotLocked': '{plant} se débloque à {count} {bloom}',
   'garden.plotMature': '{count} {flower} en fleurs',
