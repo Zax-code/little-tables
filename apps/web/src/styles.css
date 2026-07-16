@@ -77,6 +77,7 @@
   --shadow-soft: 0 14px 34px rgb(90 50 55 / 10%);
   --shadow-floating-bar: 0 12px 34px rgb(79 57 47 / 14%);
   --shadow-action-edge: rgb(210 91 118 / 18%);
+  --shadow-control-edge: rgb(137 92 102 / 16%);
   --shadow-transition-flower: 0 5px 8px rgb(90 50 55 / 10%);
 }
 
@@ -105,6 +106,23 @@ a {
 }
 button {
   color: inherit;
+}
+button:not(:disabled),
+a[href] {
+  cursor: pointer;
+}
+button:disabled {
+  cursor: not-allowed;
+}
+button,
+a[href] {
+  transition:
+    background-color 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease,
+    opacity 150ms ease,
+    transform 150ms ease;
 }
 button:focus-visible,
 a:focus-visible {
@@ -525,6 +543,7 @@ p {
   text-decoration: none;
   font-size: 0.72rem;
   font-weight: 650;
+  border-radius: 18px;
 }
 .nav-symbol {
   width: 27px;
@@ -536,6 +555,7 @@ p {
   stroke-linejoin: round;
 }
 .nav-item[aria-current='page'] {
+  background: var(--surface-soft);
   color: var(--action-primary-deep);
 }
 .nav-brand {
@@ -565,6 +585,7 @@ p {
   color: var(--action-primary-deep);
   font-size: 1.15rem;
   font-weight: 800;
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
 }
 .language-toggle {
   left: 22px;
@@ -589,11 +610,19 @@ p {
 .mode-link {
   min-height: 44px;
   margin: 7px auto -8px;
-  border: 0;
-  background: transparent;
-  color: var(--ink-muted);
+  padding: 0 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: var(--surface-card);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
+  color: var(--action-primary-deep);
   font-size: 0.78rem;
   font-weight: 750;
+}
+.mode-link:disabled {
+  box-shadow: none;
+  color: var(--ink-muted);
+  opacity: 0.55;
 }
 .mode-sheet {
   z-index: 4;
@@ -612,9 +641,10 @@ p {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border: 0;
+  border: 1px solid var(--line-soft);
   border-radius: 17px;
   background: var(--surface-soft);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   text-align: left;
 }
 .mode-sheet span {
@@ -639,6 +669,7 @@ p {
   border: 1px solid var(--line-soft);
   border-radius: 14px;
   background: white;
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   font-weight: 750;
 }
 .glow-card,
@@ -811,6 +842,7 @@ p {
   border: 1px solid var(--line-soft);
   border-radius: 14px;
   background: var(--surface-soft);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   color: var(--action-primary-deep);
   font-size: 0.72rem;
   font-weight: 750;
@@ -830,8 +862,11 @@ p {
   flex: 0 0 44px;
   width: 44px;
   height: 44px;
-  border: 0;
-  background: transparent;
+  border: 1px solid var(--line-soft);
+  border-radius: 50%;
+  background: var(--surface-card);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
+  color: var(--action-primary-deep);
   font-size: 1.5rem;
 }
 .card-heading {
@@ -874,9 +909,10 @@ p {
 .icon-button {
   width: 44px;
   height: 44px;
-  border: 0;
+  border: 1px solid var(--line-soft);
   border-radius: 50%;
-  background: transparent;
+  background: var(--surface-card);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   font-size: 2rem;
   color: var(--ink-muted);
 }
@@ -1177,6 +1213,7 @@ p {
   border: 1px solid var(--line-soft);
   border-radius: 999px;
   background: var(--surface-soft);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   font-weight: 750;
 }
 .feedback-tray:has(.fact-rescue) {
@@ -1242,6 +1279,7 @@ p {
   border: 1px solid var(--line-soft);
   border-radius: 14px;
   background: var(--surface-card);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   font-weight: 750;
 }
 .guided-recall {
@@ -1338,6 +1376,7 @@ p {
   border: 1px solid var(--line-soft);
   border-radius: 18px;
   background: var(--surface-soft);
+  box-shadow: 0 4px 0 var(--shadow-control-edge);
   font-size: 1.4rem;
   font-weight: 700;
 }
@@ -1622,9 +1661,14 @@ p {
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding: 0 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: var(--surface-card);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   color: var(--action-primary-deep);
   font-weight: 700;
-  text-underline-offset: 3px;
+  text-decoration: none;
 }
 .garden-collection-link {
   margin-top: 3px;
@@ -1747,6 +1791,7 @@ p {
   border: 1px solid var(--line-garden);
   border-radius: 50%;
   background: var(--surface-card);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   color: var(--ink-primary);
   font-size: 1.6rem;
   line-height: 1;
@@ -2014,7 +2059,9 @@ p {
   align-items: center;
   gap: 12px;
   border-color: var(--line-garden);
+  border-width: 2px;
   color: var(--ink-primary);
+  box-shadow: 0 4px 0 var(--shadow-control-edge);
   text-align: left;
   cursor: pointer;
   transition:
@@ -2340,6 +2387,7 @@ p {
   border: 1px solid var(--line-soft);
   border-radius: 14px;
   background: var(--surface-soft);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   color: var(--action-primary-deep);
   font-size: 0.76rem;
   font-weight: 750;
@@ -2444,7 +2492,42 @@ p {
   border: 0;
   border-radius: 14px;
   background: var(--surface-soft);
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
   font-weight: 750;
+}
+
+.mode-link:not(:disabled):active,
+.mode-sheet > button:not(:disabled):active,
+.table-picker button:not(:disabled):active,
+.reminder-card button:not(:disabled):active,
+.install-card button:not(:disabled):active,
+.icon-button:not(:disabled):active,
+.show-me-button:not(:disabled):active,
+.fact-rescue-actions button:not(:disabled):active,
+.guided-recall button:not(:disabled):active,
+.keypad-grid button:not(:disabled):active,
+.garden-plot__pagination button:not(:disabled):active,
+.tomorrow-card:not(:disabled):active,
+.table-progress-card button:not(:disabled):active,
+.curriculum-card button:not(:disabled):active,
+.pwa-toast button:not(:disabled):active,
+.garden-collection-link:active,
+.collection-back-link:active,
+.language-toggle:not(:disabled):active,
+.sound-toggle:not(:disabled):active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--shadow-control-edge);
+}
+
+@media (hover: hover) {
+  button:not(:disabled):hover,
+  a[href]:hover {
+    filter: brightness(0.97);
+  }
+
+  .nav-item:hover {
+    background: var(--surface-soft);
+  }
 }
 
 @media (max-width: 899px) {
