@@ -95,4 +95,14 @@ describe('GardenPlot', () => {
     expect(caretakerStart).toBeGreaterThan(lastPageStart)
     expect(markup.match(/class="garden-plot__caretaker"/g)).toHaveLength(1)
   })
+
+  it('keeps a measurable watering target on every pot so Miffy can mount', () => {
+    const progress = LearningEngine.deriveGardenProgress({
+      completedSessions: 45,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+
+    expect(markup.match(/class="garden-plot__soil"/g)).toHaveLength(9)
+  })
 })
