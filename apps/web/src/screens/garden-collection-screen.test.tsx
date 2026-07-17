@@ -25,7 +25,7 @@ describe('garden collection screen', () => {
     const markup = renderToStaticMarkup(<GardenCollectionScreen />)
 
     expect(markup.match(/class="collection-chapter"/g)).toHaveLength(3)
-    expect(markup.match(/class="collection-plant collection-plant--/g)).toHaveLength(18)
+    expect(markup.match(/class="collection-plant collection-plant--/g)).toHaveLength(9)
     expect(markup).toContain('href="/garden"')
   })
 
@@ -44,5 +44,18 @@ describe('garden collection screen', () => {
     expect(markup).toContain('en train de pousser')
     expect(markup).toContain('bien éclose')
     expect(markup).not.toContain('{current}')
+  })
+
+  it('uses the same approved full-length stem composition as the garden', () => {
+    bootstrapState.data = {
+      completedSessions: 5,
+      snapshot: LearningEngine.emptySnapshot(),
+    }
+    vi.stubGlobal('window', { location: { search: '' } })
+    const markup = renderToStaticMarkup(<GardenCollectionScreen />)
+    expect(markup).toContain('data-plant-stem="rose-lotus-mature"')
+    expect(markup).toContain('d="M70 154V100"')
+    expect(markup).toContain('viewBox="0 0 112 152"')
+    expect(markup).not.toContain('data-collection-stem="foreground"')
   })
 })

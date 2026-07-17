@@ -1747,7 +1747,7 @@ p {
   display: flex;
 }
 .garden-plot__grid {
-  --garden-row-height: 146px;
+  --garden-row-height: 178px;
   --garden-row-gap: clamp(12px, 2.5dvh, 22px);
 
   position: relative;
@@ -1756,14 +1756,13 @@ p {
   display: grid;
   flex: 1 1 0;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  grid-template-rows: repeat(2, minmax(0, var(--garden-row-height)));
+  grid-template-rows: minmax(0, var(--garden-row-height));
   align-content: center;
   align-items: end;
   gap: var(--garden-row-gap) 0;
   scroll-snap-align: start;
 }
-.garden-plot__grid::before,
-.garden-plot__grid::after {
+.garden-plot__grid::before {
   position: absolute;
   z-index: 0;
   right: 5%;
@@ -1776,10 +1775,7 @@ p {
   pointer-events: none;
 }
 .garden-plot__grid::before {
-  top: calc(50% - var(--garden-row-gap) / 2 - 2.5px);
-}
-.garden-plot__grid::after {
-  top: calc(50% + var(--garden-row-gap) / 2 + var(--garden-row-height) - 2.5px);
+  top: calc(50% + var(--garden-row-height) / 2 - 2.5px);
 }
 .garden-plot__pagination {
   position: absolute;
@@ -1843,7 +1839,7 @@ p {
 }
 .garden-plot__plant,
 .garden-plot__locked-plot {
-  width: min(100%, 112px);
+  width: min(100%, 136px);
   height: 100%;
   transform-origin: 50% 100%;
 }

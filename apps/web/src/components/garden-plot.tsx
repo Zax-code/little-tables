@@ -12,7 +12,7 @@ import {
 } from 'react'
 
 import { gardenPlantDefinition, type GardenPlantDefinition } from './garden-plant-catalog.js'
-import { GardenGrowingBud, GardenMatureHead } from './garden-plant-renderers.js'
+import { GardenPlantArtwork, gardenPlantViewBox } from './garden-plant-illustration.js'
 import { GardenWateringSprite } from './garden-watering-sprite.js'
 import {
   initialGardenCaretakerState as initialCaretakerState,
@@ -44,7 +44,7 @@ type LockedPlotProps = Readonly<{
   reduceMotion: boolean
 }>
 
-const plantsPerPlot = 6
+const plantsPerPlot = 3
 const fallbackCaretakerSize = 150
 const sparkles = [
   { id: 'left', symbol: '✦' },
@@ -63,44 +63,6 @@ const chapterNameKey = (chapterId: string) => {
   if (chapterId === 'secret-greenhouse') return 'chapter.secret-greenhouse' as const
   if (chapterId === 'starlit-garden') return 'chapter.starlit-garden' as const
   return 'chapter.sunny-meadow' as const
-}
-
-function PlantStem({ stage }: Readonly<{ stage: Exclude<GardenPlantStage, 'locked'> }>) {
-  const top = stage === 'dormant' ? 90 : stage === 'growing' ? 67 : 48
-  return (
-    <g className="garden-plot__stem-and-leaves">
-      <path
-        className="garden-plot__stem"
-        d={`M56 108V${top}`}
-        fill="none"
-        stroke="var(--ink-primary)"
-        strokeLinecap="round"
-        strokeWidth="3"
-      />
-      <path
-        className="garden-plot__leaf"
-        d={
-          stage === 'dormant'
-            ? 'M55 99C47 91 40 92 39 94C41 102 47 106 55 106Z'
-            : 'M55 86C42 73 32 75 31 78C34 91 42 98 55 99Z'
-        }
-        fill="var(--garden-leaf-light)"
-        stroke="var(--ink-primary)"
-        strokeLinejoin="round"
-        strokeWidth="2.5"
-      />
-      {stage === 'dormant' ? null : (
-        <path
-          className="garden-plot__leaf"
-          d="M57 94C68 80 79 81 81 84C78 97 69 102 57 104Z"
-          fill="var(--garden-leaf-deep)"
-          stroke="var(--ink-primary)"
-          strokeLinejoin="round"
-          strokeWidth="2.5"
-        />
-      )}
-    </g>
-  )
 }
 
 function Pot({ color }: Readonly<{ color: string }>) {
@@ -156,24 +118,10 @@ function Plant({ definition, reduceMotion, stage }: PlantProps) {
     >
       <svg
         className="garden-plot__plant-illustration"
-        viewBox="0 0 112 146"
+        viewBox={gardenPlantViewBox}
         preserveAspectRatio="xMidYMax meet"
       >
-        <PlantStem stage={stage} />
-        {stage === 'mature' ? (
-          <GardenMatureHead
-            centerColor={definition.centerColor}
-            kind={definition.kind}
-            petalColor={definition.petalColor}
-          />
-        ) : stage === 'growing' ? (
-          <GardenGrowingBud
-            centerColor={definition.centerColor}
-            kind={definition.kind}
-            petalColor={definition.petalColor}
-          />
-        ) : null}
-        <Pot color={definition.potColor} />
+        <GardenPlantArtwork definition={definition} stage={stage} />
       </svg>
     </m.div>
   )
