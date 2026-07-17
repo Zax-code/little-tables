@@ -53,6 +53,8 @@ describe('garden screen', () => {
     const markup = renderToStaticMarkup(<GardenScreen />)
 
     expect(markup).toContain('href="/garden/collection"')
+    expect(markup).toContain('class="garden-book-symbol"')
+    expect(markup).not.toContain('▤')
     expect(markup.match(/class="garden-ambient-moment"/g)).toHaveLength(1)
   })
 
