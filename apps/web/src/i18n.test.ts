@@ -15,6 +15,7 @@ describe('internationalization', () => {
       'on va trouver par où commencer, tout doucement.',
     )
     expect(translate('fr', 'practice.almost', { answer: 42 })).toBe('presque — c’était 42')
+    expect(translate('fr', 'home.mode')).toBe('voir les autres séances')
   })
 
   it('keeps daily watering and the forgiving week rhythm natural in both languages', () => {
