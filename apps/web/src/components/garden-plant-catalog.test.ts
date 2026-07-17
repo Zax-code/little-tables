@@ -31,4 +31,12 @@ describe('garden plant visual catalog', () => {
       ]),
     )
   })
+
+  it('uses the warm blush palette approved for the rose lotus', () => {
+    expect(gardenPlantVisuals['rose-lotus']).toMatchObject({
+      accentColor: 'var(--garden-bloom-soft-pink)',
+      centerColor: 'var(--garden-bloom-peach)',
+      petalColor: 'var(--garden-bloom-rose)',
+    })
+  })
 })

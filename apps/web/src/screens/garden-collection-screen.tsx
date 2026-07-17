@@ -44,10 +44,9 @@ function CollectionPlantPortrait({ plant }: Readonly<{ plant: GardenPlantProgres
         </>
       ) : (
         <>
-          <path className="collection-plant__stem" d="M56 96V54" />
           <path className="collection-plant__leaf" d="M55 82C43 71 34 73 33 76c3 10 10 16 22 17Z" />
           {stage === 'mature' ? (
-            <g transform="translate(0 9)">
+            <g transform="translate(0 -8)">
               <GardenMatureHead
                 accentColor={definition.accentColor}
                 centerColor={definition.centerColor}
@@ -56,13 +55,20 @@ function CollectionPlantPortrait({ plant }: Readonly<{ plant: GardenPlantProgres
               />
             </g>
           ) : (
-            <GardenGrowingBud
-              accentColor={definition.accentColor}
-              centerColor={definition.centerColor}
-              kind={definition.kind}
-              petalColor={definition.petalColor}
-            />
+            <g transform="translate(0 -8)">
+              <GardenGrowingBud
+                accentColor={definition.accentColor}
+                centerColor={definition.centerColor}
+                kind={definition.kind}
+                petalColor={definition.petalColor}
+              />
+            </g>
           )}
+          <path
+            className="collection-plant__stem"
+            d="M56 86V68"
+            data-collection-stem="foreground"
+          />
         </>
       )}
       <path

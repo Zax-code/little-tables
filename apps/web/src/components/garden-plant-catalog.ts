@@ -18,10 +18,10 @@ export type GardenPlantDefinition = GardenPlantProgress & GardenPlantVisual
 // renderer identity for each approved silhouette.
 export const gardenPlantVisuals: Readonly<Record<GardenPlantId, GardenPlantVisual>> = {
   'rose-lotus': {
-    accentColor: 'var(--garden-bloom-peach)',
-    centerColor: 'var(--garden-center-russet)',
+    accentColor: 'var(--garden-bloom-soft-pink)',
+    centerColor: 'var(--garden-bloom-peach)',
     kind: 'rose-lotus',
-    petalColor: 'var(--garden-bloom-violet)',
+    petalColor: 'var(--garden-bloom-rose)',
     potColor: 'var(--garden-pot-pink)',
   },
   'twilight-lupine': {
