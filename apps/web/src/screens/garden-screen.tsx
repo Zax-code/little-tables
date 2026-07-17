@@ -7,6 +7,23 @@ import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { usePracticeLauncher } from '../hooks/use-practice-launcher.js'
 import { translatePlantName, useI18n } from '../i18n.js'
 
+function GardenBookIcon() {
+  return (
+    <svg aria-hidden="true" className="garden-book-symbol" viewBox="0 0 28 28">
+      <path d="M4.8 6.6c3.3-.7 6.5-.1 9.2 1.8v14c-2.7-1.9-5.9-2.5-9.2-1.8v-14Z" />
+      <path d="M23.2 6.6c-3.3-.7-6.5-.1-9.2 1.8v14c2.7-1.9 5.9-2.5 9.2-1.8v-14Z" />
+      <path className="garden-book-symbol__spine" d="M14 8.4v14" />
+      <path className="garden-book-symbol__bookmark" d="M18.9 7.2v7l1.4-1 1.4 1V6.8" />
+      <path className="garden-book-symbol__stem" d="M9.2 17.6v-4.1" />
+      <path
+        className="garden-book-symbol__leaves"
+        d="M9.2 15.2c-1.5 0-2.3-.7-2.3-2 1.5 0 2.3.7 2.3 2ZM9.2 14.2c0-1.3.8-2 2.2-2-.1 1.3-.8 2-2.2 2Z"
+      />
+      <circle className="garden-book-symbol__flower" cx="9.2" cy="11.3" r="1.35" />
+    </svg>
+  )
+}
+
 export function GardenScreen() {
   const { locale, t } = useI18n()
   const bootstrap = useLocalBootstrap()
@@ -106,7 +123,7 @@ export function GardenScreen() {
           {t(`ambient.${ambientMoment}`)}
         </p>
         <Link className="garden-collection-link" to="/garden/collection">
-          <span aria-hidden="true">▤</span>
+          <GardenBookIcon />
           {t('collection.open')}
         </Link>
       </header>

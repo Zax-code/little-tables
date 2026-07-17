@@ -15,6 +15,12 @@
   --surface-soft: #f9e3e8;
   --action-primary: #f28ba2;
   --action-primary-deep: #e96e8b;
+  --nav-home-surface: #fce4eb;
+  --nav-home-ink: #ad3157;
+  --nav-garden-surface: #e2f0d8;
+  --nav-garden-ink: #35643b;
+  --nav-stats-surface: #e1edf8;
+  --nav-stats-ink: #315e8c;
   --ink-on-action: #fff;
   --ink-primary: #1d1d1b;
   --ink-muted: #716b67;
@@ -38,6 +44,7 @@
   --garden-bloom-red: #e94e43;
   --garden-bloom-white: #fffdf7;
   --garden-bloom-cream: #fffaf0;
+  --garden-bloom-home-pink: #f7b7c5;
   --garden-bloom-pink: #f4a6b5;
   --garden-bloom-soft-pink: #ffd8df;
   --garden-bloom-gold: #f4bd47;
@@ -63,6 +70,7 @@
   --garden-pot-detail: #cf737f;
   --garden-leaf-light: #6f9853;
   --garden-leaf-deep: #5f8c49;
+  --garden-leaf-soft: #d7e8bc;
   --garden-soil: #80634d;
   --garden-water: #79b9dc;
   --garden-lock-surface: #fffdf2;
@@ -532,6 +540,9 @@ p {
 }
 
 .nav-item {
+  --nav-tab-surface: var(--surface-soft);
+  --nav-tab-ink: var(--action-primary-deep);
+
   min-width: 56px;
   min-height: 56px;
   display: flex;
@@ -545,6 +556,18 @@ p {
   font-weight: 650;
   border-radius: 18px;
 }
+.nav-item[data-nav-tab='home'] {
+  --nav-tab-surface: var(--nav-home-surface);
+  --nav-tab-ink: var(--nav-home-ink);
+}
+.nav-item[data-nav-tab='garden'] {
+  --nav-tab-surface: var(--nav-garden-surface);
+  --nav-tab-ink: var(--nav-garden-ink);
+}
+.nav-item[data-nav-tab='stats'] {
+  --nav-tab-surface: var(--nav-stats-surface);
+  --nav-tab-ink: var(--nav-stats-ink);
+}
 .nav-symbol {
   width: 27px;
   height: 27px;
@@ -554,9 +577,66 @@ p {
   stroke-linecap: round;
   stroke-linejoin: round;
 }
+.nav-symbol__surface {
+  fill: var(--surface-card);
+}
+.nav-symbol__soft {
+  fill: var(--garden-bloom-soft-pink);
+  stroke-width: 1.25;
+}
+.nav-symbol__home-window {
+  fill: var(--garden-bloom-home-pink);
+  stroke-width: 1.35;
+}
+.nav-symbol__home-door {
+  fill: var(--surface-soft);
+  stroke-width: 1.45;
+}
+.nav-symbol__accent {
+  fill: var(--garden-bloom-pink);
+  stroke-width: 1.25;
+}
+.nav-symbol__ink {
+  fill: currentcolor;
+  stroke: none;
+}
+.nav-symbol__leaf {
+  fill: var(--garden-bloom-mint);
+  stroke-width: 1.15;
+}
+.nav-symbol__garden-soft {
+  fill: var(--garden-leaf-soft);
+  stroke-width: 1.15;
+}
+.nav-symbol__garden-stem {
+  stroke-width: 1.7;
+}
+.nav-symbol__garden-leaf {
+  stroke-width: 1.35;
+}
+.nav-symbol__garden-pot {
+  stroke-width: 1.6;
+}
+.nav-symbol__garden-rim {
+  stroke-width: 1.55;
+}
+.nav-symbol__pot-detail {
+  stroke: var(--garden-pot-detail);
+  stroke-width: 1.25;
+}
+.nav-symbol__center {
+  fill: var(--accent-yellow);
+  stroke-width: 1.05;
+}
+.nav-symbol__progress-stems {
+  stroke-width: 1.75;
+}
+.nav-symbol__progress-petal {
+  stroke-width: 1.05;
+}
 .nav-item[aria-current='page'] {
-  background: var(--surface-soft);
-  color: var(--action-primary-deep);
+  background: var(--nav-tab-surface);
+  color: var(--nav-tab-ink);
 }
 .nav-brand {
   display: none;
@@ -1674,6 +1754,38 @@ p {
   margin-top: 3px;
   font-size: 0.86rem;
 }
+.garden-book-symbol {
+  width: 25px;
+  height: 25px;
+  flex: 0 0 auto;
+  fill: var(--surface-card);
+  stroke: currentcolor;
+  stroke-width: 1.65;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.garden-book-symbol__spine {
+  fill: none;
+  stroke-width: 1.35;
+}
+.garden-book-symbol__bookmark {
+  fill: var(--action-primary);
+  stroke-width: 1.15;
+}
+.garden-book-symbol__stem {
+  fill: none;
+  stroke: var(--accent-green);
+  stroke-width: 1.15;
+}
+.garden-book-symbol__leaves {
+  fill: var(--garden-bloom-mint);
+  stroke: var(--accent-green);
+  stroke-width: 0.9;
+}
+.garden-book-symbol__flower {
+  fill: var(--garden-bloom-pink);
+  stroke-width: 0.9;
+}
 .garden-plot {
   position: relative;
   height: clamp(434px, 60dvh, 486px);
@@ -2597,7 +2709,9 @@ p {
   }
 
   .nav-item:hover {
-    background: var(--surface-soft);
+    background: var(--nav-tab-surface);
+    color: var(--nav-tab-ink);
+    filter: none;
   }
 }
 
@@ -2706,10 +2820,11 @@ p {
     font-size: 0.9rem;
   }
   .nav-item:hover {
-    background: var(--surface-soft);
+    background: var(--nav-tab-surface);
+    color: var(--nav-tab-ink);
   }
   .nav-item[aria-current='page'] {
-    background: var(--surface-soft);
+    background: var(--nav-tab-surface);
   }
   .nav-symbol {
     width: 29px;
