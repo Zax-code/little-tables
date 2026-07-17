@@ -44,7 +44,7 @@ type LockedPlotProps = Readonly<{
   reduceMotion: boolean
 }>
 
-const plantsPerPlot = 6
+const plantsPerPlot = 3
 const fallbackCaretakerSize = 150
 const sparkles = [
   { id: 'left', symbol: '✦' },
@@ -162,12 +162,14 @@ function Plant({ definition, reduceMotion, stage }: PlantProps) {
         <PlantStem stage={stage} />
         {stage === 'mature' ? (
           <GardenMatureHead
+            accentColor={definition.accentColor}
             centerColor={definition.centerColor}
             kind={definition.kind}
             petalColor={definition.petalColor}
           />
         ) : stage === 'growing' ? (
           <GardenGrowingBud
+            accentColor={definition.accentColor}
             centerColor={definition.centerColor}
             kind={definition.kind}
             petalColor={definition.petalColor}

@@ -71,13 +71,13 @@ describe('internationalization', () => {
     expect(translate('fr', 'ambient.rainbow')).toBe(
       'un petit arc-en-ciel s’est glissé après la pluie.',
     )
-    expect(translate('en', 'plant.sunset-sunflower')).toBe('sunset sunflower')
-    expect(translate('fr', 'plant.lavender-sprig')).toBe('brin de lavande')
-    expect(translate('fr', 'chapter.progress', { current: 1, flower: 'fleur', total: 6 })).toBe(
-      '1 fleur sur 6 dans ce coin',
+    expect(translate('en', 'plant.blue-wisteria')).toBe('blue wisteria')
+    expect(translate('fr', 'plant.ivory-magnolia')).toBe('magnolia ivoire')
+    expect(translate('fr', 'chapter.progress', { current: 1, flower: 'fleur', total: 3 })).toBe(
+      '1 fleur sur 3 dans ce coin',
     )
-    expect(translate('en', 'chapter.progress', { current: 3, flower: 'flowers', total: 6 })).toBe(
-      '3 flowers out of 6 in this chapter',
+    expect(translate('en', 'chapter.progress', { current: 3, flower: 'flowers', total: 3 })).toBe(
+      '3 flowers out of 3 in this chapter',
     )
   })
 

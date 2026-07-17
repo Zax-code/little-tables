@@ -7,7 +7,7 @@ import { gardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenPlot, PlantPages } from './garden-plot.js'
 
 describe('GardenPlot', () => {
-  it('shows one named six-plant chapter at a time with finite three-page navigation', () => {
+  it('shows one named three-plant chapter at a time with finite three-page navigation', () => {
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions: 0,
       snapshot: LearningEngine.emptySnapshot(),
@@ -16,18 +16,18 @@ describe('GardenPlot', () => {
 
     expect(markup).toContain('les premières fleurs')
     expect(markup.match(/data-garden-page=/g)).toHaveLength(3)
-    expect(markup.match(/data-plant-id=/g)).toHaveLength(18)
+    expect(markup.match(/data-plant-id=/g)).toHaveLength(9)
     expect(markup).toContain('Page 1 sur 3 du jardin')
   })
 
   it('uses natural French singular agreement for one collected flower', () => {
     const progress = LearningEngine.deriveGardenProgress({
-      completedSessions: 3,
+      completedSessions: 5,
       snapshot: LearningEngine.emptySnapshot(),
     })
     const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
 
-    expect(markup).toContain('1 fleur sur 6 dans ce coin')
+    expect(markup).toContain('1 fleur sur 3 dans ce coin')
     expect(markup).not.toContain('1 fleurs')
   })
 
@@ -48,12 +48,12 @@ describe('GardenPlot', () => {
       snapshot: LearningEngine.emptySnapshot(),
     })
     const plants = progress.plants.map(gardenPlantDefinition)
-    const pages = [plants.slice(0, 6), plants.slice(6, 12), plants.slice(12, 18)]
+    const pages = [plants.slice(0, 3), plants.slice(3, 6), plants.slice(6, 9)]
     const target = {
       caretakerX: 36,
       caretakerY: 39,
       facing: 'right' as const,
-      id: plants[0]?.id ?? 'coral-tulip',
+      id: plants[0]?.id ?? 'rose-lotus',
       pageIndex: 0,
       waterX: 188,
       waterY: 216,

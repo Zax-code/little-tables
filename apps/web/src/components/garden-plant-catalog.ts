@@ -5,6 +5,7 @@ import type { GardenPlantKind } from './garden-plant-renderers.js'
 export type { GardenPlantKind } from './garden-plant-renderers.js'
 
 type GardenPlantVisual = Readonly<{
+  accentColor: string
   centerColor: string
   kind: GardenPlantKind
   petalColor: string
@@ -13,118 +14,71 @@ type GardenPlantVisual = Readonly<{
 
 export type GardenPlantDefinition = GardenPlantProgress & GardenPlantVisual
 
-// To add a plant with an existing silhouette, add its growth milestone in the
-// domain and its visual skin here; plot, animation, reward, lock, and a11y behavior
-// then derive automatically. A brand-new silhouette also needs one mature/bud/
-// reward renderer entry in garden-plant-renderers.tsx, reusable by every skin.
+// Domain milestones own progression; this catalog owns the semantic colors and
+// renderer identity for each approved silhouette.
 export const gardenPlantVisuals: Readonly<Record<GardenPlantId, GardenPlantVisual>> = {
-  'blush-tulip': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'tulip',
-    petalColor: 'var(--garden-bloom-pink)',
-    potColor: 'var(--garden-pot-pink)',
-  },
-  'celebration-daisy': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-soft-pink)',
-    potColor: 'var(--garden-pot-pink)',
-  },
-  'cloud-daisy': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-cream)',
-    potColor: 'var(--garden-pot-pink)',
-  },
-  'coral-tulip': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'tulip',
-    petalColor: 'var(--garden-bloom-coral)',
-    potColor: 'var(--garden-pot-pink)',
-  },
-  'golden-marigold': {
+  'rose-lotus': {
+    accentColor: 'var(--garden-bloom-peach)',
     centerColor: 'var(--garden-center-russet)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-gold)',
-    potColor: 'var(--garden-pot-gold)',
+    kind: 'rose-lotus',
+    petalColor: 'var(--garden-bloom-violet)',
+    potColor: 'var(--garden-pot-pink)',
   },
-  'indigo-iris': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'tulip',
+  'twilight-lupine': {
+    accentColor: 'var(--garden-bloom-lavender)',
+    centerColor: 'var(--garden-center-cream)',
+    kind: 'twilight-lupine',
     petalColor: 'var(--garden-bloom-indigo)',
     potColor: 'var(--garden-pot-indigo)',
   },
-  'lavender-sprig': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'tulip',
-    petalColor: 'var(--garden-bloom-lavender)',
-    potColor: 'var(--garden-pot-lilac)',
-  },
-  'mint-hydrangea': {
+  'velvet-foxglove': {
+    accentColor: 'var(--garden-bloom-lavender)',
     centerColor: 'var(--garden-center-cream)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-mint)',
-    potColor: 'var(--garden-pot-mint)',
-  },
-  moonflower: {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-moon)',
-    potColor: 'var(--garden-pot-indigo)',
-  },
-  'peach-dahlia': {
-    centerColor: 'var(--garden-center-russet)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-peach)',
-    potColor: 'var(--garden-pot-peach)',
-  },
-  'red-tulip': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'tulip',
-    petalColor: 'var(--garden-bloom-red)',
-    potColor: 'var(--garden-pot-pink)',
-  },
-  'rose-camellia': {
-    centerColor: 'var(--garden-center-cream)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-rose)',
-    potColor: 'var(--garden-pot-pink)',
-  },
-  'ruby-poppy': {
-    centerColor: 'var(--garden-center-russet)',
-    kind: 'tulip',
-    petalColor: 'var(--garden-bloom-ruby)',
-    potColor: 'var(--garden-pot-gold)',
-  },
-  'star-jasmine': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-star)',
-    potColor: 'var(--garden-pot-mint)',
-  },
-  'sunny-daisy': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-white)',
-    potColor: 'var(--garden-pot-pink)',
-  },
-  'sunset-sunflower': {
-    centerColor: 'var(--garden-center-russet)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-sunset)',
-    potColor: 'var(--garden-pot-peach)',
-  },
-  'violet-pansy': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'tulip',
+    kind: 'velvet-foxglove',
     petalColor: 'var(--garden-bloom-violet)',
     potColor: 'var(--garden-pot-lilac)',
   },
-  'white-cosmos': {
-    centerColor: 'var(--garden-center-yellow)',
-    kind: 'daisy',
-    petalColor: 'var(--garden-bloom-white)',
-    potColor: 'var(--garden-pot-mint)',
+  'plum-snapdragon': {
+    accentColor: 'var(--garden-bloom-lavender)',
+    centerColor: 'var(--garden-center-cream)',
+    kind: 'plum-snapdragon',
+    petalColor: 'var(--garden-bloom-violet)',
+    potColor: 'var(--garden-pot-lilac)',
+  },
+  'sunset-zinnia': {
+    accentColor: 'var(--garden-bloom-peach)',
+    centerColor: 'var(--garden-center-russet)',
+    kind: 'sunset-zinnia',
+    petalColor: 'var(--garden-bloom-violet)',
+    potColor: 'var(--garden-pot-peach)',
+  },
+  'ruby-bleeding-heart': {
+    accentColor: 'var(--garden-bloom-soft-pink)',
+    centerColor: 'var(--garden-center-cream)',
+    kind: 'ruby-bleeding-heart',
+    petalColor: 'var(--garden-bloom-ruby)',
+    potColor: 'var(--garden-pot-pink)',
+  },
+  'blushing-peony': {
+    accentColor: 'var(--garden-bloom-peach)',
+    centerColor: 'var(--garden-center-russet)',
+    kind: 'blushing-peony',
+    petalColor: 'var(--garden-bloom-rose)',
+    potColor: 'var(--garden-pot-pink)',
+  },
+  'ivory-magnolia': {
+    accentColor: 'var(--garden-bloom-gold)',
+    centerColor: 'var(--garden-center-russet)',
+    kind: 'ivory-magnolia',
+    petalColor: 'var(--garden-bloom-cream)',
+    potColor: 'var(--garden-pot-gold)',
+  },
+  'blue-wisteria': {
+    accentColor: 'var(--garden-bloom-lavender)',
+    centerColor: 'var(--garden-center-cream)',
+    kind: 'blue-wisteria',
+    petalColor: 'var(--garden-bloom-indigo)',
+    potColor: 'var(--garden-pot-indigo)',
   },
 }
 

@@ -498,26 +498,26 @@ describe('LearningEngine', () => {
 
     expect(
       stagesAt(0)
-        .plants.slice(0, 6)
+        .plants.slice(0, 3)
         .map(({ stage }) => stage),
-    ).toEqual(['dormant', 'dormant', 'dormant', 'dormant', 'dormant', 'locked'])
-    expect(stagesAt(1).featuredPlant?.name).toBe('coral tulip')
-    expect(stagesAt(2).plants[0]?.stage).toBe('mature')
+    ).toEqual(['dormant', 'dormant', 'locked'])
+    expect(stagesAt(1).featuredPlant?.name).toBe('rose lotus')
+    expect(stagesAt(5).plants[0]?.stage).toBe('mature')
     expect(
-      stagesAt(12)
-        .plants.slice(0, 6)
+      stagesAt(10)
+        .plants.slice(0, 3)
         .map(({ stage }) => stage),
-    ).toEqual(['mature', 'mature', 'mature', 'mature', 'mature', 'locked'])
-    expect(stagesAt(12).featuredPlant?.name).toBe('blush tulip')
-    expect(stagesAt(13).plants[5]?.stage).toBe('locked')
-    expect(stagesAt(15).plants[5]?.stage).toBe('locked')
+    ).toEqual(['mature', 'mature', 'locked'])
+    expect(stagesAt(10).featuredPlant?.name).toBe('twilight lupine')
+    expect(stagesAt(11).plants[2]?.stage).toBe('locked')
+    expect(stagesAt(15).plants[2]?.stage).toBe('locked')
   })
 
   it.each([
-    [0, 'coral-tulip', 1, 1, 'growing', false],
-    [1, 'coral-tulip', 2, 1, 'mature', false],
-    [12, 'celebration-daisy', 13, 1, 'growing', true],
-    [13, 'celebration-daisy', 13, 0, 'growing', true],
+    [0, 'rose-lotus', 1, 1, 'growing', false],
+    [1, 'rose-lotus', 5, 4, 'mature', false],
+    [10, 'velvet-foxglove', 11, 1, 'growing', true],
+    [11, 'velvet-foxglove', 11, 0, 'growing', true],
   ] as const)(
     'derives the next garden milestone after %i blooms',
     (completedSessions, plantId, targetAt, bloomsRemaining, targetStage, unlocksPot) => {

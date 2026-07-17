@@ -40,7 +40,8 @@ export function CelebrationScreen() {
     snapshot: data.snapshot,
   })
   const featuredPlant = progress.featuredPlant
-  const bloomKind = featuredPlant === null ? 'tulip' : gardenPlantVisuals[featuredPlant.id].kind
+  const bloomVisual =
+    featuredPlant === null ? gardenPlantVisuals['rose-lotus'] : gardenPlantVisuals[featuredPlant.id]
   const rewardCopy = celebrationRewardCopy(progress, locale)
   const insightCopy =
     completion.learningInsight === null
@@ -84,7 +85,13 @@ export function CelebrationScreen() {
                   reduceMotion ? { duration: 0 } : { delay: 0.22, type: 'spring', stiffness: 280 }
                 }
               >
-                <GardenRewardFlower kind={bloomKind} /> {t('celebration.gardenBloom')}
+                <GardenRewardFlower
+                  accentColor={bloomVisual.accentColor}
+                  centerColor={bloomVisual.centerColor}
+                  kind={bloomVisual.kind}
+                  petalColor={bloomVisual.petalColor}
+                />{' '}
+                {t('celebration.gardenBloom')}
               </m.div>
               <p className="reward-explanation">{rewardCopy}</p>
             </div>

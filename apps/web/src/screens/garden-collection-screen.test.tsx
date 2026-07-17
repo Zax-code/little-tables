@@ -25,7 +25,7 @@ describe('garden collection screen', () => {
     const markup = renderToStaticMarkup(<GardenCollectionScreen />)
 
     expect(markup.match(/class="collection-chapter"/g)).toHaveLength(3)
-    expect(markup.match(/class="collection-plant collection-plant--/g)).toHaveLength(18)
+    expect(markup.match(/class="collection-plant collection-plant--/g)).toHaveLength(9)
     expect(markup).toContain('href="/garden"')
   })
 

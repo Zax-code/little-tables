@@ -49,6 +49,7 @@ function CollectionPlantPortrait({ plant }: Readonly<{ plant: GardenPlantProgres
           {stage === 'mature' ? (
             <g transform="translate(0 9)">
               <GardenMatureHead
+                accentColor={definition.accentColor}
                 centerColor={definition.centerColor}
                 kind={definition.kind}
                 petalColor={definition.petalColor}
@@ -56,6 +57,7 @@ function CollectionPlantPortrait({ plant }: Readonly<{ plant: GardenPlantProgres
             </g>
           ) : (
             <GardenGrowingBud
+              accentColor={definition.accentColor}
               centerColor={definition.centerColor}
               kind={definition.kind}
               petalColor={definition.petalColor}

@@ -679,7 +679,7 @@ describe('LearningEngine phase two', () => {
     })
   })
 
-  it('derives three finite garden chapters and an eighteen-plant collection', () => {
+  it('derives three finite garden chapters and a nine-plant collection', () => {
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions: 45,
       snapshot: snapshotWithFluentFacts(30),
@@ -690,14 +690,14 @@ describe('LearningEngine phase two', () => {
       'secret-greenhouse',
       'starlit-garden',
     ])
-    expect(progress.plants).toHaveLength(18)
+    expect(progress.plants).toHaveLength(9)
     expect(progress.plants.at(-1)).toMatchObject({
       chapterId: 'starlit-garden',
-      id: 'sunset-sunflower',
+      id: 'blue-wisteria',
       matureAt: 45,
       stage: 'mature',
     })
-    expect(progress.collection).toEqual({ collectedCount: 18, complete: true, totalCount: 18 })
+    expect(progress.collection).toEqual({ collectedCount: 9, complete: true, totalCount: 9 })
     expect(progress.chapters.every(({ stage }) => stage === 'complete')).toBe(true)
     expect(progress.nextStep).toBeNull()
   })
@@ -712,20 +712,20 @@ describe('LearningEngine phase two', () => {
       snapshot: snapshotWithFluentFacts(5),
     })
 
-    expect(waiting.plants.find(({ id }) => id === 'celebration-daisy')).toMatchObject({
+    expect(waiting.plants.find(({ id }) => id === 'velvet-foxglove')).toMatchObject({
       masteryRemaining: 5,
       stage: 'locked',
     })
     expect(waiting.nextStep).toMatchObject({
       blockedByMastery: true,
       fluentFactsRemaining: 5,
-      plant: { id: 'celebration-daisy' },
+      plant: { id: 'velvet-foxglove' },
       practiceDaysRemaining: 0,
     })
-    expect(ready.chapters[0]).toMatchObject({ collectedCount: 6, stage: 'complete' })
+    expect(ready.chapters[0]).toMatchObject({ collectedCount: 3, stage: 'complete' })
     expect(ready.nextStep).toMatchObject({
       blockedByMastery: false,
-      plant: { id: 'lavender-sprig' },
+      plant: { id: 'plum-snapdragon' },
       practiceDaysRemaining: 1,
     })
     expect(ready.rewards.map(({ id }) => id)).toContain('chapter:sunny-meadow')
