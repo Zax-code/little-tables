@@ -1,30 +1,15 @@
 import { describe, expect, it } from 'vitest'
 
 import {
+  gardenWorldX,
+  gardenWateringCycleMs,
   pickNextGardenTarget,
-  planGardenJourney,
   selectGardenCaretakerTarget,
 } from './garden-watering-route.js'
 
 describe('garden watering route', () => {
-  it('lets Miffy choose plants across every garden independently of the displayed garden', () => {
-    const targets = [
-      { id: 'tulip', pageIndex: 0 },
-      { id: 'daisy', pageIndex: 0 },
-      { id: 'lavender', pageIndex: 1 },
-      { id: 'moonflower', pageIndex: 1 },
-      { id: 'cosmos', pageIndex: 2 },
-      { id: 'star-bloom', pageIndex: 2 },
-    ] as const
-    const selected = [0, 0.24, 0.49, 0.74, 0.999].map((randomValue) =>
-      pickNextGardenTarget('lavender', targets, () => randomValue),
-    )
-
-    expect(new Set(selected.map((target) => target?.id))).toEqual(
-      new Set(['tulip', 'daisy', 'moonflower', 'cosmos', 'star-bloom']),
-    )
-    expect(new Set(selected.map((target) => target?.pageIndex))).toEqual(new Set([0, 1, 2]))
-    expect(selected).not.toContainEqual(targets[2])
+  it('starts a new watering route every three seconds', () => {
+    expect(gardenWateringCycleMs).toBe(3_000)
   })
 
   it('does not move when there is only one available plant', () => {
@@ -33,7 +18,7 @@ describe('garden watering route', () => {
     expect(pickNextGardenTarget(onlyTarget.id, [onlyTarget], () => 0.75)).toBe(onlyTarget)
   })
 
-  it('keeps Miffy in her garden when the player displays a different garden', () => {
+  it('keeps Miffy on her current plant when the player displays a different garden', () => {
     const targets = [
       { id: 'tulip', pageIndex: 0 },
       { id: 'lavender', pageIndex: 1 },
@@ -48,18 +33,19 @@ describe('garden watering route', () => {
     )
   })
 
-  it('routes Miffy out of one garden and into the next instead of teleporting', () => {
-    const source = { caretakerX: 40, id: 'tulip', pageIndex: 0 }
-    const destination = { caretakerX: 120, id: 'cosmos', pageIndex: 2 }
+  it('maps every garden onto one continuous world coordinate system', () => {
+    expect(gardenWorldX(0, 340, 120)).toBe(120)
+    expect(gardenWorldX(1, 340, 120)).toBe(460)
+    expect(gardenWorldX(2, 340, 120)).toBe(800)
+  })
 
-    expect(
-      planGardenJourney(source, destination, { canvasWidth: 340, caretakerWidth: 190 }),
-    ).toEqual({
-      arrival: { caretakerX: -190, id: 'cosmos', pageIndex: 2 },
-      departure: { caretakerX: 340, id: 'tulip', pageIndex: 0 },
+  it('selects cross-garden destinations from the shared world', () => {
+    const source = { caretakerX: 40, id: 'tulip', pageIndex: 0 }
+    const sameGarden = { caretakerX: 80, id: 'daisy', pageIndex: 0 }
+    const destination = { caretakerX: 800, id: 'cosmos', pageIndex: 2 }
+
+    expect(pickNextGardenTarget(source.id, [source, sameGarden, destination], () => 0.999)).toBe(
       destination,
-      direction: 'right',
-      kind: 'between-gardens',
-    })
+    )
   })
 })

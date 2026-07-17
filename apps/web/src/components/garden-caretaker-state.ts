@@ -1,7 +1,6 @@
 import { selectGardenCaretakerTarget } from './garden-watering-route.js'
 
-export type GardenCaretakerPhase =
-  'arriving' | 'departing' | 'finishing-arrival' | 'traveling' | 'walking' | 'watering'
+export type GardenCaretakerPhase = 'walking' | 'watering'
 
 export type GardenCaretakerTarget = Readonly<{
   caretakerX: number
@@ -13,14 +12,7 @@ export type GardenCaretakerTarget = Readonly<{
   waterY: number
 }>
 
-type CrossGardenJourney = Readonly<{
-  arrival: GardenCaretakerTarget
-  destination: GardenCaretakerTarget
-  direction: 'left' | 'right'
-}>
-
 export type GardenCaretakerState = Readonly<{
-  crossGardenJourney: CrossGardenJourney | undefined
   phase: GardenCaretakerPhase
   target: GardenCaretakerTarget | undefined
   walkDuration: number
@@ -29,16 +21,10 @@ export type GardenCaretakerState = Readonly<{
 
 export type GardenCaretakerAction =
   | Readonly<{
+      initialPage: number
       randomValue: number
       targets: readonly GardenCaretakerTarget[]
       type: 'targets-measured'
-    }>
-  | Readonly<{
-      crossGardenJourney: CrossGardenJourney
-      target: GardenCaretakerTarget
-      walkDuration: number
-      walkFacing: 'left' | 'right'
-      type: 'depart'
     }>
   | Readonly<{
       target: GardenCaretakerTarget
@@ -46,18 +32,9 @@ export type GardenCaretakerAction =
       walkFacing: 'left' | 'right'
       type: 'walk'
     }>
-  | Readonly<{ type: 'travel' }>
-  | Readonly<{
-      target: GardenCaretakerTarget
-      walkDuration: number
-      walkFacing: 'left' | 'right'
-      type: 'arrive'
-    }>
-  | Readonly<{ target: GardenCaretakerTarget; type: 'finish-arrival' }>
   | Readonly<{ type: 'water' }>
 
 export const initialGardenCaretakerState: GardenCaretakerState = {
-  crossGardenJourney: undefined,
   phase: 'watering',
   target: undefined,
   walkDuration: 1,
@@ -76,6 +53,7 @@ export function transitionGardenCaretaker(
         state.target?.id,
         action.targets,
         () => action.randomValue,
+        action.targets.filter(({ pageIndex }) => pageIndex === action.initialPage),
       ),
     }
   }
@@ -88,27 +66,5 @@ export function transitionGardenCaretaker(
       walkFacing: action.walkFacing,
     }
   }
-  if (action.type === 'depart') {
-    return {
-      crossGardenJourney: action.crossGardenJourney,
-      phase: 'departing',
-      target: action.target,
-      walkDuration: action.walkDuration,
-      walkFacing: action.walkFacing,
-    }
-  }
-  if (action.type === 'travel') return { ...state, phase: 'traveling', target: undefined }
-  if (action.type === 'arrive') {
-    return {
-      ...state,
-      phase: 'arriving',
-      target: action.target,
-      walkDuration: action.walkDuration,
-      walkFacing: action.walkFacing,
-    }
-  }
-  if (action.type === 'finish-arrival') {
-    return { ...state, phase: 'finishing-arrival', target: action.target }
-  }
-  return { ...state, crossGardenJourney: undefined, phase: 'watering' }
+  return { ...state, phase: 'watering' }
 }

@@ -17,41 +17,41 @@ const target = (id: string, pageIndex: number, caretakerX: number): GardenCareta
 })
 
 describe('garden caretaker state', () => {
-  it('completes a cross-garden journey and resumes autonomous watering', () => {
-    const source = target('tulip', 0, 340)
-    const arrival = target('cosmos', 2, -190)
-    const destination = target('cosmos', 2, 100)
-    const journey = { arrival, destination, direction: 'right' as const }
+  it('starts in the displayed garden and retains a cross-garden destination when remeasured', () => {
+    const firstGarden = target('tulip', 0, 40)
+    const displayedGarden = target('cosmos', 1, 100)
+    const initial = transitionGardenCaretaker(initialGardenCaretakerState, {
+      initialPage: 1,
+      randomValue: 0,
+      targets: [firstGarden, displayedGarden],
+      type: 'targets-measured',
+    })
+    const arrived = { ...initial, target: firstGarden }
 
-    const departing = transitionGardenCaretaker(initialGardenCaretakerState, {
-      crossGardenJourney: journey,
-      target: source,
-      type: 'depart',
-      walkDuration: 1,
-      walkFacing: 'right',
-    })
-    const traveling = transitionGardenCaretaker(departing, { type: 'travel' })
-    const arriving = transitionGardenCaretaker(traveling, {
-      target: arrival,
-      type: 'arrive',
-      walkDuration: 1.2,
-      walkFacing: 'right',
-    })
-    const finishing = transitionGardenCaretaker(arriving, {
+    expect(initial.target).toBe(displayedGarden)
+    expect(
+      transitionGardenCaretaker(arrived, {
+        initialPage: 1,
+        randomValue: 0.999,
+        targets: [{ ...firstGarden }, { ...displayedGarden }],
+        type: 'targets-measured',
+      }).target,
+    ).toEqual(firstGarden)
+  })
+
+  it('walks directly to a cross-garden target and resumes watering', () => {
+    const destination = target('cosmos', 2, 800)
+    const walking = transitionGardenCaretaker(initialGardenCaretakerState, {
       target: destination,
-      type: 'finish-arrival',
+      type: 'walk',
+      walkDuration: 4.5,
+      walkFacing: 'right',
     })
-    const watering = transitionGardenCaretaker(finishing, { type: 'water' })
+    const watering = transitionGardenCaretaker(walking, { type: 'water' })
 
-    expect([
-      departing.phase,
-      traveling.phase,
-      arriving.phase,
-      finishing.phase,
-      watering.phase,
-    ]).toEqual(['departing', 'traveling', 'arriving', 'finishing-arrival', 'watering'])
-    expect(traveling.target).toBeUndefined()
-    expect(finishing.target).toBe(destination)
-    expect(watering.crossGardenJourney).toBeUndefined()
+    expect([walking.phase, watering.phase]).toEqual(['walking', 'watering'])
+    expect(walking.target).toBe(destination)
+    expect(walking).not.toHaveProperty('crossGardenJourney')
+    expect(watering.target).toBe(destination)
   })
 })

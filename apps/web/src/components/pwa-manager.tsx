@@ -1,21 +1,31 @@
 import { useRegisterSW } from 'virtual:pwa-register/react'
-import { useRouterState } from '@tanstack/react-router'
+import { useEffect, useState } from 'react'
 
+import { startServiceWorkerUpdateChecks } from '../service-worker-updates.js'
 import { useI18n } from '../i18n.js'
 
 export function PwaManager() {
   const { t } = useI18n()
-  const inPractice = useRouterState({ select: ({ location }) => location.pathname === '/practice' })
+  const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null)
   const {
-    needRefresh: [needRefresh, setNeedRefresh],
+    needRefresh: [needRefresh],
     offlineReady: [offlineReady, setOfflineReady],
     updateServiceWorker,
-  } = useRegisterSW()
+  } = useRegisterSW({
+    onRegisteredSW: (_serviceWorkerUrl, nextRegistration) => {
+      setRegistration(nextRegistration ?? null)
+    },
+  })
 
-  if ((!needRefresh && !offlineReady) || (needRefresh && inPractice)) return null
+  useEffect(() => {
+    if (registration === null) return
+    return startServiceWorkerUpdateChecks(registration)
+  }, [registration])
+
+  if (!needRefresh && !offlineReady) return null
 
   return (
-    <aside className="pwa-toast" role="status">
+    <aside aria-live="polite" className="pwa-toast" role="status">
       <span>{needRefresh ? t('pwa.refreshReady') : t('pwa.offlineReady')}</span>
       {needRefresh ? (
         <button onClick={() => void updateServiceWorker(true)} type="button">
@@ -26,16 +36,15 @@ export function PwaManager() {
           {t('pwa.okay')}
         </button>
       )}
-      <button
-        aria-label={t('common.dismiss')}
-        onClick={() => {
-          setNeedRefresh(false)
-          setOfflineReady(false)
-        }}
-        type="button"
-      >
-        ×
-      </button>
+      {needRefresh ? null : (
+        <button
+          aria-label={t('common.dismiss')}
+          onClick={() => setOfflineReady(false)}
+          type="button"
+        >
+          ×
+        </button>
+      )}
     </aside>
   )
 }
