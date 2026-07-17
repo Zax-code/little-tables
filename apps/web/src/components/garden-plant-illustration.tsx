@@ -193,7 +193,14 @@ function GardenPlantBody({
 function GardenPlantPot({ color }: Readonly<{ color: string }>) {
   return (
     <g className="garden-plot__pot" transform="scale(.8)">
-      <ellipse cx="70" cy="155" fill="var(--garden-soil)" rx="29" ry="6" />
+      <ellipse
+        className="garden-plot__soil"
+        cx="70"
+        cy="155"
+        fill="var(--garden-soil)"
+        rx="29"
+        ry="6"
+      />
       <path
         d="M39 159H101L95 184C79 189 61 189 45 184Z"
         fill={color}
