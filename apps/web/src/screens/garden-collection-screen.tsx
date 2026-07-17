@@ -3,7 +3,7 @@ import type { GardenPlantProgress } from '@little-tables/domain'
 import { Link } from '@tanstack/react-router'
 
 import { gardenPlantDefinition } from '../components/garden-plant-catalog.js'
-import { GardenGrowingBud, GardenMatureHead } from '../components/garden-plant-renderers.js'
+import { GardenPlantArtwork, gardenPlantViewBox } from '../components/garden-plant-illustration.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { translatePlantName, useI18n } from '../i18n.js'
 
@@ -29,9 +29,9 @@ function CollectionPlantPortrait({ plant }: Readonly<{ plant: GardenPlantProgres
   const definition = gardenPlantDefinition(plant)
   const stage = collectionStage(plant)
 
-  return (
-    <svg aria-hidden="true" className="collection-plant__portrait" viewBox="0 0 112 104">
-      {stage === 'locked' ? (
+  if (stage === 'locked') {
+    return (
+      <svg aria-hidden="true" className="collection-plant__portrait" viewBox="0 0 112 104">
         <>
           <path
             className="collection-plant__locked-outline"
@@ -41,41 +41,19 @@ function CollectionPlantPortrait({ plant }: Readonly<{ plant: GardenPlantProgres
             <rect x="46" y="54" width="20" height="18" rx="4" />
             <path d="M50 54v-6a6 6 0 0 1 12 0v6" />
           </g>
-        </>
-      ) : (
-        <>
-          <path className="collection-plant__leaf" d="M55 82C43 71 34 73 33 76c3 10 10 16 22 17Z" />
-          {stage === 'mature' ? (
-            <g transform="translate(0 -8)">
-              <GardenMatureHead
-                accentColor={definition.accentColor}
-                centerColor={definition.centerColor}
-                kind={definition.kind}
-                petalColor={definition.petalColor}
-              />
-            </g>
-          ) : (
-            <g transform="translate(0 -8)">
-              <GardenGrowingBud
-                accentColor={definition.accentColor}
-                centerColor={definition.centerColor}
-                kind={definition.kind}
-                petalColor={definition.petalColor}
-              />
-            </g>
-          )}
           <path
-            className="collection-plant__stem"
-            d="M56 86V68"
-            data-collection-stem="foreground"
+            className="collection-plant__pot"
+            d="M31 86H81L77 101c-13 4-29 4-42 0Z"
+            fill={definition.potColor}
           />
         </>
-      )}
-      <path
-        className="collection-plant__pot"
-        d="M31 86H81L77 101c-13 4-29 4-42 0Z"
-        fill={definition.potColor}
-      />
+      </svg>
+    )
+  }
+
+  return (
+    <svg aria-hidden="true" className="collection-plant__portrait" viewBox={gardenPlantViewBox}>
+      <GardenPlantArtwork definition={definition} stage={stage} />
     </svg>
   )
 }

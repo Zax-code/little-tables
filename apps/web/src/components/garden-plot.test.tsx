@@ -31,6 +31,18 @@ describe('GardenPlot', () => {
     expect(markup).not.toContain('1 fleurs')
   })
 
+  it('uses the approved full-length rose lotus stem from the rendered catalog', () => {
+    const progress = LearningEngine.deriveGardenProgress({
+      completedSessions: 5,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+
+    expect(markup).toContain('data-plant-stem="rose-lotus-mature"')
+    expect(markup).toContain('d="M70 154V100"')
+    expect(markup).toContain('viewBox="0 0 112 152"')
+  })
+
   it('uses box-centered icons for both garden navigation buttons', () => {
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions: 0,

@@ -261,13 +261,6 @@ function RubyHeartGrowing({ petalColor }: FlowerRenderProps) {
     <FlowerGroup kind="ruby-bleeding-heart">
       <g transform="scale(.8)">
         <path
-          d="M70 108C69 94 65 84 58 77C53 72 48 72 44 74"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth="2.5"
-        />
-        <path
           d={heartPath(48, 91, 12)}
           fill={petalColor}
           stroke={ink}
@@ -283,13 +276,6 @@ function RubyHeartMature({ petalColor }: FlowerRenderProps) {
   return (
     <FlowerGroup kind="ruby-bleeding-heart">
       <g transform="scale(.8)">
-        <path
-          d="M69 110C70 84 77 57 60 40C52 31 41 29 31 34"
-          fill="none"
-          stroke={ink}
-          strokeLinecap="round"
-          strokeWidth="2.5"
-        />
         <g fill={petalColor} stroke={ink} strokeLinejoin="round" strokeWidth="2.5">
           <path d={heartPath(33, 55, 20)} />
           <path d={heartPath(43, 76, 20)} />
@@ -390,17 +376,6 @@ function WisteriaCluster({
       ]
   return (
     <g transform="scale(.8)">
-      <path
-        d={
-          mature
-            ? 'M70 110C72 84 74 58 62 40C55 30 45 29 36 34'
-            : 'M70 110C69 98 65 88 58 81C53 76 48 76 44 79'
-        }
-        fill="none"
-        stroke={ink}
-        strokeLinecap="round"
-        strokeWidth="2.5"
-      />
       {flowers.map(([x, y]) => (
         <g key={`${x}-${y}`}>
           <path
