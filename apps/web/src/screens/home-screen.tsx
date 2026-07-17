@@ -15,6 +15,7 @@ import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { usePracticeLauncher } from '../hooks/use-practice-launcher.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
 import { useI18n } from '../i18n.js'
+import { deriveWeekProgressSegments } from '../week-progress.js'
 
 export function HomeScreen() {
   const { t } = useI18n()
@@ -180,11 +181,8 @@ export function HomeScreen() {
               })}
             </span>
             <div aria-hidden="true" className="week-day-row">
-              {dailyView.week.map((day) => (
-                <i
-                  className={`${day.practiced ? 'week-day week-day-practiced' : 'week-day'}${day.today ? ' week-day-today' : ''}`}
-                  key={day.dayKey}
-                />
+              {deriveWeekProgressSegments(dailyView.weeklyPracticeDays).map((practiced, index) => (
+                <i className={practiced ? 'week-day week-day-practiced' : 'week-day'} key={index} />
               ))}
             </div>
             <small>

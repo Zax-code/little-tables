@@ -485,7 +485,7 @@ const french: Record<TranslationKey, string> = {
   'home.glowDays': '{count} jours fleuris',
   'home.hideModes': 'cacher les choix',
   'home.lowEnergy': 'pour les jours à petite énergie',
-  'home.mode': 'choisir un petit chemin',
+  'home.mode': 'voir les autres séances',
   'home.petal': '{count} pétale sur 5',
   'home.petals': '{count} pétales sur 5',
   'home.play': 'jouer 90 sec',
