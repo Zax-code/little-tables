@@ -68,8 +68,21 @@ describe('garden screen', () => {
     expect(markup).toContain('0 fleurs du jour sur 3')
     expect(markup).toContain('<details class="garden-how-it-grows"')
     expect(markup).toContain('Comment ça pousse')
-    expect(markup).toContain('Le jardin pousse une fois par jour')
-    expect(markup).toContain('la prochaine t’attend demain')
+    expect(markup).toContain('la plante en cours gagne une fleur')
+    expect(markup).toContain('la prochaine fleur t’attend demain')
+    expect(markup).toContain('dans un ordre rien qu’à toi, sans doublon')
+    expect(markup).toContain('Trois fleurs, gagnées sur trois jours différents')
+    expect(markup).toContain('multiplications sans aide')
+  })
+
+  it('shows that the growth explanation can be expanded and collapsed', () => {
+    bootstrapState.data = undefined
+    vi.stubGlobal('window', { location: { search: '' } })
+    const markup = renderToStaticMarkup(<GardenScreen />)
+
+    expect(markup).toContain('<summary class="garden-how-it-grows__summary">')
+    expect(markup).toContain('class="garden-how-it-grows__indicator"')
+    expect(markup).toContain('>⌄</span>')
   })
 
   it('labels after-watering practice as optional and non-rewarding', () => {

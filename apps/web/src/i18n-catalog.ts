@@ -507,14 +507,14 @@ const french: Record<TranslationKey, string> = {
   'garden.goalRemainingOne': 'encore un arrosage du jour pour ajouter cette fleur à ta collection',
   'garden.howHeading': 'Comment ça pousse',
   'garden.howDaily':
-    'Le jardin pousse une fois par jour : termine l’arrosage du jour pour gagner l’unique fleur d’aujourd’hui. Ensuite, la prochaine t’attend demain.',
+    'Chaque jour, termine l’arrosage du jour : la plante en cours gagne une fleur. Le jardin ne pousse qu’une fois par jour ; la prochaine fleur t’attend demain.',
   'garden.howExtra':
-    'Une petite séance en plus aide tes calculs, mais ne donne pas une deuxième fleur ce jour-là.',
+    'Tu peux continuer à t’entraîner : tes calculs deviennent plus solides, mais il n’y a pas de deuxième fleur le même jour.',
   'garden.howCollection':
-    'Trois fleurs du jour font pousser la plante en cours. Une plante éclose reste dans ta collection.',
+    'Les plantes arrivent dans un ordre rien qu’à toi, sans doublon. Trois fleurs, gagnées sur trois jours différents, font grandir la plante en cours. Quand tous ses objectifs sont remplis, elle éclot et reste dans ton herbier.',
   'garden.howMastery':
-    'À la fin de certains coins, il faut aussi réussir des multiplications sans aide. Les deux objectifs sont montrés avant de te bloquer.',
-  'garden.howRest': 'Les jours de pause n’enlèvent aucune plante et ne remettent rien à zéro.',
+    'Pour certaines plantes de fin de coin, il faut aussi réussir assez de multiplications sans aide. Le jardin te montre toujours ce qu’il reste avant l’éclosion.',
+  'garden.howRest': 'Une pause n’efface rien : tes fleurs et tes progrès restent bien au chaud.',
   'garden.masteryAhead':
     'Cette plante demande aussi {required} multiplications réussies sans aide. Il en reste {remaining}.',
   'garden.masteryBlocked':

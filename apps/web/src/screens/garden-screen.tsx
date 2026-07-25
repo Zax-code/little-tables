@@ -161,7 +161,12 @@ export function GardenScreen() {
         )}
         <GardenPlot progress={progress} />
         <details className="garden-how-it-grows">
-          <summary>{t('garden.howHeading')}</summary>
+          <summary className="garden-how-it-grows__summary">
+            <span>{t('garden.howHeading')}</span>
+            <span aria-hidden="true" className="garden-how-it-grows__indicator">
+              ⌄
+            </span>
+          </summary>
           <ul>
             <li>{t('garden.howDaily')}</li>
             <li>{t('garden.howExtra')}</li>

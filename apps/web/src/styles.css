@@ -2228,14 +2228,61 @@ p {
 .garden-how-it-grows {
   margin-top: 14px;
   padding: 0 15px;
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease;
 }
-.garden-how-it-grows summary {
+.garden-how-it-grows[open] {
+  border-color: var(--action-primary);
+  box-shadow: var(--shadow-soft);
+}
+.garden-how-it-grows__summary {
   min-height: 48px;
   display: flex;
   align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 0 -15px;
+  padding: 0 15px;
+  border-radius: 19px;
   color: var(--action-primary-deep);
   font-weight: 750;
   cursor: pointer;
+  list-style: none;
+  transition:
+    background 160ms ease,
+    color 160ms ease;
+}
+.garden-how-it-grows__summary::-webkit-details-marker {
+  display: none;
+}
+.garden-how-it-grows__summary:hover {
+  background: var(--surface-card-muted);
+  color: var(--nav-garden-ink);
+}
+.garden-how-it-grows__summary:focus-visible {
+  outline: 3px solid var(--action-primary);
+  outline-offset: 3px;
+}
+.garden-how-it-grows__indicator {
+  width: 32px;
+  height: 32px;
+  flex: 0 0 32px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line-garden);
+  border-radius: 999px;
+  background: var(--surface-garden);
+  color: var(--nav-garden-ink);
+  font-size: 1.25rem;
+  line-height: 1;
+  transition:
+    transform 160ms ease,
+    background 160ms ease;
+}
+.garden-how-it-grows[open] .garden-how-it-grows__indicator {
+  transform: rotate(180deg);
+  background: var(--surface-success);
 }
 .garden-how-it-grows ul {
   margin: 0 0 15px;
