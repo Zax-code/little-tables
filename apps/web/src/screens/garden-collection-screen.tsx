@@ -110,7 +110,7 @@ export function GardenCollectionScreen() {
               <span>
                 {t('chapter.progress', {
                   current: chapter.collectedCount,
-                  flower: t(chapter.collectedCount === 1 ? 'common.flower' : 'common.flowers'),
+                  flower: t(chapter.collectedCount === 1 ? 'common.plant' : 'common.plants'),
                   total: chapter.totalCount,
                 })}
               </span>

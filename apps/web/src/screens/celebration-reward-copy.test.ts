@@ -4,17 +4,17 @@ import { describe, expect, it } from 'vitest'
 import { celebrationExtraPracticeCopy, celebrationRewardCopy } from './celebration-reward-copy.js'
 
 describe('celebration reward copy', () => {
-  it('explains how the earned bloom advances a growing flower', () => {
+  it('explains how the earned watering advances a growing plant', () => {
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions: 1,
       snapshot: LearningEngine.emptySnapshot(),
     })
 
     expect(celebrationRewardCopy(progress)).toBe(
-      'Lotus rosé : progression 1 sur 3 fleurs du jour — encore 2 avant de rejoindre ta collection.',
+      'Arrosages pour Lotus rosé : 1 sur 3. Encore 2 pour remplir son objectif de croissance.',
     )
     expect(celebrationRewardCopy(progress, 'en')).toBe(
-      'Rose lotus: 1 of 3 daily blooms. 2 more to join your collection.',
+      'Watering progress for Rose lotus: 1 of 3. 2 more to fill its growth goal.',
     )
   })
 
@@ -48,7 +48,7 @@ describe('celebration reward copy', () => {
     })
 
     expect(celebrationRewardCopy(progress)).toBe(
-      'Cette plante a déjà ses 3 fleurs. Réussis encore 5 multiplications sans aide pour la débloquer. Ses fleurs restent bien au chaud.',
+      'Les 3 arrosages de cette plante sont faits. Réussis encore 5 multiplications sans aide pour l’aider à éclore. Ses progrès sont bien gardés.',
     )
   })
 
@@ -64,17 +64,17 @@ describe('celebration reward copy', () => {
       })
 
       expect(celebrationRewardCopy(progress, 'en')).toBe(
-        `Velvet foxglove: ${current} of 3 daily blooms, with ${remainingBlooms} more to grow. It also needs 5 multiplication facts answered without hints; 5 to go.`,
+        `Watering progress for Velvet foxglove: ${current} of 3, with ${remainingBlooms} more to fill its growth goal. It also needs 5 multiplication facts answered without hints; 5 to go.`,
       )
-      expect(celebrationRewardCopy(progress, 'en')).not.toContain('has all 3 blooms')
+      expect(celebrationRewardCopy(progress, 'en')).not.toContain('3 flowers')
     },
   )
 
-  it('celebrates extra-practice learning and says the next bloom is tomorrow', () => {
+  it('celebrates extra-practice learning and says the next watering is tomorrow', () => {
     expect(celebrationExtraPracticeCopy('en')).toBe(
-      'Your math skills got stronger. The garden grows once per day, so there is no extra bloom today—the next bloom is ready tomorrow.',
+      'Your math skills got stronger. Today’s watering is safe in the garden, and the next watering is ready tomorrow.',
     )
-    expect(celebrationExtraPracticeCopy()).toContain('Le jardin pousse une fois par jour')
-    expect(celebrationExtraPracticeCopy()).toContain('la prochaine t’attend demain')
+    expect(celebrationExtraPracticeCopy()).toContain('L’arrosage d’aujourd’hui est bien gardé')
+    expect(celebrationExtraPracticeCopy()).toContain('le prochain t’attend demain')
   })
 })

@@ -20,15 +20,15 @@ describe('GardenPlot', () => {
     expect(markup).toContain('Page 1 sur 3 du jardin')
   })
 
-  it('uses natural French singular agreement for one collected flower', () => {
+  it('uses natural French singular agreement for one collected plant', () => {
     const progress = LearningEngine.deriveGardenProgress({
       completedSessions: 5,
       snapshot: LearningEngine.emptySnapshot(),
     })
     const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
 
-    expect(markup).toContain('1 fleur sur 3 dans ce coin')
-    expect(markup).not.toContain('1 fleurs')
+    expect(markup).toContain('1 plante sur 3 dans ce coin')
+    expect(markup).not.toContain('1 plantes')
   })
 
   it('uses the approved full-length rose lotus stem from the rendered catalog', () => {

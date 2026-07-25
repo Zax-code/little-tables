@@ -19,13 +19,51 @@ describe('internationalization', () => {
   })
 
   it('keeps daily watering and the forgiving week rhythm natural in both languages', () => {
-    expect(translate('en', 'watering.dueOne')).toBe('1 flower is ready for water · about 1 min')
+    expect(translate('en', 'watering.dueOne')).toBe('1 quick question · about 1 min')
     expect(translate('fr', 'watering.dueMany', { count: 6, minutes: 2 })).toBe(
-      '6 fleurs à arroser · environ 2 min',
+      '6 petites questions · environ 2 min',
     )
     expect(translate('en', 'week.countMany', { count: 3 })).toBe('3 days in bloom out of 7')
     expect(translate('fr', 'week.explainer')).toBe(
       'Trois jours, quand tu veux dans la semaine. Les jours de pause n’effacent rien.',
+    )
+  })
+
+  it('describes garden progress as one watering step per completed daily session', () => {
+    expect(translate('en', 'garden.howDaily')).toBe(
+      'Complete today’s little session to earn one watering for your plant.',
+    )
+    expect(translate('en', 'garden.howTiming')).toBe(
+      'The garden advances only once a day: the next watering awaits you the following day. Extra practice makes your math skills stronger, but does not earn another watering that day.',
+    )
+    expect(translate('en', 'garden.howCollection')).toBe(
+      'The current flower blooms after three waterings.',
+    )
+    expect(translate('fr', 'garden.howDaily')).toBe(
+      'Termine la petite séance du jour pour obtenir un arrosage pour ta plante.',
+    )
+    expect(translate('fr', 'garden.howTiming')).toBe(
+      'Le jardin avance une seule fois par jour : le prochain arrosage t’attend le lendemain. Une séance en plus rend tes calculs plus solides, mais ne donne pas un autre arrosage ce jour-là.',
+    )
+    expect(translate('fr', 'garden.howCollection')).toBe(
+      'La fleur en cours s’épanouit au bout de trois arrosages.',
+    )
+  })
+
+  it('uses watering—not flowers—as the unit of garden progression', () => {
+    expect(translate('en', 'common.bloom')).toBe('watering')
+    expect(translate('fr', 'common.blooms')).toBe('arrosages')
+    expect(translate('en', 'celebration.gardenBloom')).toBe('+1 watering')
+    expect(translate('fr', 'garden.goalProgress', { current: 2, total: 3 })).toBe(
+      'Arrosages : 2 sur 3',
+    )
+    expect(translate('en', 'garden.masteryBlocked', { remaining: 4 })).toContain(
+      '3 waterings are complete',
+    )
+    expect(translate('fr', 'garden.masteryBlocked', { remaining: 4 })).not.toContain('3 fleurs')
+    expect(translate('en', 'watering.rewardReady')).toBe('today’s watering is waiting')
+    expect(translate('fr', 'watering.dueMany', { count: 5, minutes: 1 })).toBe(
+      '5 petites questions · environ 1 min',
     )
   })
 
@@ -74,11 +112,11 @@ describe('internationalization', () => {
     )
     expect(translate('en', 'plant.blue-wisteria')).toBe('blue wisteria')
     expect(translate('fr', 'plant.ivory-magnolia')).toBe('magnolia ivoire')
-    expect(translate('fr', 'chapter.progress', { current: 1, flower: 'fleur', total: 3 })).toBe(
-      '1 fleur sur 3 dans ce coin',
+    expect(translate('fr', 'chapter.progress', { current: 1, flower: 'plante', total: 3 })).toBe(
+      '1 plante sur 3 dans ce coin',
     )
-    expect(translate('en', 'chapter.progress', { current: 3, flower: 'flowers', total: 3 })).toBe(
-      '3 flowers out of 3 in this chapter',
+    expect(translate('en', 'chapter.progress', { current: 3, flower: 'plants', total: 3 })).toBe(
+      '3 plants out of 3 in this chapter',
     )
   })
 
@@ -100,14 +138,14 @@ describe('internationalization', () => {
       '3 calculs sur 8 sont bien ancrés sur le chemin à l’envers',
     )
     expect(translate('fr', 'garden.extraCopy')).toBe(
-      'La fleur du jour est bien au chaud et la prochaine t’attend demain. Cette petite séance ne donne pas de fleur en plus aujourd’hui, mais rend tes calculs plus solides.',
+      'L’arrosage d’aujourd’hui est bien gardé dans le jardin, et le prochain t’attend demain. Cette petite séance n’ajoute pas d’arrosage aujourd’hui, mais rend tes calculs plus solides.',
     )
   })
 
   it('keeps the completed home card positive and explicit about tomorrow', () => {
     expect(translate('en', 'watering.done')).toContain('safe in your garden')
-    expect(translate('en', 'watering.doneCopy')).toContain('The next bloom is ready tomorrow')
+    expect(translate('en', 'watering.doneCopy')).toContain('The next watering is ready tomorrow')
     expect(translate('en', 'watering.rewardEarned')).toContain('still strengthens your math skills')
-    expect(translate('fr', 'watering.extra')).toContain('pas de fleur en plus aujourd’hui')
+    expect(translate('fr', 'watering.extra')).toContain('pas d’arrosage en plus aujourd’hui')
   })
 })

@@ -2232,11 +2232,12 @@ p {
     border-color 160ms ease,
     box-shadow 160ms ease;
 }
-.garden-how-it-grows[open] {
+.garden-how-it-grows--open {
   border-color: var(--action-primary);
   box-shadow: var(--shadow-soft);
 }
 .garden-how-it-grows__summary {
+  width: calc(100% + 30px);
   min-height: 48px;
   display: flex;
   align-items: center;
@@ -2244,17 +2245,17 @@ p {
   gap: 12px;
   margin: 0 -15px;
   padding: 0 15px;
+  border: 0;
   border-radius: 19px;
+  background: transparent;
   color: var(--action-primary-deep);
+  font: inherit;
   font-weight: 750;
+  text-align: left;
   cursor: pointer;
-  list-style: none;
   transition:
     background 160ms ease,
     color 160ms ease;
-}
-.garden-how-it-grows__summary::-webkit-details-marker {
-  display: none;
 }
 .garden-how-it-grows__summary:hover {
   background: var(--surface-card-muted);
@@ -2274,15 +2275,42 @@ p {
   border-radius: 999px;
   background: var(--surface-garden);
   color: var(--nav-garden-ink);
-  font-size: 1.25rem;
-  line-height: 1;
   transition:
     transform 160ms ease,
     background 160ms ease;
 }
-.garden-how-it-grows[open] .garden-how-it-grows__indicator {
+.garden-how-it-grows__indicator svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+  fill: none;
+  stroke: currentcolor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 2;
+}
+.garden-how-it-grows--open .garden-how-it-grows__indicator {
   transform: rotate(180deg);
   background: var(--surface-success);
+}
+.garden-how-it-grows__content {
+  display: grid;
+  grid-template-rows: 0fr;
+  opacity: 0;
+  transform: translateY(-4px);
+  transition:
+    grid-template-rows 240ms cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 180ms ease,
+    transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.garden-how-it-grows--open .garden-how-it-grows__content {
+  grid-template-rows: 1fr;
+  opacity: 1;
+  transform: translateY(0);
+}
+.garden-how-it-grows__content-inner {
+  min-height: 0;
+  overflow: hidden;
 }
 .garden-how-it-grows ul {
   margin: 0 0 15px;

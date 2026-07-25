@@ -65,14 +65,19 @@ describe('garden screen', () => {
 
     expect(markup).toContain('class="garden-next-goal"')
     expect(markup).toContain('ton prochain objectif au jardin')
-    expect(markup).toContain('0 fleurs du jour sur 3')
-    expect(markup).toContain('<details class="garden-how-it-grows"')
+    expect(markup).toContain('Arrosages : 0 sur 3')
+    expect(markup).toContain('<section class="garden-how-it-grows"')
     expect(markup).toContain('Comment ça pousse')
-    expect(markup).toContain('la plante en cours gagne une fleur')
-    expect(markup).toContain('la prochaine fleur t’attend demain')
-    expect(markup).toContain('dans un ordre rien qu’à toi, sans doublon')
-    expect(markup).toContain('Trois fleurs, gagnées sur trois jours différents')
-    expect(markup).toContain('multiplications sans aide')
+    expect(markup).toContain(
+      'Termine la petite séance du jour pour obtenir un arrosage pour ta plante.',
+    )
+    expect(markup).toContain(
+      'Le jardin avance une seule fois par jour : le prochain arrosage t’attend le lendemain. Une séance en plus rend tes calculs plus solides, mais ne donne pas un autre arrosage ce jour-là.',
+    )
+    expect(markup).toContain('La fleur en cours s’épanouit au bout de trois arrosages.')
+    expect(markup).toContain('Une pause n’efface rien')
+    expect(markup.match(/<li>/g)).toHaveLength(4)
+    expect(markup).not.toContain('Les plantes arrivent dans un ordre')
   })
 
   it('shows that the growth explanation can be expanded and collapsed', () => {
@@ -80,9 +85,12 @@ describe('garden screen', () => {
     vi.stubGlobal('window', { location: { search: '' } })
     const markup = renderToStaticMarkup(<GardenScreen />)
 
-    expect(markup).toContain('<summary class="garden-how-it-grows__summary">')
+    expect(markup).toContain('aria-expanded="false"')
+    expect(markup).toContain('aria-controls="garden-how-it-grows-content"')
+    expect(markup).toContain('id="garden-how-it-grows-content"')
+    expect(markup).toContain('aria-hidden="true"')
     expect(markup).toContain('class="garden-how-it-grows__indicator"')
-    expect(markup).toContain('>⌄</span>')
+    expect(markup).toContain('viewBox="0 0 16 16"')
   })
 
   it('labels after-watering practice as optional and non-rewarding', () => {
@@ -99,10 +107,10 @@ describe('garden screen', () => {
     vi.stubGlobal('window', { location: { search: '' } })
     const markup = renderToStaticMarkup(<GardenScreen />)
 
-    expect(markup).toContain('petite séance en plus · pas de fleur en plus aujourd’hui')
-    expect(markup).toContain('La fleur du jour est bien au chaud et la prochaine t’attend demain.')
+    expect(markup).toContain('petite séance en plus · pas d’arrosage en plus aujourd’hui')
+    expect(markup).toContain('L’arrosage d’aujourd’hui est bien gardé dans le jardin')
     expect(markup).toContain('rend tes calculs plus solides')
-    expect(markup).not.toContain('encore 1 fleur pour la voir éclore')
+    expect(markup).not.toContain('encore 1 fleur')
   })
 
   it('explains a mastery gate in plain language and protects completed bloom progress', () => {
@@ -117,9 +125,9 @@ describe('garden screen', () => {
     vi.stubGlobal('window', { location: { search: '' } })
     const markup = renderToStaticMarkup(<GardenScreen />)
 
-    expect(markup).toContain('Cette plante a déjà ses 3 fleurs.')
+    expect(markup).toContain('Les 3 arrosages de cette plante sont faits.')
     expect(markup).toContain('5 multiplications sans aide')
-    expect(markup).toContain('Ses fleurs restent bien au chaud.')
+    expect(markup).toContain('Ses progrès sont bien gardés.')
   })
 
   it.each([
@@ -139,10 +147,10 @@ describe('garden screen', () => {
       vi.stubGlobal('window', { location: { search: '' } })
       const markup = renderToStaticMarkup(<GardenScreen />)
 
-      expect(markup).toContain(`${currentBlooms} fleurs du jour sur 3`)
+      expect(markup).toContain(`Arrosages : ${currentBlooms} sur 3`)
       expect(markup).toContain(`encore ${remainingBlooms}`)
       expect(markup).toContain('5 multiplications réussies sans aide')
-      expect(markup).not.toContain('Cette plante a déjà ses 3 fleurs.')
+      expect(markup).not.toContain('3 fleurs')
     },
   )
 })

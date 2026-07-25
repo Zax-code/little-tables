@@ -1,5 +1,6 @@
 import { LearningEngine } from '@little-tables/domain'
 import { Link } from '@tanstack/react-router'
+import { useState } from 'react'
 
 import { GardenPlot } from '../components/garden-plot.js'
 import { dailyGardenMoment } from '../daily-garden-moment.js'
@@ -26,6 +27,7 @@ function GardenBookIcon() {
 
 export function GardenScreen() {
   const { locale, t } = useI18n()
+  const [howItGrowsOpen, setHowItGrowsOpen] = useState(false)
   const bootstrap = useLocalBootstrap()
   const data = bootstrap.data
   const launcher = usePracticeLauncher(data)
@@ -160,21 +162,40 @@ export function GardenScreen() {
           </aside>
         )}
         <GardenPlot progress={progress} />
-        <details className="garden-how-it-grows">
-          <summary className="garden-how-it-grows__summary">
-            <span>{t('garden.howHeading')}</span>
+        <section
+          className={`garden-how-it-grows${howItGrowsOpen ? ' garden-how-it-grows--open' : ''}`}
+        >
+          <button
+            aria-controls="garden-how-it-grows-content"
+            aria-expanded={howItGrowsOpen}
+            className="garden-how-it-grows__summary"
+            onClick={() => setHowItGrowsOpen((open) => !open)}
+            type="button"
+          >
+            <span id="garden-how-it-grows-heading">{t('garden.howHeading')}</span>
             <span aria-hidden="true" className="garden-how-it-grows__indicator">
-              ⌄
+              <svg viewBox="0 0 16 16">
+                <path d="m4 6 4 4 4-4" />
+              </svg>
             </span>
-          </summary>
-          <ul>
-            <li>{t('garden.howDaily')}</li>
-            <li>{t('garden.howExtra')}</li>
-            <li>{t('garden.howCollection')}</li>
-            <li>{t('garden.howMastery')}</li>
-            <li>{t('garden.howRest')}</li>
-          </ul>
-        </details>
+          </button>
+          <div
+            aria-hidden={!howItGrowsOpen}
+            aria-labelledby="garden-how-it-grows-heading"
+            className="garden-how-it-grows__content"
+            id="garden-how-it-grows-content"
+            role="region"
+          >
+            <div className="garden-how-it-grows__content-inner">
+              <ul>
+                <li>{t('garden.howDaily')}</li>
+                <li>{t('garden.howTiming')}</li>
+                <li>{t('garden.howCollection')}</li>
+                <li>{t('garden.howRest')}</li>
+              </ul>
+            </div>
+          </div>
+        </section>
         <button
           aria-label={t('garden.ariaPractice', { title: actionTitle })}
           className="tomorrow-card"
