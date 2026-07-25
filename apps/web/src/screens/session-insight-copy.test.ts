@@ -22,5 +22,6 @@ describe('sessionInsightCopy', () => {
     }
 
     expect(sessionInsightCopy(insight, 'en')).toBe('you found your way back to 56 ÷ 7.')
+    expect(sessionInsightCopy(insight, 'zh-Hans')).toBe('你找回了 56 ÷ 7 的思路。')
   })
 })

@@ -11,6 +11,7 @@ import {
 const reminderCopies = {
   en: { body: 'A tiny tables win will make your garden grow ♡', title: 'little tables.' },
   fr: { body: 'Une petite séance fera pousser ton jardin ♡', title: 'little tables.' },
+  'zh-Hans': { body: '来做一个小小练习，让你的花园继续长大吧 ♡', title: 'little tables.' },
 } as const satisfies Readonly<Record<ReminderLocale, Readonly<{ body: string; title: string }>>>
 
 export const reminderCopy = (locale: ReminderLocale) => reminderCopies[locale]

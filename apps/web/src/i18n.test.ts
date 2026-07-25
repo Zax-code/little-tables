@@ -1,12 +1,32 @@
 import { describe, expect, it } from 'vitest'
 
-import { resolveLocale, translate } from './i18n.js'
+import { catalogForLocale, resolveLocale, supportedLocales, translate } from './i18n.js'
 
 describe('internationalization', () => {
+  it('keeps every locale complete, nonblank, and interpolation-compatible', () => {
+    const englishCatalog = catalogForLocale('en')
+    const englishKeys = Object.keys(englishCatalog).sort()
+    const placeholders = (copy: string) =>
+      Array.from(copy.matchAll(/\{([^}]+)\}/g), (match) => match[1]).sort()
+    const englishPlaceholders = new Map(
+      Object.entries(englishCatalog).map(([key, copy]) => [key, placeholders(copy)]),
+    )
+
+    for (const locale of supportedLocales) {
+      const catalog = catalogForLocale(locale)
+      expect(Object.keys(catalog).sort()).toEqual(englishKeys)
+      for (const [key, copy] of Object.entries(catalog)) {
+        expect(copy.trim(), `${locale}:${key}`).not.toBe('')
+        expect(placeholders(copy), `${locale}:${key}`).toEqual(englishPlaceholders.get(key))
+      }
+    }
+  })
+
   it('defaults to French while preserving an explicit supported locale', () => {
     expect(resolveLocale(null)).toBe('fr')
     expect(resolveLocale('de')).toBe('fr')
     expect(resolveLocale('en')).toBe('en')
+    expect(resolveLocale('zh-Hans')).toBe('zh-Hans')
   })
 
   it('writes warm, accented French copy with interpolated values', () => {
@@ -16,6 +36,15 @@ describe('internationalization', () => {
     )
     expect(translate('fr', 'practice.almost', { answer: 42 })).toBe('presque — c’était 42')
     expect(translate('fr', 'home.mode')).toBe('voir les autres séances')
+  })
+
+  it('writes warm, concise Simplified Chinese copy with natural arithmetic language', () => {
+    expect(translate('zh-Hans', 'home.firstVisitHeading', { name: '小雨' })).toBe('你好呀，小雨 ♡')
+    expect(translate('zh-Hans', 'practice.almost', { answer: 42 })).toBe('差一点点，答案是 42')
+    expect(translate('zh-Hans', 'practice.times', { left: 6, right: 7 })).toBe('6 乘 7')
+    expect(translate('zh-Hans', 'week.explainer')).toBe(
+      '一周练习 3 天就很好。休息几天，花园也不会倒退。',
+    )
   })
 
   it('keeps daily watering and the forgiving week rhythm natural in both languages', () => {

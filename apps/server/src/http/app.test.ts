@@ -223,7 +223,7 @@ describe('practice HTTP interface', () => {
 })
 
 describe('notification subscriptions', () => {
-  it('accepts a browser subscription that omits expirationTime', async () => {
+  it('accepts a browser subscription with defaults or a Simplified Chinese locale', async () => {
     let saved: PushSubscriptionInput | null = null
     const repository: AttemptRepositoryService = {
       health: Effect.void,
@@ -261,7 +261,6 @@ describe('notification subscriptions', () => {
         method: 'POST',
       }),
     )
-    await dispose()
 
     expect(response.status).toBe(200)
     expect(saved).toMatchObject({
@@ -269,6 +268,28 @@ describe('notification subscriptions', () => {
       expirationTime: null,
       locale: 'fr',
       timezone: 'America/New_York',
+    })
+
+    const chineseResponse = await handler(
+      new Request('http://little-tables.local/api/v1/notifications/subscriptions', {
+        body: JSON.stringify({
+          locale: 'zh-Hans',
+          subscription: {
+            endpoint: 'https://push.example/subscription',
+            keys: { auth: 'auth-key', p256dh: 'p256dh-key' },
+          },
+          timezone: 'Asia/Shanghai',
+        }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+      }),
+    )
+    await dispose()
+
+    expect(chineseResponse.status).toBe(200)
+    expect(saved).toMatchObject({
+      locale: 'zh-Hans',
+      timezone: 'Asia/Shanghai',
     })
   })
 

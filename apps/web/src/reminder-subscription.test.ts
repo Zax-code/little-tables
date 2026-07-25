@@ -25,10 +25,10 @@ describe('syncExistingReminderLocale', () => {
       },
     })
 
-    await syncExistingReminderLocale('en')
+    await syncExistingReminderLocale('zh-Hans')
 
     expect(fetchMock).toHaveBeenCalledOnce()
     expect(fetchMock.mock.calls[0]?.[0]).toBe('/api/v1/notifications/subscriptions')
-    expect(fetchMock.mock.calls[0]?.[1]?.body).toContain('"locale":"en"')
+    expect(fetchMock.mock.calls[0]?.[1]?.body).toContain('"locale":"zh-Hans"')
   })
 })

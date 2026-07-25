@@ -16,6 +16,9 @@ describe('celebration reward copy', () => {
     expect(celebrationRewardCopy(progress, 'en')).toBe(
       'Watering progress for Rose lotus: 1 of 3. 2 more to fill its growth goal.',
     )
+    expect(celebrationRewardCopy(progress, 'zh-Hans')).toBe(
+      '玫瑰粉荷花 正在长大——再开 4 朵花就长成啦。',
+    )
   })
 
   it('celebrates when the earned bloom finishes a flower', () => {

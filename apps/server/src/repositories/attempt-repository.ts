@@ -18,7 +18,7 @@ export type AttemptInsertResult = Readonly<{
   duplicates: ReadonlyArray<string>
 }>
 
-export const ReminderLocaleSchema = Schema.Literal('en', 'fr')
+export const ReminderLocaleSchema = Schema.Literal('en', 'fr', 'zh-Hans')
 export type ReminderLocale = typeof ReminderLocaleSchema.Type
 
 export type PushSubscriptionRecord = Readonly<{

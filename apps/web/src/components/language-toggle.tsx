@@ -1,26 +1,32 @@
-import { useI18n } from '../i18n.js'
+import { resolveLocale, useI18n } from '../i18n.js'
 import { syncExistingReminderLocale } from '../reminder-subscription.js'
 import { useFamilyProfile } from '../use-family-profile.js'
 
 export function LanguageToggle() {
   const { locale, setLocale, t } = useI18n()
   const { activeProfile } = useFamilyProfile()
-  const nextLocale = locale === 'fr' ? 'en' : 'fr'
 
   return (
-    <button
-      aria-label={
-        nextLocale === 'en' ? t('language.switchToEnglish') : t('language.switchToFrench')
-      }
+    <select
+      aria-label={t('language.choose')}
       className="language-toggle"
-      lang={nextLocale}
-      onClick={() => {
+      lang={locale}
+      onChange={(event) => {
+        const nextLocale = resolveLocale(event.currentTarget.value)
         setLocale(nextLocale)
         void syncExistingReminderLocale(nextLocale, activeProfile.id).catch(() => undefined)
       }}
-      type="button"
+      value={locale}
     >
-      {nextLocale.toUpperCase()}
-    </button>
+      <option lang="en" value="en">
+        English
+      </option>
+      <option lang="fr" value="fr">
+        Français
+      </option>
+      <option lang="zh-Hans" value="zh-Hans">
+        简体中文
+      </option>
+    </select>
   )
 }

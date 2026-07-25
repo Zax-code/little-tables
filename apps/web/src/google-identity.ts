@@ -1,3 +1,5 @@
+import type { Locale } from './i18n-catalog.js'
+
 type CredentialResponse = Readonly<{ credential: string }>
 
 type GoogleIdentityApi = Readonly<{
@@ -28,6 +30,9 @@ type GoogleWindow = Window & {
 let scriptPromise: Promise<GoogleIdentityApi> | undefined
 let initializedClientId: string | undefined
 let credentialHandler: ((credential: string) => void) | undefined
+
+export const googleIdentityLocale = (locale: Locale): string =>
+  locale === 'zh-Hans' ? 'zh_CN' : locale
 
 const loadGoogleIdentity = (): Promise<GoogleIdentityApi> => {
   const googleWindow = window as GoogleWindow
@@ -66,7 +71,7 @@ export async function renderGoogleSignInButton({
 }: Readonly<{
   clientId: string
   element: HTMLElement
-  locale: string
+  locale: Locale
   onCredential: (credential: string) => void
 }>): Promise<void> {
   const identity = await loadGoogleIdentity()
@@ -80,7 +85,7 @@ export async function renderGoogleSignInButton({
   }
   element.replaceChildren()
   identity.renderButton(element, {
-    locale,
+    locale: googleIdentityLocale(locale),
     shape: 'pill',
     size: 'large',
     text: 'signin_with',

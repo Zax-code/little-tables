@@ -30,8 +30,9 @@ describe('daily reminders', () => {
     expect(reminderIsDue(subscription(), new Date('2026-07-13T15:59:00Z'))).toBe(false)
   })
 
-  it('uses warm French reminders by default and preserves an English choice', () => {
+  it('uses warm reminder copy in every supported app language', () => {
     expect(reminderCopy('fr').body).toBe('Une petite séance fera pousser ton jardin ♡')
     expect(reminderCopy('en').body).toBe('A tiny tables win will make your garden grow ♡')
+    expect(reminderCopy('zh-Hans').body).toBe('来做一个小小练习，让你的花园继续长大吧 ♡')
   })
 })
