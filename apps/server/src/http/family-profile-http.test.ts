@@ -1,12 +1,16 @@
 import { HttpApp } from '@effect/platform'
 import { NodeHttpPlatform } from '@effect/platform-node'
-import { Layer } from 'effect'
+import { ChildProfileSchema } from '@little-tables/domain'
+import { Layer, Schema } from 'effect'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { InMemoryAllowedEmailRepository } from '../repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from '../repositories/in-memory-attempt-repository.js'
 import { InMemoryGardenCollectionRepository } from '../repositories/in-memory-garden-collection-repository.js'
 import { InMemoryProfileRepository } from '../repositories/in-memory-profile-repository.js'
+
+const FamilyResponseSchema = Schema.Struct({ profiles: Schema.Array(ChildProfileSchema) })
+const ProfileResponseSchema = Schema.Struct({ profile: ChildProfileSchema })
 
 describe('family-profile HTTP interface', () => {
   afterEach(() => {
@@ -71,18 +75,16 @@ describe('family-profile HTTP interface', () => {
       )
 
     const initial = await familyRequest()
-    const initialBody = (await initial.json()) as {
-      profiles: ReadonlyArray<{ avatarId: string; id: string; name: string }>
-    }
+    const initialBody = await Schema.decodeUnknownPromise(FamilyResponseSchema)(
+      await initial.json(),
+    )
     expect(initial.status).toBe(200)
     expect(initialBody.profiles).toEqual([
       expect.objectContaining({ avatarId: 'sprout', name: 'Google Lou' }),
     ])
 
     const added = await familyRequest({ avatarId: 'bluebell', name: 'Mia' }, 'POST')
-    const addedBody = (await added.json()) as {
-      profile: { avatarId: string; id: string; name: string }
-    }
+    const addedBody = await Schema.decodeUnknownPromise(ProfileResponseSchema)(await added.json())
     expect(added.status).toBe(201)
     expect(addedBody.profile).toMatchObject({ avatarId: 'bluebell', name: 'Mia' })
 
@@ -141,13 +143,15 @@ describe('family-profile HTTP interface', () => {
       }),
     )
     const cookie = signIn.headers.get('set-cookie')?.split(';')[0] ?? ''
-    const initialProfiles = (await (
-      await handler(
-        new Request('http://little-tables.local/api/v1/family/profiles', {
-          headers: { cookie },
-        }),
-      )
-    ).json()) as { profiles: ReadonlyArray<{ id: string }> }
+    const initialProfiles = await Schema.decodeUnknownPromise(FamilyResponseSchema)(
+      await (
+        await handler(
+          new Request('http://little-tables.local/api/v1/family/profiles', {
+            headers: { cookie },
+          }),
+        )
+      ).json(),
+    )
     const initialProfileId = initialProfiles.profiles[0]?.id ?? ''
     const add = await handler(
       new Request('http://little-tables.local/api/v1/family/profiles', {
@@ -156,7 +160,9 @@ describe('family-profile HTTP interface', () => {
         method: 'POST',
       }),
     )
-    const secondProfileId = ((await add.json()) as { profile: { id: string } }).profile.id
+    const secondProfileId = (
+      await Schema.decodeUnknownPromise(ProfileResponseSchema)(await add.json())
+    ).profile.id
     const attempt = {
       answerMode: 'keypad',
       answeredAt: '2026-07-25T12:00:01.000Z',

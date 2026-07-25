@@ -8,6 +8,7 @@ export const ChildProfileNameSchema = Schema.NonEmptyTrimmedString.pipe(
     message: () => 'Child names must contain at most 40 characters',
   }),
 )
+export type ChildProfileName = typeof ChildProfileNameSchema.Type
 
 export const ChildProfileSchema = Schema.Struct({
   avatarId: ChildAvatarIdSchema,

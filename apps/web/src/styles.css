@@ -758,6 +758,7 @@ p {
 }
 .family-back-button {
   width: fit-content;
+  min-width: 44px;
   min-height: 44px;
   padding: 0;
   color: var(--action-primary-deep);

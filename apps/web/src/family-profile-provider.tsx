@@ -30,17 +30,24 @@ export function FamilyProfileProvider({ children }: PropsWithChildren) {
     staleTime: 30_000,
   })
   const auth = queryClient.getQueryData<AuthStatus>(authStatusQueryKey)
-  const fallbackProfile = useMemo<ChildProfile>(
-    () => ({
-      avatarId: FamilyProfiles.defaultAvatarId,
-      id: 'lou',
-      name: auth?.displayName ?? 'learner',
-    }),
-    [auth?.displayName],
+  const fallbackProfile = useMemo<ChildProfile | null>(
+    () =>
+      typeof auth?.profileId === 'string'
+        ? {
+            avatarId: FamilyProfiles.defaultAvatarId,
+            id: auth.profileId,
+            name: auth.displayName ?? 'learner',
+          }
+        : null,
+    [auth],
   )
   const profiles = useMemo<ReadonlyArray<ChildProfile>>(
     () =>
-      family.data && family.data.length > 0 ? family.data : family.isError ? [fallbackProfile] : [],
+      family.data && family.data.length > 0
+        ? family.data
+        : family.isError && fallbackProfile !== null
+          ? [fallbackProfile]
+          : [],
     [fallbackProfile, family.data, family.isError],
   )
 

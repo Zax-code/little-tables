@@ -9,6 +9,7 @@ const AuthStatusSchema = Schema.Struct({
   googleClientId: Schema.NullOr(Schema.String),
   isAdmin: Schema.Boolean,
   nameChoiceRequired: Schema.Boolean,
+  profileId: Schema.optional(Schema.NullOr(Schema.NonEmptyString)),
   sessionExpiresAt: Schema.NullOr(Schema.NonNegative),
 })
 const PreferredNameResponseSchema = Schema.Struct({ displayName: Schema.String })

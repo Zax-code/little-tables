@@ -1,7 +1,11 @@
 import { FamilyProfiles, type ChildProfile } from '@little-tables/domain'
 import { Effect, Layer } from 'effect'
 
-import { ProfileRepository, type ProfileRepositoryService } from './profile-repository.js'
+import {
+  ProfileRepository,
+  ProfileRepositoryError,
+  type ProfileRepositoryService,
+} from './profile-repository.js'
 
 const layer = () => {
   const accounts = new Map<
@@ -15,15 +19,18 @@ const layer = () => {
 
   const service: ProfileRepositoryService = {
     addChild: (googleSubject, input) =>
-      Effect.sync(() => {
-        const account = accounts.get(googleSubject)
-        if (account === undefined) throw new Error('Family account does not exist')
-        const profile = { ...input, id: crypto.randomUUID() }
-        accounts.set(googleSubject, {
-          ...account,
-          profiles: [...account.profiles, profile],
-        })
-        return profile
+      Effect.try({
+        try: () => {
+          const account = accounts.get(googleSubject)
+          if (account === undefined) throw new Error('Family account does not exist')
+          const profile = { ...input, id: crypto.randomUUID() }
+          accounts.set(googleSubject, {
+            ...account,
+            profiles: [...account.profiles, profile],
+          })
+          return profile
+        },
+        catch: (cause) => new ProfileRepositoryError({ cause, operation: 'add-child' }),
       }),
     completeInitialProfile: (googleSubject, profileId, name) =>
       Effect.sync(() => {

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useEffect } from 'react'
 
 import { authStatusQueryKey } from '../auth-client.js'
+import { flushPendingAttemptsForProfiles } from '../family-profile-sync.js'
 import { scheduleInitialSync } from '../initial-sync.js'
 import { localBootstrapQueryKey, practiceStoreFor } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
@@ -11,11 +12,17 @@ import { useFamilyProfile } from '../use-family-profile.js'
 
 export function SyncManager() {
   const queryClient = useQueryClient()
-  const { activeProfile } = useFamilyProfile()
+  const { activeProfile, profiles } = useFamilyProfile()
   const practiceStore = practiceStoreFor(activeProfile.id)
   const sync = useMutation({
-    mutationFn: () =>
-      flushAllPendingAttempts({ profileId: activeProfile.id, store: practiceStore }),
+    mutationFn: async () => {
+      await flushPendingAttemptsForProfiles(profiles, async (profileId) => {
+        await flushAllPendingAttempts({
+          profileId,
+          store: practiceStoreFor(profileId),
+        })
+      })
+    },
     onError: (error) => {
       queryClient.setQueryData<SyncStatus>(syncStatusQueryKey, 'saved')
       if (error instanceof SyncAuthenticationError) {
@@ -96,7 +103,7 @@ export function SyncManager() {
       window.removeEventListener('online', flush)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [activeProfile.id, mutate, practiceStore, queryClient])
+  }, [activeProfile.id, mutate, practiceStore, profiles, queryClient])
 
   return null
 }

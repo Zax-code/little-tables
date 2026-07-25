@@ -39,6 +39,7 @@ describe('offline authentication grant', () => {
       googleClientId: 'client.apps.googleusercontent.com',
       isAdmin: true,
       nameChoiceRequired: true,
+      profileId: 'verified-child',
       sessionExpiresAt: now + 60_000,
     } as const
 
@@ -46,18 +47,21 @@ describe('offline authentication grant', () => {
       displayName: 'léa',
       expiresAt: now + 60_000,
       nameChoiceRequired: true,
+      profileId: 'verified-child',
     })
     const grant = readOfflineAuthGrant(storage, now)
     expect(grant).toEqual({
       displayName: 'léa',
       expiresAt: now + 60_000,
       nameChoiceRequired: true,
+      profileId: 'verified-child',
     })
     expect(grant && authStatusFromOfflineGrant(grant)).toMatchObject({
       authenticated: true,
       displayName: 'léa',
       isAdmin: false,
       nameChoiceRequired: true,
+      profileId: 'verified-child',
       sessionExpiresAt: now + 60_000,
     })
   })

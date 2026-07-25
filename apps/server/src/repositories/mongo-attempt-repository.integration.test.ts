@@ -116,6 +116,7 @@ describe('MongoAttemptRepository', () => {
         fallbackName: 'Lulu',
         googleSubject: 'google-subject',
         legacyProfileId: 'lou',
+        retainLegacyProfileId: false,
       })
       const initialProfile = created.profiles[0]
       if (initialProfile === undefined) throw new Error('Expected an initial child profile')
@@ -172,6 +173,7 @@ describe('MongoAttemptRepository', () => {
           fallbackName: 'Ignored Google Name',
           googleSubject: 'legacy-google-subject',
           legacyProfileId: 'lou',
+          retainLegacyProfileId: true,
         })
       }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration'))),
     )
@@ -216,5 +218,36 @@ describe('MongoAttemptRepository', () => {
     expect(new Set(result.first.flowerOrder).size).toBe(9)
     expect(result.replayed.awardedFlowerIds).toEqual([result.first.flowerOrder[0]])
     expect(result.replayed.rewardedDayKeys).toEqual(['2026-07-23', '2026-07-24', '2026-07-25'])
+  }, 30_000)
+
+  it('does not attach shared legacy practice data to an account that cannot retain it', async () => {
+    const uri = `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`
+    const client = new MongoClient(uri)
+    await client.connect()
+    await client
+      .db('integration')
+      .collection<{ _id: string; displayName: string; updatedAt: Date }>('profiles')
+      .insertOne({
+        _id: 'unclaimed-legacy-google-subject',
+        displayName: 'Mia',
+        updatedAt: new Date('2026-07-02T12:00:00.000Z'),
+      })
+    await client.close()
+
+    const account = await Effect.runPromise(
+      Effect.gen(function* () {
+        const repository = yield* ProfileRepository
+        return yield* repository.ensureFamily({
+          fallbackName: 'Ignored Google Name',
+          googleSubject: 'unclaimed-legacy-google-subject',
+          legacyProfileId: 'lou',
+          retainLegacyProfileId: false,
+        })
+      }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration'))),
+    )
+
+    expect(account.onboardingComplete).toBe(true)
+    expect(account.profiles).toEqual([expect.objectContaining({ avatarId: 'sprout', name: 'Mia' })])
+    expect(account.profiles[0]?.id).not.toBe('lou')
   }, 30_000)
 })

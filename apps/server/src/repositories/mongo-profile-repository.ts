@@ -1,8 +1,10 @@
 import {
   ChildAvatarIdSchema,
+  ChildProfileSchema,
   ChildProfileNameSchema,
   FamilyProfiles,
   type ChildAvatarId,
+  type ChildProfileName,
 } from '@little-tables/domain'
 import { Effect, Layer, Schema } from 'effect'
 import { MongoClient, type Collection, type Document } from 'mongodb'
@@ -41,7 +43,7 @@ type ChildDocument = typeof ChildDocumentSchema.Type
 type FamilyDocument = typeof FamilyDocumentSchema.Type
 type ProfileStorageDocument = Document & {
   _id: string
-  profiles?: Array<ChildDocument>
+  profiles?: ReadonlyArray<ChildDocument>
 }
 
 const accountFor = (document: FamilyDocument): FamilyAccount => ({
@@ -54,16 +56,16 @@ const decodeFamily = async (value: unknown): Promise<FamilyDocument> =>
   Schema.decodeUnknownPromise(FamilyDocumentSchema)(value)
 
 const childDocument = (
-  input: Readonly<{ avatarId: ChildAvatarId; id?: string; name: string }>,
-): ChildDocument => {
+  input: Readonly<{ avatarId: ChildAvatarId; id?: string; name: ChildProfileName }>,
+): Promise<ChildDocument> => {
   const now = new Date()
-  return {
+  return Schema.decodeUnknownPromise(ChildDocumentSchema)({
     avatarId: input.avatarId,
     createdAt: now,
     id: input.id ?? randomUUID(),
     name: input.name,
     updatedAt: now,
-  }
+  })
 }
 
 const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRepositoryService => {
@@ -80,7 +82,7 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
     addChild: (googleSubject, input) =>
       Effect.tryPromise({
         try: async () => {
-          const profile = childDocument(input)
+          const profile = await childDocument(input)
           const account = await collection.findOne({
             _id: googleSubject,
             schemaVersion: 2,
@@ -100,6 +102,7 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
     completeInitialProfile: (googleSubject, profileId, name) =>
       Effect.tryPromise({
         try: async () => {
+          const validName = await Schema.decodeUnknownPromise(ChildProfileNameSchema)(name)
           const result = await collection.updateOne(
             {
               _id: googleSubject,
@@ -110,7 +113,7 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
             {
               $set: {
                 onboardingComplete: true,
-                'profiles.$.name': name,
+                'profiles.$.name': validName,
                 'profiles.$.updatedAt': new Date(),
                 updatedAt: new Date(),
               },
@@ -121,7 +124,7 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
         catch: (cause) =>
           new ProfileRepositoryError({ cause, operation: 'complete-initial-profile' }),
       }),
-    ensureFamily: ({ fallbackName, googleSubject, legacyProfileId }) =>
+    ensureFamily: ({ fallbackName, googleSubject, legacyProfileId, retainLegacyProfileId }) =>
       Effect.tryPromise({
         try: async () => {
           const existing = await collection.findOne({ _id: googleSubject })
@@ -129,40 +132,40 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
             return accountFor(existing)
           }
           if (existing !== null && Schema.is(LegacyProfileDocumentSchema)(existing)) {
-            const migrated = {
+            const migrated = await decodeFamily({
               _id: googleSubject,
               onboardingComplete: true,
               profiles: [
-                childDocument({
+                await childDocument({
                   avatarId: FamilyProfiles.defaultAvatarId,
-                  id: legacyProfileId,
+                  ...(retainLegacyProfileId ? { id: legacyProfileId } : {}),
                   name: existing.displayName,
                 }),
               ],
               schemaVersion: 2,
               updatedAt: new Date(),
-            }
+            })
             await collection.replaceOne({ _id: googleSubject }, migrated)
-            return accountFor(await decodeFamily(migrated))
+            return accountFor(migrated)
           }
           if (existing !== null) {
             throw new Error('Profile document could not be migrated')
           }
-          const created: ProfileStorageDocument = {
+          const created = await decodeFamily({
             _id: googleSubject,
             onboardingComplete: false,
             profiles: [
-              childDocument({
+              await childDocument({
                 avatarId: FamilyProfiles.defaultAvatarId,
                 name: fallbackName,
               }),
             ],
             schemaVersion: 2,
             updatedAt: new Date(),
-          }
+          })
           try {
             await collection.insertOne(created)
-            return accountFor(await decodeFamily(created))
+            return accountFor(created)
           } catch (cause) {
             if (
               typeof cause === 'object' &&
@@ -211,18 +214,22 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
     updateChild: (googleSubject, profileId, input) =>
       Effect.tryPromise({
         try: async () => {
+          const profile = await Schema.decodeUnknownPromise(ChildProfileSchema)({
+            ...input,
+            id: profileId,
+          })
           const result = await collection.updateOne(
             { _id: googleSubject, 'profiles.id': profileId, schemaVersion: 2 },
             {
               $set: {
-                'profiles.$.avatarId': input.avatarId,
-                'profiles.$.name': input.name,
+                'profiles.$.avatarId': profile.avatarId,
+                'profiles.$.name': profile.name,
                 'profiles.$.updatedAt': new Date(),
                 updatedAt: new Date(),
               },
             },
           )
-          return result.matchedCount === 1 ? { ...input, id: profileId } : null
+          return result.matchedCount === 1 ? profile : null
         },
         catch: (cause) => new ProfileRepositoryError({ cause, operation: 'update-child' }),
       }),

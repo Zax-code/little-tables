@@ -10,6 +10,7 @@ const OfflineAuthGrantSchema = Schema.Struct({
   displayName: Schema.NonEmptyTrimmedString,
   expiresAt: Schema.Number.pipe(Schema.finite()),
   nameChoiceRequired: Schema.optionalWith(Schema.Boolean, { default: () => false }),
+  profileId: Schema.optional(Schema.NonEmptyString),
 })
 
 export type OfflineAuthGrant = typeof OfflineAuthGrantSchema.Type
@@ -30,6 +31,7 @@ export const offlineGrantFromAuthStatus = (
           displayName: status.displayName,
           expiresAt: status.sessionExpiresAt,
           nameChoiceRequired: status.nameChoiceRequired,
+          profileId: status.profileId ?? undefined,
         },
         now,
       )
@@ -80,5 +82,6 @@ export const authStatusFromOfflineGrant = (grant: OfflineAuthGrant): AuthStatus 
   googleClientId: null,
   isAdmin: false,
   nameChoiceRequired: grant.nameChoiceRequired,
+  profileId: grant.profileId ?? null,
   sessionExpiresAt: grant.expiresAt,
 })

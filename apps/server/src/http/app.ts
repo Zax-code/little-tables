@@ -14,6 +14,7 @@ import {
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
 import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
+import { LegacyProfileMigration } from '../application/legacy-profile-migration.js'
 import { AttemptRepository, ReminderLocaleSchema } from '../repositories/attempt-repository.js'
 import { GardenCollectionRepository } from '../repositories/garden-collection-repository.js'
 import { ProfileRepository } from '../repositories/profile-repository.js'
@@ -162,6 +163,7 @@ const authStatus = Effect.gen(function* () {
       identity !== null &&
       AllowedEmailAccess.isAdministrator(identity.email),
     nameChoiceRequired: identity?.nameChoiceRequired ?? false,
+    profileId: identity?.profileId ?? null,
     sessionExpiresAt: identity?.expiresAt ?? null,
   })
 })
@@ -188,6 +190,7 @@ const googleSignIn = Effect.gen(function* () {
     return yield* json({ error: 'invalid_google_credential' }, 401)
   }
   const family = yield* profiles.ensureFamily({
+    retainLegacyProfileId: LegacyProfileMigration.retainSharedProfileId(identity.email),
     fallbackName,
     googleSubject: identity.subject,
     legacyProfileId: identity.profileId,
@@ -230,6 +233,7 @@ const savePreferredName = Effect.gen(function* () {
   const family =
     existingFamily ??
     (yield* profiles.ensureFamily({
+      retainLegacyProfileId: LegacyProfileMigration.retainSharedProfileId(identity.email),
       fallbackName: displayName,
       googleSubject: identity.googleSubject,
       legacyProfileId: identity.profileId,
@@ -505,6 +509,7 @@ const familyForIdentity = Effect.gen(function* () {
   const fallbackName = Array.from(identity.displayName).slice(0, 40).join('')
   if (!Schema.is(ChildProfileNameSchema)(fallbackName)) return null
   const created = yield* profiles.ensureFamily({
+    retainLegacyProfileId: LegacyProfileMigration.retainSharedProfileId(identity.email),
     fallbackName,
     googleSubject: identity.googleSubject,
     legacyProfileId: identity.profileId,

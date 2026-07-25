@@ -3,6 +3,7 @@ import {
   ChildProfileNameSchema,
   type ChildAvatarId,
   type ChildProfile,
+  type ChildProfileName,
 } from '@little-tables/domain'
 import { Context, Data, type Effect } from 'effect'
 
@@ -30,18 +31,21 @@ export class ProfileRepositoryError extends Data.TaggedError('ProfileRepositoryE
 export type ProfileRepositoryService = Readonly<{
   addChild: (
     googleSubject: string,
-    input: Readonly<{ avatarId: ChildAvatarId; name: string }>,
+    input: Readonly<{ avatarId: ChildAvatarId; name: ChildProfileName }>,
   ) => Effect.Effect<ChildProfile, ProfileRepositoryError>
   completeInitialProfile: (
     googleSubject: string,
     profileId: string,
-    name: string,
+    name: ChildProfileName,
   ) => Effect.Effect<boolean, ProfileRepositoryError>
-  ensureFamily: (input: {
-    fallbackName: string
-    googleSubject: string
-    legacyProfileId: string
-  }) => Effect.Effect<FamilyAccount, ProfileRepositoryError>
+  ensureFamily: (
+    input: Readonly<{
+      fallbackName: ChildProfileName
+      googleSubject: string
+      legacyProfileId: string
+      retainLegacyProfileId: boolean
+    }>,
+  ) => Effect.Effect<FamilyAccount, ProfileRepositoryError>
   findFamily: (googleSubject: string) => Effect.Effect<FamilyAccount | null, ProfileRepositoryError>
   removeChild: (
     googleSubject: string,
@@ -50,7 +54,7 @@ export type ProfileRepositoryService = Readonly<{
   updateChild: (
     googleSubject: string,
     profileId: string,
-    input: Readonly<{ avatarId: ChildAvatarId; name: string }>,
+    input: Readonly<{ avatarId: ChildAvatarId; name: ChildProfileName }>,
   ) => Effect.Effect<ChildProfile | null, ProfileRepositoryError>
 }>
 

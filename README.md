@@ -76,11 +76,17 @@ Mongo-backed allowlist. The owner account, `boomslang.a@gmail.com`, can open
 management screen are hidden from other users, and the server rejects their
 management requests with `403`. Navigation without a valid Google-authenticated
 session redirects to `/sign-in`, and protected API requests return `401`. After
-the server verifies a Google session, the PWA remembers only its display name
-and real session expiry so that local practice continues offline until that
-session expires. First-time, expired, legacy, and server-rejected sessions
+the server verifies a Google session, the PWA remembers only its display name,
+server-verified profile ID, and real session expiry so that local practice
+continues offline until that session expires. First-time, expired, legacy, and server-rejected sessions
 remain locked. Deploying the owner-managed allowlist changes the signed session
 payload, so existing users will be asked to sign in once after rollout.
+
+The pre-family-profile release had one deployment-level learner identity, `lou`; configured Google
+emails were access gates to that shared learner rather than separate data owners. During the
+family-profile backfill, only the owner account retains `lou` and its practice history. Legacy
+preference records for other Google subjects receive new isolated child IDs and do not inherit the
+ambiguous shared history or device outbox.
 
 ## Google sign-in setup
 
