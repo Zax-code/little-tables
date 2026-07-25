@@ -1,13 +1,12 @@
-import { gardenBloomsPerFlower, gardenFlowerIds, type GardenPlantId } from '@little-tables/domain'
+import { LearningEngine, type GardenPlantId } from '@little-tables/domain'
 import { Context, Data, type Effect } from 'effect'
-import { randomInt } from 'node:crypto'
 
 export const gardenCollectionCatalogVersion = '1' as const
 
 export type GardenCollectionRecord = Readonly<{
   awardedFlowerIds: ReadonlyArray<GardenPlantId>
   bloomCount: number
-  bloomsPerFlower: typeof gardenBloomsPerFlower
+  bloomsPerFlower: typeof LearningEngine.gardenBloomsPerFlower
   catalogVersion: typeof gardenCollectionCatalogVersion
   createdAt: Date
   flowerOrder: ReadonlyArray<GardenPlantId>
@@ -55,14 +54,15 @@ export class GardenCollectionRepository extends Context.Tag(
 
 export const personalizedFlowerOrder = (
   preferredFlowerPrefix: ReadonlyArray<GardenPlantId>,
+  randomIndex: (upperBound: number) => number,
 ): ReadonlyArray<GardenPlantId> => {
-  const knownIds = new Set<GardenPlantId>(gardenFlowerIds)
+  const knownIds = new Set<GardenPlantId>(LearningEngine.gardenFlowerIds)
   const prefix = preferredFlowerPrefix.filter(
     (id, index) => knownIds.has(id) && preferredFlowerPrefix.indexOf(id) === index,
   )
-  const remaining = gardenFlowerIds.filter((id) => !prefix.includes(id))
+  const remaining = LearningEngine.gardenFlowerIds.filter((id) => !prefix.includes(id))
   for (let index = remaining.length - 1; index > 0; index -= 1) {
-    const swapIndex = randomInt(index + 1)
+    const swapIndex = randomIndex(index + 1)
     const current = remaining[index]
     const replacement = remaining[swapIndex]
     if (current === undefined || replacement === undefined) continue

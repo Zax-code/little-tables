@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 
-import { LearningEngine, gardenFlowerIds } from '@little-tables/domain'
+import { LearningEngine } from '@little-tables/domain'
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -97,7 +97,7 @@ describe('IndexedDbPracticeStore', () => {
     const databaseName = `practice-${crypto.randomUUID()}`
     databases.push(databaseName)
     const store = new IndexedDbPracticeStore(databaseName)
-    const flowerOrder = [...gardenFlowerIds].reverse()
+    const flowerOrder = [...LearningEngine.gardenFlowerIds].reverse()
 
     await store.replaceSnapshot(LearningEngine.emptySnapshot(), {
       completedSessions: 3,

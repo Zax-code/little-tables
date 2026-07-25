@@ -1,7 +1,5 @@
 import {
   LearningEngine,
-  gardenBloomsPerFlower,
-  gardenFlowerIds,
   type AttemptEvent,
   type GardenCollectionSnapshot,
   type LearningSnapshot,
@@ -149,17 +147,17 @@ const LearningSnapshotSchema = Schema.Struct({
   processedEventIds: Schema.Array(Schema.NonEmptyString),
 })
 
-const GardenPlantIdSchema = Schema.Literal(...gardenFlowerIds)
+const GardenPlantIdSchema = Schema.Literal(...LearningEngine.gardenFlowerIds)
 const GardenCollectionSnapshotSchema = Schema.Struct({
   awardedFlowerIds: Schema.Array(GardenPlantIdSchema),
-  bloomsPerFlower: Schema.Literal(gardenBloomsPerFlower),
+  bloomsPerFlower: Schema.Literal(LearningEngine.gardenBloomsPerFlower),
   catalogVersion: Schema.Literal('1'),
   flowerOrder: Schema.Array(GardenPlantIdSchema).pipe(
     Schema.filter(
       (order) =>
-        order.length === gardenFlowerIds.length &&
-        new Set(order).size === gardenFlowerIds.length &&
-        gardenFlowerIds.every((id) => order.includes(id)),
+        order.length === LearningEngine.gardenFlowerIds.length &&
+        new Set(order).size === LearningEngine.gardenFlowerIds.length &&
+        LearningEngine.gardenFlowerIds.every((id) => order.includes(id)),
       { message: () => 'Garden flower order must contain every flower exactly once' },
     ),
   ),
@@ -241,9 +239,9 @@ const gardenRewardLedgerFor = (state: StateRecord | undefined) =>
 
 const defaultGardenCollection = (): GardenCollectionSnapshot => ({
   awardedFlowerIds: [],
-  bloomsPerFlower: gardenBloomsPerFlower,
+  bloomsPerFlower: LearningEngine.gardenBloomsPerFlower,
   catalogVersion: '1',
-  flowerOrder: gardenFlowerIds,
+  flowerOrder: LearningEngine.gardenFlowerIds,
   introductionSeen: false,
 })
 

@@ -183,7 +183,7 @@ type GardenChapterMilestone = Readonly<{
   startAt: number
 }>
 
-export const gardenFlowerCatalog = [
+const gardenFlowerCatalog = [
   {
     id: 'rose-lotus',
     name: 'rose lotus',
@@ -232,8 +232,8 @@ const gardenChapterDefinitions = [
 
 export type GardenChapterId = (typeof gardenChapterDefinitions)[number]['id']
 
-export const gardenFlowerIds: ReadonlyArray<GardenPlantId> = gardenFlowerCatalog.map(({ id }) => id)
-export const gardenBloomsPerFlower = 3
+const gardenFlowerIds: ReadonlyArray<GardenPlantId> = gardenFlowerCatalog.map(({ id }) => id)
+const gardenBloomsPerFlower = 3
 
 export type GardenCollectionSnapshot = Readonly<{
   awardedFlowerIds: ReadonlyArray<GardenPlantId>
@@ -348,6 +348,7 @@ export type GardenProgress = Readonly<{
 }>
 
 type DeriveRewardsInput = Readonly<{
+  awardedFlowerIds?: ReadonlyArray<GardenPlantId> | undefined
   completedSessions: number
   flowerOrder?: ReadonlyArray<GardenPlantId> | undefined
   snapshot: LearningSnapshot
@@ -1252,6 +1253,7 @@ const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): Answer
 }
 
 const deriveRewards = ({
+  awardedFlowerIds,
   completedSessions,
   flowerOrder,
   snapshot,
@@ -1259,6 +1261,7 @@ const deriveRewards = ({
   const rewards: GardenReward[] = []
   const fluentFacts = Object.values(snapshot.facts).filter((fact) => fact.state === 'fluent').length
   const order = normalizedFlowerOrder(flowerOrder)
+  const awarded = new Set(awardedFlowerIds ?? [])
   order.forEach((id, index) => {
     const chapterEnd = index % 3 === 2
     const masteryRequired = chapterEnd ? ([5, 15, 30][Math.floor(index / 3)] ?? 0) : 0
@@ -1266,6 +1269,9 @@ const deriveRewards = ({
       completedSessions >= (index + 1) * gardenBloomsPerFlower &&
       fluentFacts >= masteryRequired
     ) {
+      awarded.add(id)
+    }
+    if (awarded.has(id)) {
       rewards.push({
         id: `collection:${id}`,
         kind: 'flower',
@@ -1308,10 +1314,13 @@ const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
     ({ state }) => state === 'fluent',
   ).length
   const milestones = gardenMilestonesForOrder(input.flowerOrder)
+  const awarded = new Set(input.awardedFlowerIds ?? [])
   const plants: ReadonlyArray<GardenPlantProgress> = milestones.plants.map((plant) => {
     const masteryRemaining = Math.max(0, plant.masteryRequired - fluentFacts)
-    const stage: GardenPlantStage =
-      bloomCount < plant.startAt
+    const permanentlyAwarded = awarded.has(plant.id)
+    const stage: GardenPlantStage = permanentlyAwarded
+      ? 'mature'
+      : bloomCount < plant.startAt
         ? plant.lockedUntilStart
           ? 'locked'
           : 'dormant'
@@ -1322,16 +1331,19 @@ const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
             : 'mature'
     return {
       ...plant,
-      bloomsEarned: Math.max(0, Math.min(gardenBloomsPerFlower, bloomCount - plant.startAt + 1)),
+      bloomsEarned: permanentlyAwarded
+        ? gardenBloomsPerFlower
+        : Math.max(0, Math.min(gardenBloomsPerFlower, bloomCount - plant.startAt + 1)),
       bloomsRequired: gardenBloomsPerFlower,
-      collected: stage === 'mature',
-      masteryRemaining,
+      collected: permanentlyAwarded || stage === 'mature',
+      masteryRemaining: permanentlyAwarded ? 0 : masteryRemaining,
       stage,
     }
   })
   const nextPlant = plants.find(({ stage }) => stage !== 'mature') ?? null
   const nextTarget = nextPlant
-    ? nextPlant.stage === 'growing'
+    ? nextPlant.stage === 'growing' ||
+      (nextPlant.masteryRemaining > 0 && bloomCount >= nextPlant.startAt)
       ? { targetAt: nextPlant.matureAt, targetStage: 'mature' as const }
       : { targetAt: nextPlant.startAt, targetStage: 'growing' as const }
     : null
@@ -1401,6 +1413,8 @@ export const LearningEngine = {
   deriveSessionInsight,
   emptySnapshot,
   factKey,
+  gardenBloomsPerFlower,
+  gardenFlowerIds,
   learningDayKey,
   mergeGardenRewardLedgers,
   reduce,

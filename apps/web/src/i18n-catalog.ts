@@ -75,7 +75,10 @@ const english = {
   'celebration.rewardAllBlooming': 'Every little plant is blooming.',
   'celebration.rewardGrowing':
     '{plant}: {current} of {total} daily blooms. {remaining} more to join your collection.',
-  'celebration.rewardMature': '{plant} is fully grown and has joined your collection.',
+  'celebration.rewardMature':
+    '{plant} is fully grown and has joined your collection. Next discovery: {nextPlant}.',
+  'celebration.rewardMatureFinal':
+    '{plant} is fully grown and has joined your collection. Your whole garden is blooming.',
   'celebration.noExtraBloom':
     'Your math skills got stronger. The garden grows once per day, so there is no extra bloom today—the next bloom is ready tomorrow.',
   'common.bloom': 'bloom',
@@ -408,7 +411,10 @@ const french: Record<TranslationKey, string> = {
   'celebration.rewardAllBlooming': 'Tout le petit jardin est en fleurs.',
   'celebration.rewardGrowing':
     '{plant} : progression {current} sur {total} fleurs du jour — encore {remaining} avant de rejoindre ta collection.',
-  'celebration.rewardMature': '{plant} vient d’éclore et rejoint ta collection pour de bon.',
+  'celebration.rewardMature':
+    '{plant} vient d’éclore et rejoint ta collection pour de bon. Prochaine découverte : {nextPlant}.',
+  'celebration.rewardMatureFinal':
+    '{plant} vient d’éclore et rejoint ta collection pour de bon. Tout ton jardin est en fleurs.',
   'celebration.noExtraBloom':
     'Tes calculs sont plus solides. Le jardin pousse une fois par jour : pas de fleur en plus aujourd’hui, et la prochaine t’attend demain.',
   'common.bloom': 'fleur',

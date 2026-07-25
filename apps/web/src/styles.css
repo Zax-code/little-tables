@@ -30,6 +30,7 @@
   --surface-success: #e8f2e4;
   --surface-try-again: #fae9ec;
   --surface-garden: #f4f1c9;
+  --surface-garden-card: rgb(255 253 249 / 92%);
   --surface-celebration-glow: rgb(255 255 255 / 84%);
   --surface-celebration-start: #fff9f1;
   --surface-celebration-mid: #fcedef;
@@ -86,6 +87,7 @@
   --shadow-action-edge: rgb(210 91 118 / 18%);
   --shadow-control-edge: rgb(137 92 102 / 16%);
   --shadow-transition-flower: 0 5px 8px rgb(90 50 55 / 10%);
+  --shadow-garden-card: 0 5px 18px rgb(90 50 55 / 5%);
 }
 
 * {
@@ -716,7 +718,7 @@ p {
   line-height: 1.45;
 }
 .garden-introduction-card button {
-  min-height: 40px;
+  min-height: 44px;
   grid-column: 2;
   justify-self: start;
   padding: 0 14px;
@@ -2220,8 +2222,8 @@ p {
   width: 100%;
   border: 1px solid var(--line-garden);
   border-radius: 20px;
-  background: rgb(255 253 249 / 92%);
-  box-shadow: 0 5px 18px rgb(90 50 55 / 5%);
+  background: var(--surface-garden-card);
+  box-shadow: var(--shadow-garden-card);
 }
 .garden-how-it-grows {
   margin-top: 14px;

@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
-import { LearningEngine, gardenFlowerIds } from '@little-tables/domain'
+import { LearningEngine } from '@little-tables/domain'
 
 const bootstrapState = vi.hoisted<{ data: unknown }>(() => ({ data: undefined }))
 
@@ -79,7 +79,7 @@ describe('garden screen', () => {
       activeSession: null,
       completedSessions: 1,
       gardenBloomCount: 1,
-      gardenCollection: { flowerOrder: gardenFlowerIds },
+      gardenCollection: { flowerOrder: LearningEngine.gardenFlowerIds },
       rewardedDayKeys: [todayKey],
       snapshot: LearningEngine.emptySnapshot(),
     }
@@ -97,7 +97,7 @@ describe('garden screen', () => {
       activeSession: null,
       completedSessions: 9,
       gardenBloomCount: 9,
-      gardenCollection: { flowerOrder: gardenFlowerIds },
+      gardenCollection: { flowerOrder: LearningEngine.gardenFlowerIds },
       rewardedDayKeys: [],
       snapshot: LearningEngine.emptySnapshot(),
     }
@@ -108,4 +108,28 @@ describe('garden screen', () => {
     expect(markup).toContain('5 multiplications sans aide')
     expect(markup).toContain('Ses fleurs restent bien au chaud.')
   })
+
+  it.each([
+    [7, 1, 2],
+    [8, 2, 1],
+  ])(
+    'reports both bloom and mastery progress before a gate is reached at bloom %i',
+    (gardenBloomCount, currentBlooms, remainingBlooms) => {
+      bootstrapState.data = {
+        activeSession: null,
+        completedSessions: gardenBloomCount,
+        gardenBloomCount,
+        gardenCollection: { flowerOrder: LearningEngine.gardenFlowerIds },
+        rewardedDayKeys: [],
+        snapshot: LearningEngine.emptySnapshot(),
+      }
+      vi.stubGlobal('window', { location: { search: '' } })
+      const markup = renderToStaticMarkup(<GardenScreen />)
+
+      expect(markup).toContain(`${currentBlooms} fleurs du jour sur 3`)
+      expect(markup).toContain(`encore ${remainingBlooms}`)
+      expect(markup).toContain('5 multiplications réussies sans aide')
+      expect(markup).not.toContain('Cette plante a déjà ses 3 fleurs.')
+    },
+  )
 })

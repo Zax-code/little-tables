@@ -1,4 +1,4 @@
-import { LearningEngine, gardenFlowerIds } from '@little-tables/domain'
+import { LearningEngine } from '@little-tables/domain'
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from '@effect/platform'
 import { Effect, Schema } from 'effect'
 import { existsSync, statSync } from 'node:fs'
@@ -341,9 +341,12 @@ const bootstrap = Effect.gen(function* () {
   const legacyFlowerPrefixLength =
     derivedGardenRewards.gardenBloomCount === 0
       ? 0
-      : Math.min(gardenFlowerIds.length, Math.ceil(derivedGardenRewards.gardenBloomCount / 5))
+      : Math.min(
+          LearningEngine.gardenFlowerIds.length,
+          Math.ceil(derivedGardenRewards.gardenBloomCount / 5),
+        )
   const initialCollection = yield* gardenRepository.loadOrCreate({
-    preferredFlowerPrefix: gardenFlowerIds.slice(0, legacyFlowerPrefixLength),
+    preferredFlowerPrefix: LearningEngine.gardenFlowerIds.slice(0, legacyFlowerPrefixLength),
     profileId: identity.profileId,
   })
   const gardenRewards = LearningEngine.mergeGardenRewardLedgers({
@@ -356,6 +359,7 @@ const bootstrap = Effect.gen(function* () {
     ],
   })
   const gardenProgress = LearningEngine.deriveGardenProgress({
+    awardedFlowerIds: initialCollection.awardedFlowerIds,
     completedSessions: gardenRewards.gardenBloomCount,
     flowerOrder: initialCollection.flowerOrder,
     snapshot,
@@ -383,6 +387,7 @@ const bootstrap = Effect.gen(function* () {
     practiceDayKeys,
     rewardedDayKeys: gardenRewards.rewardedDayKeys,
     rewards: LearningEngine.deriveRewards({
+      awardedFlowerIds: collection.awardedFlowerIds,
       completedSessions: gardenRewards.gardenBloomCount,
       flowerOrder: collection.flowerOrder,
       snapshot,

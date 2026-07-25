@@ -41,6 +41,7 @@ export function HomeScreen() {
   const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
   const displayName = auth.data?.displayName ?? 'léa'
   const garden = LearningEngine.deriveGardenProgress({
+    awardedFlowerIds: data?.gardenCollection.awardedFlowerIds,
     completedSessions: data?.gardenBloomCount ?? 0,
     flowerOrder: data?.gardenCollection.flowerOrder,
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),

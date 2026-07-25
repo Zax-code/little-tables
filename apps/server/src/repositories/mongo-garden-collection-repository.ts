@@ -1,6 +1,7 @@
-import { gardenBloomsPerFlower, gardenFlowerIds } from '@little-tables/domain'
+import { LearningEngine } from '@little-tables/domain'
 import { Effect, Layer, Schema } from 'effect'
 import { MongoClient, type Collection } from 'mongodb'
+import { randomInt } from 'node:crypto'
 
 import {
   GardenCollectionRepository,
@@ -11,21 +12,21 @@ import {
   type GardenCollectionRepositoryService,
 } from './garden-collection-repository.js'
 
-const GardenPlantIdSchema = Schema.Literal(...gardenFlowerIds)
+const GardenPlantIdSchema = Schema.Literal(...LearningEngine.gardenFlowerIds)
 
 const GardenCollectionDocumentSchema = Schema.Struct({
   _id: Schema.NonEmptyString,
   awardedFlowerIds: Schema.Array(GardenPlantIdSchema),
   bloomCount: Schema.NonNegativeInt,
-  bloomsPerFlower: Schema.Literal(gardenBloomsPerFlower),
+  bloomsPerFlower: Schema.Literal(LearningEngine.gardenBloomsPerFlower),
   catalogVersion: Schema.Literal(gardenCollectionCatalogVersion),
   createdAt: Schema.ValidDateFromSelf,
   flowerOrder: Schema.Array(GardenPlantIdSchema).pipe(
     Schema.filter(
       (order) =>
-        order.length === gardenFlowerIds.length &&
-        new Set(order).size === gardenFlowerIds.length &&
-        gardenFlowerIds.every((id) => order.includes(id)),
+        order.length === LearningEngine.gardenFlowerIds.length &&
+        new Set(order).size === LearningEngine.gardenFlowerIds.length &&
+        LearningEngine.gardenFlowerIds.every((id) => order.includes(id)),
       { message: () => 'Garden flower order must contain every flower exactly once' },
     ),
   ),
@@ -65,10 +66,10 @@ const makeService = (
           _id: profileId,
           awardedFlowerIds: [],
           bloomCount: 0,
-          bloomsPerFlower: gardenBloomsPerFlower,
+          bloomsPerFlower: LearningEngine.gardenBloomsPerFlower,
           catalogVersion: gardenCollectionCatalogVersion,
           createdAt: now,
-          flowerOrder: personalizedFlowerOrder(preferredFlowerPrefix),
+          flowerOrder: personalizedFlowerOrder(preferredFlowerPrefix, randomInt),
           introductionSeen: false,
           profileId,
           rewardedDayKeys: [],

@@ -1,5 +1,6 @@
-import { gardenBloomsPerFlower } from '@little-tables/domain'
+import { LearningEngine } from '@little-tables/domain'
 import { Effect, Layer } from 'effect'
+import { randomInt } from 'node:crypto'
 
 import {
   GardenCollectionRepository,
@@ -21,10 +22,10 @@ const layer = () => {
     const record: GardenCollectionRecord = {
       awardedFlowerIds: [],
       bloomCount: 0,
-      bloomsPerFlower: gardenBloomsPerFlower,
+      bloomsPerFlower: LearningEngine.gardenBloomsPerFlower,
       catalogVersion: gardenCollectionCatalogVersion,
       createdAt: now,
-      flowerOrder: personalizedFlowerOrder(preferredFlowerPrefix),
+      flowerOrder: personalizedFlowerOrder(preferredFlowerPrefix, randomInt),
       introductionSeen: false,
       profileId,
       rewardedDayKeys: [],

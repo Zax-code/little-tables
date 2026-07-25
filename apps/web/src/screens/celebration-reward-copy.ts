@@ -7,9 +7,18 @@ function sentenceCase(value: string) {
 }
 
 export function celebrationRewardCopy(progress: GardenProgress, locale: Locale = 'fr'): string {
+  const plant = progress.featuredPlant
+  if (plant?.stage === 'mature') {
+    const plantName = sentenceCase(translatePlantName(locale, plant.id))
+    return progress.nextStep === null
+      ? translate(locale, 'celebration.rewardMatureFinal', { plant: plantName })
+      : translate(locale, 'celebration.rewardMature', {
+          nextPlant: sentenceCase(translatePlantName(locale, progress.nextStep.plant.id)),
+          plant: plantName,
+        })
+  }
   if (progress.nextStep === null) return translate(locale, 'celebration.rewardAllBlooming')
 
-  const plant = progress.featuredPlant
   if (plant === null) {
     const remaining = progress.nextStep.fluentFactsRemaining
     return remaining > 0
@@ -20,10 +29,6 @@ export function celebrationRewardCopy(progress: GardenProgress, locale: Locale =
   }
 
   const plantName = sentenceCase(translatePlantName(locale, plant.id))
-  if (plant.stage === 'mature') {
-    return translate(locale, 'celebration.rewardMature', { plant: plantName })
-  }
-
   return translate(locale, 'celebration.rewardGrowing', {
     current: plant.bloomsEarned,
     plant: plantName,

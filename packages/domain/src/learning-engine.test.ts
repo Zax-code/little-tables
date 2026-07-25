@@ -520,11 +520,29 @@ describe('LearningEngine', () => {
     expect(stagesAt(9).plants[2]?.stage).toBe('locked')
   })
 
+  it('keeps a durably awarded flower collected after mastery regresses', () => {
+    const progress = LearningEngine.deriveGardenProgress({
+      awardedFlowerIds: ['velvet-foxglove'],
+      completedSessions: 9,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+
+    expect(progress.plants[2]).toMatchObject({
+      bloomsEarned: 3,
+      collected: true,
+      id: 'velvet-foxglove',
+      masteryRemaining: 0,
+      stage: 'mature',
+    })
+    expect(progress.rewards.map(({ id }) => id)).toContain('collection:velvet-foxglove')
+  })
+
   it.each([
     [0, 'rose-lotus', 1, 1, 'growing', false],
     [1, 'rose-lotus', 3, 2, 'mature', false],
     [6, 'velvet-foxglove', 7, 1, 'growing', true],
-    [7, 'velvet-foxglove', 7, 0, 'growing', true],
+    [7, 'velvet-foxglove', 9, 2, 'mature', false],
+    [8, 'velvet-foxglove', 9, 1, 'mature', false],
   ] as const)(
     'derives the next garden milestone after %i blooms',
     (completedSessions, plantId, targetAt, bloomsRemaining, targetStage, unlocksPot) => {

@@ -67,6 +67,7 @@ export function GardenCollectionScreen() {
     : null
   const previewNumber = previewValue === null ? Number.NaN : Number(previewValue)
   const progress = LearningEngine.deriveGardenProgress({
+    awardedFlowerIds: data?.gardenCollection.awardedFlowerIds,
     completedSessions: Number.isFinite(previewNumber)
       ? previewNumber
       : (data?.gardenBloomCount ?? data?.completedSessions ?? 0),

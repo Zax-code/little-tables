@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest'
-import { gardenFlowerIds } from '@little-tables/domain'
+import { LearningEngine } from '@little-tables/domain'
 
 import { decodeServerBootstrap } from './bootstrap-client.js'
 
 describe('decodeServerBootstrap', () => {
   it('validates transported progress and revives snapshot dates', async () => {
-    const flowerOrder = [...gardenFlowerIds].reverse()
+    const flowerOrder = [...LearningEngine.gardenFlowerIds].reverse()
     const bootstrap = await decodeServerBootstrap({
       algorithmVersion: '1',
       completedSessions: 3,

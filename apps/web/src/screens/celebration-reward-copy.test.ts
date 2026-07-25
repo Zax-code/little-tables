@@ -25,7 +25,19 @@ describe('celebration reward copy', () => {
     })
 
     expect(celebrationRewardCopy(progress)).toBe(
-      'Lotus rosé vient d’éclore et rejoint ta collection pour de bon.',
+      'Lotus rosé vient d’éclore et rejoint ta collection pour de bon. Prochaine découverte : Lupin du crépuscule.',
+    )
+  })
+
+  it('celebrates the final flower joining the collection', () => {
+    const progress = LearningEngine.deriveGardenProgress({
+      awardedFlowerIds: LearningEngine.gardenFlowerIds,
+      completedSessions: 27,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+
+    expect(celebrationRewardCopy(progress, 'en')).toBe(
+      'Blue wisteria is fully grown and has joined your collection. Your whole garden is blooming.',
     )
   })
 

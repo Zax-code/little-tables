@@ -36,6 +36,7 @@ export function CelebrationScreen() {
   }
 
   const progress = LearningEngine.deriveGardenProgress({
+    awardedFlowerIds: data.gardenCollection.awardedFlowerIds,
     completedSessions: completion.bloomNumber,
     flowerOrder: data.gardenCollection.flowerOrder,
     snapshot: data.snapshot,
