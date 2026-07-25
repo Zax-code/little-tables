@@ -11,6 +11,7 @@ import { SyncManager } from './components/sync-manager.js'
 import { I18nProvider } from './i18n.js'
 import { decodeStartupImages } from './preload-images.js'
 import { FamilyProfileProvider } from './family-profile-provider.js'
+import { SelectedCharacterProvider } from './selected-character-provider.js'
 import './styles.css'
 
 const queryClient = new QueryClient({
@@ -38,12 +39,14 @@ void Promise.all([decodeStartupImages(), enableReactScan().catch(() => undefined
           <PwaManager />
           <AuthGate>
             <FamilyProfileProvider>
-              <LazyMotion features={domAnimation} strict>
-                <MotionConfig reducedMotion="user">
-                  <SyncManager />
-                  <RouterProvider router={router} context={{ queryClient }} />
-                </MotionConfig>
-              </LazyMotion>
+              <SelectedCharacterProvider>
+                <LazyMotion features={domAnimation} strict>
+                  <MotionConfig reducedMotion="user">
+                    <SyncManager />
+                    <RouterProvider router={router} context={{ queryClient }} />
+                  </MotionConfig>
+                </LazyMotion>
+              </SelectedCharacterProvider>
             </FamilyProfileProvider>
           </AuthGate>
         </I18nProvider>
