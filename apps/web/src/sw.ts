@@ -19,7 +19,7 @@ const notificationFallbackCopies = {
 } as const satisfies Readonly<Record<Locale, string>>
 
 const isLocale = (value: unknown): value is Locale =>
-  typeof value === 'string' && supportedLocales.includes(value as Locale)
+  typeof value === 'string' && supportedLocales.some((locale) => locale === value)
 
 const saveLocale = async (locale: Locale): Promise<void> => {
   const cache = await caches.open(localeCacheName)
