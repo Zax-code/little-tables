@@ -1,7 +1,9 @@
 # Generated family avatar artwork
 
 The avatar picker uses owner-approved transparent raster artwork copied into the app without
-regeneration or programmatic alteration.
+generative modification. Miffy's approved PNG is deterministically scaled and recentered on its
+existing transparent canvas so every character can use the same portrait-framing CSS; the
+character artwork itself was not regenerated, redrawn, or recolored.
 
 The shipped transparent PNGs are:
 
