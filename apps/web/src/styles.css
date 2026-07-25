@@ -800,7 +800,6 @@ p {
 }
 .glow-card,
 .today-card,
-.tomorrow-card,
 .progress-note {
   border: 1px solid var(--line-soft);
   background: rgb(255 253 249 / 86%);
@@ -2352,67 +2351,6 @@ p {
   font-size: 0.76rem;
   line-height: 1.4;
 }
-.tomorrow-card {
-  width: 100%;
-  min-height: 76px;
-  margin: 16px 0 18px;
-  padding: 14px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  border-color: var(--line-garden);
-  border-width: 2px;
-  color: var(--ink-primary);
-  box-shadow: 0 4px 0 var(--shadow-control-edge);
-  text-align: left;
-  cursor: pointer;
-  transition:
-    box-shadow 150ms ease,
-    transform 150ms ease;
-}
-.tomorrow-card:active {
-  transform: translateY(2px);
-  box-shadow: 0 4px 16px rgb(90 50 55 / 5%);
-}
-.tomorrow-card:disabled {
-  cursor: wait;
-  opacity: 0.65;
-}
-.tomorrow-card > span {
-  font-size: 2rem;
-}
-.tomorrow-card .next-pot-icon {
-  width: 44px;
-  height: 44px;
-  display: grid;
-  place-items: center;
-  flex: 0 0 auto;
-  border-radius: 14px;
-  background: var(--surface-garden);
-  color: var(--accent-green);
-  font-size: 1.8rem;
-}
-.tomorrow-card > div {
-  flex: 1;
-}
-.tomorrow-card p {
-  margin: 3px 0 0;
-  font-size: 0.82rem;
-}
-.garden-mastery-milestone {
-  margin-top: 5px;
-  display: block;
-  color: var(--accent-green);
-  font-size: 0.74rem;
-  font-weight: 700;
-  line-height: 1.35;
-}
-.tomorrow-card .tomorrow-chevron {
-  color: var(--ink-primary);
-  font-size: 2rem;
-  font-weight: 400;
-}
-
 .collection-screen {
   min-height: calc(100dvh - 96px - env(safe-area-inset-bottom));
   padding: max(18px, env(safe-area-inset-top)) 20px 24px;
@@ -2867,7 +2805,6 @@ p {
 .guided-recall button:not(:disabled):active,
 .keypad-grid button:not(:disabled):active,
 .garden-plot__pagination button:not(:disabled):active,
-.tomorrow-card:not(:disabled):active,
 .table-progress-card button:not(:disabled):active,
 .curriculum-card button:not(:disabled):active,
 .pwa-toast button:not(:disabled):active,
@@ -3196,12 +3133,6 @@ p {
   .garden-plot__canvas {
     --garden-caretaker-size: 220px;
   }
-  .tomorrow-card {
-    max-width: 720px;
-    min-height: 88px;
-    margin: 20px auto 0;
-  }
-
   .collection-screen {
     padding: 0 clamp(36px, 5vw, 72px) 40px;
   }
