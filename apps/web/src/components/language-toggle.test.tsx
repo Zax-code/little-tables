@@ -71,6 +71,11 @@ describe('LanguageToggle', () => {
     document.body.append(container)
     const root = createRoot(container)
     const setItem = vi.spyOn(window.localStorage, 'setItem')
+    const manifest = document.createElement('link')
+    manifest.dataset.appManifest = ''
+    manifest.rel = 'manifest'
+    manifest.href = '/manifest-fr.webmanifest'
+    document.head.append(manifest)
 
     act(() => {
       root.render(
@@ -91,8 +96,10 @@ describe('LanguageToggle', () => {
     expect(setItem).toHaveBeenCalledWith('little-tables:locale', 'zh-Hans')
     expect(syncExistingReminderLocale).toHaveBeenCalledWith('zh-Hans', 'lou')
     expect(selector.getAttribute('aria-label')).toBe('选择语言')
+    expect(manifest.getAttribute('href')).toBe('/manifest-zh-Hans.webmanifest')
 
     act(() => root.unmount())
+    manifest.remove()
     container.remove()
   })
 })

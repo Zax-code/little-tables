@@ -8,6 +8,7 @@ import {
 } from './i18n-catalog.js'
 import { I18nContext } from './i18n-context.js'
 import { applyLocalePreference, readLocalePreference } from './locale-preference.js'
+import { syncManifestLocale } from './manifest-locale.js'
 import { syncServiceWorkerLocale } from './service-worker-locale.js'
 
 export function I18nProvider({
@@ -26,6 +27,7 @@ export function I18nProvider({
 
   useEffect(() => {
     document.documentElement.lang = locale
+    syncManifestLocale(locale)
     if ('serviceWorker' in navigator) void syncServiceWorkerLocale(locale)
   }, [locale])
 

@@ -1,0 +1,30 @@
+{
+  "id": "/",
+  "name": "little tables.",
+  "short_name": "little tables",
+  "description": "轻轻松松练乘法，陪你的小花园慢慢长大。",
+  "categories": ["education", "kids"],
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#fff8ed",
+  "theme_color": "#fff8ed",
+  "lang": "zh-Hans",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    { "src": "/icons/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icons/icon-512.png", "sizes": "512x512", "type": "image/png" },
+    {
+      "src": "/icons/icon-maskable-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

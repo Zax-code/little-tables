@@ -72,7 +72,14 @@ describe('internationalization', () => {
       '当前是小雨。切换家人',
     )
     expect(translate('zh-Hans', 'family.removeDialogWarning', { name: '小雨' })).toBe(
-      '小雨的档案会从家庭成员中永久移除，之后无法恢复。',
+      '小雨的个人资料会被永久删除，之后无法恢复。',
+    )
+    expect(translate('zh-Hans', 'family.removeDialogHeading', { name: '小雨' })).toBe(
+      '要删除小雨的个人资料吗？',
+    )
+    expect(translate('zh-Hans', 'practice.growing', { count: 3 })).toBe('已练 3 道')
+    expect(translate('zh-Hans', 'error.copy')).toBe(
+      '有个页面没能打开，不过别担心，你的练习进度都还在。更新后，就能从刚才的地方继续。',
     )
     expect(translate('zh-Hans', 'app.openingFamily')).toBe('正在打开全家的花园…')
     expect(translate('zh-Hans', 'family.learnerFallback')).toBe('小园丁')

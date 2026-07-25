@@ -16,7 +16,7 @@ The shared Chinese vocabulary is:
 | multiplication fact becoming fluent | 记牢一道乘法题    |
 | growing / familiar                  | 成长中 / 慢慢熟悉 |
 | garden collection                   | 花园图鉴          |
-| family profile                      | 家人的档案        |
+| family profile                      | 家人的个人资料    |
 
 `little tables` remains the product name. Miffy uses her established Chinese name, `米菲`. The
 original character first names are localized for natural recognition in Chinese: Malo `马洛`,
@@ -24,7 +24,9 @@ Fenna `芬娜`, Mina `米娜`, Paco `帕科`, and Colin `科林`.
 
 The language selector keeps all three choices and synchronizes an existing reminder subscription
 for the active profile. The app also sends the selected locale to the service worker, so a visible
-fallback notification does not revert to French when Chinese is selected.
+fallback notification does not revert to French when Chinese is selected. Locale-specific PWA
+manifests keep install-sheet metadata in the selected language. Only the French manifest advertises
+the current French screenshots; English and Chinese omit them until matching captures exist.
 
 ## Later selected-character integration
 
@@ -51,6 +53,5 @@ rewriting stored profiles. Pre-authentication Miffy art remains the approved saf
   completeness and placeholder parity for every locale.
 - Counts use Arabic numerals, which are natural here. If a future screen shows a user-facing date,
   format it with `Intl.DateTimeFormat(locale, ...)`.
-- The generated PWA manifest still has one static French description and screenshot labels for all
-  app languages; it is not driven by the in-app selector. If install-sheet metadata becomes part of
-  localization scope, provide locale-specific manifests rather than mixing three languages in one.
+- `apps/web/public/manifest-*.webmanifest` must stay aligned when install metadata changes. Do not
+  add French screenshots to the English or Chinese manifest; first capture matching localized UI.
