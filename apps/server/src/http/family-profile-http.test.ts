@@ -28,7 +28,7 @@ describe('family-profile HTTP interface', () => {
     vi.resetModules()
   })
 
-  it('lets one Google account add, rename, and remove child profiles without removing the last child', async () => {
+  it('lets one Google account manage family member profiles without removing the last member', async () => {
     vi.stubEnv('GOOGLE_CLIENT_ID', 'client.apps.googleusercontent.com')
     vi.stubEnv('GOOGLE_ALLOWED_EMAILS', 'parent@example.com')
     vi.stubEnv('SESSION_SECRET', 'family-profile-test-secret')
@@ -105,6 +105,32 @@ describe('family-profile HTTP interface', () => {
     await expect(renamed.json()).resolves.toEqual({
       profile: { avatarId: 'berry', id: addedBody.profile.id, name: 'Mimi' },
     })
+    const afterAvatarChange = await Schema.decodeUnknownPromise(FamilyResponseSchema)(
+      await (await familyRequest()).json(),
+    )
+    expect(afterAvatarChange.profiles).toEqual([
+      expect.objectContaining({ avatarId: 'sprout', id: initialBody.profiles[0]?.id }),
+      expect.objectContaining({ avatarId: 'berry', id: addedBody.profile.id }),
+    ])
+
+    const returningSignIn = await handler(
+      new Request('http://little-tables.local/api/v1/auth/google', {
+        body: JSON.stringify({ credential: 'signed-google-credential' }),
+        headers: { 'content-type': 'application/json' },
+        method: 'POST',
+      }),
+    )
+    const returningCookie = returningSignIn.headers.get('set-cookie')?.split(';')[0] ?? ''
+    const restored = await Schema.decodeUnknownPromise(FamilyResponseSchema)(
+      await (
+        await handler(
+          new Request('http://little-tables.local/api/v1/family/profiles', {
+            headers: { cookie: returningCookie },
+          }),
+        )
+      ).json(),
+    )
+    expect(restored.profiles).toEqual(afterAvatarChange.profiles)
 
     const removed = await familyRequest({ profileId: addedBody.profile.id }, 'DELETE')
     expect(removed.status).toBe(200)
@@ -118,7 +144,7 @@ describe('family-profile HTTP interface', () => {
     await dispose()
   })
 
-  it('accepts practice only for owned children and returns isolated child snapshots', async () => {
+  it('accepts practice only for owned family members and returns isolated member snapshots', async () => {
     vi.stubEnv('GOOGLE_CLIENT_ID', 'client.apps.googleusercontent.com')
     vi.stubEnv('GOOGLE_ALLOWED_EMAILS', 'parent@example.com')
     vi.stubEnv('SESSION_SECRET', 'family-isolation-test-secret')

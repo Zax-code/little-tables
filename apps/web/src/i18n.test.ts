@@ -148,4 +148,13 @@ describe('internationalization', () => {
     expect(translate('en', 'watering.rewardEarned')).toContain('still strengthens your math skills')
     expect(translate('fr', 'watering.extra')).toContain('pas d’arrosage en plus aujourd’hui')
   })
+
+  it('uses inclusive family-member language in family profile controls', () => {
+    expect(translate('en', 'family.addHeading')).toBe('add a family member')
+    expect(translate('en', 'family.intro')).toContain('Each family member')
+    expect(translate('en', 'family.switcherMenu')).toBe('Choose a family member')
+    expect(translate('fr', 'family.addHeading')).toBe('ajouter un membre de la famille')
+    expect(translate('fr', 'family.intro')).toContain('Chaque membre de la famille')
+    expect(translate('fr', 'family.switcherMenu')).toBe('Choisir un membre de la famille')
+  })
 })

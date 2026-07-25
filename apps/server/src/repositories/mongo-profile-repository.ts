@@ -18,7 +18,7 @@ import {
 } from './profile-repository.js'
 
 const ChildDocumentSchema = Schema.Struct({
-  avatarId: ChildAvatarIdSchema,
+  avatarId: Schema.NonEmptyString,
   createdAt: Schema.ValidDateFromSelf,
   id: Schema.NonEmptyString,
   name: ChildProfileNameSchema,
@@ -29,6 +29,22 @@ const FamilyDocumentSchema = Schema.Struct({
   _id: Schema.NonEmptyString,
   onboardingComplete: Schema.Boolean,
   profiles: Schema.NonEmptyArray(ChildDocumentSchema),
+  schemaVersion: Schema.Literal(2),
+  updatedAt: Schema.ValidDateFromSelf,
+})
+
+const FamilyDocumentBeforeAvatarSelectionSchema = Schema.Struct({
+  _id: Schema.NonEmptyString,
+  onboardingComplete: Schema.Boolean,
+  profiles: Schema.NonEmptyArray(
+    Schema.Struct({
+      avatarId: Schema.optional(Schema.NonEmptyString),
+      createdAt: Schema.ValidDateFromSelf,
+      id: Schema.NonEmptyString,
+      name: ChildProfileNameSchema,
+      updatedAt: Schema.ValidDateFromSelf,
+    }),
+  ),
   schemaVersion: Schema.Literal(2),
   updatedAt: Schema.ValidDateFromSelf,
 })
@@ -49,11 +65,36 @@ type ProfileStorageDocument = Document & {
 const accountFor = (document: FamilyDocument): FamilyAccount => ({
   googleSubject: document._id,
   onboardingComplete: document.onboardingComplete,
-  profiles: document.profiles.map(({ avatarId, id, name }) => ({ avatarId, id, name })),
+  profiles: document.profiles.map(({ avatarId, id, name }) => ({
+    avatarId: Schema.is(ChildAvatarIdSchema)(avatarId) ? avatarId : FamilyProfiles.defaultAvatarId,
+    id,
+    name,
+  })),
 })
 
 const decodeFamily = async (value: unknown): Promise<FamilyDocument> =>
   Schema.decodeUnknownPromise(FamilyDocumentSchema)(value)
+
+const migrateAvatarSelections = async (
+  collection: Collection<ProfileStorageDocument>,
+  value: unknown,
+): Promise<FamilyDocument | null> => {
+  if (!Schema.is(FamilyDocumentBeforeAvatarSelectionSchema)(value)) return null
+  const now = new Date()
+  await collection.updateOne(
+    { _id: value._id, schemaVersion: 2 },
+    {
+      $set: {
+        'profiles.$[missing].avatarId': FamilyProfiles.defaultAvatarId,
+        'profiles.$[missing].updatedAt': now,
+        updatedAt: now,
+      },
+    },
+    { arrayFilters: [{ 'missing.avatarId': { $exists: false } }] },
+  )
+  const migrated = await collection.findOne({ _id: value._id, schemaVersion: 2 })
+  return migrated === null ? null : decodeFamily(migrated)
+}
 
 const childDocument = (
   input: Readonly<{ avatarId: ChildAvatarId; id?: string; name: ChildProfileName }>,
@@ -73,7 +114,11 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
     Effect.tryPromise({
       try: async () => {
         const document = await collection.findOne({ _id: googleSubject, schemaVersion: 2 })
-        return document === null ? null : accountFor(await decodeFamily(document))
+        if (document === null) return null
+        if (Schema.is(FamilyDocumentSchema)(document)) return accountFor(document)
+        const migrated = await migrateAvatarSelections(collection, document)
+        if (migrated === null) throw new Error('Family profile document could not be migrated')
+        return accountFor(migrated)
       },
       catch: (cause) => new ProfileRepositoryError({ cause, operation: 'find-family' }),
     })
@@ -95,7 +140,7 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
             { $set: { profiles: [...decoded.profiles, profile], updatedAt } },
           )
           if (result.modifiedCount !== 1) throw new Error('Family account changed concurrently')
-          return { avatarId: profile.avatarId, id: profile.id, name: profile.name }
+          return { avatarId: input.avatarId, id: profile.id, name: profile.name }
         },
         catch: (cause) => new ProfileRepositoryError({ cause, operation: 'add-child' }),
       }),
@@ -130,6 +175,10 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
           const existing = await collection.findOne({ _id: googleSubject })
           if (existing !== null && Schema.is(FamilyDocumentSchema)(existing)) {
             return accountFor(existing)
+          }
+          if (existing !== null) {
+            const migrated = await migrateAvatarSelections(collection, existing)
+            if (migrated !== null) return accountFor(migrated)
           }
           if (existing !== null && Schema.is(LegacyProfileDocumentSchema)(existing)) {
             const migrated = await decodeFamily({

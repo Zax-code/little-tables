@@ -48,5 +48,19 @@ describe('family profile client', () => {
       ['/api/v1/family/profiles', 'PUT'],
       ['/api/v1/family/profiles', 'DELETE'],
     ])
+    const createBody = fetcher.mock.calls[1]?.[1]?.body
+    const updateBody = fetcher.mock.calls[2]?.[1]?.body
+    if (typeof createBody !== 'string' || typeof updateBody !== 'string') {
+      throw new Error('Expected family profile mutation bodies to be JSON strings')
+    }
+    expect(JSON.parse(createBody) as unknown).toEqual({
+      avatarId: 'bluebell',
+      name: 'Mia',
+    })
+    expect(JSON.parse(updateBody) as unknown).toEqual({
+      avatarId: 'berry',
+      name: 'Mimi',
+      profileId: 'child-2',
+    })
   })
 })

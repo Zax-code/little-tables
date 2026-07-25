@@ -217,13 +217,13 @@ The first implementation materially resolved these points:
 - MongoDB stores one `garden_collections` record per learner profile with the stable flower order,
   awarded flower IDs, bloom count, rewarded learner-local day keys, catalog/pacing version, and
   introduction-seen state. Set-based reconciliation makes repeated syncs idempotent.
-- A Google account owns a family of stable child profiles, and the selected child profile is the
+- A Google account owns a family of stable family member profiles, and the selected member profile is the
   ownership boundary for attempts, local cache/outbox data, garden order, awards, watering progress,
   introduction state, and the upcoming flower. Switching profiles or signing in again reloads that
   profile's existing garden instead of creating a new order.
 - Legacy shared `lou` data is never assigned by inference. Only the configured deployment owner
   account retains profile ID `lou`, preserving its practice history, garden, and legacy local
-  database. Every other account receives a new child profile ID and does not inherit or copy the
+  database. Every other account receives a new family member profile ID and does not inherit or copy the
   ambiguous shared `lou` history or device outbox; the original records remain intact for explicit
   administrative recovery if ownership is later established.
 - Existing learners are backfilled by keeping the fixed-order prefix they had already reached under

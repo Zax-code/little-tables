@@ -85,7 +85,7 @@ payload, so existing users will be asked to sign in once after rollout.
 The pre-family-profile release had one deployment-level learner identity, `lou`; configured Google
 emails were access gates to that shared learner rather than separate data owners. During the
 family-profile backfill, only the owner account retains `lou` and its practice history. Legacy
-preference records for other Google subjects receive new isolated child IDs and do not inherit the
+preference records for other Google subjects receive new isolated family member IDs and do not inherit the
 ambiguous shared history or device outbox.
 
 ## Google sign-in setup

@@ -44,7 +44,10 @@ export function AvatarPicker({
               value={avatarId}
             />
             <ProfileAvatar avatarId={avatarId} />
-            <span className="sr-only">{t(`family.avatar.${avatarId}`)}</span>
+            <span className="avatar-picker__name">{t(`family.avatar.${avatarId}`)}</span>
+            <span aria-hidden="true" className="avatar-picker__check">
+              ✓
+            </span>
           </label>
         ))}
       </div>
@@ -203,7 +206,7 @@ export function FamilyScreen() {
         ) : null}
 
         <div className="family-profile-list">
-          <h2>{t('family.childrenHeading')}</h2>
+          <h2>{t('family.membersHeading')}</h2>
           {profiles.map((profile) => (
             <ChildProfileEditor
               canRemove={profiles.length > 1}

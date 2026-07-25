@@ -15,7 +15,7 @@ describe('tab routing', () => {
     expect(router.routesByPath['/access'].options.loader).toEqual(expect.any(Function))
   })
 
-  it('keeps family management outside the child-facing tab layout', () => {
+  it('keeps family management outside the member practice tab layout', () => {
     expect(router.routesByPath['/family'].parentRoute).toBe(router.routesById.__root__)
   })
 })

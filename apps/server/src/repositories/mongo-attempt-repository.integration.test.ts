@@ -152,7 +152,8 @@ describe('MongoAttemptRepository', () => {
     })
   }, 30_000)
 
-  it('persists a family and its child profiles for each Google account', async () => {
+  it('persists each family member avatar and restores isolated choices after reconnect', async () => {
+    const uri = `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`
     const program = Effect.gen(function* () {
       const repository = yield* ProfileRepository
       const created = yield* repository.ensureFamily({
@@ -172,27 +173,32 @@ describe('MongoAttemptRepository', () => {
         avatarId: 'bluebell',
         name: 'Mia',
       })
+      const updated = yield* repository.updateChild('google-subject', initialProfile.id, {
+        avatarId: 'berry',
+        name: 'Lou',
+      })
       const saved = yield* repository.findFamily('google-subject')
-      return { added, nameChosen, saved }
-    }).pipe(
-      Effect.provide(
-        MongoProfileRepository.layer(
-          `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`,
-          'integration',
-        ),
-      ),
-    )
+      return { added, nameChosen, saved, updated }
+    }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration')))
 
     const result = await Effect.runPromise(program)
+    const restored = await Effect.runPromise(
+      Effect.gen(function* () {
+        const repository = yield* ProfileRepository
+        return yield* repository.findFamily('google-subject')
+      }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration'))),
+    )
     expect(result.nameChosen).toBe(true)
     expect(result.added).toMatchObject({ avatarId: 'bluebell', name: 'Mia' })
+    expect(result.updated).toMatchObject({ avatarId: 'berry', name: 'Lou' })
     expect(result.saved).toMatchObject({
       onboardingComplete: true,
       profiles: [
-        expect.objectContaining({ name: 'Lou' }),
+        expect.objectContaining({ avatarId: 'berry', name: 'Lou' }),
         expect.objectContaining({ avatarId: 'bluebell', name: 'Mia' }),
       ],
     })
+    expect(restored).toEqual(result.saved)
   }, 30_000)
 
   it('backfills a legacy single-profile document onto its existing practice profile ID', async () => {
@@ -251,6 +257,89 @@ describe('MongoAttemptRepository', () => {
       onboardingComplete: false,
       profiles: [{ avatarId: 'sprout', id: 'lou', name: 'Google Lou' }],
     })
+  }, 30_000)
+
+  it('atomically defaults missing avatars and preserves retired IDs during concurrent updates', async () => {
+    const uri = `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`
+    const client = new MongoClient(uri)
+    await client.connect()
+    const updatedAt = new Date('2026-07-20T12:00:00.000Z')
+    await client
+      .db('integration')
+      .collection<{ _id: string; [key: string]: unknown }>('profiles')
+      .insertOne({
+        _id: 'avatarless-family-subject',
+        onboardingComplete: true,
+        profiles: [
+          {
+            createdAt: updatedAt,
+            id: 'avatarless-member',
+            name: 'Lou',
+            updatedAt,
+          },
+          {
+            avatarId: 'retired-avatar',
+            createdAt: updatedAt,
+            id: 'retired-avatar-member',
+            name: 'Alex',
+            updatedAt,
+          },
+          {
+            createdAt: updatedAt,
+            id: 'concurrent-avatar-member',
+            name: 'Sam',
+            updatedAt,
+          },
+        ],
+        schemaVersion: 2,
+        updatedAt,
+      })
+    await client.close()
+
+    const result = await Effect.runPromise(
+      Effect.gen(function* () {
+        const repository = yield* ProfileRepository
+        const [migrated, concurrentUpdate] = yield* Effect.all(
+          [
+            repository.ensureFamily({
+              fallbackName: 'Ignored Google Name',
+              googleSubject: 'avatarless-family-subject',
+              legacyProfileId: 'lou',
+              retainLegacyProfileId: false,
+            }),
+            repository.updateChild('avatarless-family-subject', 'concurrent-avatar-member', {
+              avatarId: 'berry',
+              name: 'Sam',
+            }),
+          ],
+          { concurrency: 'unbounded' },
+        )
+        const restored = yield* repository.findFamily('avatarless-family-subject')
+        return { concurrentUpdate, migrated, restored }
+      }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration'))),
+    )
+    const storedClient = new MongoClient(uri)
+    await storedClient.connect()
+    const stored = await storedClient
+      .db('integration')
+      .collection<{ _id: string; profiles: ReadonlyArray<{ avatarId?: string; id: string }> }>(
+        'profiles',
+      )
+      .findOne({ _id: 'avatarless-family-subject' })
+    await storedClient.close()
+
+    expect(result.concurrentUpdate).toMatchObject({
+      avatarId: 'berry',
+      id: 'concurrent-avatar-member',
+    })
+    expect(result.restored?.profiles).toEqual([
+      expect.objectContaining({ avatarId: 'sprout', id: 'avatarless-member' }),
+      expect.objectContaining({ avatarId: 'sprout', id: 'retired-avatar-member' }),
+      expect.objectContaining({ avatarId: 'berry', id: 'concurrent-avatar-member' }),
+    ])
+    expect(stored?.profiles.find(({ id }) => id === 'retired-avatar-member')?.avatarId).toBe(
+      'retired-avatar',
+    )
   }, 30_000)
 
   it('atomically preserves isolated duplicate-free personalized gardens per family profile', async () => {

@@ -10,7 +10,7 @@ describe('FamilyProfiles', () => {
     expect(Schema.is(ChildAvatarIdSchema)('unknown-avatar')).toBe(false)
   })
 
-  it('accepts a trimmed child name up to 40 characters', () => {
+  it('accepts a trimmed family member name up to 40 characters', () => {
     expect(Schema.is(ChildProfileNameSchema)('Lou')).toBe(true)
     expect(Schema.is(ChildProfileNameSchema)('   ')).toBe(false)
     expect(Schema.is(ChildProfileNameSchema)('x'.repeat(41))).toBe(false)

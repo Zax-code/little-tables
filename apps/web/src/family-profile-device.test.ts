@@ -31,7 +31,7 @@ const profiles = [
 ] as const
 
 describe('family profile device state', () => {
-  it('remembers the active child on this device and restores it while that child still exists', () => {
+  it('remembers the active family member and restores their avatar while that profile exists', () => {
     const storage = new MemoryStorage()
     rememberActiveProfile('child-2', storage)
     writeCachedProfiles(profiles, storage)
@@ -45,7 +45,7 @@ describe('family profile device state', () => {
     expect(readCachedProfiles(storage)).toEqual([])
   })
 
-  it('falls back safely when the remembered child was removed', () => {
+  it('falls back safely when the remembered family member was removed', () => {
     expect(resolveActiveProfileId([profiles[0]], 'child-2')).toBe('child-1')
     expect(resolveActiveProfileId([], 'child-2')).toBeNull()
   })

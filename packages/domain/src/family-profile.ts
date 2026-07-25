@@ -5,7 +5,7 @@ export type ChildAvatarId = typeof ChildAvatarIdSchema.Type
 
 export const ChildProfileNameSchema = Schema.NonEmptyTrimmedString.pipe(
   Schema.filter((name) => Array.from(name).length <= 40, {
-    message: () => 'Child names must contain at most 40 characters',
+    message: () => 'Family member names must contain at most 40 characters',
   }),
 )
 export type ChildProfileName = typeof ChildProfileNameSchema.Type
