@@ -59,10 +59,11 @@ export function decodeStartupImages(): Promise<void> {
 }
 
 export function decodeRouteImages(route: string, sources: readonly string[]): Promise<void> {
-  const existing = routeImageDecodes.get(route)
+  const key = JSON.stringify([route, ...sources])
+  const existing = routeImageDecodes.get(key)
   if (existing !== undefined) return existing
 
   const decoding = preloadImageSources(sources)
-  routeImageDecodes.set(route, decoding)
+  routeImageDecodes.set(key, decoding)
   return decoding
 }

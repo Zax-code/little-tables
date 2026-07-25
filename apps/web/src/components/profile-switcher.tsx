@@ -1,9 +1,11 @@
 import type { ChildProfile } from '@little-tables/domain'
-import { useNavigate } from '@tanstack/react-router'
+import { useLocation, useNavigate } from '@tanstack/react-router'
 import { AnimatePresence, m, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 
 import { useI18n } from '../i18n.js'
+import { characterSourcesForPath, resolveCharacter } from '../character-catalog.js'
+import { preloadImageSources } from '../preload-images.js'
 import { useFamilyProfile } from '../use-family-profile.js'
 import { ProfileAvatar } from './profile-avatar.js'
 import { profileSwitchDelay } from './profile-switch-transition.js'
@@ -11,6 +13,7 @@ import { profileSwitchDelay } from './profile-switch-transition.js'
 export function ProfileSwitcher() {
   const { activeProfile, profiles, switchProfile } = useFamilyProfile()
   const navigate = useNavigate()
+  const pathname = useLocation({ select: (location) => location.pathname })
   const { t } = useI18n()
   const [open, setOpen] = useState(false)
   const [pendingProfile, setPendingProfile] = useState<ChildProfile>()
@@ -19,18 +22,28 @@ export function ProfileSwitcher() {
   useEffect(() => {
     if (pendingProfile === undefined) return
     if (pendingProfile.id !== activeProfile.id) {
+      let cancelled = false
+      const targetCharacter = resolveCharacter(pendingProfile.avatarId)
+      const ready = preloadImageSources(characterSourcesForPath(targetCharacter, pathname))
       const commit = window.setTimeout(
-        () => switchProfile(pendingProfile.id),
+        () => {
+          void ready.then(() => {
+            if (!cancelled) switchProfile(pendingProfile.id)
+          })
+        },
         profileSwitchDelay('commit', reducedMotion === true),
       )
-      return () => window.clearTimeout(commit)
+      return () => {
+        cancelled = true
+        window.clearTimeout(commit)
+      }
     }
     const finish = window.setTimeout(
       () => setPendingProfile(undefined),
       profileSwitchDelay('finish', reducedMotion === true),
     )
     return () => window.clearTimeout(finish)
-  }, [activeProfile.id, pendingProfile, reducedMotion, switchProfile])
+  }, [activeProfile.id, pathname, pendingProfile, reducedMotion, switchProfile])
 
   return (
     <div className="profile-switcher">

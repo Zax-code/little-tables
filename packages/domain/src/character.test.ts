@@ -6,10 +6,7 @@ describe('Characters', () => {
   it('resolves every durable avatar ID to its canonical character', () => {
     expect(
       Object.fromEntries(
-        Characters.avatarIds.map((avatarId) => [
-          avatarId,
-          Characters.resolveAvatarId(avatarId),
-        ]),
+        Characters.avatarIds.map((avatarId) => [avatarId, Characters.resolveAvatarId(avatarId)]),
       ),
     ).toEqual({
       berry: 'miffy',

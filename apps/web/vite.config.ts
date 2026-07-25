@@ -62,7 +62,7 @@ export default defineConfig({
       },
       injectManifest: {
         globIgnores: ['generated/miffy-celebration-loop.webp'],
-        globPatterns: ['**/*.{js,css,html,woff2}', 'generated/*.webp'],
+        globPatterns: ['**/*.{js,css,html,woff2}', 'characters/miffy/{connect-profile,home}.webp'],
       },
       devOptions: { enabled: false },
     }),

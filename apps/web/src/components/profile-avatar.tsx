@@ -15,9 +15,7 @@ export function ProfileAvatar({
     >
       <img
         alt=""
-        className={
-          character.id === 'miffy' ? 'profile-avatar__miffy' : 'profile-avatar__character'
-        }
+        className={character.id === 'miffy' ? 'profile-avatar__miffy' : 'profile-avatar__character'}
         data-avatar-artwork={character.id}
         draggable={false}
         height={character.avatar.height}

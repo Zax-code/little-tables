@@ -28,6 +28,7 @@ import {
 } from './garden-watering-route.js'
 import { GardenWalkingSprite } from './garden-walking-sprite.js'
 import { translatePlantName, useI18n } from '../i18n.js'
+import { useSelectedCharacter } from '../use-selected-character.js'
 
 type GardenPlotProps = Readonly<{
   progress: GardenProgress
@@ -297,7 +298,6 @@ function GardenCaretaker({
   return (
     <>
       <m.div
-        aria-hidden="true"
         animate={{ x: target.caretakerX, y: target.caretakerY }}
         className="garden-plot__caretaker"
         initial={false}
@@ -401,7 +401,11 @@ function GardenPagination({
   )
 }
 
-function useGardenCaretaker(reduceMotion: boolean, initialPage: number) {
+function useGardenCaretaker(
+  reduceMotion: boolean,
+  initialPage: number,
+  geometry: ReturnType<typeof useSelectedCharacter>['gardenGeometry'],
+) {
   const canvasRef = useRef<HTMLDivElement>(null)
   const pagesRef = useRef<HTMLDivElement>(null)
   const [caretaker, dispatchCaretaker] = useReducer(caretakerReducer, initialCaretakerState)
@@ -432,8 +436,13 @@ function useGardenCaretaker(reduceMotion: boolean, initialPage: number) {
 
         return [
           {
-            caretakerX: waterX - caretakerSize * pourPointX,
-            caretakerY: waterY - caretakerSize * 0.93,
+            caretakerX:
+              waterX -
+              caretakerSize * pourPointX +
+              geometry.caretakerOffsetX -
+              geometry.pourPointOffsetX,
+            caretakerY:
+              waterY - caretakerSize * 0.93 + geometry.caretakerOffsetY - geometry.pourPointOffsetY,
             facing,
             id,
             pageIndex,
@@ -463,7 +472,7 @@ function useGardenCaretaker(reduceMotion: boolean, initialPage: number) {
         })
       return unchanged ? currentTargets : measuredTargets
     })
-  }, [initialPage])
+  }, [geometry, initialPage])
 
   useLayoutEffect(() => {
     const pages = pagesRef.current
@@ -529,6 +538,7 @@ function useGardenCaretaker(reduceMotion: boolean, initialPage: number) {
 
 export function GardenPlot({ progress }: GardenPlotProps) {
   const { locale, t } = useI18n()
+  const character = useSelectedCharacter()
   const reduceMotion = useReducedMotion() === true
   const [activePage, setActivePage] = useState(() => {
     const growingChapter = progress.chapters.findIndex(({ stage }) => stage === 'growing')
@@ -539,7 +549,11 @@ export function GardenPlot({ progress }: GardenPlotProps) {
     )
   })
   const [caretakerInitialPage] = useState(activePage)
-  const { canvasRef, caretaker, pagesRef } = useGardenCaretaker(reduceMotion, caretakerInitialPage)
+  const { canvasRef, caretaker, pagesRef } = useGardenCaretaker(
+    reduceMotion,
+    caretakerInitialPage,
+    character.gardenGeometry,
+  )
   const plants = useMemo(() => progress.plants.map(gardenPlantDefinition), [progress.plants])
   const plantPages = useMemo(
     () =>
@@ -594,6 +608,7 @@ export function GardenPlot({ progress }: GardenPlotProps) {
       caretaker.target?.pageIndex === activePage
         ? 'garden.plotCaretakerHere'
         : 'garden.plotCaretakerAway',
+      { character: character.displayName },
     ),
   })
   const lastPage = plantPages.length - 1
@@ -631,7 +646,7 @@ export function GardenPlot({ progress }: GardenPlotProps) {
         data-caretaker-phase={caretaker.phase}
         data-caretaker-target={caretaker.target?.id}
         ref={canvasRef}
-        role="img"
+        role="group"
       >
         <PlantPages
           caretaker={caretaker}

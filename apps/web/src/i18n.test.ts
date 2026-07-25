@@ -173,4 +173,13 @@ describe('internationalization', () => {
       expect(translate('fr', `family.avatar.${avatarId}`)).toBe(name)
     }
   })
+
+  it('describes authenticated character art with the selected first name', () => {
+    expect(translate('en', 'asset.walking', { character: 'Paco' })).toBe(
+      'Paco walking through the garden with a blue watering can',
+    )
+    expect(translate('fr', 'garden.plotCaretakerHere', { character: 'Mina' })).toBe(
+      'Mina arrose tranquillement ici.',
+    )
+  })
 })

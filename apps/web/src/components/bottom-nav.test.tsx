@@ -10,6 +10,8 @@ vi.mock('@tanstack/react-router', () => ({
       {children}
     </a>
   ),
+  useLocation: ({ select }: Readonly<{ select: (location: { pathname: string }) => string }>) =>
+    select({ pathname: '/stats' }),
   useNavigate: () => vi.fn(),
   useRouterState: () => '/stats',
 }))

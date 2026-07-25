@@ -1,10 +1,17 @@
 import { LearningEngine } from '@little-tables/domain'
-import { createRef } from 'react'
+import { createRef, type ReactNode } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
+import { characterCatalog } from '../character-catalog.js'
+import { SelectedCharacterContext } from '../selected-character-context.js'
 import { gardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenPlot, PlantPages } from './garden-plot.js'
+
+const renderWithMiffy = (children: ReactNode) =>
+  renderToStaticMarkup(
+    <SelectedCharacterContext value={characterCatalog.miffy}>{children}</SelectedCharacterContext>,
+  )
 
 describe('GardenPlot', () => {
   it('shows one named three-plant chapter at a time with finite three-page navigation', () => {
@@ -12,7 +19,7 @@ describe('GardenPlot', () => {
       completedSessions: 0,
       snapshot: LearningEngine.emptySnapshot(),
     })
-    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+    const markup = renderWithMiffy(<GardenPlot progress={progress} />)
 
     expect(markup).toContain('les premières fleurs')
     expect(markup.match(/data-garden-page=/g)).toHaveLength(3)
@@ -25,7 +32,7 @@ describe('GardenPlot', () => {
       completedSessions: 5,
       snapshot: LearningEngine.emptySnapshot(),
     })
-    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+    const markup = renderWithMiffy(<GardenPlot progress={progress} />)
 
     expect(markup).toContain('1 plante sur 3 dans ce coin')
     expect(markup).not.toContain('1 plantes')
@@ -36,7 +43,7 @@ describe('GardenPlot', () => {
       completedSessions: 5,
       snapshot: LearningEngine.emptySnapshot(),
     })
-    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+    const markup = renderWithMiffy(<GardenPlot progress={progress} />)
 
     expect(markup).toContain('data-plant-stem="rose-lotus-mature"')
     expect(markup).toContain('d="M70 154V100"')
@@ -48,7 +55,7 @@ describe('GardenPlot', () => {
       completedSessions: 0,
       snapshot: LearningEngine.emptySnapshot(),
     })
-    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+    const markup = renderWithMiffy(<GardenPlot progress={progress} />)
 
     expect(markup.match(/garden-plot__pagination-icon/g)).toHaveLength(2)
     expect(markup).not.toMatch(/[‹›]/u)
@@ -70,7 +77,7 @@ describe('GardenPlot', () => {
       waterX: 188,
       waterY: 216,
     }
-    const markup = renderToStaticMarkup(
+    const markup = renderWithMiffy(
       <PlantPages
         caretaker={{
           phase: 'watering',
@@ -101,7 +108,7 @@ describe('GardenPlot', () => {
       completedSessions: 45,
       snapshot: LearningEngine.emptySnapshot(),
     })
-    const markup = renderToStaticMarkup(<GardenPlot progress={progress} />)
+    const markup = renderWithMiffy(<GardenPlot progress={progress} />)
 
     expect(markup.match(/class="garden-plot__soil"/g)).toHaveLength(9)
   })
