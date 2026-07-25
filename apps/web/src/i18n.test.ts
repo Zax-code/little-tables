@@ -78,6 +78,8 @@ describe('internationalization', () => {
       '要删除小雨的个人资料吗？',
     )
     expect(translate('zh-Hans', 'practice.growing', { count: 3 })).toBe('已练 3 道')
+    expect(translate('zh-Hans', 'garden.paginationNext')).toBe('花园下一页')
+    expect(translate('zh-Hans', 'garden.paginationPrevious')).toBe('花园上一页')
     expect(translate('zh-Hans', 'error.copy')).toBe(
       '有个页面没能打开，不过别担心，你的练习进度都还在。更新后，就能从刚才的地方继续。',
     )

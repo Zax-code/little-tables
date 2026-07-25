@@ -35,17 +35,17 @@ export function TableProgressCard({ onChoose, progress }: TableProgressCardProps
         <i
           className="table-progress-rooted"
           style={{ flexGrow: facts.fluent }}
-          title={`${facts.fluent} ${t('tables.stateFluent')}`}
+          title={t('tables.tooltipFluent', { count: facts.fluent })}
         />
         <i
           className="table-progress-growing"
           style={{ flexGrow: growing }}
-          title={`${growing} ${t('tables.stateGrowing')}`}
+          title={t('tables.tooltipGrowing', { count: growing })}
         />
         <i
           className="table-progress-new"
           style={{ flexGrow: facts.unseen }}
-          title={`${facts.unseen} ${t('tables.stateNew')}`}
+          title={t('tables.tooltipNew', { count: facts.unseen })}
         />
       </div>
       <p>

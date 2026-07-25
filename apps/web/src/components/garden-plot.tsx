@@ -529,6 +529,10 @@ function useGardenCaretaker(reduceMotion: boolean, initialPage: number) {
 
 export function GardenPlot({ progress }: GardenPlotProps) {
   const { locale, t } = useI18n()
+  const listFormatter = useMemo(
+    () => new Intl.ListFormat(locale, { style: 'long', type: 'conjunction' }),
+    [locale],
+  )
   const reduceMotion = useReducedMotion() === true
   const [activePage, setActivePage] = useState(() => {
     const growingChapter = progress.chapters.findIndex(({ stage }) => stage === 'growing')
@@ -564,20 +568,22 @@ export function GardenPlot({ progress }: GardenPlotProps) {
   const lockDescription =
     lockedPlants.length === 0
       ? t('garden.plotNoneLocked')
-      : lockedPlants
-          .map(({ id, masteryRemaining, startAt }) =>
+      : listFormatter.format(
+          lockedPlants.map(({ id, masteryRemaining, startAt }) =>
             masteryRemaining > 0
-              ? `${translatePlantName(locale, id)} : ${t(
-                  masteryRemaining === 1 ? 'chapter.oneToGo' : 'chapter.manyToGo',
-                  { count: masteryRemaining },
-                )}`
+              ? t('garden.plotMasteryLocked', {
+                  plant: translatePlantName(locale, id),
+                  progress: t(masteryRemaining === 1 ? 'chapter.oneToGo' : 'chapter.manyToGo', {
+                    count: masteryRemaining,
+                  }),
+                })
               : t('garden.plotLocked', {
                   bloom: t(startAt === 1 ? 'common.bloom' : 'common.blooms'),
                   count: startAt,
                   plant: translatePlantName(locale, id),
                 }),
-          )
-          .join(', ')
+          ),
+        )
   const ariaLabel = t('garden.plotAria', {
     blooms: t('garden.bloomCount', {
       bloom: t(progress.bloomCount === 1 ? 'common.bloom' : 'common.blooms'),

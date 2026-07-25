@@ -3,6 +3,7 @@ import { createRef } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it } from 'vitest'
 
+import { I18nProvider } from '../i18n.js'
 import { gardenPlantDefinition } from './garden-plant-catalog.js'
 import { GardenPlot, PlantPages } from './garden-plot.js'
 
@@ -29,6 +30,22 @@ describe('GardenPlot', () => {
 
     expect(markup).toContain('1 plante sur 3 dans ce coin')
     expect(markup).not.toContain('1 plantes')
+  })
+
+  it('uses Chinese punctuation in its accessibility description', () => {
+    const progress = LearningEngine.deriveGardenProgress({
+      completedSessions: 0,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    const markup = renderToStaticMarkup(
+      <I18nProvider initialLocale="zh-Hans">
+        <GardenPlot progress={progress} />
+      </I18nProvider>,
+    )
+
+    expect(markup).toContain('天鹅绒毛地黄：再记牢 5 道算式就能开启')
+    expect(markup).not.toContain(' : ')
+    expect(markup).not.toContain(', ')
   })
 
   it('uses the approved full-length rose lotus stem from the rendered catalog', () => {
