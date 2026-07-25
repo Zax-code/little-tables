@@ -98,10 +98,10 @@ describe('family-profile HTTP interface', () => {
     )
     expect(retiredColorway.status).toBe(400)
 
-    const added = await familyRequest({ avatarId: 'sprout', name: 'Mia' }, 'POST')
+    const added = await familyRequest({ avatarId: 'colin-mallard', name: 'Mia' }, 'POST')
     const addedBody = await Schema.decodeUnknownPromise(ProfileResponseSchema)(await added.json())
     expect(added.status).toBe(201)
-    expect(addedBody.profile).toMatchObject({ avatarId: 'sprout', name: 'Mia' })
+    expect(addedBody.profile).toMatchObject({ avatarId: 'colin-mallard', name: 'Mia' })
 
     const retiredUpdate = await familyRequest(
       { avatarId: 'berry', name: 'Mimi', profileId: addedBody.profile.id },

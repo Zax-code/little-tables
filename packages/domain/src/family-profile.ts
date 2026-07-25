@@ -6,6 +6,7 @@ export const ChildAvatarIdSchema = Schema.Literal(
   'fenna-fox',
   'mina-cat',
   'paco-dog',
+  'colin-mallard',
   'sunbeam',
   'bluebell',
   'berry',
@@ -17,6 +18,7 @@ export const SelectableChildAvatarIdSchema = Schema.Literal(
   'fenna-fox',
   'mina-cat',
   'paco-dog',
+  'colin-mallard',
 )
 export type SelectableChildAvatarId = typeof SelectableChildAvatarIdSchema.Type
 
@@ -40,11 +42,19 @@ const avatarIds = [
   'fenna-fox',
   'mina-cat',
   'paco-dog',
+  'colin-mallard',
   'sunbeam',
   'bluebell',
   'berry',
 ] as const
-const selectableAvatarIds = ['sprout', 'malo-bear', 'fenna-fox', 'mina-cat', 'paco-dog'] as const
+const selectableAvatarIds = [
+  'sprout',
+  'malo-bear',
+  'fenna-fox',
+  'mina-cat',
+  'paco-dog',
+  'colin-mallard',
+] as const
 
 export const FamilyProfiles = {
   avatarIds,

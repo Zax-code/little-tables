@@ -16,6 +16,7 @@ describe('FamilyProfiles', () => {
       'fenna-fox',
       'mina-cat',
       'paco-dog',
+      'colin-mallard',
       'sunbeam',
       'bluebell',
       'berry',
@@ -26,11 +27,13 @@ describe('FamilyProfiles', () => {
       'fenna-fox',
       'mina-cat',
       'paco-dog',
+      'colin-mallard',
     ])
     expect(Schema.is(ChildAvatarIdSchema)('sprout')).toBe(true)
     expect(Schema.is(ChildAvatarIdSchema)('berry')).toBe(true)
     expect(Schema.is(SelectableChildAvatarIdSchema)('sprout')).toBe(true)
     expect(Schema.is(SelectableChildAvatarIdSchema)('paco-dog')).toBe(true)
+    expect(Schema.is(SelectableChildAvatarIdSchema)('colin-mallard')).toBe(true)
     expect(Schema.is(SelectableChildAvatarIdSchema)('berry')).toBe(false)
     expect(Schema.is(ChildAvatarIdSchema)('unknown-avatar')).toBe(false)
   })

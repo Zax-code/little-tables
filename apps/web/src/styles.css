@@ -32,6 +32,8 @@
   --avatar-mina-ink: #655071;
   --avatar-paco-surface: #e1edf8;
   --avatar-paco-ink: #315e8c;
+  --avatar-colin-surface: #f3e9fa;
+  --avatar-colin-ink: #6d4a7d;
   --ink-on-action: #fff;
   --ink-primary: #1d1d1b;
   --ink-muted: #716b67;
@@ -733,12 +735,15 @@ p {
   color: var(--avatar-paco-ink);
   background: var(--avatar-paco-surface);
 }
+.profile-avatar-colin-mallard {
+  color: var(--avatar-colin-ink);
+  background: var(--avatar-colin-surface);
+}
 .profile-avatar__miffy {
-  width: 78%;
-  height: 78%;
+  width: 100%;
+  height: 100%;
   display: block;
   object-fit: contain;
-  transform: translateY(-11%);
 }
 .profile-avatar__character {
   width: 100%;
@@ -747,10 +752,19 @@ p {
   object-fit: contain;
 }
 .profile-avatar-mina-cat .profile-avatar__character {
-  transform: translateY(-5%);
+  transform: translateY(-7%);
 }
 .profile-avatar-paco-dog .profile-avatar__character {
-  transform: translateY(-3%);
+  transform: translateY(-6%);
+}
+.profile-avatar-malo-bear .profile-avatar__character {
+  transform: translateY(-5%);
+}
+.profile-avatar-fenna-fox .profile-avatar__character {
+  transform: translateY(-2%);
+}
+.profile-avatar-colin-mallard .profile-avatar__character {
+  transform: translateY(-4%);
 }
 .profile-switcher-menu {
   position: absolute;

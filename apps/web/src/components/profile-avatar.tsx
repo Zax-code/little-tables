@@ -1,10 +1,11 @@
 import type { ChildAvatarId } from '@little-tables/domain'
 
-type AvatarCharacter = 'fenna' | 'malo' | 'miffy' | 'mina' | 'paco'
+type AvatarCharacter = 'colin' | 'fenna' | 'malo' | 'miffy' | 'mina' | 'paco'
 
 const avatarCharacters = {
   berry: 'miffy',
   bluebell: 'miffy',
+  'colin-mallard': 'colin',
   'fenna-fox': 'fenna',
   'malo-bear': 'malo',
   'mina-cat': 'mina',
@@ -14,6 +15,7 @@ const avatarCharacters = {
 } as const satisfies Readonly<Record<ChildAvatarId, AvatarCharacter>>
 
 const generatedAvatarAssets = {
+  colin: '/avatars/colin-mallard.png',
   fenna: '/avatars/fenna-fox.png',
   malo: '/avatars/malo-bear.png',
   mina: '/avatars/mina-cat.png',
@@ -32,12 +34,7 @@ export function ProfileAvatar({
       data-avatar-character={character}
     >
       {character === 'miffy' ? (
-        <img
-          alt=""
-          className="profile-avatar__miffy"
-          draggable={false}
-          src="/generated/miffy-google-connect.webp"
-        />
+        <img alt="" className="profile-avatar__miffy" draggable={false} src="/avatars/miffy.png" />
       ) : (
         <img
           alt=""

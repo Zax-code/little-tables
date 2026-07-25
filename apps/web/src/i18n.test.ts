@@ -157,4 +157,20 @@ describe('internationalization', () => {
     expect(translate('fr', 'family.intro')).toContain('Chaque membre de la famille')
     expect(translate('fr', 'family.switcherMenu')).toBe('Choisir un membre de la famille')
   })
+
+  it('shows only character first names for selectable family avatars', () => {
+    const avatarNames = [
+      ['sprout', 'Miffy'],
+      ['malo-bear', 'Malo'],
+      ['fenna-fox', 'Fenna'],
+      ['mina-cat', 'Mina'],
+      ['paco-dog', 'Paco'],
+      ['colin-mallard', 'Colin'],
+    ] as const
+
+    for (const [avatarId, name] of avatarNames) {
+      expect(translate('en', `family.avatar.${avatarId}`)).toBe(name)
+      expect(translate('fr', `family.avatar.${avatarId}`)).toBe(name)
+    }
+  })
 })

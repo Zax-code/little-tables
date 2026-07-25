@@ -170,7 +170,7 @@ describe('MongoAttemptRepository', () => {
         'Lou',
       )
       const added = yield* repository.addChild('google-subject', {
-        avatarId: 'malo-bear',
+        avatarId: 'colin-mallard',
         name: 'Mia',
       })
       const updated = yield* repository.updateChild('google-subject', initialProfile.id, {
@@ -189,13 +189,13 @@ describe('MongoAttemptRepository', () => {
       }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration'))),
     )
     expect(result.nameChosen).toBe(true)
-    expect(result.added).toMatchObject({ avatarId: 'malo-bear', name: 'Mia' })
+    expect(result.added).toMatchObject({ avatarId: 'colin-mallard', name: 'Mia' })
     expect(result.updated).toMatchObject({ avatarId: 'mina-cat', name: 'Lou' })
     expect(result.saved).toMatchObject({
       onboardingComplete: true,
       profiles: [
         expect.objectContaining({ avatarId: 'mina-cat', name: 'Lou' }),
-        expect.objectContaining({ avatarId: 'malo-bear', name: 'Mia' }),
+        expect.objectContaining({ avatarId: 'colin-mallard', name: 'Mia' }),
       ],
     })
     expect(restored).toEqual(result.saved)
