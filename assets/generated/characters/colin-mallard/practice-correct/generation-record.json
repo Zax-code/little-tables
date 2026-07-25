@@ -1,0 +1,55 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "colin-mallard",
+  "scene": "practice-correct",
+  "references": {
+    "reference1Pose": "assets/generated/characters/miffy/practice-correct/reference-1-pose.png",
+    "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+  },
+  "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for practice-correct.\nOutput exact 669:922 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy pose-and-composition contract. Preserve its action, camera, framing, ground line, optical center, negative space, props, and state.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nA joyful correct-answer reaction with closed happy eyes and both arms, paws, or species-natural wings raised, matching Miffy's apparent scale and foot baseline.\n\nSTYLE\nUse the approved canonical character reference's simple flat children's-book language: solid restrained fills, simple black linework, calm canonical colors, and minimal features. No photorealism, painterly texture, complex detail, text, logo, watermark, border, shadows, or scenery.\n\nFRAMING / ALPHA CONTRACT\nKeep the complete silhouette and every required prop inside the safe area. Match the active Miffy reference's crop, apparent scale, baseline, prop endpoints, and transparent-padding contract. Use only flat chroma key behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep all required scene props separate from the wardrobe and in the Reference 1 positions.\n\nAVOID\nNo Miffy or rabbit ears, X mouth, pink dress, source-species leakage, extra limbs, extra props, extra flowers, extra droplets, text, logo, watermark, or border.",
+  "productionDimensions": [
+    669,
+    922
+  ],
+  "generatedSource": {
+    "path": "assets/generated/characters/colin-mallard/practice-correct/generated-source.png",
+    "sha256": "e67930346b483da41a10ec30f6f5acdfdea78568b14ba8cf0b2d6f0d4b5790a4"
+  },
+  "alphaCleanup": {
+    "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "keyColor": "#ff00ff",
+    "tolerance": 64,
+    "softMatte": false,
+    "despill": true,
+    "edgeContract": 1
+  },
+  "normalization": {
+    "method": "reviewed raster resize and transparent-canvas translation only",
+    "targetDimensions": [
+      669,
+      922
+    ],
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 67
+  },
+  "review": {
+    "status": "approved",
+    "checks": [
+      "identity and fixed wardrobe",
+      "pose and semantic state",
+      "crop, visual scale, baseline, and prop endpoints",
+      "transparent corners and edge fringe",
+      "original-resolution visual inspection"
+    ]
+  },
+  "finalFrame": {
+    "path": "assets/generated/characters/colin-mallard/practice-correct/final-frame.png",
+    "sha256": "067a1d7aa9954f5863511119891f5cca998119fce00cbe6d72a2f693de210fbb"
+  },
+  "runtimeAsset": {
+    "path": "apps/web/public/characters/colin-mallard/practice-correct.webp",
+    "sha256": "00daa2042bd5a1ccc47049887f286a3d4c9ec224363db702c2e950674e093faa"
+  }
+}
