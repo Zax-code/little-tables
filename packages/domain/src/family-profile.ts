@@ -1,7 +1,24 @@
 import { Schema } from 'effect'
 
-export const ChildAvatarIdSchema = Schema.Literal('sprout', 'sunbeam', 'bluebell', 'berry')
+export const ChildAvatarIdSchema = Schema.Literal(
+  'sprout',
+  'malo-bear',
+  'fenna-fox',
+  'mina-cat',
+  'paco-dog',
+  'sunbeam',
+  'bluebell',
+  'berry',
+)
 export type ChildAvatarId = typeof ChildAvatarIdSchema.Type
+export const SelectableChildAvatarIdSchema = Schema.Literal(
+  'sprout',
+  'malo-bear',
+  'fenna-fox',
+  'mina-cat',
+  'paco-dog',
+)
+export type SelectableChildAvatarId = typeof SelectableChildAvatarIdSchema.Type
 
 export const ChildProfileNameSchema = Schema.NonEmptyTrimmedString.pipe(
   Schema.filter((name) => Array.from(name).length <= 40, {
@@ -17,9 +34,20 @@ export const ChildProfileSchema = Schema.Struct({
 })
 export type ChildProfile = typeof ChildProfileSchema.Type
 
-const avatarIds = ['sprout', 'sunbeam', 'bluebell', 'berry'] as const
+const avatarIds = [
+  'sprout',
+  'malo-bear',
+  'fenna-fox',
+  'mina-cat',
+  'paco-dog',
+  'sunbeam',
+  'bluebell',
+  'berry',
+] as const
+const selectableAvatarIds = ['sprout', 'malo-bear', 'fenna-fox', 'mina-cat', 'paco-dog'] as const
 
 export const FamilyProfiles = {
   avatarIds,
   defaultAvatarId: avatarIds[0],
+  selectableAvatarIds,
 } as const

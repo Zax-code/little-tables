@@ -1,12 +1,37 @@
 import { Schema } from 'effect'
 import { describe, expect, it } from 'vitest'
 
-import { ChildAvatarIdSchema, ChildProfileNameSchema, FamilyProfiles } from './family-profile.js'
+import {
+  ChildAvatarIdSchema,
+  ChildProfileNameSchema,
+  FamilyProfiles,
+  SelectableChildAvatarIdSchema,
+} from './family-profile.js'
 
 describe('FamilyProfiles', () => {
-  it('accepts only the named avatar presets exposed by the family-profile interface', () => {
-    expect(FamilyProfiles.avatarIds).toEqual(['sprout', 'sunbeam', 'bluebell', 'berry'])
+  it('keeps legacy IDs decodable while exposing only approved distinct characters', () => {
+    expect(FamilyProfiles.avatarIds).toEqual([
+      'sprout',
+      'malo-bear',
+      'fenna-fox',
+      'mina-cat',
+      'paco-dog',
+      'sunbeam',
+      'bluebell',
+      'berry',
+    ])
+    expect(FamilyProfiles.selectableAvatarIds).toEqual([
+      'sprout',
+      'malo-bear',
+      'fenna-fox',
+      'mina-cat',
+      'paco-dog',
+    ])
     expect(Schema.is(ChildAvatarIdSchema)('sprout')).toBe(true)
+    expect(Schema.is(ChildAvatarIdSchema)('berry')).toBe(true)
+    expect(Schema.is(SelectableChildAvatarIdSchema)('sprout')).toBe(true)
+    expect(Schema.is(SelectableChildAvatarIdSchema)('paco-dog')).toBe(true)
+    expect(Schema.is(SelectableChildAvatarIdSchema)('berry')).toBe(false)
     expect(Schema.is(ChildAvatarIdSchema)('unknown-avatar')).toBe(false)
   })
 

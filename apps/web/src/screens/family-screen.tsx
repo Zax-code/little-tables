@@ -1,8 +1,13 @@
-import { FamilyProfiles, type ChildAvatarId, type ChildProfile } from '@little-tables/domain'
+import {
+  FamilyProfiles,
+  type ChildAvatarId,
+  type ChildProfile,
+  type SelectableChildAvatarId,
+} from '@little-tables/domain'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import type { SyntheticEvent } from 'react'
-import { useState } from 'react'
+import { useEffect, useId, useRef, useState } from 'react'
 
 import { ProfileAvatar } from '../components/profile-avatar.js'
 import { Screen } from '../components/screen.js'
@@ -24,20 +29,27 @@ export function AvatarPicker({
 }: Readonly<{
   defaultValue?: ChildAvatarId
   name: string
-  onChange?: (avatarId: ChildAvatarId) => void
+  onChange?: (avatarId: SelectableChildAvatarId) => void
   value?: ChildAvatarId
 }>) {
   const { t } = useI18n()
+  const selectedAvatarId = value ?? defaultValue
+  const checkedAvatarId =
+    selectedAvatarId === 'sunbeam' ||
+    selectedAvatarId === 'bluebell' ||
+    selectedAvatarId === 'berry'
+      ? 'sprout'
+      : selectedAvatarId
   return (
     <fieldset className="avatar-picker">
       <legend>{t('family.avatarLabel')}</legend>
       <div>
-        {FamilyProfiles.avatarIds.map((avatarId) => (
+        {FamilyProfiles.selectableAvatarIds.map((avatarId) => (
           <label key={avatarId}>
             <input
               {...(value === undefined
-                ? { defaultChecked: avatarId === defaultValue }
-                : { checked: avatarId === value })}
+                ? { defaultChecked: avatarId === checkedAvatarId }
+                : { checked: avatarId === checkedAvatarId })}
               name={name}
               onChange={() => onChange?.(avatarId)}
               type="radio"
@@ -55,6 +67,73 @@ export function AvatarPicker({
   )
 }
 
+export function RemoveMemberDialog({
+  memberName,
+  onCancel,
+  onConfirm,
+  pending,
+}: Readonly<{
+  memberName: string
+  onCancel: () => void
+  onConfirm: () => void
+  pending: boolean
+}>) {
+  const { t } = useI18n()
+  const dialogRef = useRef<HTMLDialogElement>(null)
+  const id = useId()
+  const headingId = `${id}-heading`
+  const warningId = `${id}-warning`
+
+  useEffect(() => {
+    const dialog = dialogRef.current
+    if (dialog === null) return
+    if (!dialog.open) dialog.showModal()
+  }, [])
+
+  const close = () => {
+    if (!pending) dialogRef.current?.close()
+  }
+
+  return (
+    <dialog
+      aria-describedby={warningId}
+      aria-labelledby={headingId}
+      aria-modal="true"
+      className="family-remove-dialog"
+      onCancel={(event) => {
+        if (pending) event.preventDefault()
+      }}
+      onClose={onCancel}
+      onKeyDown={(event) => {
+        if (event.key !== 'Escape') return
+        event.preventDefault()
+        close()
+      }}
+      ref={dialogRef}
+      role="alertdialog"
+    >
+      <div aria-hidden="true" className="family-remove-dialog__warning">
+        !
+      </div>
+      <h2 id={headingId}>{t('family.removeDialogHeading', { name: memberName })}</h2>
+      <p id={warningId}>{t('family.removeDialogWarning', { name: memberName })}</p>
+      <div className="family-remove-dialog__actions">
+        <button autoFocus className="family-remove-dialog__cancel" onClick={close} type="button">
+          {t('family.cancelRemove')}
+        </button>
+        <button
+          className="family-remove-dialog__confirm"
+          disabled={pending}
+          onClick={onConfirm}
+          type="button"
+        >
+          {pending ? t('family.removing') : t('family.confirmRemove', { name: memberName })}
+        </button>
+      </div>
+    </dialog>
+  )
+}
+
 function ChildProfileEditor({
   canRemove,
   onRemove,
@@ -63,12 +142,13 @@ function ChildProfileEditor({
 }: Readonly<{
   canRemove: boolean
   onRemove: () => Promise<void>
-  onSave: (input: Readonly<{ avatarId: ChildAvatarId; name: string }>) => Promise<void>
+  onSave: (input: Readonly<{ avatarId: SelectableChildAvatarId; name: string }>) => Promise<void>
   profile: ChildProfile
 }>) {
   const { t } = useI18n()
   const [pending, setPending] = useState(false)
   const [message, setMessage] = useState<string>()
+  const [confirmingRemove, setConfirmingRemove] = useState(false)
 
   const save = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -77,7 +157,9 @@ function ChildProfileEditor({
     if (typeof childName !== 'string') return
     const name = childName
     const selectedAvatar = values.get('avatarId')
-    const avatarId = FamilyProfiles.avatarIds.find((candidate) => candidate === selectedAvatar)
+    const avatarId = FamilyProfiles.selectableAvatarIds.find(
+      (candidate) => candidate === selectedAvatar,
+    )
     if (avatarId === undefined) return
     if (pending || name.trim() === '') return
     setPending(true)
@@ -107,8 +189,17 @@ function ChildProfileEditor({
         <button
           className="family-remove-button"
           disabled={!canRemove || pending}
-          onClick={() => {
-            if (!window.confirm(t('family.removeConfirm', { name: profile.name }))) return
+          onClick={() => setConfirmingRemove(true)}
+          type="button"
+        >
+          {t('family.remove')}
+        </button>
+      </div>
+      {confirmingRemove ? (
+        <RemoveMemberDialog
+          memberName={profile.name}
+          onCancel={() => setConfirmingRemove(false)}
+          onConfirm={() => {
             setPending(true)
             setMessage(undefined)
             void onRemove()
@@ -119,13 +210,14 @@ function ChildProfileEditor({
                     : t('family.removeFailed'),
                 ),
               )
-              .finally(() => setPending(false))
+              .finally(() => {
+                setPending(false)
+                setConfirmingRemove(false)
+              })
           }}
-          type="button"
-        >
-          {t('family.remove')}
-        </button>
-      </div>
+          pending={pending}
+        />
+      ) : null}
       {message ? (
         <p className="family-card-message" role="status">
           {message}
@@ -142,7 +234,9 @@ export function FamilyScreen() {
   const queryClient = useQueryClient()
   const [adding, setAdding] = useState(false)
   const [newName, setNewName] = useState('')
-  const [newAvatarId, setNewAvatarId] = useState<ChildAvatarId>(FamilyProfiles.defaultAvatarId)
+  const [newAvatarId, setNewAvatarId] = useState<SelectableChildAvatarId>(
+    FamilyProfiles.defaultAvatarId,
+  )
   const [message, setMessage] = useState<string>()
 
   const setProfiles = (nextProfiles: ReadonlyArray<ChildProfile>) =>

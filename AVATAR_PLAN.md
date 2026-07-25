@@ -1,138 +1,76 @@
-# Family avatar implementation plan
+# Family character avatar plan
 
-Status: compact character preset selection is implemented; additional designed raster avatar assets
-remain future work.
+Status: durable per-profile avatars and the approved initial character roster are implemented.
 
-## Product model
+## Product direction
 
-A family signs in with one Google account. That account owns multiple family member
-profiles. Each member chooses a preset avatar and keeps an isolated practice history, mastery
-snapshot, garden, rewards, and stats. The avatar is profile metadata, not part of authentication,
-and the same selection is returned by the server on every device.
+A Google account owns multiple family member profiles. Each profile stores one avatar ID alongside
+its isolated practice history, mastery, garden, rewards, and stats. The server restores that avatar
+on every device and after later login.
 
-The first catalog is a small cast of calm, rounded characters from the existing Little Tables
-garden world. It reuses the in-repo Miffy face and adds Pip, an original round-eared field mouse
-with a clearly different silhouette. The existing permanent selection IDs now identify one exact
-character/variant pair:
+An avatar choice represents one distinct character, not a colorway. Character artwork has one
+canonical palette: body, clothing, accessories, face, and outline are never recolored by the app.
+Each character has its own coordinated circular backdrop and ring; selection also includes a
+visible check and border, so it never depends on color alone.
 
-- `sprout`: Miffy with a coral backplate;
-- `sunbeam`: Miffy with a sunshine backplate;
-- `bluebell`: Pip with a sage scarf;
-- `berry`: Pip with a berry scarf.
+Miffy keeps the established in-repo artwork and name. The four original animals use generated
+raster artwork rather than code-drawn SVGs:
 
-Keeping these IDs preserves every existing profile while making each stored choice an exact,
-recognizable preset. Miffy uses existing reviewed artwork; Pip is a compact original inline vector.
-Both characters remain legible in the profile switcher, and their tasteful palette variants provide
-choice without making the selector large.
+- `sprout`: Miffy;
+- `malo-bear`: Malo the bear cub / Malo l’ourson;
+- `fenna-fox`: Fenna the fox / Fenna le renard;
+- `mina-cat`: Mina the cat / Mina le chat;
+- `paco-dog`: Paco the floppy-eared dog / Paco le chien.
 
-## Designed raster bases
+The original animals use simple front-facing silhouettes, restrained linework, calm fixed colors,
+and proportions intended to form a coherent children’s-app cast while remaining clearly original.
+Generation provenance and chroma-key sources are documented in `assets/generated/avatars/`.
 
-Use the Codex `imagegen` skill and its built-in image-generation path for the designed raster base
-avatars. Generate each distinct character as its own request rather than asking one batch image for
-unrelated characters. Classify the work as `illustration-story` or `stylized-concept`, state that
-the asset is a square profile-avatar cutout, and provide the shared garden palette, framing,
-line-weight, edge, and originality constraints in every prompt.
+## Compatibility and migration
 
-For each character:
+There is no destructive database rewrite. The schema continues to decode historical IDs so existing
+profiles and stored documents remain readable:
 
-1. Generate low-cost square explorations with generous padding and no text, logo, watermark,
-   props, cast shadow, or scenery.
-2. Review silhouette recognition at 32, 48, and 96 CSS pixels before refining details.
-3. Select one base and iterate with one targeted change at a time.
-4. For project-ready cutouts, use a perfectly flat chroma-key background with a key color absent
-   from the subject, then use the skill's installed chroma-key removal helper.
-5. Verify alpha corners, subject coverage, clean antialiased edges, palette, and consistency before
-   copying the final PNG source into the workspace.
-6. Produce optimized WebP derivatives programmatically and retain the reviewed PNG master outside
-   `apps/web/public/` if the existing asset pipeline follows that convention.
+- `sunbeam` is a retired Miffy colorway ID;
+- `bluebell` and `berry` are retired IDs for the rejected mouse/colorway direction.
 
-Do not generate by naming a living artist or asking for an exact Dick Bruna/Miffy reproduction.
-Prompts should describe the project's own visual grammar directly.
+All three retired IDs now display the unchanged canonical Miffy asset as a compatibility fallback.
+Simply loading a profile does not mutate its stored value. If the family later submits that
+profile’s edit form, the visible Miffy choice stores canonical ID `sprout`; the family can instead
+explicitly choose any approved animal. New profiles can store only the five selectable IDs above.
+No retired ID is reused for a new character.
 
-## Safe programmatic variants
+This preserves database readability and avoids guessing an assignment among the new original
+animals. The fallback is deliberately limited to the already-established Miffy artwork rather than
+shipping the rejected mouse or an unapproved generic icon.
 
-Programmatic palette variations are appropriate only when they preserve the reviewed drawing:
+## Selection and renderer design
 
-- recolor a flat, separately masked garment or small accessory;
-- map a known flat fill to an approved semantic palette token;
-- produce light/dark UI backplates outside the character raster;
-- derive WebP sizes and density variants from the same reviewed master.
+The add-member and edit pickers read `selectableAvatarIds`. Each catalog entry provides:
 
-Do not hue-rotate the entire raster. It can contaminate black line work, white fur, blush, edge
-pixels, and intentional contrast. Do not recolor eyes, face marks, skin/fur identity, shadows, or
-antialiased outlines. If a variant needs a new silhouette, pose, facial construction, texture, or
-lighting, treat it as a separately designed base and review it independently.
+- a permanent profile ID and localized character name;
+- one canonical transparent raster asset;
+- one fixed character identity and palette;
+- semantic backdrop and ring tokens;
+- optical positioning for the face/head at rendered picker size.
 
-## Proposed asset manifest
+Do not add hue rotation, recoloring masks, palette selectors, variant names, multiple presets of the
+same animal, or code-drawn character SVGs. A new animal is a separately generated and reviewed
+character with a new permanent ID.
 
-Add a versioned manifest such as `apps/web/public/avatars/manifest.json`:
+## Accessibility and interaction
 
-```json
-{
-  "schemaVersion": 1,
-  "catalogVersion": "2026-01",
-  "defaultAvatarId": "sprout",
-  "avatars": [
-    {
-      "id": "sprout",
-      "characterId": "meadow-rabbit",
-      "variantId": "coral-overalls",
-      "labelKey": "family.avatar.sprout",
-      "src": "/avatars/sprout.webp",
-      "width": 256,
-      "height": 256,
-      "dominantToken": "avatar-sprout-surface",
-      "altKey": "family.avatarAlt.sprout",
-      "generationPrompt": "assets/prompts/avatar-meadow-rabbit.md",
-      "sourceMaster": "assets/generated/avatar-meadow-rabbit-master.png"
-    }
-  ]
-}
-```
+At picker size, position each asset by the optical center of its face/head rather than its raw
+bitmap bounds. Preserve visible keyboard focus, a non-color selected check/border, localized
+character names, and at least 44 px controls.
 
-`id` is permanent profile data. Never reuse a retired ID for a different appearance. `characterId`
-groups variants of one designed character; `variantId` identifies the reviewed palette/design
-combination. Dimensions make layout deterministic. Translation keys keep labels and alt text out
-of the asset file. Prompt and source-master fields preserve provenance for future regeneration.
-Production code should validate the manifest, fall back to `defaultAvatarId` for missing or retired
-entries, and preload only the active avatar plus picker thumbnails.
+Profile switching keeps its brief outgoing/incoming transition, named status announcement, switch
+lock, and reduced-motion zero-delay path. The removal flow keeps its in-app alert dialog with
+cancel as default focus, explicit destructive confirmation, Escape handling, focus containment and
+return, and reduced-motion styling.
 
-## Selection flow
+## Later decisions
 
-The active-profile switcher shows each member's chosen preset. In family management, adding a member
-requires a name and offers the full preset grid; the first preset is selected by default. Editing a
-member allows renaming and changing the preset in one save. A choice is previewed at its real compact
-size, has a visible selected state that does not depend on color alone, and includes a localized
-accessible name. Saving sends the stable avatar ID to the existing family-profile endpoint. The
-server validates it against the allowed catalog IDs and returns the profile; the client then
-refreshes family metadata and caches it for offline switching.
-
-Catalog upgrades must not rewrite member choices. A retired asset remains served until a replacement
-flow exists, or its manifest entry explicitly points to a reviewed backward-compatible fallback.
-
-## Originality and protected-character constraints
-
-The owner-approved Miffy option must reuse the existing in-repo character artwork rather than
-introducing a new imitation. Every companion character must be original and substantially distinct:
-
-- do not trace, edit, or imitate unrelated external copyrighted characters;
-- require a distinct species/silhouette, facial geometry, proportions, and project palette;
-- favor original non-rabbit companions such as Pip for future additions;
-- keep filenames, labels, and metadata clear about which option is Miffy and which is original;
-- reject an original companion that could be mistaken for an unrelated established character.
-
-Before shipping, conduct a side-by-side review at thumbnail and full size for silhouette, face,
-proportions, costume, pose, and overall commercial impression. Record the accepted prompt, master,
-reviewer, and originality notes with the manifest. If a design feels borderline, redesign it rather
-than relying on minor palette changes.
-
-## Delivery checklist for the future asset task
-
-- Approve a character brief and originality checklist before generation.
-- Generate and review distinct raster bases with the `imagegen` skill.
-- Validate transparent edges and thumbnail readability.
-- Create only safe masked palette derivatives.
-- Add optimized files, prompt provenance, and the validated manifest.
-- Map current stable preset IDs to final assets.
-- Add manifest decoding, fallback, preload, and visual-selection tests.
-- Run the full repository check and React Doctor audit.
+- Whether to expand the roster beyond the approved initial five characters.
+- Whether retired mouse IDs should eventually receive a dedicated owner-approved migration flow
+  instead of the current non-mutating Miffy fallback.

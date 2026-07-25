@@ -1,4 +1,8 @@
-import { ChildAvatarIdSchema, ChildProfileNameSchema, LearningEngine } from '@little-tables/domain'
+import {
+  ChildProfileNameSchema,
+  LearningEngine,
+  SelectableChildAvatarIdSchema,
+} from '@little-tables/domain'
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from '@effect/platform'
 import { Effect, Schema } from 'effect'
 import { existsSync, statSync } from 'node:fs'
@@ -52,11 +56,11 @@ const SyncRequestSchema = Schema.Struct({
 const GoogleCredentialSchema = Schema.Struct({ credential: Schema.NonEmptyString })
 const PreferredNameSchema = Schema.Struct({ displayName: Schema.String })
 const CreateChildProfileSchema = Schema.Struct({
-  avatarId: ChildAvatarIdSchema,
+  avatarId: SelectableChildAvatarIdSchema,
   name: Schema.String,
 })
 const UpdateChildProfileSchema = Schema.Struct({
-  avatarId: ChildAvatarIdSchema,
+  avatarId: SelectableChildAvatarIdSchema,
   name: Schema.String,
   profileId: Schema.NonEmptyString,
 })

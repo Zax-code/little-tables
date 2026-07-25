@@ -92,25 +92,37 @@ describe('family-profile HTTP interface', () => {
       expect.objectContaining({ avatarId: 'sprout', name: 'Google Lou' }),
     ])
 
-    const added = await familyRequest({ avatarId: 'bluebell', name: 'Mia' }, 'POST')
+    const retiredColorway = await familyRequest(
+      { avatarId: 'bluebell', name: 'Old preset' },
+      'POST',
+    )
+    expect(retiredColorway.status).toBe(400)
+
+    const added = await familyRequest({ avatarId: 'sprout', name: 'Mia' }, 'POST')
     const addedBody = await Schema.decodeUnknownPromise(ProfileResponseSchema)(await added.json())
     expect(added.status).toBe(201)
-    expect(addedBody.profile).toMatchObject({ avatarId: 'bluebell', name: 'Mia' })
+    expect(addedBody.profile).toMatchObject({ avatarId: 'sprout', name: 'Mia' })
+
+    const retiredUpdate = await familyRequest(
+      { avatarId: 'berry', name: 'Mimi', profileId: addedBody.profile.id },
+      'PUT',
+    )
+    expect(retiredUpdate.status).toBe(400)
 
     const renamed = await familyRequest(
-      { avatarId: 'berry', name: 'Mimi', profileId: addedBody.profile.id },
+      { avatarId: 'sprout', name: 'Mimi', profileId: addedBody.profile.id },
       'PUT',
     )
     expect(renamed.status).toBe(200)
     await expect(renamed.json()).resolves.toEqual({
-      profile: { avatarId: 'berry', id: addedBody.profile.id, name: 'Mimi' },
+      profile: { avatarId: 'sprout', id: addedBody.profile.id, name: 'Mimi' },
     })
     const afterAvatarChange = await Schema.decodeUnknownPromise(FamilyResponseSchema)(
       await (await familyRequest()).json(),
     )
     expect(afterAvatarChange.profiles).toEqual([
       expect.objectContaining({ avatarId: 'sprout', id: initialBody.profiles[0]?.id }),
-      expect.objectContaining({ avatarId: 'berry', id: addedBody.profile.id }),
+      expect.objectContaining({ avatarId: 'sprout', id: addedBody.profile.id }),
     ])
 
     const returningSignIn = await handler(
@@ -190,7 +202,7 @@ describe('family-profile HTTP interface', () => {
     const initialProfileId = initialProfiles.profiles[0]?.id ?? ''
     const add = await handler(
       new Request('http://little-tables.local/api/v1/family/profiles', {
-        body: JSON.stringify({ avatarId: 'sunbeam', name: 'Mia' }),
+        body: JSON.stringify({ avatarId: 'sprout', name: 'Mia' }),
         headers: { 'content-type': 'application/json', cookie },
         method: 'POST',
       }),

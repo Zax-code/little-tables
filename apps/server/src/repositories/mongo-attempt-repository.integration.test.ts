@@ -170,11 +170,11 @@ describe('MongoAttemptRepository', () => {
         'Lou',
       )
       const added = yield* repository.addChild('google-subject', {
-        avatarId: 'bluebell',
+        avatarId: 'malo-bear',
         name: 'Mia',
       })
       const updated = yield* repository.updateChild('google-subject', initialProfile.id, {
-        avatarId: 'berry',
+        avatarId: 'mina-cat',
         name: 'Lou',
       })
       const saved = yield* repository.findFamily('google-subject')
@@ -189,13 +189,13 @@ describe('MongoAttemptRepository', () => {
       }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration'))),
     )
     expect(result.nameChosen).toBe(true)
-    expect(result.added).toMatchObject({ avatarId: 'bluebell', name: 'Mia' })
-    expect(result.updated).toMatchObject({ avatarId: 'berry', name: 'Lou' })
+    expect(result.added).toMatchObject({ avatarId: 'malo-bear', name: 'Mia' })
+    expect(result.updated).toMatchObject({ avatarId: 'mina-cat', name: 'Lou' })
     expect(result.saved).toMatchObject({
       onboardingComplete: true,
       profiles: [
-        expect.objectContaining({ avatarId: 'berry', name: 'Lou' }),
-        expect.objectContaining({ avatarId: 'bluebell', name: 'Mia' }),
+        expect.objectContaining({ avatarId: 'mina-cat', name: 'Lou' }),
+        expect.objectContaining({ avatarId: 'malo-bear', name: 'Mia' }),
       ],
     })
     expect(restored).toEqual(result.saved)
@@ -308,7 +308,7 @@ describe('MongoAttemptRepository', () => {
               retainLegacyProfileId: false,
             }),
             repository.updateChild('avatarless-family-subject', 'concurrent-avatar-member', {
-              avatarId: 'berry',
+              avatarId: 'paco-dog',
               name: 'Sam',
             }),
           ],
@@ -329,13 +329,13 @@ describe('MongoAttemptRepository', () => {
     await storedClient.close()
 
     expect(result.concurrentUpdate).toMatchObject({
-      avatarId: 'berry',
+      avatarId: 'paco-dog',
       id: 'concurrent-avatar-member',
     })
     expect(result.restored?.profiles).toEqual([
       expect.objectContaining({ avatarId: 'sprout', id: 'avatarless-member' }),
       expect.objectContaining({ avatarId: 'sprout', id: 'retired-avatar-member' }),
-      expect.objectContaining({ avatarId: 'berry', id: 'concurrent-avatar-member' }),
+      expect.objectContaining({ avatarId: 'paco-dog', id: 'concurrent-avatar-member' }),
     ])
     expect(stored?.profiles.find(({ id }) => id === 'retired-avatar-member')?.avatarId).toBe(
       'retired-avatar',

@@ -4,24 +4,31 @@ import { describe, expect, it } from 'vitest'
 import { ProfileAvatar } from './profile-avatar.js'
 
 describe('ProfileAvatar', () => {
-  it('renders the exact selected Miffy or Pip character variant for each stable preset', () => {
+  it('renders one unchanged appearance per character while preserving legacy IDs', () => {
     const markup = renderToStaticMarkup(
       <>
         <ProfileAvatar avatarId="sprout" />
-        <ProfileAvatar avatarId="sunbeam" />
-        <ProfileAvatar avatarId="bluebell" />
-        <ProfileAvatar avatarId="berry" />
+        <ProfileAvatar avatarId="malo-bear" />
+        <ProfileAvatar avatarId="fenna-fox" />
+        <ProfileAvatar avatarId="mina-cat" />
+        <ProfileAvatar avatarId="paco-dog" />
       </>,
     )
 
-    expect(markup.match(/class="profile-avatar__miffy"/g)).toHaveLength(2)
-    expect(markup.match(/class="profile-avatar__mouse"/g)).toHaveLength(2)
+    expect(markup.match(/class="profile-avatar__miffy"/g)).toHaveLength(1)
+    expect(markup.match(/class="profile-avatar__character"/g)).toHaveLength(4)
     expect(markup).toContain('/generated/miffy-google-connect.webp')
+    expect(markup).toContain('/avatars/malo-bear.png')
+    expect(markup).toContain('/avatars/fenna-fox.png')
+    expect(markup).toContain('/avatars/mina-cat.png')
+    expect(markup).toContain('/avatars/paco-dog.png')
     expect(markup).toContain('data-avatar-character="miffy"')
-    expect(markup).toContain('data-avatar-variant="coral"')
-    expect(markup).toContain('data-avatar-variant="sunshine"')
-    expect(markup).toContain('data-avatar-character="pip-mouse"')
-    expect(markup).toContain('data-avatar-variant="sage"')
-    expect(markup).toContain('data-avatar-variant="berry"')
+    expect(markup).toContain('data-avatar-character="malo"')
+    expect(markup).toContain('data-avatar-character="fenna"')
+    expect(markup).toContain('data-avatar-character="mina"')
+    expect(markup).toContain('data-avatar-character="paco"')
+    expect(markup).not.toContain('data-avatar-variant')
+    expect(markup).not.toContain('<svg')
+    expect(markup).not.toContain('style=')
   })
 })

@@ -12,6 +12,7 @@
   --surface-card: #fffdf9;
   --surface-control: rgb(255 253 249 / 80%);
   --surface-card-muted: rgb(255 253 249 / 55%);
+  --surface-modal-scrim: rgb(29 29 27 / 48%);
   --surface-soft: #f9e3e8;
   --action-primary: #f28ba2;
   --action-primary-deep: #e96e8b;
@@ -23,17 +24,14 @@
   --nav-stats-ink: #315e8c;
   --avatar-sprout-surface: #f9e3e8;
   --avatar-sprout-ink: #ad3157;
-  --avatar-sunbeam-surface: #fff0b8;
-  --avatar-sunbeam-ink: #8c651c;
-  --avatar-bluebell-surface: #e1edf8;
-  --avatar-bluebell-ink: #315e8c;
-  --avatar-berry-surface: #f9e3e8;
-  --avatar-berry-ink: #ad3157;
-  --avatar-character-line: #292521;
-  --avatar-pip-fur: #b8aaa0;
-  --avatar-pip-ear: #f3bdc8;
-  --avatar-pip-sage: #759b67;
-  --avatar-pip-berry: #ad3157;
+  --avatar-malo-surface: #e7f0dc;
+  --avatar-malo-ink: #48653a;
+  --avatar-fenna-surface: #fbe5d5;
+  --avatar-fenna-ink: #a94b21;
+  --avatar-mina-surface: #eee7f4;
+  --avatar-mina-ink: #655071;
+  --avatar-paco-surface: #e1edf8;
+  --avatar-paco-ink: #315e8c;
   --ink-on-action: #fff;
   --ink-primary: #1d1d1b;
   --ink-muted: #716b67;
@@ -42,6 +40,9 @@
   --surface-track: #eee8df;
   --surface-success: #e8f2e4;
   --surface-try-again: #fae9ec;
+  --surface-danger: #fff0ed;
+  --action-danger: #b42318;
+  --action-danger-deep: #8f1b13;
   --surface-garden: #f4f1c9;
   --surface-garden-card: rgb(255 253 249 / 92%);
   --surface-celebration-glow: rgb(255 255 255 / 84%);
@@ -679,11 +680,23 @@ p {
   font-size: 0.72rem;
   font-weight: 650;
 }
-.profile-switcher-button > span:last-child {
+.profile-switcher-current {
+  width: 100%;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1px;
+}
+.profile-switcher-current > span:last-child {
   width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+.profile-switcher-button:disabled {
+  cursor: wait;
 }
 .profile-avatar {
   width: 30px;
@@ -697,63 +710,47 @@ p {
   line-height: 1;
   overflow: hidden;
 }
-.profile-avatar-sprout {
+.profile-avatar-sprout,
+.profile-avatar-sunbeam,
+.profile-avatar-bluebell,
+.profile-avatar-berry {
   color: var(--avatar-sprout-ink);
   background: var(--avatar-sprout-surface);
 }
-.profile-avatar-sunbeam {
-  color: var(--avatar-sunbeam-ink);
-  background: var(--avatar-sunbeam-surface);
+.profile-avatar-malo-bear {
+  color: var(--avatar-malo-ink);
+  background: var(--avatar-malo-surface);
 }
-.profile-avatar-bluebell {
-  color: var(--avatar-bluebell-ink);
-  background: var(--avatar-bluebell-surface);
+.profile-avatar-fenna-fox {
+  color: var(--avatar-fenna-ink);
+  background: var(--avatar-fenna-surface);
 }
-.profile-avatar-berry {
-  color: var(--avatar-berry-ink);
-  background: var(--avatar-berry-surface);
+.profile-avatar-mina-cat {
+  color: var(--avatar-mina-ink);
+  background: var(--avatar-mina-surface);
+}
+.profile-avatar-paco-dog {
+  color: var(--avatar-paco-ink);
+  background: var(--avatar-paco-surface);
 }
 .profile-avatar__miffy {
   width: 78%;
   height: 78%;
   display: block;
   object-fit: contain;
+  transform: translateY(-11%);
 }
-.profile-avatar__mouse {
-  width: 92%;
-  height: 92%;
+.profile-avatar__character {
+  width: 100%;
+  height: 100%;
   display: block;
+  object-fit: contain;
 }
-.profile-avatar__mouse-ear,
-.profile-avatar__mouse-face {
-  fill: var(--avatar-pip-fur);
-  stroke: var(--avatar-character-line);
-  stroke-width: 2;
+.profile-avatar-mina-cat .profile-avatar__character {
+  transform: translateY(-5%);
 }
-.profile-avatar__mouse-ear-inner {
-  fill: var(--avatar-pip-ear);
-}
-.profile-avatar__mouse-eye,
-.profile-avatar__mouse-nose {
-  fill: var(--avatar-character-line);
-}
-.profile-avatar__mouse-mouth,
-.profile-avatar__mouse-whisker {
-  stroke: var(--avatar-character-line);
-  stroke-linecap: round;
-  stroke-width: 1.7;
-}
-.profile-avatar__mouse-scarf {
-  fill: var(--avatar-character-accent);
-  stroke: var(--avatar-character-line);
-  stroke-linejoin: round;
-  stroke-width: 1.5;
-}
-.profile-avatar-bluebell {
-  --avatar-character-accent: var(--avatar-pip-sage);
-}
-.profile-avatar-berry {
-  --avatar-character-accent: var(--avatar-pip-berry);
+.profile-avatar-paco-dog .profile-avatar__character {
+  transform: translateY(-3%);
 }
 .profile-switcher-menu {
   position: absolute;
@@ -795,6 +792,27 @@ p {
   border-top: 1px solid var(--line-neutral);
   border-radius: 0 0 14px 14px;
   color: var(--action-primary-deep);
+}
+.profile-switch-feedback {
+  position: fixed;
+  z-index: 50;
+  right: 24px;
+  bottom: max(86px, calc(72px + env(safe-area-inset-bottom)));
+  left: 24px;
+  width: max-content;
+  max-width: calc(100vw - 48px);
+  min-height: 48px;
+  padding: 8px 14px 8px 9px;
+  margin-inline: auto;
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--ink-primary);
+  background: var(--surface-card);
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  box-shadow: var(--shadow-floating-bar);
+  font-weight: 700;
 }
 
 .family-screen {
@@ -947,6 +965,71 @@ p {
   color: var(--ink-muted);
   background: transparent;
   border: 1px solid var(--line-neutral);
+}
+.family-remove-dialog {
+  width: min(420px, calc(100vw - 32px));
+  padding: 24px;
+  color: var(--ink-primary);
+  background: var(--surface-card);
+  border: 2px solid var(--action-danger);
+  border-radius: 24px;
+  box-shadow: var(--shadow-floating-bar);
+  animation: family-remove-dialog-in 160ms ease-out;
+}
+.family-remove-dialog::backdrop {
+  background: var(--surface-modal-scrim);
+  backdrop-filter: blur(2px);
+}
+.family-remove-dialog__warning {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  color: var(--surface-card);
+  background: var(--action-danger);
+  border-radius: 50%;
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+.family-remove-dialog h2 {
+  margin: 14px 0 8px;
+}
+.family-remove-dialog p {
+  margin: 0;
+  color: var(--ink-muted);
+  line-height: 1.45;
+}
+.family-remove-dialog__actions {
+  margin-top: 22px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+.family-remove-dialog__actions button {
+  min-height: 46px;
+  padding: 0 17px;
+  border-radius: 999px;
+  font-weight: 750;
+}
+.family-remove-dialog__cancel {
+  color: var(--ink-primary);
+  background: var(--surface-card);
+  border: 1px solid var(--line-neutral);
+}
+.family-remove-dialog__confirm {
+  color: var(--surface-card);
+  background: var(--action-danger);
+  border: 1px solid var(--action-danger-deep);
+}
+@keyframes family-remove-dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.96) translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
 }
 
 .home-screen {

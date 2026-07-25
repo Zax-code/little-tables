@@ -21,7 +21,7 @@ describe('family profile client', () => {
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
-            profile: { avatarId: 'bluebell', id: 'child-2', name: 'Mia' },
+            profile: { avatarId: 'malo-bear', id: 'child-2', name: 'Mia' },
           }),
           { status: 201 },
         ),
@@ -29,7 +29,7 @@ describe('family profile client', () => {
       .mockResolvedValueOnce(
         new Response(
           JSON.stringify({
-            profile: { avatarId: 'berry', id: 'child-2', name: 'Mimi' },
+            profile: { avatarId: 'mina-cat', id: 'child-2', name: 'Mimi' },
           }),
         ),
       )
@@ -38,8 +38,8 @@ describe('family profile client', () => {
     await expect(fetchFamilyProfiles(fetcher)).resolves.toEqual([
       { avatarId: 'sprout', id: 'child-1', name: 'Lou' },
     ])
-    await createChildProfile({ avatarId: 'bluebell', name: 'Mia' }, fetcher)
-    await updateChildProfile('child-2', { avatarId: 'berry', name: 'Mimi' }, fetcher)
+    await createChildProfile({ avatarId: 'malo-bear', name: 'Mia' }, fetcher)
+    await updateChildProfile('child-2', { avatarId: 'mina-cat', name: 'Mimi' }, fetcher)
     await removeChildProfile('child-2', fetcher)
 
     expect(fetcher.mock.calls.map((call) => [call[0], call[1]?.method])).toEqual([
@@ -54,11 +54,11 @@ describe('family profile client', () => {
       throw new Error('Expected family profile mutation bodies to be JSON strings')
     }
     expect(JSON.parse(createBody) as unknown).toEqual({
-      avatarId: 'bluebell',
+      avatarId: 'malo-bear',
       name: 'Mia',
     })
     expect(JSON.parse(updateBody) as unknown).toEqual({
-      avatarId: 'berry',
+      avatarId: 'mina-cat',
       name: 'Mimi',
       profileId: 'child-2',
     })

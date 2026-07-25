@@ -1,4 +1,8 @@
-import { ChildProfileSchema, type ChildAvatarId, type ChildProfile } from '@little-tables/domain'
+import {
+  ChildProfileSchema,
+  type ChildProfile,
+  type SelectableChildAvatarId,
+} from '@little-tables/domain'
 import { Data, Schema } from 'effect'
 
 const FamilyProfilesResponseSchema = Schema.Struct({
@@ -46,7 +50,7 @@ export async function fetchFamilyProfiles(
 }
 
 export async function createChildProfile(
-  input: Readonly<{ avatarId: ChildAvatarId; name: string }>,
+  input: Readonly<{ avatarId: SelectableChildAvatarId; name: string }>,
   fetcher: typeof fetch = fetch,
 ): Promise<ChildProfile> {
   const response = await mutation('POST', input, fetcher)
@@ -58,7 +62,7 @@ export async function createChildProfile(
 
 export async function updateChildProfile(
   profileId: string,
-  input: Readonly<{ avatarId: ChildAvatarId; name: string }>,
+  input: Readonly<{ avatarId: SelectableChildAvatarId; name: string }>,
   fetcher: typeof fetch = fetch,
 ): Promise<ChildProfile> {
   const response = await mutation('PUT', { ...input, profileId }, fetcher)
