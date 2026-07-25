@@ -11,6 +11,15 @@ import { InMemoryProfileRepository } from '../repositories/in-memory-profile-rep
 
 const FamilyResponseSchema = Schema.Struct({ profiles: Schema.Array(ChildProfileSchema) })
 const ProfileResponseSchema = Schema.Struct({ profile: ChildProfileSchema })
+const BootstrapResponseSchema = Schema.Struct({
+  completedSessions: Schema.NonNegativeInt,
+  gardenBloomCount: Schema.NonNegativeInt,
+  gardenCollection: Schema.Struct({
+    flowerOrder: Schema.Array(Schema.NonEmptyString),
+    introductionSeen: Schema.Boolean,
+  }),
+  profile: Schema.Struct({ id: Schema.NonEmptyString }),
+})
 
 describe('family-profile HTTP interface', () => {
   afterEach(() => {
@@ -195,14 +204,47 @@ describe('family-profile HTTP interface', () => {
           headers: { cookie, 'x-little-tables-profile-id': profileId },
         }),
       )
-    await expect((await bootstrapFor(secondProfileId)).json()).resolves.toMatchObject({
+    const secondFirst = await Schema.decodeUnknownPromise(BootstrapResponseSchema)(
+      await (await bootstrapFor(secondProfileId)).json(),
+    )
+    expect(secondFirst).toMatchObject({
       completedSessions: 1,
+      gardenBloomCount: 1,
       profile: { id: secondProfileId },
     })
-    await expect((await bootstrapFor(initialProfileId)).json()).resolves.toMatchObject({
+    const initialFirst = await Schema.decodeUnknownPromise(BootstrapResponseSchema)(
+      await (await bootstrapFor(initialProfileId)).json(),
+    )
+    expect(initialFirst).toMatchObject({
       completedSessions: 0,
+      gardenBloomCount: 0,
       profile: { id: initialProfileId },
     })
+
+    const introductionSeen = await handler(
+      new Request('http://little-tables.local/api/v1/garden/introduction-seen', {
+        headers: { cookie, 'x-little-tables-profile-id': secondProfileId },
+        method: 'POST',
+      }),
+    )
+    expect(introductionSeen.status).toBe(200)
+
+    const secondReturning = await Schema.decodeUnknownPromise(BootstrapResponseSchema)(
+      await (await bootstrapFor(secondProfileId)).json(),
+    )
+    const initialReturning = await Schema.decodeUnknownPromise(BootstrapResponseSchema)(
+      await (await bootstrapFor(initialProfileId)).json(),
+    )
+    expect(secondReturning.gardenCollection).toMatchObject({
+      flowerOrder: secondFirst.gardenCollection.flowerOrder,
+      introductionSeen: true,
+    })
+    expect(secondReturning.gardenBloomCount).toBe(1)
+    expect(initialReturning.gardenCollection).toMatchObject({
+      flowerOrder: initialFirst.gardenCollection.flowerOrder,
+      introductionSeen: false,
+    })
+    expect(initialReturning.gardenBloomCount).toBe(0)
 
     const forbidden = await handler(
       new Request('http://little-tables.local/api/v1/attempts/sync', {
@@ -213,6 +255,156 @@ describe('family-profile HTTP interface', () => {
     )
     expect(forbidden.status).toBe(403)
     await expect(forbidden.json()).resolves.toEqual({ error: 'profile_forbidden' })
+
+    await dispose()
+  })
+
+  it('keeps garden and practice state isolated across Google accounts and restores it after sign-in', async () => {
+    vi.stubEnv('GOOGLE_CLIENT_ID', 'client.apps.googleusercontent.com')
+    vi.stubEnv('GOOGLE_ALLOWED_EMAILS', 'parent-a@example.com,parent-b@example.com')
+    vi.stubEnv('SESSION_SECRET', 'account-isolation-test-secret')
+    vi.doMock('../application/google-identity.js', () => ({
+      verifyGoogleCredential: vi.fn(({ credential }: Readonly<{ credential: string }>) =>
+        Promise.resolve(
+          credential === 'account-a'
+            ? {
+                displayName: 'Parent A',
+                email: 'parent-a@example.com',
+                profileId: 'lou',
+                subject: 'google-account-a',
+              }
+            : {
+                displayName: 'Parent B',
+                email: 'parent-b@example.com',
+                profileId: 'lou',
+                subject: 'google-account-b',
+              },
+        ),
+      ),
+    }))
+    vi.resetModules()
+    const { httpApp } = await import('./app.js')
+    const { dispose, handler } = HttpApp.toWebHandlerLayer(
+      httpApp,
+      Layer.mergeAll(
+        NodeHttpPlatform.layer,
+        InMemoryAttemptRepository.layer(),
+        InMemoryAllowedEmailRepository.layer(),
+        InMemoryGardenCollectionRepository.layer(),
+        InMemoryProfileRepository.layer(),
+      ),
+    )
+    const signIn = async (credential: string) => {
+      const response = await handler(
+        new Request('http://little-tables.local/api/v1/auth/google', {
+          body: JSON.stringify({ credential }),
+          headers: { 'content-type': 'application/json' },
+          method: 'POST',
+        }),
+      )
+      expect(response.status).toBe(200)
+      return response.headers.get('set-cookie')?.split(';')[0] ?? ''
+    }
+    const profilesFor = async (cookie: string) =>
+      Schema.decodeUnknownPromise(FamilyResponseSchema)(
+        await (
+          await handler(
+            new Request('http://little-tables.local/api/v1/family/profiles', {
+              headers: { cookie },
+            }),
+          )
+        ).json(),
+      )
+    const bootstrapFor = async (cookie: string, profileId: string) =>
+      Schema.decodeUnknownPromise(BootstrapResponseSchema)(
+        await (
+          await handler(
+            new Request('http://little-tables.local/api/v1/bootstrap', {
+              headers: { cookie, 'x-little-tables-profile-id': profileId },
+            }),
+          )
+        ).json(),
+      )
+
+    const accountACookie = await signIn('account-a')
+    const accountBCookie = await signIn('account-b')
+    const accountAProfileId = (await profilesFor(accountACookie)).profiles[0]?.id ?? ''
+    const accountBProfileId = (await profilesFor(accountBCookie)).profiles[0]?.id ?? ''
+    expect(accountAProfileId).not.toBe(accountBProfileId)
+
+    const sync = await handler(
+      new Request('http://little-tables.local/api/v1/attempts/sync', {
+        body: JSON.stringify({
+          attempts: [
+            {
+              answerMode: 'keypad',
+              answeredAt: '2026-07-25T12:00:01.000Z',
+              choices: [],
+              correct: true,
+              eventId: 'account-a-attempt-1',
+              factKey: '7:8',
+              latencyMs: 1_500,
+              left: 7,
+              operation: 'multiply',
+              questionCount: 1,
+              right: 8,
+              selected: 56,
+              sequence: 0,
+              sessionId: 'account-a-session-1',
+            },
+          ],
+          profileId: accountAProfileId,
+        }),
+        headers: { 'content-type': 'application/json', cookie: accountACookie },
+        method: 'POST',
+      }),
+    )
+    expect(sync.status).toBe(200)
+    const introductionSeen = await handler(
+      new Request('http://little-tables.local/api/v1/garden/introduction-seen', {
+        headers: {
+          cookie: accountACookie,
+          'x-little-tables-profile-id': accountAProfileId,
+        },
+        method: 'POST',
+      }),
+    )
+    expect(introductionSeen.status).toBe(200)
+
+    const accountAFirst = await bootstrapFor(accountACookie, accountAProfileId)
+    const accountBFirst = await bootstrapFor(accountBCookie, accountBProfileId)
+    expect(accountAFirst).toMatchObject({
+      completedSessions: 1,
+      gardenBloomCount: 1,
+      gardenCollection: { introductionSeen: true },
+    })
+    expect(accountBFirst).toMatchObject({
+      completedSessions: 0,
+      gardenBloomCount: 0,
+      gardenCollection: { introductionSeen: false },
+    })
+
+    const forbidden = await handler(
+      new Request('http://little-tables.local/api/v1/bootstrap', {
+        headers: {
+          cookie: accountBCookie,
+          'x-little-tables-profile-id': accountAProfileId,
+        },
+      }),
+    )
+    expect(forbidden.status).toBe(403)
+    await expect(forbidden.json()).resolves.toEqual({ error: 'profile_forbidden' })
+
+    const returningAccountACookie = await signIn('account-a')
+    const accountAReturning = await bootstrapFor(returningAccountACookie, accountAProfileId)
+    expect(accountAReturning.gardenCollection.flowerOrder).toEqual(
+      accountAFirst.gardenCollection.flowerOrder,
+    )
+    expect(accountAReturning).toMatchObject({
+      completedSessions: 1,
+      gardenBloomCount: 1,
+      gardenCollection: { introductionSeen: true },
+    })
 
     await dispose()
   })

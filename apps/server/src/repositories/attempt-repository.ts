@@ -49,7 +49,10 @@ export type AttemptRepositoryService = Readonly<{
     endpoint: string,
     dayKey: string,
   ) => Effect.Effect<void, AttemptRepositoryError>
-  removePushSubscription: (endpoint: string) => Effect.Effect<void, AttemptRepositoryError>
+  removePushSubscription: (
+    profileId: string,
+    endpoint: string,
+  ) => Effect.Effect<void, AttemptRepositoryError>
   upsertPushSubscription: (
     profileId: string,
     subscription: PushSubscriptionInput,

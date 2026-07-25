@@ -99,10 +99,10 @@ const makeService = (
       catch: (cause) =>
         new AttemptRepositoryError({ cause, operation: 'mark-push-subscription-sent' }),
     }),
-  removePushSubscription: (endpoint) =>
+  removePushSubscription: (profileId, endpoint) =>
     Effect.tryPromise({
       try: async () => {
-        await pushSubscriptions.deleteOne({ _id: endpoint })
+        await pushSubscriptions.deleteOne({ _id: endpoint, profileId })
       },
       catch: (cause) =>
         new AttemptRepositoryError({ cause, operation: 'remove-push-subscription' }),

@@ -63,6 +63,49 @@ describe('MongoAttemptRepository', () => {
     expect(result.stored).toEqual([attempt])
   }, 30_000)
 
+  it('does not remove another profile push subscription', async () => {
+    const program = Effect.gen(function* () {
+      const repository = yield* AttemptRepository
+      yield* repository.upsertPushSubscription('notification-child-a', {
+        endpoint: 'https://push.example/profile-isolation',
+        expirationTime: null,
+        keys: { auth: 'auth', p256dh: 'p256dh' },
+        locale: 'fr',
+        reminderHour: 18,
+        timezone: 'Europe/Paris',
+      })
+      yield* repository.removePushSubscription(
+        'notification-child-b',
+        'https://push.example/profile-isolation',
+      )
+      const afterSiblingRemoval = yield* repository.listPushSubscriptions()
+      yield* repository.removePushSubscription(
+        'notification-child-a',
+        'https://push.example/profile-isolation',
+      )
+      const afterOwnerRemoval = yield* repository.listPushSubscriptions()
+      return { afterOwnerRemoval, afterSiblingRemoval }
+    }).pipe(
+      Effect.provide(
+        MongoAttemptRepository.layer(
+          `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`,
+          'integration',
+        ),
+      ),
+    )
+
+    const result = await Effect.runPromise(program)
+    expect(result.afterSiblingRemoval).toContainEqual(
+      expect.objectContaining({
+        endpoint: 'https://push.example/profile-isolation',
+        profileId: 'notification-child-a',
+      }),
+    )
+    expect(result.afterOwnerRemoval).not.toContainEqual(
+      expect.objectContaining({ endpoint: 'https://push.example/profile-isolation' }),
+    )
+  }, 30_000)
+
   it('idempotently persists allowed email addresses', async () => {
     const program = Effect.gen(function* () {
       const repository = yield* AllowedEmailRepository
@@ -184,7 +227,33 @@ describe('MongoAttemptRepository', () => {
     })
   }, 30_000)
 
-  it('atomically preserves one duplicate-free personalized garden per learner', async () => {
+  it('retains the owner legacy profile ID when no preferred-name document exists', async () => {
+    const account = await Effect.runPromise(
+      Effect.gen(function* () {
+        const repository = yield* ProfileRepository
+        return yield* repository.ensureFamily({
+          fallbackName: 'Google Lou',
+          googleSubject: 'owner-without-profile-document',
+          legacyProfileId: 'lou',
+          retainLegacyProfileId: true,
+        })
+      }).pipe(
+        Effect.provide(
+          MongoProfileRepository.layer(
+            `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`,
+            'integration',
+          ),
+        ),
+      ),
+    )
+
+    expect(account).toMatchObject({
+      onboardingComplete: false,
+      profiles: [{ avatarId: 'sprout', id: 'lou', name: 'Google Lou' }],
+    })
+  }, 30_000)
+
+  it('atomically preserves isolated duplicate-free personalized gardens per family profile', async () => {
     const gardenLayer = MongoGardenCollectionRepository.layer(
       `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`,
       'integration',
@@ -199,6 +268,10 @@ describe('MongoAttemptRepository', () => {
         preferredFlowerPrefix: ['blue-wisteria'],
         profileId: 'garden-learner',
       })
+      const siblingFirst = yield* repository.loadOrCreate({
+        preferredFlowerPrefix: ['twilight-lupine'],
+        profileId: 'garden-sibling',
+      })
       yield* repository.reconcile('garden-learner', {
         awardedFlowerIds: [first.flowerOrder[0] ?? 'rose-lotus'],
         bloomCount: 3,
@@ -209,7 +282,11 @@ describe('MongoAttemptRepository', () => {
         bloomCount: 3,
         rewardedDayKeys: ['2026-07-25'],
       })
-      return { first, replayed, second }
+      const siblingReturning = yield* repository.loadOrCreate({
+        preferredFlowerPrefix: ['rose-lotus'],
+        profileId: 'garden-sibling',
+      })
+      return { first, replayed, second, siblingFirst, siblingReturning }
     }).pipe(Effect.provide(gardenLayer))
 
     const result = await Effect.runPromise(program)
@@ -218,6 +295,10 @@ describe('MongoAttemptRepository', () => {
     expect(new Set(result.first.flowerOrder).size).toBe(9)
     expect(result.replayed.awardedFlowerIds).toEqual([result.first.flowerOrder[0]])
     expect(result.replayed.rewardedDayKeys).toEqual(['2026-07-23', '2026-07-24', '2026-07-25'])
+    expect(result.siblingReturning.flowerOrder).toEqual(result.siblingFirst.flowerOrder)
+    expect(result.siblingReturning.awardedFlowerIds).toEqual([])
+    expect(result.siblingReturning.bloomCount).toBe(0)
+    expect(result.siblingReturning.rewardedDayKeys).toEqual([])
   }, 30_000)
 
   it('does not attach shared legacy practice data to an account that cannot retain it', async () => {

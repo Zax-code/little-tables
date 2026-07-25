@@ -41,9 +41,11 @@ const layer = () => {
           pushSubscriptions.set(endpoint, { ...subscription, lastSentDayKey: dayKey })
         }
       }),
-    removePushSubscription: (endpoint) =>
+    removePushSubscription: (profileId, endpoint) =>
       Effect.sync(() => {
-        pushSubscriptions.delete(endpoint)
+        if (pushSubscriptions.get(endpoint)?.profileId === profileId) {
+          pushSubscriptions.delete(endpoint)
+        }
       }),
     upsertPushSubscription: (profileId, subscription) =>
       Effect.sync(() => {

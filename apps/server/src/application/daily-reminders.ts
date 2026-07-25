@@ -88,7 +88,9 @@ const sendDueReminders = async (repository: AttemptRepositoryService, now: Date)
           ? (error as { statusCode?: unknown }).statusCode
           : undefined
       if (statusCode === 404 || statusCode === 410) {
-        await Effect.runPromise(repository.removePushSubscription(subscription.endpoint))
+        await Effect.runPromise(
+          repository.removePushSubscription(subscription.profileId, subscription.endpoint),
+        )
       } else {
         console.error('Daily reminder delivery failed', error)
       }

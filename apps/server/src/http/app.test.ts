@@ -271,6 +271,35 @@ describe('notification subscriptions', () => {
       timezone: 'America/New_York',
     })
   })
+
+  it('passes the authorized profile boundary to subscription removal', async () => {
+    let removed: Readonly<{ endpoint: string; profileId: string }> | null = null
+    const repository: AttemptRepositoryService = {
+      ...repositoryWithAttempts([]),
+      removePushSubscription: (profileId, endpoint) =>
+        Effect.sync(() => {
+          removed = { endpoint, profileId }
+        }),
+    }
+    const { dispose, handler } = webHandler(repository)
+    const response = await handler(
+      new Request('http://little-tables.local/api/v1/notifications/subscriptions', {
+        body: JSON.stringify({ endpoint: 'https://push.example/subscription' }),
+        headers: {
+          'content-type': 'application/json',
+          'x-little-tables-profile-id': 'selected-child',
+        },
+        method: 'DELETE',
+      }),
+    )
+    await dispose()
+
+    expect(response.status).toBe(200)
+    expect(removed).toEqual({
+      endpoint: 'https://push.example/subscription',
+      profileId: 'selected-child',
+    })
+  })
 })
 
 describe('allowed email management', () => {

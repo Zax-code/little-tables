@@ -496,7 +496,7 @@ const removePushSubscription = Effect.gen(function* () {
   if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
   const { endpoint } = yield* HttpServerRequest.schemaBodyJson(RemovePushSubscriptionSchema)
   const repository = yield* AttemptRepository
-  yield* repository.removePushSubscription(endpoint)
+  yield* repository.removePushSubscription(profileId, endpoint)
   return yield* json({ status: 'unsubscribed' })
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_subscription_request' }, 400)))
 

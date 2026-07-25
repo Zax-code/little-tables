@@ -47,7 +47,7 @@ const layer = () => {
         })
         return true
       }),
-    ensureFamily: ({ fallbackName, googleSubject }) =>
+    ensureFamily: ({ fallbackName, googleSubject, legacyProfileId, retainLegacyProfileId }) =>
       Effect.sync(() => {
         const existing = accounts.get(googleSubject)
         if (existing !== undefined) return existing
@@ -57,7 +57,7 @@ const layer = () => {
           profiles: [
             {
               avatarId: FamilyProfiles.defaultAvatarId,
-              id: crypto.randomUUID(),
+              id: retainLegacyProfileId ? legacyProfileId : crypto.randomUUID(),
               name: fallbackName,
             },
           ],

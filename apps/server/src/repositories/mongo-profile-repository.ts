@@ -157,6 +157,7 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
             profiles: [
               await childDocument({
                 avatarId: FamilyProfiles.defaultAvatarId,
+                ...(retainLegacyProfileId ? { id: legacyProfileId } : {}),
                 name: fallbackName,
               }),
             ],
