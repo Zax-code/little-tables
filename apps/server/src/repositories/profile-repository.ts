@@ -1,22 +1,57 @@
-import { Context, Data, Schema, type Effect } from 'effect'
+import {
+  ChildAvatarIdSchema,
+  ChildProfileNameSchema,
+  type ChildAvatarId,
+  type ChildProfile,
+} from '@little-tables/domain'
+import { Context, Data, type Effect } from 'effect'
 
-export const PreferredDisplayNameSchema = Schema.NonEmptyTrimmedString.pipe(
-  Schema.filter((displayName) => Array.from(displayName).length <= 40, {
-    message: () => 'Preferred names must contain at most 40 characters',
-  }),
-)
+export { ChildAvatarIdSchema, ChildProfileNameSchema }
+
+export type FamilyAccount = Readonly<{
+  googleSubject: string
+  onboardingComplete: boolean
+  profiles: ReadonlyArray<ChildProfile>
+}>
+
+export type RemoveChildResult = 'last-profile' | 'not-found' | 'removed'
 
 export class ProfileRepositoryError extends Data.TaggedError('ProfileRepositoryError')<{
   cause: unknown
-  operation: 'find-preferred-name' | 'save-preferred-name'
+  operation:
+    | 'add-child'
+    | 'complete-initial-profile'
+    | 'ensure-family'
+    | 'find-family'
+    | 'remove-child'
+    | 'update-child'
 }> {}
 
 export type ProfileRepositoryService = Readonly<{
-  findPreferredName: (googleSubject: string) => Effect.Effect<string | null, ProfileRepositoryError>
-  savePreferredName: (
+  addChild: (
     googleSubject: string,
-    displayName: typeof PreferredDisplayNameSchema.Type,
+    input: Readonly<{ avatarId: ChildAvatarId; name: string }>,
+  ) => Effect.Effect<ChildProfile, ProfileRepositoryError>
+  completeInitialProfile: (
+    googleSubject: string,
+    profileId: string,
+    name: string,
   ) => Effect.Effect<boolean, ProfileRepositoryError>
+  ensureFamily: (input: {
+    fallbackName: string
+    googleSubject: string
+    legacyProfileId: string
+  }) => Effect.Effect<FamilyAccount, ProfileRepositoryError>
+  findFamily: (googleSubject: string) => Effect.Effect<FamilyAccount | null, ProfileRepositoryError>
+  removeChild: (
+    googleSubject: string,
+    profileId: string,
+  ) => Effect.Effect<RemoveChildResult, ProfileRepositoryError>
+  updateChild: (
+    googleSubject: string,
+    profileId: string,
+    input: Readonly<{ avatarId: ChildAvatarId; name: string }>,
+  ) => Effect.Effect<ChildProfile | null, ProfileRepositoryError>
 }>
 
 export class ProfileRepository extends Context.Tag('@little-tables/ProfileRepository')<

@@ -21,6 +21,14 @@
   --nav-garden-ink: #35643b;
   --nav-stats-surface: #e1edf8;
   --nav-stats-ink: #315e8c;
+  --avatar-sprout-surface: #e2f0d8;
+  --avatar-sprout-ink: #35643b;
+  --avatar-sunbeam-surface: #fff0b8;
+  --avatar-sunbeam-ink: #8c651c;
+  --avatar-bluebell-surface: #e1edf8;
+  --avatar-bluebell-ink: #315e8c;
+  --avatar-berry-surface: #f9e3e8;
+  --avatar-berry-ink: #ad3157;
   --ink-on-action: #fff;
   --ink-primary: #1d1d1b;
   --ink-muted: #716b67;
@@ -532,7 +540,7 @@ p {
   padding: 6px 20px;
   transform: translateX(-50%);
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   background: rgb(255 253 249 / 94%);
   border: 1px solid var(--line-soft);
   border-radius: 24px;
@@ -641,6 +649,224 @@ p {
 }
 .nav-brand {
   display: none;
+}
+
+.profile-switcher {
+  position: relative;
+  min-width: 0;
+  display: grid;
+  place-items: center;
+}
+.profile-switcher-button {
+  width: 100%;
+  min-width: 56px;
+  min-height: 56px;
+  padding: 3px 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 1px;
+  color: var(--ink-primary);
+  background: transparent;
+  border: 0;
+  border-radius: 18px;
+  font-size: 0.72rem;
+  font-weight: 650;
+}
+.profile-switcher-button > span:last-child {
+  width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.profile-avatar {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border: 1px solid currentcolor;
+  border-radius: 50%;
+  font-size: 0.8rem;
+  line-height: 1;
+}
+.profile-avatar-sprout {
+  color: var(--avatar-sprout-ink);
+  background: var(--avatar-sprout-surface);
+}
+.profile-avatar-sunbeam {
+  color: var(--avatar-sunbeam-ink);
+  background: var(--avatar-sunbeam-surface);
+}
+.profile-avatar-bluebell {
+  color: var(--avatar-bluebell-ink);
+  background: var(--avatar-bluebell-surface);
+}
+.profile-avatar-berry {
+  color: var(--avatar-berry-ink);
+  background: var(--avatar-berry-surface);
+}
+.profile-switcher-menu {
+  position: absolute;
+  z-index: 30;
+  bottom: 68px;
+  left: 0;
+  width: min(280px, calc(100vw - 48px));
+  padding: 8px;
+  display: grid;
+  gap: 4px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-soft);
+  border-radius: 20px;
+  box-shadow: var(--shadow-floating-bar);
+}
+.profile-switcher-menu button {
+  min-height: 50px;
+  padding: 7px 10px;
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr) 20px;
+  gap: 8px;
+  align-items: center;
+  color: var(--ink-primary);
+  background: transparent;
+  border: 0;
+  border-radius: 14px;
+  text-align: left;
+  font-weight: 650;
+}
+.profile-switcher-menu button[aria-current='true'] {
+  background: var(--surface-soft);
+}
+.profile-switcher-menu button i {
+  color: var(--action-primary-deep);
+  font-style: normal;
+}
+.profile-switcher-menu .profile-manage-button {
+  margin-top: 3px;
+  border-top: 1px solid var(--line-neutral);
+  border-radius: 0 0 14px 14px;
+  color: var(--action-primary-deep);
+}
+
+.family-screen {
+  display: grid;
+  gap: 24px;
+}
+.family-screen header p:last-child {
+  margin-bottom: 0;
+}
+.family-back-button {
+  width: fit-content;
+  min-height: 44px;
+  padding: 0;
+  color: var(--action-primary-deep);
+  background: transparent;
+  border: 0;
+  font-weight: 700;
+}
+.add-child-card,
+.child-profile-card {
+  padding: 18px;
+  display: grid;
+  gap: 11px;
+  background: var(--surface-card);
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  box-shadow: var(--shadow-soft);
+}
+.add-child-card h2,
+.family-profile-list h2 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+.add-child-card > label,
+.child-profile-card > label,
+.avatar-picker legend {
+  font-size: 0.85rem;
+  font-weight: 700;
+}
+.add-child-card > input,
+.child-profile-card > input {
+  width: 100%;
+  min-height: 50px;
+  padding: 0 14px;
+  color: var(--ink-primary);
+  background: var(--surface-card);
+  border: 2px solid var(--line-soft);
+  border-radius: 14px;
+  font: inherit;
+}
+.avatar-picker {
+  padding: 0;
+  margin: 2px 0;
+  border: 0;
+}
+.avatar-picker > div {
+  margin-top: 7px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.avatar-picker label {
+  position: relative;
+  width: 50px;
+  height: 50px;
+  display: grid;
+  place-items: center;
+  border: 2px solid transparent;
+  border-radius: 16px;
+}
+.avatar-picker input {
+  position: absolute;
+  opacity: 0;
+}
+.avatar-picker label:has(input:checked) {
+  background: var(--surface-soft);
+  border-color: var(--action-primary-deep);
+}
+.avatar-picker label:has(input:focus-visible) {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 2px;
+}
+.avatar-picker .profile-avatar {
+  width: 36px;
+  height: 36px;
+}
+.add-child-card .primary-button {
+  min-height: 52px;
+  margin-top: 3px;
+  font-size: 1rem;
+}
+.family-message,
+.family-card-message {
+  margin: 0;
+  color: var(--action-primary-deep);
+  font-weight: 650;
+}
+.family-profile-list {
+  display: grid;
+  gap: 14px;
+}
+.child-profile-actions {
+  display: flex;
+  gap: 9px;
+}
+.child-profile-actions button {
+  min-height: 46px;
+  padding: 0 14px;
+  border-radius: 999px;
+  font-weight: 700;
+}
+.family-save-button {
+  color: var(--ink-on-action);
+  background: var(--action-primary);
+  border: 0;
+}
+.family-remove-button {
+  color: var(--ink-muted);
+  background: transparent;
+  border: 1px solid var(--line-neutral);
 }
 
 .home-screen {
@@ -2902,7 +3128,7 @@ p {
     padding: 7px 12px;
     transform: translateX(-50%);
     display: grid;
-    grid-template-columns: auto repeat(3, minmax(0, 1fr));
+    grid-template-columns: auto minmax(110px, 0.8fr) repeat(3, minmax(0, 1fr));
     gap: 8px;
     background: var(--surface-desktop-nav);
     border: 1px solid var(--line-soft);
@@ -2922,6 +3148,16 @@ p {
   }
   .nav-brand span {
     color: var(--action-primary-deep);
+  }
+  .profile-switcher-button {
+    padding-inline: 10px;
+    flex-direction: row;
+    gap: 8px;
+    font-size: 0.9rem;
+  }
+  .profile-switcher-menu {
+    top: 68px;
+    bottom: auto;
   }
   .nav-item {
     width: 100%;

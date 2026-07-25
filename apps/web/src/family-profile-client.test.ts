@@ -1,0 +1,52 @@
+import { describe, expect, it, vi } from 'vitest'
+
+import {
+  createChildProfile,
+  fetchFamilyProfiles,
+  removeChildProfile,
+  updateChildProfile,
+} from './family-profile-client.js'
+
+describe('family profile client', () => {
+  it('loads server profiles and sends each family-management mutation', async () => {
+    const fetcher = vi
+      .fn<typeof fetch>()
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            profiles: [{ avatarId: 'sprout', id: 'child-1', name: 'Lou' }],
+          }),
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            profile: { avatarId: 'bluebell', id: 'child-2', name: 'Mia' },
+          }),
+          { status: 201 },
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            profile: { avatarId: 'berry', id: 'child-2', name: 'Mimi' },
+          }),
+        ),
+      )
+      .mockResolvedValueOnce(new Response(JSON.stringify({ removedProfileId: 'child-2' })))
+
+    await expect(fetchFamilyProfiles(fetcher)).resolves.toEqual([
+      { avatarId: 'sprout', id: 'child-1', name: 'Lou' },
+    ])
+    await createChildProfile({ avatarId: 'bluebell', name: 'Mia' }, fetcher)
+    await updateChildProfile('child-2', { avatarId: 'berry', name: 'Mimi' }, fetcher)
+    await removeChildProfile('child-2', fetcher)
+
+    expect(fetcher.mock.calls.map((call) => [call[0], call[1]?.method])).toEqual([
+      ['/api/v1/family/profiles', undefined],
+      ['/api/v1/family/profiles', 'POST'],
+      ['/api/v1/family/profiles', 'PUT'],
+      ['/api/v1/family/profiles', 'DELETE'],
+    ])
+  })
+})

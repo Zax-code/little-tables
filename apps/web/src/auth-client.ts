@@ -1,5 +1,7 @@
 import { Data, Schema } from 'effect'
 
+import { clearFamilyProfileDeviceState } from './family-profile-device.js'
+
 const AuthStatusSchema = Schema.Struct({
   authenticated: Schema.Boolean,
   authenticationRequired: Schema.Boolean,
@@ -41,6 +43,7 @@ export async function signInWithGoogle(
   if (!response.ok) {
     throw new GoogleSignInError({ reason: response.status === 401 ? 'unauthorized' : 'failed' })
   }
+  clearFamilyProfileDeviceState()
 }
 
 export async function savePreferredName(

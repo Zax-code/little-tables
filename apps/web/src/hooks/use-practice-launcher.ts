@@ -6,7 +6,8 @@ import { useCallback } from 'react'
 
 import { useFlowerTransition } from '../flower-transition.js'
 import { launchPracticeSession, resumePracticeSession } from '../practice-session-launch.js'
-import { localBootstrapQueryKey, practiceStore } from '../store.js'
+import { localBootstrapQueryKey, practiceStoreFor } from '../store.js'
+import { useFamilyProfile } from '../use-family-profile.js'
 
 const learnerTimeZone = (): string => Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
 
@@ -24,6 +25,9 @@ export function usePracticeLauncher(data: LocalBootstrap | undefined): PracticeL
   const navigate = useNavigate()
   const transition = useFlowerTransition()
   const queryClient = useQueryClient()
+  const { activeProfile } = useFamilyProfile()
+  const practiceStore = practiceStoreFor(activeProfile.id)
+  const bootstrapQueryKey = localBootstrapQueryKey(activeProfile.id)
 
   const resume = useCallback(
     () =>
@@ -46,14 +50,14 @@ export function usePracticeLauncher(data: LocalBootstrap | undefined): PracticeL
       })
       if (session.questions.length === 0) return false
       await launchPracticeSession({
-        invalidate: () => queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey }),
+        invalidate: () => queryClient.invalidateQueries({ queryKey: bootstrapQueryKey }),
         navigate: () => navigate({ to: '/practice' }),
         persist: () => practiceStore.startSession(session, snapshot),
         transition,
       })
       return true
     },
-    [data?.snapshot, navigate, queryClient, transition],
+    [bootstrapQueryKey, data?.snapshot, navigate, practiceStore, queryClient, transition],
   )
 
   return {

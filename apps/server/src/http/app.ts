@@ -1,4 +1,4 @@
-import { LearningEngine } from '@little-tables/domain'
+import { ChildAvatarIdSchema, ChildProfileNameSchema, LearningEngine } from '@little-tables/domain'
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from '@effect/platform'
 import { Effect, Schema } from 'effect'
 import { existsSync, statSync } from 'node:fs'
@@ -16,10 +16,7 @@ import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
 import { AttemptRepository, ReminderLocaleSchema } from '../repositories/attempt-repository.js'
 import { GardenCollectionRepository } from '../repositories/garden-collection-repository.js'
-import {
-  PreferredDisplayNameSchema,
-  ProfileRepository,
-} from '../repositories/profile-repository.js'
+import { ProfileRepository } from '../repositories/profile-repository.js'
 
 const AttemptEventSchema = Schema.Struct({
   answerMode: Schema.Literal('choice', 'keypad'),
@@ -53,6 +50,16 @@ const SyncRequestSchema = Schema.Struct({
 
 const GoogleCredentialSchema = Schema.Struct({ credential: Schema.NonEmptyString })
 const PreferredNameSchema = Schema.Struct({ displayName: Schema.String })
+const CreateChildProfileSchema = Schema.Struct({
+  avatarId: ChildAvatarIdSchema,
+  name: Schema.String,
+})
+const UpdateChildProfileSchema = Schema.Struct({
+  avatarId: ChildAvatarIdSchema,
+  name: Schema.String,
+  profileId: Schema.NonEmptyString,
+})
+const RemoveChildProfileSchema = Schema.Struct({ profileId: Schema.NonEmptyString })
 const AllowedEmailSchema = Schema.Struct({ email: Schema.String })
 const PushSubscriptionSchema = Schema.Struct({
   endpoint: Schema.NonEmptyString,
@@ -125,9 +132,23 @@ const authorizedIdentity = Effect.gen(function* () {
   return allowed ? identity : null
 })
 
-const authorizedProfile = authorizedIdentity.pipe(
-  Effect.map((identity) => identity?.profileId ?? null),
-)
+const authorizedProfile = (requestedProfileId?: string) =>
+  Effect.gen(function* () {
+    const identity = yield* authorizedIdentity
+    if (identity === null) return null
+    const request = yield* HttpServerRequest.HttpServerRequest
+    const selectedProfileId = requestedProfileId ?? request.headers['x-little-tables-profile-id']
+    if (authConfig === null) return selectedProfileId ?? identity.profileId
+    const profiles = yield* ProfileRepository
+    const family = yield* profiles.findFamily(identity.googleSubject)
+    if (family === null) return null
+    if (selectedProfileId !== undefined) {
+      return family.profiles.some(({ id }) => id === selectedProfileId) ? selectedProfileId : null
+    }
+    return family.profiles.some(({ id }) => id === identity.profileId)
+      ? identity.profileId
+      : (family.profiles[0]?.id ?? null)
+  })
 
 const authStatus = Effect.gen(function* () {
   const identity = yield* authorizedIdentity
@@ -162,21 +183,31 @@ const googleSignIn = Effect.gen(function* () {
   const allowed = yield* AllowedEmailAccess.isAllowed(identity.email, google.allowedEmails)
   if (!allowed) return yield* json({ error: 'google_account_not_allowed' }, 401)
   const profiles = yield* ProfileRepository
-  const preferredName = yield* profiles.findPreferredName(identity.subject)
+  const fallbackName = Array.from(identity.displayName).slice(0, 40).join('')
+  if (!Schema.is(ChildProfileNameSchema)(fallbackName)) {
+    return yield* json({ error: 'invalid_google_credential' }, 401)
+  }
+  const family = yield* profiles.ensureFamily({
+    fallbackName,
+    googleSubject: identity.subject,
+    legacyProfileId: identity.profileId,
+  })
+  const initialProfile = family.profiles[0]
+  if (initialProfile === undefined) return yield* json({ error: 'profile_unavailable' }, 503)
   const sessionVersion = yield* AllowedEmailAccess.sessionVersion(identity.email)
   const session = Identity.issue({
     authMethod: 'google',
-    displayName: preferredName ?? identity.displayName,
+    displayName: initialProfile.name,
     email: identity.email,
     googleSubject: identity.subject,
-    nameChoiceRequired: preferredName === null,
+    nameChoiceRequired: !family.onboardingComplete,
     now: new Date(),
-    profileId: identity.profileId,
+    profileId: initialProfile.id,
     secret,
     sessionVersion,
   })
   return sessionCookie(
-    yield* json({ profileId: identity.profileId, status: 'authenticated' }),
+    yield* json({ profileId: initialProfile.id, status: 'authenticated' }),
     session,
   )
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_google_credential' }, 401)))
@@ -191,11 +222,26 @@ const savePreferredName = Effect.gen(function* () {
   )
   if (body === null) return yield* json({ error: 'invalid_display_name' }, 400)
   const displayName = body.displayName.trim()
-  if (!Schema.is(PreferredDisplayNameSchema)(displayName)) {
+  if (!Schema.is(ChildProfileNameSchema)(displayName)) {
     return yield* json({ error: 'invalid_display_name' }, 400)
   }
   const profiles = yield* ProfileRepository
-  const saved = yield* profiles.savePreferredName(identity.googleSubject, displayName)
+  const existingFamily = yield* profiles.findFamily(identity.googleSubject)
+  const family =
+    existingFamily ??
+    (yield* profiles.ensureFamily({
+      fallbackName: displayName,
+      googleSubject: identity.googleSubject,
+      legacyProfileId: identity.profileId,
+    }))
+  const initialProfile =
+    family.profiles.find(({ id }) => id === identity.profileId) ?? family.profiles[0]
+  if (initialProfile === undefined) return yield* json({ error: 'display_name_save_failed' }, 503)
+  const saved = yield* profiles.completeInitialProfile(
+    identity.googleSubject,
+    initialProfile.id,
+    displayName,
+  )
   if (!saved) return yield* json({ error: 'name_already_chosen' }, 409)
   const session = Identity.issue({
     authMethod: identity.authMethod,
@@ -204,7 +250,7 @@ const savePreferredName = Effect.gen(function* () {
     googleSubject: identity.googleSubject,
     nameChoiceRequired: false,
     now: new Date(),
-    profileId: identity.profileId,
+    profileId: initialProfile.id,
     secret: authConfig.secret,
     sessionVersion: identity.sessionVersion,
   })
@@ -293,9 +339,11 @@ const ready = Effect.gen(function* () {
 }).pipe(Effect.catchAll(() => json({ status: 'unavailable' }, 503)))
 
 const sync = Effect.gen(function* () {
-  const profileId = yield* authorizedProfile
-  if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
+  const identity = yield* authorizedIdentity
+  if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
   const request = yield* HttpServerRequest.schemaBodyJson(SyncRequestSchema)
+  const profileId = yield* authorizedProfile(request.profileId)
+  if (profileId === null) return yield* json({ error: 'profile_forbidden' }, 403)
   const result = yield* AttemptIngestion.ingest({ ...request, profileId })
   return yield* json(result)
 }).pipe(
@@ -314,9 +362,15 @@ const sync = Effect.gen(function* () {
 const bootstrap = Effect.gen(function* () {
   const identity = yield* authorizedIdentity
   if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
+  const profileId = yield* authorizedProfile()
+  if (profileId === null) return yield* json({ error: 'profile_forbidden' }, 403)
+  const profiles = yield* ProfileRepository
+  const family = yield* profiles.findFamily(identity.googleSubject)
+  const profileDisplayName =
+    family?.profiles.find(({ id }) => id === profileId)?.name ?? identity.displayName
   const repository = yield* AttemptRepository
   const gardenRepository = yield* GardenCollectionRepository
-  const attempts = yield* repository.list(identity.profileId)
+  const attempts = yield* repository.list(profileId)
   const snapshot = LearningEngine.reduce({ attempts, snapshot: LearningEngine.emptySnapshot() })
   const completedAttemptBySession = new Map<string, (typeof attempts)[number]>()
   for (const attempt of attempts) {
@@ -347,7 +401,7 @@ const bootstrap = Effect.gen(function* () {
         )
   const initialCollection = yield* gardenRepository.loadOrCreate({
     preferredFlowerPrefix: LearningEngine.gardenFlowerIds.slice(0, legacyFlowerPrefixLength),
-    profileId: identity.profileId,
+    profileId,
   })
   const gardenRewards = LearningEngine.mergeGardenRewardLedgers({
     ledgers: [
@@ -364,7 +418,7 @@ const bootstrap = Effect.gen(function* () {
     flowerOrder: initialCollection.flowerOrder,
     snapshot,
   })
-  const collection = yield* gardenRepository.reconcile(identity.profileId, {
+  const collection = yield* gardenRepository.reconcile(profileId, {
     awardedFlowerIds: [
       ...initialCollection.awardedFlowerIds,
       ...gardenProgress.plants.filter(({ stage }) => stage === 'mature').map(({ id }) => id),
@@ -374,7 +428,7 @@ const bootstrap = Effect.gen(function* () {
   })
   return yield* json({
     algorithmVersion: snapshot.algorithmVersion,
-    profile: { displayName: identity.displayName, id: identity.profileId },
+    profile: { displayName: profileDisplayName, id: profileId },
     completedSessions,
     gardenBloomCount: gardenRewards.gardenBloomCount,
     gardenCollection: {
@@ -397,7 +451,7 @@ const bootstrap = Effect.gen(function* () {
 }).pipe(Effect.catchAll(() => json({ error: 'bootstrap_unavailable' }, 503)))
 
 const markGardenIntroductionSeen = Effect.gen(function* () {
-  const profileId = yield* authorizedProfile
+  const profileId = yield* authorizedProfile()
   if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
   const repository = yield* GardenCollectionRepository
   yield* repository.markIntroductionSeen(profileId)
@@ -405,7 +459,7 @@ const markGardenIntroductionSeen = Effect.gen(function* () {
 }).pipe(Effect.catchAll(() => json({ error: 'garden_introduction_update_failed' }, 503)))
 
 const notificationConfig = Effect.gen(function* () {
-  const profileId = yield* authorizedProfile
+  const profileId = yield* authorizedProfile()
   if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
   const publicKey = process.env.VAPID_PUBLIC_KEY
   if (publicKey === undefined) return yield* json({ error: 'unavailable' }, 503)
@@ -413,7 +467,7 @@ const notificationConfig = Effect.gen(function* () {
 })
 
 const savePushSubscription = Effect.gen(function* () {
-  const profileId = yield* authorizedProfile
+  const profileId = yield* authorizedProfile()
   if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
   const { locale, subscription, timezone } = yield* HttpServerRequest.schemaBodyJson(
     SavePushSubscriptionSchema,
@@ -434,13 +488,85 @@ const savePushSubscription = Effect.gen(function* () {
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_subscription_request' }, 400)))
 
 const removePushSubscription = Effect.gen(function* () {
-  const profileId = yield* authorizedProfile
+  const profileId = yield* authorizedProfile()
   if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
   const { endpoint } = yield* HttpServerRequest.schemaBodyJson(RemovePushSubscriptionSchema)
   const repository = yield* AttemptRepository
   yield* repository.removePushSubscription(endpoint)
   return yield* json({ status: 'unsubscribed' })
 }).pipe(Effect.catchAll(() => json({ error: 'invalid_subscription_request' }, 400)))
+
+const familyForIdentity = Effect.gen(function* () {
+  const identity = yield* authorizedIdentity
+  if (identity === null) return null
+  const profiles = yield* ProfileRepository
+  const family = yield* profiles.findFamily(identity.googleSubject)
+  if (family !== null) return { family, identity, profiles }
+  const fallbackName = Array.from(identity.displayName).slice(0, 40).join('')
+  if (!Schema.is(ChildProfileNameSchema)(fallbackName)) return null
+  const created = yield* profiles.ensureFamily({
+    fallbackName,
+    googleSubject: identity.googleSubject,
+    legacyProfileId: identity.profileId,
+  })
+  return { family: created, identity, profiles }
+})
+
+const listFamilyProfiles = Effect.gen(function* () {
+  const account = yield* familyForIdentity
+  if (account === null) return yield* json({ error: 'unauthorized' }, 401)
+  return yield* json({ profiles: account.family.profiles })
+}).pipe(Effect.catchAll(() => json({ error: 'family_profiles_unavailable' }, 503)))
+
+const createChildProfile = Effect.gen(function* () {
+  const account = yield* familyForIdentity
+  if (account === null) return yield* json({ error: 'unauthorized' }, 401)
+  const body = yield* HttpServerRequest.schemaBodyJson(CreateChildProfileSchema).pipe(
+    Effect.catchAll(() => Effect.succeed(null)),
+  )
+  const name = body?.name.trim() ?? ''
+  if (body === null || !Schema.is(ChildProfileNameSchema)(name)) {
+    return yield* json({ error: 'invalid_child_profile' }, 400)
+  }
+  const profile = yield* account.profiles.addChild(account.identity.googleSubject, {
+    avatarId: body.avatarId,
+    name,
+  })
+  return yield* json({ profile }, 201)
+}).pipe(Effect.catchAll(() => json({ error: 'family_profile_save_failed' }, 503)))
+
+const updateChildProfile = Effect.gen(function* () {
+  const account = yield* familyForIdentity
+  if (account === null) return yield* json({ error: 'unauthorized' }, 401)
+  const body = yield* HttpServerRequest.schemaBodyJson(UpdateChildProfileSchema).pipe(
+    Effect.catchAll(() => Effect.succeed(null)),
+  )
+  const name = body?.name.trim() ?? ''
+  if (body === null || !Schema.is(ChildProfileNameSchema)(name)) {
+    return yield* json({ error: 'invalid_child_profile' }, 400)
+  }
+  const profile = yield* account.profiles.updateChild(
+    account.identity.googleSubject,
+    body.profileId,
+    { avatarId: body.avatarId, name },
+  )
+  return profile === null
+    ? yield* json({ error: 'profile_not_found' }, 404)
+    : yield* json({ profile })
+}).pipe(Effect.catchAll(() => json({ error: 'family_profile_save_failed' }, 503)))
+
+const removeChildProfile = Effect.gen(function* () {
+  const account = yield* familyForIdentity
+  if (account === null) return yield* json({ error: 'unauthorized' }, 401)
+  const body = yield* HttpServerRequest.schemaBodyJson(RemoveChildProfileSchema).pipe(
+    Effect.catchAll(() => Effect.succeed(null)),
+  )
+  if (body === null) return yield* json({ error: 'invalid_child_profile' }, 400)
+  const result = yield* account.profiles.removeChild(account.identity.googleSubject, body.profileId)
+  if (result === 'last-profile') return yield* json({ error: 'last_profile_required' }, 409)
+  if (result === 'not-found') return yield* json({ error: 'profile_not_found' }, 404)
+  return yield* json({ removedProfileId: body.profileId })
+}).pipe(Effect.catchAll(() => json({ error: 'family_profile_remove_failed' }, 503)))
 
 const staticWebApp = Effect.gen(function* () {
   const request = yield* HttpServerRequest.HttpServerRequest
@@ -476,6 +602,10 @@ export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.get('/api/v1/auth/status', authStatus),
   HttpRouter.post('/api/v1/auth/google', googleSignIn),
   HttpRouter.put('/api/v1/profile/name', savePreferredName),
+  HttpRouter.get('/api/v1/family/profiles', listFamilyProfiles),
+  HttpRouter.post('/api/v1/family/profiles', createChildProfile),
+  HttpRouter.put('/api/v1/family/profiles', updateChildProfile),
+  HttpRouter.del('/api/v1/family/profiles', removeChildProfile),
   HttpRouter.get('/api/v1/admin/allowed-emails', listAllowedEmails),
   HttpRouter.post('/api/v1/admin/allowed-emails', addAllowedEmail),
   HttpRouter.del('/api/v1/admin/allowed-emails', removeAllowedEmail),

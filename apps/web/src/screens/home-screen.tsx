@@ -11,16 +11,19 @@ import { LanguageToggle } from '../components/language-toggle.js'
 import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
 import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
-import { practiceStore } from '../store.js'
+import { practiceStoreFor } from '../store.js'
 import { deriveDailyPracticeView } from '../daily-practice-view-model.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { usePracticeLauncher } from '../hooks/use-practice-launcher.js'
 import { setSoundEnabled, soundEnabled } from '../sound.js'
 import { useI18n } from '../i18n.js'
 import { deriveWeekProgressSegments } from '../week-progress.js'
+import { useFamilyProfile } from '../use-family-profile.js'
 
 export function HomeScreen() {
   const { t } = useI18n()
+  const { activeProfile } = useFamilyProfile()
+  const practiceStore = practiceStoreFor(activeProfile.id)
   const auth = useQuery({
     queryKey: authStatusQueryKey,
     queryFn: () => fetchAuthStatus(),
@@ -39,7 +42,7 @@ export function HomeScreen() {
   const [sound, setSound] = useState(soundEnabled)
   const [gardenIntroductionDismissed, setGardenIntroductionDismissed] = useState(false)
   const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
-  const displayName = auth.data?.displayName ?? 'léa'
+  const displayName = activeProfile.name
   const garden = LearningEngine.deriveGardenProgress({
     awardedFlowerIds: data?.gardenCollection.awardedFlowerIds,
     completedSessions: data?.gardenBloomCount ?? 0,
@@ -118,7 +121,10 @@ export function HomeScreen() {
       .markGardenIntroductionSeen()
       .then(async () => {
         if (!navigator.onLine) return
-        const response = await fetch('/api/v1/garden/introduction-seen', { method: 'POST' })
+        const response = await fetch('/api/v1/garden/introduction-seen', {
+          headers: { 'x-little-tables-profile-id': activeProfile.id },
+          method: 'POST',
+        })
         if (!response.ok) throw new Error('Garden introduction state was not saved')
       })
       .catch(() => undefined)

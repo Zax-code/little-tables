@@ -14,7 +14,7 @@ type IssueInput = Readonly<{
   googleSubject: string
   now: Date
   nameChoiceRequired?: boolean
-  profileId: 'lou'
+  profileId: string
   secret: string
   sessionVersion?: number
 }>
@@ -26,7 +26,7 @@ const SessionPayloadSchema = Schema.Struct({
   expiresAt: Schema.NonNegative,
   googleSubject: Schema.NonEmptyString,
   nameChoiceRequired: Schema.optional(Schema.Boolean),
-  profileId: Schema.Literal('lou'),
+  profileId: Schema.NonEmptyString,
   sessionVersion: Schema.optional(Schema.NonNegativeInt),
 })
 
@@ -74,7 +74,7 @@ const verify = ({
   expiresAt: number
   googleSubject: string
   nameChoiceRequired: boolean
-  profileId: 'lou'
+  profileId: string
   sessionVersion: number
 }> | null => {
   const [payload, signature, extra] = session.split('.')
@@ -100,7 +100,7 @@ const verify = ({
       expiresAt: record.expiresAt,
       googleSubject: record.googleSubject,
       nameChoiceRequired: record.nameChoiceRequired ?? false,
-      profileId: 'lou',
+      profileId: record.profileId,
       sessionVersion: record.sessionVersion ?? 0,
     }
   } catch {

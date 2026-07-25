@@ -1,6 +1,7 @@
 import { MongoDBContainer, type StartedMongoDBContainer } from '@testcontainers/mongodb'
 import type { AttemptEvent } from '@little-tables/domain'
 import { Effect } from 'effect'
+import { MongoClient } from 'mongodb'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
@@ -108,15 +109,27 @@ describe('MongoAttemptRepository', () => {
     })
   }, 30_000)
 
-  it('persists a preferred name for each Google account', async () => {
+  it('persists a family and its child profiles for each Google account', async () => {
     const program = Effect.gen(function* () {
       const repository = yield* ProfileRepository
-      const missing = yield* repository.findPreferredName('google-subject')
-      const created = yield* repository.savePreferredName('google-subject', 'Lulu')
-      const saved = yield* repository.findPreferredName('google-subject')
-      const replaced = yield* repository.savePreferredName('google-subject', 'Lou')
-      const retained = yield* repository.findPreferredName('google-subject')
-      return { created, missing, replaced, retained, saved }
+      const created = yield* repository.ensureFamily({
+        fallbackName: 'Lulu',
+        googleSubject: 'google-subject',
+        legacyProfileId: 'lou',
+      })
+      const initialProfile = created.profiles[0]
+      if (initialProfile === undefined) throw new Error('Expected an initial child profile')
+      const nameChosen = yield* repository.completeInitialProfile(
+        'google-subject',
+        initialProfile.id,
+        'Lou',
+      )
+      const added = yield* repository.addChild('google-subject', {
+        avatarId: 'bluebell',
+        name: 'Mia',
+      })
+      const saved = yield* repository.findFamily('google-subject')
+      return { added, nameChosen, saved }
     }).pipe(
       Effect.provide(
         MongoProfileRepository.layer(
@@ -126,12 +139,46 @@ describe('MongoAttemptRepository', () => {
       ),
     )
 
-    await expect(Effect.runPromise(program)).resolves.toEqual({
-      created: true,
-      missing: null,
-      replaced: false,
-      retained: 'Lulu',
-      saved: 'Lulu',
+    const result = await Effect.runPromise(program)
+    expect(result.nameChosen).toBe(true)
+    expect(result.added).toMatchObject({ avatarId: 'bluebell', name: 'Mia' })
+    expect(result.saved).toMatchObject({
+      onboardingComplete: true,
+      profiles: [
+        expect.objectContaining({ name: 'Lou' }),
+        expect.objectContaining({ avatarId: 'bluebell', name: 'Mia' }),
+      ],
+    })
+  }, 30_000)
+
+  it('backfills a legacy single-profile document onto its existing practice profile ID', async () => {
+    const uri = `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`
+    const client = new MongoClient(uri)
+    await client.connect()
+    await client
+      .db('integration')
+      .collection<{ _id: string; displayName: string; updatedAt: Date }>('profiles')
+      .insertOne({
+        _id: 'legacy-google-subject',
+        displayName: 'Lulu',
+        updatedAt: new Date('2026-07-01T12:00:00.000Z'),
+      })
+    await client.close()
+
+    const account = await Effect.runPromise(
+      Effect.gen(function* () {
+        const repository = yield* ProfileRepository
+        return yield* repository.ensureFamily({
+          fallbackName: 'Ignored Google Name',
+          googleSubject: 'legacy-google-subject',
+          legacyProfileId: 'lou',
+        })
+      }).pipe(Effect.provide(MongoProfileRepository.layer(uri, 'integration'))),
+    )
+
+    expect(account).toMatchObject({
+      onboardingComplete: true,
+      profiles: [{ avatarId: 'sprout', id: 'lou', name: 'Lulu' }],
     })
   }, 30_000)
 

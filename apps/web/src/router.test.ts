@@ -14,4 +14,8 @@ describe('tab routing', () => {
   it('loads the allowlist before committing the administrator screen', () => {
     expect(router.routesByPath['/access'].options.loader).toEqual(expect.any(Function))
   })
+
+  it('keeps family management outside the child-facing tab layout', () => {
+    expect(router.routesByPath['/family'].parentRoute).toBe(router.routesById.__root__)
+  })
 })

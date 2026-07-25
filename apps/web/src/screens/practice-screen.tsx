@@ -10,9 +10,10 @@ import { ProgressDots } from '../components/progress-dots.js'
 import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
 import { Screen } from '../components/screen.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
-import { localBootstrapQueryKey, practiceStore } from '../store.js'
+import { localBootstrapQueryKey, practiceStoreFor } from '../store.js'
 import { playSuccessSound, prepareSuccessSound } from '../sound.js'
 import { useI18n } from '../i18n.js'
+import { useFamilyProfile } from '../use-family-profile.js'
 
 type Feedback = Readonly<{
   correct: boolean
@@ -25,6 +26,9 @@ export function PracticeScreen() {
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
+  const { activeProfile } = useFamilyProfile()
+  const practiceStore = practiceStoreFor(activeProfile.id)
+  const bootstrapQueryKey = localBootstrapQueryKey(activeProfile.id)
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [keypadValue, setKeypadValue] = useState('')
   const [showExplanation, setShowExplanation] = useState(false)
@@ -62,9 +66,9 @@ export function PracticeScreen() {
       finishing.current = false
       return
     }
-    await queryClient.invalidateQueries({ queryKey: localBootstrapQueryKey })
+    await queryClient.invalidateQueries({ queryKey: bootstrapQueryKey })
     await navigate({ to: '/celebration' })
-  }, [navigate, queryClient])
+  }, [bootstrapQueryKey, navigate, practiceStore, queryClient])
 
   useEffect(() => {
     if (!bootstrap.isLoading && session === null && !finishing.current) {
@@ -111,7 +115,7 @@ export function PracticeScreen() {
       throw error
     }
     if (result.correct) playSuccessSound()
-    queryClient.setQueryData(localBootstrapQueryKey, {
+    queryClient.setQueryData(bootstrapQueryKey, {
       ...data,
       activeSession: result.session,
       snapshot,
@@ -131,7 +135,7 @@ export function PracticeScreen() {
       currentQuestionStartedAt: new Date(),
     }
     await practiceStore.startSession(activeSession, latest.snapshot)
-    queryClient.setQueryData(localBootstrapQueryKey, { ...latest, activeSession })
+    queryClient.setQueryData(bootstrapQueryKey, { ...latest, activeSession })
     answering.current = false
     setFeedback(null)
     setKeypadValue('')

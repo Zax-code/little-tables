@@ -43,6 +43,7 @@ const GardenCollectionScreen = lazyRouteComponent(
   'GardenCollectionScreen',
 )
 const HomeScreen = lazyRouteComponent(() => import('./screens/home-screen.js'), 'HomeScreen')
+const FamilyScreen = lazyRouteComponent(() => import('./screens/family-screen.js'), 'FamilyScreen')
 const PracticeScreen = lazyRouteComponent(
   () => import('./screens/practice-screen.js'),
   'PracticeScreen',
@@ -151,11 +152,17 @@ const accessRoute = createRoute({
   },
   component: AccessScreen,
 })
+const familyRoute = createRoute({
+  getParentRoute: () => rootRoute,
+  path: '/family',
+  component: FamilyScreen,
+})
 
 const routeTree = rootRoute.addChildren([
   tabsRoute.addChildren([homeRoute, gardenRoute, gardenCollectionRoute, statsRoute]),
   practiceRoute,
   celebrationRoute,
+  familyRoute,
   accessRoute,
 ])
 

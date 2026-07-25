@@ -4,6 +4,7 @@ import { Data } from 'effect'
 import { createPushSubscription, supportsPushNotifications } from '../push-subscription.js'
 import { saveReminderSubscription } from '../reminder-subscription.js'
 import { useI18n, type TranslationKey } from '../i18n.js'
+import { useFamilyProfile } from '../use-family-profile.js'
 
 type ReminderState = 'checking' | 'disabled' | 'enabled' | 'unsupported' | 'working'
 type ReminderErrorReason = 'save_failed' | 'service_unavailable' | 'sign_in_first'
@@ -20,6 +21,7 @@ const reminderErrorMessages = {
 
 export function ReminderCard() {
   const { locale, t } = useI18n()
+  const { activeProfile } = useFamilyProfile()
   const [state, setState] = useState<ReminderState>(() =>
     supportsPushNotifications() ? 'checking' : 'unsupported',
   )
@@ -56,14 +58,16 @@ export function ReminderCard() {
       }
       const [registration, configResponse] = await Promise.all([
         navigator.serviceWorker.ready,
-        fetch('/api/v1/notifications/config'),
+        fetch('/api/v1/notifications/config', {
+          headers: { 'x-little-tables-profile-id': activeProfile.id },
+        }),
       ])
       if (!configResponse.ok) {
         throw new ReminderEnableError({ reason: 'service_unavailable' })
       }
       const config = (await configResponse.json()) as { publicKey: string }
       const subscription = await createPushSubscription(registration, config.publicKey)
-      const response = await saveReminderSubscription(subscription, locale)
+      const response = await saveReminderSubscription(subscription, locale, activeProfile.id)
       if (!response.ok) {
         await subscription.unsubscribe()
         throw new ReminderEnableError({

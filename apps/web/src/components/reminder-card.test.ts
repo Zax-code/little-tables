@@ -13,6 +13,12 @@ vi.mock('react', async (importOriginal) => ({
   useState,
 }))
 
+vi.mock('../use-family-profile.js', () => ({
+  useFamilyProfile: () => ({
+    activeProfile: { avatarId: 'sprout', id: 'lou', name: 'Lou' },
+  }),
+}))
+
 import { ReminderCard } from './reminder-card.js'
 
 describe('reminder card', () => {

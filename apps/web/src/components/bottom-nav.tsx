@@ -5,6 +5,7 @@ import { useFlowerTransition } from '../flower-transition.js'
 import { transitionBetweenTabs } from '../tab-navigation.js'
 
 import { useI18n } from '../i18n.js'
+import { ProfileSwitcher } from './profile-switcher.js'
 
 const items = [
   { icon: 'home', label: 'nav.home', path: '/' },
@@ -101,6 +102,7 @@ export function BottomNav() {
       <p aria-hidden="true" className="nav-brand">
         little tables<span>.</span>
       </p>
+      <ProfileSwitcher />
       {items.map((item) => (
         <Link
           aria-current={isCurrent(item.path) ? 'page' : undefined}

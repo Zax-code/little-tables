@@ -1,11 +1,13 @@
 import { useQuery } from '@tanstack/react-query'
 
-import { localBootstrapQueryKey, practiceStore } from '../store.js'
+import { localBootstrapQueryKey, practiceStoreFor } from '../store.js'
+import { useFamilyProfile } from '../use-family-profile.js'
 
 export function useLocalBootstrap() {
+  const { activeProfile } = useFamilyProfile()
   return useQuery({
-    queryKey: localBootstrapQueryKey,
-    queryFn: () => practiceStore.load(),
+    queryKey: localBootstrapQueryKey(activeProfile.id),
+    queryFn: () => practiceStoreFor(activeProfile.id).load(),
     staleTime: Infinity,
   })
 }

@@ -3,15 +3,19 @@ import { useEffect } from 'react'
 
 import { authStatusQueryKey } from '../auth-client.js'
 import { scheduleInitialSync } from '../initial-sync.js'
-import { practiceStore } from '../store.js'
+import { localBootstrapQueryKey, practiceStoreFor } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
 import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
 import { decodeServerBootstrap } from '../bootstrap-client.js'
+import { useFamilyProfile } from '../use-family-profile.js'
 
 export function SyncManager() {
   const queryClient = useQueryClient()
+  const { activeProfile } = useFamilyProfile()
+  const practiceStore = practiceStoreFor(activeProfile.id)
   const sync = useMutation({
-    mutationFn: () => flushAllPendingAttempts({ profileId: 'lou', store: practiceStore }),
+    mutationFn: () =>
+      flushAllPendingAttempts({ profileId: activeProfile.id, store: practiceStore }),
     onError: (error) => {
       queryClient.setQueryData<SyncStatus>(syncStatusQueryKey, 'saved')
       if (error instanceof SyncAuthenticationError) {
@@ -31,7 +35,9 @@ export function SyncManager() {
           void (async () => {
             const [local, response] = await Promise.all([
               practiceStore.load(),
-              fetch('/api/v1/bootstrap'),
+              fetch('/api/v1/bootstrap', {
+                headers: { 'x-little-tables-profile-id': activeProfile.id },
+              }),
             ])
             if (response.status === 401) {
               await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
@@ -44,6 +50,7 @@ export function SyncManager() {
               !server.gardenCollection.introductionSeen
             ) {
               const introductionResponse = await fetch('/api/v1/garden/introduction-seen', {
+                headers: { 'x-little-tables-profile-id': activeProfile.id },
                 method: 'POST',
               })
               if (introductionResponse.ok) {
@@ -71,7 +78,9 @@ export function SyncManager() {
             if (refresh.ok) {
               await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
             }
-            await queryClient.invalidateQueries({ queryKey: ['local-bootstrap'] })
+            await queryClient.invalidateQueries({
+              queryKey: localBootstrapQueryKey(activeProfile.id),
+            })
           })().catch(() => queryClient.setQueryData<SyncStatus>(syncStatusQueryKey, 'saved'))
         },
       })
@@ -87,7 +96,7 @@ export function SyncManager() {
       window.removeEventListener('online', flush)
       document.removeEventListener('visibilitychange', onVisibility)
     }
-  }, [mutate, queryClient])
+  }, [activeProfile.id, mutate, practiceStore, queryClient])
 
   return null
 }

@@ -1,5 +1,11 @@
 import { renderToStaticMarkup } from 'react-dom/server'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
+
+vi.mock('../use-family-profile.js', () => ({
+  useFamilyProfile: () => ({
+    activeProfile: { avatarId: 'sprout', id: 'lou', name: 'Lou' },
+  }),
+}))
 
 import { I18nProvider } from '../i18n.js'
 import { LanguageToggle } from './language-toggle.js'
