@@ -1,4 +1,5 @@
-import { resolveLocale, useI18n } from '../i18n.js'
+import { useI18n } from '../i18n.js'
+import { selectLanguage } from '../language-selection.js'
 import { syncExistingReminderLocale } from '../reminder-subscription.js'
 import { useFamilyProfile } from '../use-family-profile.js'
 
@@ -12,9 +13,9 @@ export function LanguageToggle() {
       className="language-toggle"
       lang={locale}
       onChange={(event) => {
-        const nextLocale = resolveLocale(event.currentTarget.value)
-        setLocale(nextLocale)
-        void syncExistingReminderLocale(nextLocale, activeProfile.id).catch(() => undefined)
+        selectLanguage(event.currentTarget.value, setLocale, (nextLocale) =>
+          syncExistingReminderLocale(nextLocale, activeProfile.id),
+        )
       }}
       value={locale}
     >

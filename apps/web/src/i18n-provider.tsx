@@ -7,7 +7,7 @@ import {
   type TranslationValues,
 } from './i18n-catalog.js'
 import { I18nContext } from './i18n-context.js'
-import { persistLocalePreference, readLocalePreference } from './locale-preference.js'
+import { applyLocalePreference, readLocalePreference } from './locale-preference.js'
 
 export function I18nProvider({
   children,
@@ -15,8 +15,7 @@ export function I18nProvider({
 }: PropsWithChildren<Readonly<{ initialLocale?: Locale }>>) {
   const [locale, setLocaleState] = useState<Locale>(() => initialLocale ?? readLocalePreference())
   const setLocale = useCallback((nextLocale: Locale) => {
-    setLocaleState(nextLocale)
-    if (typeof window !== 'undefined') persistLocalePreference(nextLocale)
+    applyLocalePreference(nextLocale, setLocaleState)
   }, [])
   const t = useCallback(
     (key: TranslationKey, values?: TranslationValues) => translate(locale, key, values),

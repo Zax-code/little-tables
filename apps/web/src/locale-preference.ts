@@ -19,3 +19,11 @@ export const persistLocalePreference = (locale: Locale): void => {
     // A private browsing restriction should not prevent an in-session language change.
   }
 }
+
+export const applyLocalePreference = (
+  locale: Locale,
+  updateLocale: (locale: Locale) => void,
+): void => {
+  updateLocale(locale)
+  if (typeof window !== 'undefined') persistLocalePreference(locale)
+}

@@ -17,7 +17,7 @@ describe('celebration reward copy', () => {
       'Watering progress for Rose lotus: 1 of 3. 2 more to fill its growth goal.',
     )
     expect(celebrationRewardCopy(progress, 'zh-Hans')).toBe(
-      '玫瑰粉荷花 正在长大——再开 4 朵花就长成啦。',
+      '玫瑰粉荷花正在长大——再开 4 朵花就长成啦。',
     )
   })
 
