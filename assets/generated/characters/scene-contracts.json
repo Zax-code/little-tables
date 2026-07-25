@@ -203,6 +203,11 @@
             315,
             372
           ],
+          "landmarks": {
+            "opticalHeadCenter": [209, 199],
+            "eyeLineY": 202,
+            "footBottomY": 372
+          },
           "cornerAlpha": [
             0,
             0,
@@ -230,6 +235,11 @@
             316,
             355
           ],
+          "landmarks": {
+            "opticalHeadCenter": [209, 209],
+            "eyeLineY": 218,
+            "footBottomY": 355
+          },
           "cornerAlpha": [
             0,
             0,
@@ -257,6 +267,11 @@
             317,
             376
           ],
+          "landmarks": {
+            "opticalHeadCenter": [210, 193],
+            "eyeLineY": 198,
+            "footBottomY": 376
+          },
           "cornerAlpha": [
             0,
             0,
@@ -284,6 +299,11 @@
             315,
             372
           ],
+          "landmarks": {
+            "opticalHeadCenter": [209, 199],
+            "eyeLineY": 202,
+            "footBottomY": 372
+          },
           "cornerAlpha": [
             0,
             0,
@@ -329,6 +349,12 @@
             513,
             541
           ],
+          "landmarks": {
+            "opticalHeadCenter": [337, 267],
+            "eyeLineY": 284,
+            "footBottomY": 541,
+            "wateringCanSpoutEndpoint": [501, 451]
+          },
           "cornerAlpha": [
             0,
             0,
@@ -356,6 +382,12 @@
             433,
             541
           ],
+          "landmarks": {
+            "opticalHeadCenter": [266, 271],
+            "eyeLineY": 289,
+            "footBottomY": 541,
+            "wateringCanSpoutEndpoint": [418, 447]
+          },
           "cornerAlpha": [
             0,
             0,
@@ -383,6 +415,12 @@
             514,
             522
           ],
+          "landmarks": {
+            "opticalHeadCenter": [340, 245],
+            "eyeLineY": 264,
+            "footBottomY": 522,
+            "wateringCanSpoutEndpoint": [500, 419]
+          },
           "cornerAlpha": [
             0,
             0,
@@ -410,6 +448,12 @@
             428,
             520
           ],
+          "landmarks": {
+            "opticalHeadCenter": [260, 247],
+            "eyeLineY": 267,
+            "footBottomY": 520,
+            "wateringCanSpoutEndpoint": [415, 417]
+          },
           "cornerAlpha": [
             0,
             0,
@@ -455,6 +499,13 @@
             488,
             570
           ],
+          "landmarks": {
+            "opticalHeadCenter": [307, 278],
+            "eyeLineY": 290,
+            "footBottomY": 570,
+            "wateringCanSpoutEndpoint": [466, 456],
+            "lastDropletEndpoint": null
+          },
           "cornerAlpha": [
             0,
             0,
@@ -482,6 +533,13 @@
             488,
             570
           ],
+          "landmarks": {
+            "opticalHeadCenter": [268, 273],
+            "eyeLineY": 290,
+            "footBottomY": 570,
+            "wateringCanSpoutEndpoint": [421, 480],
+            "lastDropletEndpoint": [481, 541]
+          },
           "cornerAlpha": [
             0,
             0,
@@ -509,6 +567,13 @@
             536,
             554
           ],
+          "landmarks": {
+            "opticalHeadCenter": [308, 265],
+            "eyeLineY": 282,
+            "footBottomY": 554,
+            "wateringCanSpoutEndpoint": [454, 461],
+            "lastDropletEndpoint": [527, 537]
+          },
           "cornerAlpha": [
             0,
             0,
@@ -536,6 +601,13 @@
             498,
             586
           ],
+          "landmarks": {
+            "opticalHeadCenter": [275, 263],
+            "eyeLineY": 281,
+            "footBottomY": 554,
+            "wateringCanSpoutEndpoint": [405, 480],
+            "lastDropletEndpoint": [489, 582]
+          },
           "cornerAlpha": [
             0,
             0,
@@ -555,5 +627,5 @@
       "sourceSha256": "b364ab31572643354cc63307181da5f6cf546895c04850266e7bd5bafd241694"
     }
   },
-  "version": 1
+  "version": 2
 }

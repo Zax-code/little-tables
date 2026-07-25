@@ -1,0 +1,244 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "colin-mallard",
+  "sequence": "celebration",
+  "productionContract": {
+    "cellDimensions": [
+      418,
+      418
+    ],
+    "layout": [
+      4,
+      1
+    ],
+    "sheetDimensions": [
+      1672,
+      418
+    ],
+    "semanticOrder": [
+      "C1",
+      "C2",
+      "C3",
+      "C4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "C1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C1.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C1.\nOutput exact 418:418 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nanticipation crouch before the reward hop. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C1/generated-source.png",
+        "sha256": "013afeb5d3ee5857d2944e6535b408746dca0a7731a326203a6d128caaf04c6d"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "keyColor": "#ff00ff",
+        "tolerance": 64,
+        "softMatte": false,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C1/alpha-source.png",
+        "sha256": "3fab4b2e73a5612737e2fbfd320949325c804fbf3e8b0c91f3c5cedba3409dec"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": 4,
+        "offsetY": 5
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C1/final-frame.png",
+        "sha256": "77dc109ebd4d82b848310563b365ef3a24a4dbc1922eca34ab424d620a4d7ac3"
+      }
+    },
+    {
+      "frameId": "C2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C2.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C2.\nOutput exact 418:418 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nrising transition with the feet lifting. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C2/generated-source.png",
+        "sha256": "ac60c01ecc1af4051b766f83dfd21ffd666a82b8f2dba9f9baa0d51dc308520f"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "keyColor": "#ff00ff",
+        "tolerance": 64,
+        "softMatte": false,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C2/alpha-source.png",
+        "sha256": "fbe887cd08af76b6b2eb2437755f3ad757aa872ad0dfd07f02191303cdda1236"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.98,
+        "offsetX": 3,
+        "offsetY": 5
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C2/final-frame.png",
+        "sha256": "9836c1720f1d76ec7000cd63a5e51a64985db81f3c7709cfc15dea085fc89da1"
+      }
+    },
+    {
+      "frameId": "C3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C3.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C3.\nOutput exact 418:418 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nairborne reward-hop apex. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C3/generated-source.png",
+        "sha256": "1fe554f1aacb13a54c541ef5123777abe500108c60736fc90421156f9b72bd6b"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/colin-mallard/celebration/C3/rejected-generated-source.png",
+          "sha256": "1c42bbe5a0ee07f691a0e52539a6a654f69e3ad6023c7cefac72097a8a550312"
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "keyColor": "#ff00ff",
+        "tolerance": 64,
+        "softMatte": false,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C3/alpha-source.png",
+        "sha256": "646d5492259f19ef64a88aeeb6213cc25943fe952852d42fcf0518fae949712d"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": 3,
+        "offsetY": 17
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C3/final-frame.png",
+        "sha256": "3492e4bb4f15c480299615c97d80250041b3fc4c85bbcb5ac0b511705eb88bda"
+      }
+    },
+    {
+      "frameId": "C4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C4.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C4.\nOutput exact 418:418 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nlanding and reset. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C4/generated-source.png",
+        "sha256": "87ee261f1b64c727a956a78f0e39fd6aa042bf60f880013c4f61bf84811a9d94"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "keyColor": "#ff00ff",
+        "tolerance": 64,
+        "softMatte": false,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C4/alpha-source.png",
+        "sha256": "ce6a8f73a316dc60a1ee0b5484a424cfc0f4601e245873e6377eea814fc7c58d"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.975,
+        "offsetX": 7,
+        "offsetY": 4
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/celebration/C4/final-frame.png",
+        "sha256": "78a6f9c859b81afcdd196e9632df3b2d4b28ac2241c629b67fbccbbc973da4e8"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/colin-mallard/celebration-sheet.webp",
+      "sha256": "29dc151c7b1657b22ddc5a0fe2f6f99f68319cd4fc15f2445ddeb045a2c01332"
+    }
+  }
+}

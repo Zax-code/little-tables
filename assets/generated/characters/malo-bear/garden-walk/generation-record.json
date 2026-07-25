@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "malo-bear",
+  "sequence": "garden-walk",
+  "productionContract": {
+    "cellDimensions": [
+      627,
+      627
+    ],
+    "layout": [
+      2,
+      2
+    ],
+    "sheetDimensions": [
+      1254,
+      1254
+    ],
+    "semanticOrder": [
+      "W1",
+      "W2",
+      "W3",
+      "W4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "W1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing stride with the front foot forward. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W1/generated-source.png",
+        "sha256": "ca951fc0c665d1460f399a3612d02cdbf7040d89951547bf03a3a6106a15f4b8"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/rejected-generated-source.png",
+          "sha256": "271e997a5128110b5885133d4cced8ffe28da9deaf6601215c1b615a9dd64529"
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+        "sha256": "32234c3139d9da30a24198b7092d443eafb6367e667c2ece3fce65fd07439312"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1,
+        "offsetX": 14,
+        "offsetY": 15
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W1/final-frame.png",
+        "sha256": "7bc89a1254f20ff9b6b13e8e83f31279a8499996eb4a45eff693a2cb03ed4831"
+      }
+    },
+    {
+      "frameId": "W2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W2.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing passing pose with the feet close. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W2/generated-source.png",
+        "sha256": "01196e7ca4f09929411e23e89c0c713af96319e2ce82e6bd337e79467673b46c"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W2/alpha-source.png",
+        "sha256": "096720bd0183ecbbde8623f5efeae34ff89429853d9b9b079b89889aa32bca50"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.08,
+        "offsetX": -80,
+        "offsetY": 0
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W2/final-frame.png",
+        "sha256": "2a7417843dee8c1b5dece201644601d4105646aea649d2dfb496f772dd9dfd2e"
+      }
+    },
+    {
+      "frameId": "W3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W3.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing opposite stride. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W3/generated-source.png",
+        "sha256": "a54cd40d1bcd42ad5022aa2ebc5b6068d9ea173a91d29fb82f697b0bb531a979"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W3/alpha-source.png",
+        "sha256": "893869e51fabc55ecfae118520eb0ab1ca947c95b2cf8405076fcc1f22bb46fc"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1,
+        "offsetX": -16,
+        "offsetY": 5
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W3/final-frame.png",
+        "sha256": "742b7bd79dad88d473cd423c8d209ea4c9086d5e374bf82ba6234f6272b13a83"
+      }
+    },
+    {
+      "frameId": "W4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W4.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing second passing pose. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W4/generated-source.png",
+        "sha256": "b392591b65901ddccbc5d146a83fc6c798f5097ea666dafedc73a16330bc8cdb"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W4/alpha-source.png",
+        "sha256": "577efbf0e6f283ee20570b87d6d69f23931c7335be8bd19c8b1cccc751e1d854"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.15,
+        "offsetX": -89,
+        "offsetY": -28
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-walk/W4/final-frame.png",
+        "sha256": "30b186eb21f77ee806563d2489019721b7bb95c84f98f2d0e86e5fc2388fae4d"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/malo-bear/garden-walk-sheet.webp",
+      "sha256": "f7ffd84d819fa42aa249672a358617ea0678ea55f1a0c4fefd3d26b9a7e3c8d9"
+    }
+  }
+}

@@ -1,0 +1,243 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "mina-cat",
+  "sequence": "garden-water",
+  "productionContract": {
+    "cellDimensions": [
+      627,
+      627
+    ],
+    "layout": [
+      2,
+      2
+    ],
+    "sheetDimensions": [
+      1254,
+      1254
+    ],
+    "semanticOrder": [
+      "G1",
+      "G2",
+      "G3",
+      "G4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "G1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G1.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfront-facing ready pose with upright can and zero droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G1/generated-source.png",
+        "sha256": "82bd6e0afdc2e4457de761c3f1e03a9a1de08bad61259a0e4ca0b653133920c1"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G1/alpha-source.png",
+        "sha256": "8dba08884f14413e5962dd19365a108ae93f45c53d7e60133b4f5a95a260aaac"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 0.931,
+        "offsetX": 29,
+        "offsetY": 50
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G1/final-frame.png",
+        "sha256": "122429946640dea94fe269870d1d92b77515bb50f78d2f8211bc16c253b27083"
+      }
+    },
+    {
+      "frameId": "G2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G2.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\ninitial can tilt with exactly two separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G2/generated-source.png",
+        "sha256": "cf0524723058f8c0bd9b021fe1c1663c1791db30798a95094a1366c4099ccc5a"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G2/alpha-source.png",
+        "sha256": "30421a51f0ae5221bebe1932aebebf08df6c300a0f0ac411571cfda5773e5838"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1,
+        "offsetX": -24,
+        "offsetY": 45
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G2/final-frame.png",
+        "sha256": "380ff2a1f6c4ee0a6ba48500ead4db7dc59d85cba3dbbe26f96a1cfdb78fe463"
+      }
+    },
+    {
+      "frameId": "G3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G3.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nshort pour with exactly four separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G3/generated-source.png",
+        "sha256": "311adc1e023701c46f2618f69c6f5f06d7e360c9bf129ab9d00463463403774e"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G3/alpha-source.png",
+        "sha256": "45c2d48ecb93f9a99f0c99ffdf6c68c63fbd3a9ae660dcac5fc5166e8766ffc0"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.015,
+        "offsetX": -4,
+        "offsetY": 25
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G3/final-frame.png",
+        "sha256": "822f69a7774ae2e55366055a3b46e679747aaaade816b59539b6c2aeb9b48a27"
+      }
+    },
+    {
+      "frameId": "G4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G4.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfull pour with exactly eight separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G4/generated-source.png",
+        "sha256": "cd54bbe4a32978342b25910a2f5b8958bc64663e1464cfe37a33e3bf923d553f"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G4/alpha-source.png",
+        "sha256": "bd52def619d1eaf4a22b7aa33a5541eb416ff5e4ae81a147dcd22c84025acdeb"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.011,
+        "offsetX": -26,
+        "offsetY": 27
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/garden-water/G4/final-frame.png",
+        "sha256": "53d682b13feb71ebc91f6a344e8cc0353a907cab97176207791b5ff95d91b384"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/mina-cat/garden-water-sheet.webp",
+      "sha256": "5a324948574a8b212083b5a52ebed3877f13c036dd7faa6b2205f2889c67646d"
+    }
+  }
+}

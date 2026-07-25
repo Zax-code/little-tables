@@ -1,0 +1,243 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "fenna-fox",
+  "sequence": "garden-water",
+  "productionContract": {
+    "cellDimensions": [
+      627,
+      627
+    ],
+    "layout": [
+      2,
+      2
+    ],
+    "sheetDimensions": [
+      1254,
+      1254
+    ],
+    "semanticOrder": [
+      "G1",
+      "G2",
+      "G3",
+      "G4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "G1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G1.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfront-facing ready pose with upright can and zero droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G1/generated-source.png",
+        "sha256": "8538b7bbc73f5c47c7885253e09fbf3282709208e18109006a318cbc058c0e63"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G1/alpha-source.png",
+        "sha256": "b1cb06eddc2af25ef79c5ff13b2064ca99fea745a02485171adda9a41360d669"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 0.98,
+        "offsetX": 3,
+        "offsetY": 18
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G1/final-frame.png",
+        "sha256": "a386aaa44e8508db6271de956b744258dbe4114d43b15bc9aa71689fb4295947"
+      }
+    },
+    {
+      "frameId": "G2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G2.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\ninitial can tilt with exactly two separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G2/generated-source.png",
+        "sha256": "dc6490b993135d6bdea5f45db17ee82ac51ee90187914b94062a31b3a9ac86d5"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G2/alpha-source.png",
+        "sha256": "1f9445ee618b32453fc648e86256e74a97aa7410478af6d240cbeee6a209a648"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.014,
+        "offsetX": -32,
+        "offsetY": 24
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G2/final-frame.png",
+        "sha256": "34e4ffae0d6181fd76f57f3375caa6143308b201e1cf844d712103d09697c5f0"
+      }
+    },
+    {
+      "frameId": "G3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G3.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nshort pour with exactly four separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G3/generated-source.png",
+        "sha256": "024011ad7094ceae023a9c3412ed5474a863a91a176fa7f8cd3af157fe87cabd"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G3/alpha-source.png",
+        "sha256": "6bc1b4e62e331d08aee2be996eadc53692be292ba28485d5ec82a326b10da445"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 0.984,
+        "offsetX": -2,
+        "offsetY": 18
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G3/final-frame.png",
+        "sha256": "83242e82ff830d5a371c79ff6759420371bfe38bb8f7a1eaee4b666f6e445769"
+      }
+    },
+    {
+      "frameId": "G4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G4.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfull pour with exactly eight separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G4/generated-source.png",
+        "sha256": "f89344baf2abc4cce29a6986998b7ed0d7e6c86ec6fac0619a54c17d831786a9"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G4/alpha-source.png",
+        "sha256": "1884e525d6fd10fac5cd4fe28d79f4da7a70c247fb29e7753a5a65bef4236902"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.075,
+        "offsetX": -57,
+        "offsetY": 6
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/garden-water/G4/final-frame.png",
+        "sha256": "7bf4a58d0539941fc4f6f048ed3b6b00902044a9d7897241e966bccbc8c77ba1"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/fenna-fox/garden-water-sheet.webp",
+      "sha256": "85fa7bb439fd5b568f4f256d2747c52ede567cd946598fbe01d7b5bcc1bddd58"
+    }
+  }
+}

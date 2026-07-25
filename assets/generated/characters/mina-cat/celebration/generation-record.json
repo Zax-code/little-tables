@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "mina-cat",
+  "sequence": "celebration",
+  "productionContract": {
+    "cellDimensions": [
+      418,
+      418
+    ],
+    "layout": [
+      4,
+      1
+    ],
+    "sheetDimensions": [
+      1672,
+      418
+    ],
+    "semanticOrder": [
+      "C1",
+      "C2",
+      "C3",
+      "C4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "C1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C1.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C1.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nanticipation crouch before the reward hop. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C1/generated-source.png",
+        "sha256": "a35897750379e40206470b69ed90bdda9840276f3b90c3e01d0f297a104b9402"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C1/alpha-source.png",
+        "sha256": "4a1b797dc44f9b856de911a5fa5abd7e72cc797b42c5ce0f543787897a21fb49"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": -1
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/celebration/C1/final-frame.png",
+        "sha256": "fab0ead7c957acfbd049629cc4323e89b3fae301a3d4ecaf9652d82805ad9055"
+      }
+    },
+    {
+      "frameId": "C2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C2.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C2.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nrising transition with the feet lifting. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C2/generated-source.png",
+        "sha256": "de9423f3ec560029248290a995910c8679e6804a965f619064c989a692f71a85"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C2/alpha-source.png",
+        "sha256": "65d4de9376affb579ff5d55a356df67c878680a1c5d030a353f3caae19e49217"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": 2,
+        "offsetY": -4
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/celebration/C2/final-frame.png",
+        "sha256": "ad7c320b38a3ba50b553b295a9e73c83f612129dec0be27e0d0a8f6500d62b75"
+      }
+    },
+    {
+      "frameId": "C3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C3.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C3.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nairborne reward-hop apex. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C3/generated-source.png",
+        "sha256": "aaa6bc6170f0c7105bd510de7fa76bc7a0dd0504c823235273ddf6a2c8bbbef6"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/mina-cat/celebration/C3/rejected-generated-source.png",
+          "sha256": "a62bfd2835ed1deab21aa2bce2e1daad94c49a49f5809cd188f58448179d0ab8"
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C3/alpha-source.png",
+        "sha256": "5bfb249a8b5baa3b408109016422cf6c2d9d6571e08684b36d9ca99fc5f80e18"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1.05,
+        "offsetX": -12,
+        "offsetY": 2
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/celebration/C3/final-frame.png",
+        "sha256": "cb1edba1c85a0734f373c299d3552cb2aa4743d2e18f78a9a246ab409f19d6bf"
+      }
+    },
+    {
+      "frameId": "C4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C4.png",
+        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C4.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nlanding and reset. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C4/generated-source.png",
+        "sha256": "22aef6057c9977c98f77f28073a365d13180fb96a8959176e45c5f475cddff14"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/mina-cat/celebration/C4/alpha-source.png",
+        "sha256": "fbe4b067a9279e728e528392a0c2db537f2b6bc135d912cec60df3336e470770"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.96,
+        "offsetX": 10,
+        "offsetY": 2
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/mina-cat/celebration/C4/final-frame.png",
+        "sha256": "c5b783166f3143dc84048193cc4e5dfae74110f15a84e707bf13eae84c81cbde"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/mina-cat/celebration-sheet.webp",
+      "sha256": "88f4118433a22ca22d3a5bd9665be8063a7f5b8920e59551b488fbdacd50c162"
+    }
+  }
+}

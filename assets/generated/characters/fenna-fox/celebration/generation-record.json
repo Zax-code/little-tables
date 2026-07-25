@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "fenna-fox",
+  "sequence": "celebration",
+  "productionContract": {
+    "cellDimensions": [
+      418,
+      418
+    ],
+    "layout": [
+      4,
+      1
+    ],
+    "sheetDimensions": [
+      1672,
+      418
+    ],
+    "semanticOrder": [
+      "C1",
+      "C2",
+      "C3",
+      "C4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "C1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C1.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C1.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nanticipation crouch before the reward hop. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C1/generated-source.png",
+        "sha256": "711e31205fc530af3cbf8898ab26c43e106e4940693a325dd1711bf6d00350b3"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C1/alpha-source.png",
+        "sha256": "b7f34fe9b627d3ea2ce3d638dfffe2d8e18befefbeb9fcf10ca2f7c6382c357a"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": -1,
+        "offsetY": 4
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C1/final-frame.png",
+        "sha256": "caf5b34da091db2e64cbca70c6b61150492688a2f6113da9fd19b2b4d7be991d"
+      }
+    },
+    {
+      "frameId": "C2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C2.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C2.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nrising transition with the feet lifting. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C2/generated-source.png",
+        "sha256": "85f2107f4e1089a7516592e727543aed9a8045af8d6d07fd6a03ef8560cce9c9"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C2/alpha-source.png",
+        "sha256": "a550b9d9db6f252cd257e5151bb14750e30cb8043759ea9991823c3483e445e6"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.895,
+        "offsetX": 27,
+        "offsetY": 24
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C2/final-frame.png",
+        "sha256": "84f5a58f32ef48cc61d04c19ec88aa25c3f1cced750ccb044297d07750239731"
+      }
+    },
+    {
+      "frameId": "C3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C3.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C3.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nairborne reward-hop apex. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C3/generated-source.png",
+        "sha256": "dc10fc31316f3f82b371bb59dea3368e9b1548662031dea69dca9eb3e14cd704"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/fenna-fox/celebration/C3/rejected-generated-source.png",
+          "sha256": "6ca29fcedb02b4e9b6e0693c5989178a63800d2d4a3e942771257652b88a5011"
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C3/alpha-source.png",
+        "sha256": "87c16bd62000c8beeab59f926629e33bcd7d619833476ae06878c199c7a6fb37"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": 4,
+        "offsetY": 19
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C3/final-frame.png",
+        "sha256": "b04768dbddbf1b2f1dc8b7be6991835cda9845939de676d4fbe5305411d81bc8"
+      }
+    },
+    {
+      "frameId": "C4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C4.png",
+        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C4.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nlanding and reset. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C4/generated-source.png",
+        "sha256": "322cec450c6df6523dc4ca865eb287f2775c888300fbf511ddce1875a08a8ad4"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C4/alpha-source.png",
+        "sha256": "2b2035f465c2f2c52180e9638d24b2f73c2e6af3bad1517c498d2d60dead2352"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1.045,
+        "offsetX": -7,
+        "offsetY": -2
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/fenna-fox/celebration/C4/final-frame.png",
+        "sha256": "ddbc598d639f63334cbef075c7e46ea5ecd55f0f4cd4e140add95d430a6ff6a7"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/fenna-fox/celebration-sheet.webp",
+      "sha256": "802d62acab50fe7518ded116055f15bfc5ea909b2824621d8a3d15e033607147"
+    }
+  }
+}

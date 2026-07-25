@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "malo-bear",
+  "sequence": "celebration",
+  "productionContract": {
+    "cellDimensions": [
+      418,
+      418
+    ],
+    "layout": [
+      4,
+      1
+    ],
+    "sheetDimensions": [
+      1672,
+      418
+    ],
+    "semanticOrder": [
+      "C1",
+      "C2",
+      "C3",
+      "C4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "C1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C1.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C1.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nanticipation crouch before the reward hop. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C1/generated-source.png",
+        "sha256": "591774a0fd64d4dd8ad2e095b0c403938a2bfc4a2c5a2a780f002b88122afbf3"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C1/alpha-source.png",
+        "sha256": "b417010c3e77685c55784608b3563e079efc0415ffd525b5cea9fc62a090d4a4"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 9
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/celebration/C1/final-frame.png",
+        "sha256": "d782d792edddbb76952ac1d8dd0e71a430d478322c332d32ab8cbf645af0b662"
+      }
+    },
+    {
+      "frameId": "C2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C2.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C2.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nrising transition with the feet lifting. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C2/generated-source.png",
+        "sha256": "114605947e53cc92a99a205e9474d682a5c7cba2edcd68c1b8a8538e2db37cd5"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C2/alpha-source.png",
+        "sha256": "325390b31857ad51564cfffa242da0f20cad6d3609638292e83a027aa143c9a6"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.95,
+        "offsetX": 10,
+        "offsetY": 23
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/celebration/C2/final-frame.png",
+        "sha256": "37d4197193a245cedd1b112461f7c6cacce73b13ba6ec66b501ddddee359e3db"
+      }
+    },
+    {
+      "frameId": "C3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C3.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C3.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nairborne reward-hop apex. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C3/generated-source.png",
+        "sha256": "ac225a00b1cb59bb0b3ab390d9f7f074fa977403af17a4a71a6e63b064840b30"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/malo-bear/celebration/C3/rejected-generated-source.png",
+          "sha256": "128a9405fdc38241a29b7b352c014d91ce8089c730a1f4ba19eef59f4b148122"
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C3/alpha-source.png",
+        "sha256": "d3c3ec4c646308a852c80b7cc975ad62fe35ab7d152fce1df4527e20f686ff41"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1.1,
+        "offsetX": -19,
+        "offsetY": 7
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/celebration/C3/final-frame.png",
+        "sha256": "542d5ace74e4022524edd23ef42cd9376e0a5c939cc53041cc729a01a5c34076"
+      }
+    },
+    {
+      "frameId": "C4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C4.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C4.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nlanding and reset. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C4/generated-source.png",
+        "sha256": "9b34a1f21eca41e13c43745c3546952d675862eafebd855881b99ab3882109fa"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/celebration/C4/alpha-source.png",
+        "sha256": "87be67c55b0441edff0bbf93a9c83172b4e642751d5b9f023db0572c6bfa0e1c"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.99,
+        "offsetX": 4,
+        "offsetY": 4
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/celebration/C4/final-frame.png",
+        "sha256": "553aa3a2e95cd7ec4aa96067288d97cd3d958496fca3ed58367e481115f63fc7"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/malo-bear/celebration-sheet.webp",
+      "sha256": "64d9b43c51d37e3c525ebdfb214df18969eb4109ac1b8eb6a3bfe7c68cdbbbff"
+    }
+  }
+}
