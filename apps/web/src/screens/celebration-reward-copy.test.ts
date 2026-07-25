@@ -17,7 +17,7 @@ describe('celebration reward copy', () => {
       'Watering progress for Rose lotus: 1 of 3. 2 more to fill its growth goal.',
     )
     expect(celebrationRewardCopy(progress, 'zh-Hans')).toBe(
-      '玫瑰粉荷花正在长大——再开 4 朵花就长成啦。',
+      '玫瑰粉荷花的浇水进度是 1/3。再浇 2 次水，就能达到生长目标。',
     )
   })
 
@@ -29,6 +29,9 @@ describe('celebration reward copy', () => {
 
     expect(celebrationRewardCopy(progress)).toBe(
       'Lotus rosé vient d’éclore et rejoint ta collection pour de bon. Prochaine découverte : Lupin du crépuscule.',
+    )
+    expect(celebrationRewardCopy(progress, 'zh-Hans')).toBe(
+      '玫瑰粉荷花已经长成，收进你的花园图鉴啦。下一株等你发现的是暮色羽扇豆。',
     )
   })
 
@@ -52,6 +55,9 @@ describe('celebration reward copy', () => {
 
     expect(celebrationRewardCopy(progress)).toBe(
       'Les 3 arrosages de cette plante sont faits. Réussis encore 5 multiplications sans aide pour l’aider à éclore. Ses progrès sont bien gardés.',
+    )
+    expect(celebrationRewardCopy(progress, 'zh-Hans')).toBe(
+      '已经浇满 3 次水啦。再不看提示，自己答对 5 道乘法题，它就会开花。浇水进度会好好保留。',
     )
   })
 
@@ -79,5 +85,8 @@ describe('celebration reward copy', () => {
     )
     expect(celebrationExtraPracticeCopy()).toContain('L’arrosage d’aujourd’hui est bien gardé')
     expect(celebrationExtraPracticeCopy()).toContain('le prochain t’attend demain')
+    expect(celebrationExtraPracticeCopy('zh-Hans')).toBe(
+      '你的乘法又熟练了一点。今天的水已经浇好，明天可以再浇一次。',
+    )
   })
 })

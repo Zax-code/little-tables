@@ -47,6 +47,37 @@ describe('internationalization', () => {
     )
   })
 
+  it('uses natural Simplified Chinese for the daily garden rhythm and mastery gate', () => {
+    expect(translate('zh-Hans', 'common.bloom')).toBe('次浇水')
+    expect(translate('zh-Hans', 'celebration.gardenBloom')).toBe('+1 次浇水')
+    expect(translate('zh-Hans', 'garden.howDaily')).toBe('完成今天的小练习，就能给植物浇一次水。')
+    expect(translate('zh-Hans', 'garden.howTiming')).toBe(
+      '花园每天只前进一步，第二天才能再浇水。当天多练会让乘法更熟练，但不会多一次浇水。',
+    )
+    expect(translate('zh-Hans', 'garden.masteryBlocked', { remaining: 4 })).toBe(
+      '已经浇满 3 次水啦。再不看提示，自己答对 4 道乘法题，它就会开花。浇水进度会好好保留。',
+    )
+    expect(translate('zh-Hans', 'watering.dueMany', { count: 6, minutes: 2 })).toBe(
+      '6 道小题 · 大约 2 分钟',
+    )
+  })
+
+  it('uses warm, family-friendly Simplified Chinese for profile management', () => {
+    expect(translate('zh-Hans', 'family.heading')).toBe('一个账号，全家都有自己的花园')
+    expect(translate('zh-Hans', 'family.intro')).toBe(
+      '每位家人都有自己的练习记录、成长、奖励、数据和花园；换一台设备也能接着来。',
+    )
+    expect(translate('zh-Hans', 'family.added', { name: '小雨' })).toBe('小雨也有自己的花园啦。')
+    expect(translate('zh-Hans', 'family.switcherAria', { name: '小雨' })).toBe(
+      '当前是小雨。切换家人',
+    )
+    expect(translate('zh-Hans', 'family.removeDialogWarning', { name: '小雨' })).toBe(
+      '小雨的档案会从家庭成员中永久移除，之后无法恢复。',
+    )
+    expect(translate('zh-Hans', 'app.openingFamily')).toBe('正在打开全家的花园…')
+    expect(translate('zh-Hans', 'family.learnerFallback')).toBe('小园丁')
+  })
+
   it('keeps daily watering and the forgiving week rhythm natural in both languages', () => {
     expect(translate('en', 'watering.dueOne')).toBe('1 quick question · about 1 min')
     expect(translate('fr', 'watering.dueMany', { count: 6, minutes: 2 })).toBe(
@@ -189,17 +220,18 @@ describe('internationalization', () => {
 
   it('shows only character first names for selectable family avatars', () => {
     const avatarNames = [
-      ['sprout', 'Miffy'],
-      ['malo-bear', 'Malo'],
-      ['fenna-fox', 'Fenna'],
-      ['mina-cat', 'Mina'],
-      ['paco-dog', 'Paco'],
-      ['colin-mallard', 'Colin'],
+      ['sprout', 'Miffy', '米菲'],
+      ['malo-bear', 'Malo', '马洛'],
+      ['fenna-fox', 'Fenna', '芬娜'],
+      ['mina-cat', 'Mina', '米娜'],
+      ['paco-dog', 'Paco', '帕科'],
+      ['colin-mallard', 'Colin', '科林'],
     ] as const
 
-    for (const [avatarId, name] of avatarNames) {
+    for (const [avatarId, name, chineseName] of avatarNames) {
       expect(translate('en', `family.avatar.${avatarId}`)).toBe(name)
       expect(translate('fr', `family.avatar.${avatarId}`)).toBe(name)
+      expect(translate('zh-Hans', `family.avatar.${avatarId}`)).toBe(chineseName)
     }
   })
 })

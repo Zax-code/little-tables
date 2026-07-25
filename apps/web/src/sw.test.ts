@@ -86,4 +86,57 @@ describe('service worker updates', () => {
     expect(deleteCache).toHaveBeenCalledWith('little-tables-bootstrap-v1')
     expect(waitUntil).toHaveBeenCalledOnce()
   })
+
+  it('uses the selected Simplified Chinese locale for a push fallback', async () => {
+    const listeners = new Map<string, EventListener>()
+    const localeResponses = new Map<string, Response>()
+    const showNotification = vi.fn().mockResolvedValue(undefined)
+    const cache = {
+      put: vi.fn((key: string, response: Response) => {
+        localeResponses.set(key, response)
+        return Promise.resolve()
+      }),
+    }
+
+    vi.stubGlobal('caches', {
+      delete: vi.fn(),
+      match: vi.fn((key: string) => Promise.resolve(localeResponses.get(key))),
+      open: vi.fn(() => Promise.resolve(cache)),
+    })
+    vi.stubGlobal('self', {
+      __WB_MANIFEST: [],
+      addEventListener: vi.fn((type: string, listener: EventListener) => {
+        listeners.set(type, listener)
+      }),
+      clients: { matchAll: vi.fn(), openWindow: vi.fn() },
+      location: { origin: 'https://little-tables.test' },
+      registration: { showNotification },
+      skipWaiting: vi.fn(),
+    })
+
+    await import('./sw.js')
+
+    let localeSaved: Promise<unknown> | undefined
+    listeners.get('message')?.({
+      data: { locale: 'zh-Hans', type: 'SET_LOCALE' },
+      waitUntil: (promise: Promise<unknown>) => {
+        localeSaved = promise
+      },
+    } as unknown as ExtendableMessageEvent)
+    await localeSaved
+
+    let notificationShown: Promise<unknown> | undefined
+    listeners.get('push')?.({
+      data: null,
+      waitUntil: (promise: Promise<unknown>) => {
+        notificationShown = promise
+      },
+    } as unknown as PushEvent)
+    await notificationShown
+
+    expect(showNotification).toHaveBeenCalledWith(
+      'little tables.',
+      expect.objectContaining({ body: '来做一会儿小练习吧 ♡' }),
+    )
+  })
 })

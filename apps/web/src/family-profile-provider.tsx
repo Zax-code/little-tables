@@ -14,8 +14,10 @@ import {
   writeCachedProfiles,
 } from './family-profile-device.js'
 import { FamilyProfileContext, type FamilyProfileContextValue } from './family-profile-context.js'
+import { useI18n } from './i18n.js'
 
 export function FamilyProfileProvider({ children }: PropsWithChildren) {
+  const { t } = useI18n()
   const queryClient = useQueryClient()
   const cachedProfiles = useMemo(() => readCachedProfiles(), [])
   const [activeProfileId, setActiveProfileId] = useState(() =>
@@ -36,10 +38,10 @@ export function FamilyProfileProvider({ children }: PropsWithChildren) {
         ? {
             avatarId: FamilyProfiles.defaultAvatarId,
             id: auth.profileId,
-            name: auth.displayName ?? 'learner',
+            name: auth.displayName ?? t('family.learnerFallback'),
           }
         : null,
-    [auth],
+    [auth, t],
   )
   const profiles = useMemo<ReadonlyArray<ChildProfile>>(
     () =>
@@ -78,6 +80,6 @@ export function FamilyProfileProvider({ children }: PropsWithChildren) {
     [activeProfile, profiles],
   )
 
-  if (value === null) return <div className="app-loading">opening your family…</div>
+  if (value === null) return <div className="app-loading">{t('app.openingFamily')}</div>
   return <FamilyProfileContext value={value}>{children}</FamilyProfileContext>
 }

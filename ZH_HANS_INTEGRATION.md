@@ -1,87 +1,56 @@
-# zh-Hans integration checklist
+# zh-Hans integration notes
 
-This branch localizes every translation key present at baseline commit `2a986ba`, plus the new
-three-language selector. The parallel personalized-garden and family-profile branches are still
-changing copy, so their added keys must receive `zh-Hans` entries when those branches are merged.
-Map the final key names to the semantic inventory below; do not copy English or French as a
-temporary fallback.
+## Current coverage
 
-## Personalized garden
+The branch is rebased onto local `main` at `2a9d790`. Simplified Chinese covers every current typed
+catalog key, including family profiles, the six-character avatar roster, first-visit garden
+guidance, once-per-day watering, three-day growth goals, mastery gates, rewards, empty/error states,
+and accessibility copy.
 
-Localize keys for:
+The shared Chinese vocabulary is:
 
-- first-visit garden guidance: heading, explanation, dismiss action, and accessibility label;
-- the “How it grows” heading, open/close action, daily-bloom rule, three-blooms-per-plant pacing,
-  extra-practice rule, and mastery-gate explanation;
-- the visible next goal, including grow, bloom, unlock, complete, and mastery-gated states;
-- post-daily-session bloom/progress outcomes;
-- post-extra-practice outcomes;
-- same-day home states that explain when the next bloom is available.
+| Product meaning                     | zh-Hans           |
+| ----------------------------------- | ----------------- |
+| daily session                       | 今天的小练习      |
+| watering progress unit              | 次浇水            |
+| multiplication fact becoming fluent | 记牢一道乘法题    |
+| growing / familiar                  | 成长中 / 慢慢熟悉 |
+| garden collection                   | 花园图鉴          |
+| family profile                      | 家人的档案        |
 
-Use or adapt this vocabulary:
+`little tables` remains the product name. Miffy uses her established Chinese name, `米菲`. The
+original character first names are localized for natural recognition in Chinese: Malo `马洛`,
+Fenna `芬娜`, Mina `米娜`, Paco `帕科`, and Colin `科林`.
 
-| Meaning                                                                          | Suggested zh-Hans                                        |
-| -------------------------------------------------------------------------------- | -------------------------------------------------------- |
-| How the garden grows                                                             | 花园怎样长大                                             |
-| One completed daily watering session earns one bloom per day.                    | 每天完成一次“今日浇水”，每天最多获得一朵花。             |
-| Three daily blooms grow one plant.                                               | 收集三朵每日小花，就能养成一株植物。                     |
-| Today’s bloom is safely in your garden. Come back tomorrow for the next one.     | 今天的小花已经安心待在花园里。明天回来，就能迎接下一朵。 |
-| Practice again                                                                   | 再练一次                                                 |
-| No extra bloom today; practice still strengthens math skills.                    | 今天不会多开一朵花，不过每次练习都会让算式记得更牢。     |
-| Great practice! The garden grows once per day; the next bloom is ready tomorrow. | 练得真好！花园每天长大一次，明天就能迎接下一朵花。       |
-| Next goal                                                                        | 下一个小目标                                             |
-| Mastery gate                                                                     | 再记牢 {count} 道算式，就能开启下一章。                  |
+The language selector keeps all three choices and synchronizes an existing reminder subscription
+for the active profile. The app also sends the selected locale to the service worker, so a visible
+fallback notification does not revert to French when Chinese is selected.
 
-Also revisit existing Chinese values for `watering.doneCopy`, `watering.extra`,
-`watering.rewardEarned`, `garden.extraCopy`, and any five-petal copy if the garden branch changes
-their English/French meaning or replaces five-bloom pacing.
+## Later selected-character integration
 
-## Family profiles
+The approved “selected profile character everywhere” work has not yet landed on `main`. During that
+integration, update these existing Miffy-specific keys in all three locales rather than adding
+English-only copy:
 
-Localize keys for:
+- `ambient.wateringCan`;
+- every `asset.*` accessibility description;
+- `garden.plotCaretakerHere` and `garden.plotCaretakerAway`.
 
-- current-profile identity and the one-tap switcher;
-- profile-picker heading, open/close action, and accessibility labels;
-- family-management heading, introduction, back action, and empty/loading/error states;
-- add, rename, save, cancel, remove, and pending states;
-- child-name labels, validation, duplicate/max-profile errors, and safe retry copy;
-- avatar selection heading, option names/descriptions, selected state, and accessibility labels;
-- removal confirmation, the “last profile cannot be removed” rule, and server failure copy.
+Prefer a `{character}` placeholder shared by English, French, and Chinese, populated from the
+existing localized `family.avatar.*` names. In Chinese, write the action around the interpolated
+name naturally (for example, `{character}正在轻轻浇水。`); do not mechanically substitute a name into
+English word order. Any new scene, decode failure, preload status, or character-specific error key
+introduced by that work also needs a nonblank `zh-Hans` entry with identical placeholders.
 
-Use or adapt this vocabulary:
+Retired avatar IDs `sunbeam`, `bluebell`, and `berry` must continue to resolve to `米菲` without
+rewriting stored profiles. Pre-authentication Miffy art remains the approved safe fallback.
 
-| Meaning                                | Suggested zh-Hans                |
-| -------------------------------------- | -------------------------------- |
-| Who is practicing?                     | 谁要来练习？                     |
-| Switch learner                         | 换一位练习者                     |
-| Practicing as {name}                   | 现在是 {name} 在练习             |
-| Manage family profiles                 | 管理家庭成员                     |
-| Add a child                            | 添加孩子                         |
-| Child’s name                           | 孩子的名字                       |
-| Choose an avatar                       | 选择头像                         |
-| Rename                                 | 修改名字                         |
-| Remove profile                         | 移除成员                         |
-| Keep at least one profile.             | 至少保留一位家庭成员。           |
-| Could not save that change. Try again. | 这次修改没有保存好，请再试一次。 |
+## Verification guardrails
 
-Removal copy is parent-facing and must state plainly whether progress is permanently deleted. Keep
-profile names and original character names unchanged; translate generic avatar descriptors.
-
-## Merge hotspots and verification
-
-- `apps/web/src/i18n-catalog.ts`: add every integrated key to `simplifiedChinese`. Its typed record
-  and the completeness test intentionally fail on omissions or placeholder mismatches.
-- `apps/web/src/components/language-toggle.tsx`: preserve the three-choice selector. The family
-  branch may add a profile ID to reminder synchronization; carry that new argument into the
-  selector’s change handler.
-- `apps/web/src/screens/home-screen.tsx` and `apps/web/src/styles.css`: check that the profile
-  switcher, language selector, and sound control do not overlap at narrow or wide breakpoints.
-- `apps/web/src/reminder-subscription.ts`: preserve `zh-Hans` transport while adopting any
-  profile-scoped endpoint/body changes.
-- `apps/server/src/repositories/attempt-repository.ts` and
-  `apps/server/src/application/daily-reminders.ts`: preserve the `zh-Hans` reminder locale schema
-  and notification copy.
-
-After integration, run the i18n, selector, profile, garden, reminder, and full workspace checks.
-Any new date shown in collection/profile UI should use `Intl.DateTimeFormat(locale, ...)`; counts
-can remain Arabic numerals, which are natural in this child-facing Chinese UI.
+- `apps/web/src/i18n-catalog.ts` uses typed records, and `apps/web/src/i18n.test.ts` checks exact key
+  completeness and placeholder parity for every locale.
+- Counts use Arabic numerals, which are natural here. If a future screen shows a user-facing date,
+  format it with `Intl.DateTimeFormat(locale, ...)`.
+- The generated PWA manifest still has one static French description and screenshot labels for all
+  app languages; it is not driven by the in-app selector. If install-sheet metadata becomes part of
+  localization scope, provide locale-specific manifests rather than mixing three languages in one.
