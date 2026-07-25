@@ -70,6 +70,7 @@ export function GardenCollectionScreen() {
     completedSessions: Number.isFinite(previewNumber)
       ? previewNumber
       : (data?.gardenBloomCount ?? data?.completedSessions ?? 0),
+    flowerOrder: data?.gardenCollection.flowerOrder,
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
   })
   const foundCountKey =

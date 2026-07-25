@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { InMemoryAllowedEmailRepository } from '../repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from '../repositories/in-memory-attempt-repository.js'
+import { InMemoryGardenCollectionRepository } from '../repositories/in-memory-garden-collection-repository.js'
 import { InMemoryProfileRepository } from '../repositories/in-memory-profile-repository.js'
 
 describe('preferred-name HTTP interface', () => {
@@ -36,6 +37,7 @@ describe('preferred-name HTTP interface', () => {
         NodeHttpPlatform.layer,
         InMemoryAttemptRepository.layer(),
         InMemoryAllowedEmailRepository.layer(),
+        InMemoryGardenCollectionRepository.layer(),
         InMemoryProfileRepository.layer(),
       ),
     )

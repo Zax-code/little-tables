@@ -37,6 +37,7 @@ export function GardenScreen() {
     completedSessions: Number.isFinite(previewNumber)
       ? previewNumber
       : (data?.gardenBloomCount ?? data?.completedSessions ?? 0),
+    flowerOrder: data?.gardenCollection.flowerOrder,
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
   })
   const bloomCount = progress.bloomCount
@@ -57,9 +58,14 @@ export function GardenScreen() {
   const masteryCopy =
     nextStep === null || nextStep.fluentFactsRemaining === 0
       ? ''
-      : t(nextStep.fluentFactsRemaining === 1 ? 'chapter.oneToGo' : 'chapter.manyToGo', {
-          count: nextStep.fluentFactsRemaining,
-        })
+      : nextStep.blockedByMastery
+        ? t('garden.masteryBlocked', {
+            remaining: nextStep.fluentFactsRemaining,
+          })
+        : t('garden.masteryAhead', {
+            remaining: nextStep.fluentFactsRemaining,
+            required: nextStep.plant.masteryRequired,
+          })
   const nextCopy =
     nextStep === null
       ? t('garden.allBlooming')
@@ -128,7 +134,41 @@ export function GardenScreen() {
         </Link>
       </header>
       <div className="garden-ground-region">
+        {nextStep === null ? null : (
+          <aside className="garden-next-goal">
+            <span>{t('garden.nextGoal')}</span>
+            <strong>{translatePlantName(locale, nextStep.plant.id)}</strong>
+            <p>
+              {t('garden.goalProgress', {
+                current: nextStep.plant.bloomsEarned,
+                total: nextStep.plant.bloomsRequired,
+              })}
+            </p>
+            <small>
+              {nextStep.blockedByMastery
+                ? masteryCopy
+                : t(
+                    nextStep.plant.bloomsRequired - nextStep.plant.bloomsEarned === 1
+                      ? 'garden.goalRemainingOne'
+                      : 'garden.goalRemaining',
+                    {
+                      count: nextStep.plant.bloomsRequired - nextStep.plant.bloomsEarned,
+                    },
+                  )}
+            </small>
+          </aside>
+        )}
         <GardenPlot progress={progress} />
+        <details className="garden-how-it-grows">
+          <summary>{t('garden.howHeading')}</summary>
+          <ul>
+            <li>{t('garden.howDaily')}</li>
+            <li>{t('garden.howExtra')}</li>
+            <li>{t('garden.howCollection')}</li>
+            <li>{t('garden.howMastery')}</li>
+            <li>{t('garden.howRest')}</li>
+          </ul>
+        </details>
         <button
           aria-label={t('garden.ariaPractice', { title: actionTitle })}
           className="tomorrow-card"

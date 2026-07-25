@@ -11,6 +11,7 @@ import {
 } from '../repositories/attempt-repository.js'
 import { InMemoryAllowedEmailRepository } from '../repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from '../repositories/in-memory-attempt-repository.js'
+import { InMemoryGardenCollectionRepository } from '../repositories/in-memory-garden-collection-repository.js'
 import { InMemoryProfileRepository } from '../repositories/in-memory-profile-repository.js'
 import { httpApp } from './app.js'
 
@@ -50,6 +51,7 @@ const webHandler = (repository: AttemptRepositoryService) =>
       NodeHttpPlatform.layer,
       Layer.succeed(AttemptRepository, repository),
       InMemoryAllowedEmailRepository.layer(),
+      InMemoryGardenCollectionRepository.layer(),
       InMemoryProfileRepository.layer(),
     ),
   )
@@ -171,6 +173,47 @@ describe('practice HTTP interface', () => {
       rewardedDayKeys: ['2026-07-15'],
     })
   })
+
+  it('returns and durably reconciles the personalized flower collection', async () => {
+    const attempts = ['2026-07-23', '2026-07-24', '2026-07-25'].map(
+      (learningDayKey, index): AttemptEvent => ({
+        ...baseAttempt,
+        answeredAt: new Date(`${learningDayKey}T15:00:00.000Z`),
+        eventId: `daily-${index}`,
+        learningDayKey,
+        sessionId: `daily-session-${index}`,
+        sessionKind: 'daily-watering',
+      }),
+    )
+    const { dispose, handler } = webHandler(repositoryWithAttempts(attempts))
+    const firstResponse = await handler(new Request('http://little-tables.local/api/v1/bootstrap'))
+    const first = (await firstResponse.json()) as {
+      gardenCollection: {
+        awardedFlowerIds: ReadonlyArray<string>
+        flowerOrder: ReadonlyArray<string>
+      }
+    }
+    const secondResponse = await handler(new Request('http://little-tables.local/api/v1/bootstrap'))
+    const second = (await secondResponse.json()) as typeof first
+    await handler(
+      new Request('http://little-tables.local/api/v1/garden/introduction-seen', {
+        method: 'POST',
+      }),
+    )
+    const withIntroductionSeenResponse = await handler(
+      new Request('http://little-tables.local/api/v1/bootstrap'),
+    )
+    const withIntroductionSeen = (await withIntroductionSeenResponse.json()) as typeof first
+    await dispose()
+
+    expect(first.gardenCollection.flowerOrder).toHaveLength(9)
+    expect(new Set(first.gardenCollection.flowerOrder).size).toBe(9)
+    expect(first.gardenCollection.awardedFlowerIds).toEqual([first.gardenCollection.flowerOrder[0]])
+    expect(second.gardenCollection).toEqual(first.gardenCollection)
+    expect(withIntroductionSeen.gardenCollection).toMatchObject({
+      introductionSeen: true,
+    })
+  })
 })
 
 describe('notification subscriptions', () => {
@@ -195,6 +238,7 @@ describe('notification subscriptions', () => {
         NodeHttpPlatform.layer,
         Layer.succeed(AttemptRepository, repository),
         InMemoryAllowedEmailRepository.layer(),
+        InMemoryGardenCollectionRepository.layer(),
         InMemoryProfileRepository.layer(),
       ),
     )
@@ -231,6 +275,7 @@ describe('allowed email management', () => {
         NodeHttpPlatform.layer,
         InMemoryAttemptRepository.layer(),
         InMemoryAllowedEmailRepository.layer(),
+        InMemoryGardenCollectionRepository.layer(),
         InMemoryProfileRepository.layer(),
       ),
     )

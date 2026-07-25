@@ -73,8 +73,11 @@ const english = {
   'celebration.next': 'next',
   'celebration.perfect': 'you found every one today',
   'celebration.rewardAllBlooming': 'Every little plant is blooming.',
-  'celebration.rewardGrowing': '{plant} is growing—{count} more {bloom} to finish it.',
-  'celebration.rewardMature': '{plant} is now fully grown.',
+  'celebration.rewardGrowing':
+    '{plant}: {current} of {total} daily blooms. {remaining} more to join your collection.',
+  'celebration.rewardMature': '{plant} is fully grown and has joined your collection.',
+  'celebration.noExtraBloom':
+    'Your math skills got stronger. The garden grows once per day, so there is no extra bloom today—the next bloom is ready tomorrow.',
   'common.bloom': 'bloom',
   'common.blooms': 'blooms',
   'common.dismiss': 'Dismiss',
@@ -141,7 +144,8 @@ const english = {
   'error.updating': 'opening the fresh version…',
   'garden.ariaPractice': '{title}. Practice now',
   'garden.bloomCount': '{count} {bloom}',
-  'garden.extraCopy': 'Today’s bloom is already safe. This little practice is just for you.',
+  'garden.extraCopy':
+    'Today’s bloom is safe in the garden and the next is ready tomorrow. Extra practice has no extra bloom today, but it still strengthens your math skills.',
   'garden.heading': 'your little garden',
   'garden.nextBloom': 'next: bloom {plant}',
   'garden.nextFull': 'garden in full bloom',
@@ -150,6 +154,24 @@ const english = {
   'garden.nextFinishes': '{count} more {bloom} finishes this flower',
   'garden.nextUnlock': 'next: unlock a new pot',
   'garden.nextUnlockCopy': '{count} more {bloom} opens the {plant} pot',
+  'garden.nextGoal': 'your next garden goal',
+  'garden.goalProgress': '{current} of {total} daily blooms',
+  'garden.goalRemaining': '{count} more daily watering grows this flower',
+  'garden.goalRemainingOne': 'one more daily watering adds this flower to your collection',
+  'garden.howHeading': 'How it grows',
+  'garden.howDaily':
+    'The garden grows once per day: complete daily watering to earn today’s one bloom. After that, the next bloom is ready tomorrow.',
+  'garden.howExtra':
+    'Extra practice helps your learning, but it cannot earn another garden bloom that day.',
+  'garden.howCollection':
+    'Three blooms grow the current flower. Fully grown flowers stay in your collection.',
+  'garden.howMastery':
+    'Some chapter-ending flowers also need multiplication facts you can answer without hints. We show both goals before they can block you.',
+  'garden.howRest': 'Days off never remove a flower or reset its growth.',
+  'garden.masteryAhead':
+    'This flower also needs {required} multiplication facts answered without hints. {remaining} to go.',
+  'garden.masteryBlocked':
+    'This flower has all 3 blooms. Answer {remaining} more multiplication facts without hints to unlock it. Its bloom progress is safe.',
   'garden.allBlooming': 'every little plant is blooming',
   'garden.plotAria':
     'Little garden earned from {blooms}: {mature}, {growing}, {locked}{sparkle}. {caretaker}',
@@ -185,6 +207,10 @@ const english = {
   'home.soundOn': 'Turn sound on',
   'home.start': 'start a gentle check-in',
   'home.today': 'today',
+  'gardenIntro.heading': 'your garden grows with you',
+  'gardenIntro.copy':
+    'Finish daily watering to earn one bloom a day. Three blooms grow a new flower for your collection, and days off never undo it.',
+  'gardenIntro.dismiss': 'got it',
   'insight.dailyCare': 'today’s watering is done ♡',
   'insight.easier': '{fact} came back more easily today.',
   'insight.familiarMany': '{count} facts are feeling more familiar.',
@@ -287,14 +313,16 @@ const english = {
   'sync.saved': 'saved on this phone',
   'sync.synced': 'synced',
   'sync.syncing': 'syncing',
-  'watering.done': 'all watered for today ♡',
-  'watering.doneCopy': 'come back whenever you like—the garden will be here.',
+  'watering.done': 'today’s bloom is safe in your garden ♡',
+  'watering.doneCopy':
+    'The next bloom is ready tomorrow. Extra practice today still strengthens your math skills.',
   'watering.dueMany': '{count} flowers are ready for water · about {minutes} min',
   'watering.dueOne': '1 flower is ready for water · about 1 min',
-  'watering.extra': 'a little more, if you feel like it',
+  'watering.extra': 'extra practice · no extra bloom today',
   'watering.heading': 'today’s watering',
   'watering.resume': 'finish today’s watering',
-  'watering.rewardEarned': 'today’s little bloom is in the garden',
+  'watering.rewardEarned':
+    'No extra bloom today—extra practice still strengthens your math skills.',
   'watering.rewardReady': 'today’s little bloom is waiting',
   'watering.start': 'water the garden',
   'week.complete': 'your week is in bloom ♡',
@@ -379,8 +407,10 @@ const french: Record<TranslationKey, string> = {
   'celebration.perfect': 'tu les as tous retrouvés aujourd’hui',
   'celebration.rewardAllBlooming': 'Tout le petit jardin est en fleurs.',
   'celebration.rewardGrowing':
-    '{plant} grandit joliment — encore {count} {bloom} avant l’éclosion.',
-  'celebration.rewardMature': '{plant} vient d’éclore pour de bon.',
+    '{plant} : progression {current} sur {total} fleurs du jour — encore {remaining} avant de rejoindre ta collection.',
+  'celebration.rewardMature': '{plant} vient d’éclore et rejoint ta collection pour de bon.',
+  'celebration.noExtraBloom':
+    'Tes calculs sont plus solides. Le jardin pousse une fois par jour : pas de fleur en plus aujourd’hui, et la prochaine t’attend demain.',
   'common.bloom': 'fleur',
   'common.blooms': 'fleurs',
   'common.dismiss': 'Fermer',
@@ -452,7 +482,7 @@ const french: Record<TranslationKey, string> = {
   'garden.ariaPractice': '{title}. S’entraîner maintenant',
   'garden.bloomCount': '{count} {bloom}',
   'garden.extraCopy':
-    'La fleur du jour est déjà au chaud. Cette petite séance, c’est juste pour toi.',
+    'La fleur du jour est bien au chaud et la prochaine t’attend demain. Cette petite séance ne donne pas de fleur en plus aujourd’hui, mais rend tes calculs plus solides.',
   'garden.heading': 'ton petit jardin',
   'garden.nextBloom': 'prochaine fleur : {plant}',
   'garden.nextFull': 'le jardin est tout en fleurs',
@@ -461,6 +491,24 @@ const french: Record<TranslationKey, string> = {
   'garden.nextFinishes': 'encore {count} {bloom} pour la voir éclore',
   'garden.nextUnlock': 'prochaine étape : un nouveau pot',
   'garden.nextUnlockCopy': 'encore {count} {bloom} et le pot « {plant} » se débloque',
+  'garden.nextGoal': 'ton prochain objectif au jardin',
+  'garden.goalProgress': '{current} fleurs du jour sur {total}',
+  'garden.goalRemaining': 'encore {count} arrosages du jour pour faire pousser cette fleur',
+  'garden.goalRemainingOne': 'encore un arrosage du jour pour ajouter cette fleur à ta collection',
+  'garden.howHeading': 'Comment ça pousse',
+  'garden.howDaily':
+    'Le jardin pousse une fois par jour : termine l’arrosage du jour pour gagner l’unique fleur d’aujourd’hui. Ensuite, la prochaine t’attend demain.',
+  'garden.howExtra':
+    'Une petite séance en plus aide tes calculs, mais ne donne pas une deuxième fleur ce jour-là.',
+  'garden.howCollection':
+    'Trois fleurs du jour font pousser la plante en cours. Une plante éclose reste dans ta collection.',
+  'garden.howMastery':
+    'À la fin de certains coins, il faut aussi réussir des multiplications sans aide. Les deux objectifs sont montrés avant de te bloquer.',
+  'garden.howRest': 'Les jours de pause n’enlèvent aucune plante et ne remettent rien à zéro.',
+  'garden.masteryAhead':
+    'Cette plante demande aussi {required} multiplications réussies sans aide. Il en reste {remaining}.',
+  'garden.masteryBlocked':
+    'Cette plante a déjà ses 3 fleurs. Réussis encore {remaining} multiplications sans aide pour la débloquer. Ses fleurs restent bien au chaud.',
   'garden.allBlooming': 'chaque petite plante est en fleurs',
   'garden.plotAria':
     'Petit jardin après {blooms} : {mature}, {growing}, {locked}{sparkle}. {caretaker}',
@@ -496,6 +544,10 @@ const french: Record<TranslationKey, string> = {
   'home.soundOn': 'Remettre le son',
   'home.start': 'commencer tout en douceur',
   'home.today': 'aujourd’hui',
+  'gardenIntro.heading': 'ton jardin pousse avec toi',
+  'gardenIntro.copy':
+    'Termine l’arrosage du jour pour gagner une fleur par jour. Trois fleurs font pousser une nouvelle plante pour ta collection, et les jours de pause n’effacent rien.',
+  'gardenIntro.dismiss': 'j’ai compris',
   'insight.dailyCare': 'l’arrosage du jour est fait ♡',
   'insight.easier': 'aujourd’hui, {fact} t’est revenu plus facilement.',
   'insight.familiarMany': '{count} calculs commencent à devenir familiers.',
@@ -598,14 +650,16 @@ const french: Record<TranslationKey, string> = {
   'sync.saved': 'gardé sur ce téléphone',
   'sync.synced': 'tout est synchronisé',
   'sync.syncing': 'synchronisation…',
-  'watering.done': 'tout est arrosé pour aujourd’hui ♡',
-  'watering.doneCopy': 'reviens quand tu veux, le jardin sera là.',
+  'watering.done': 'la fleur du jour est bien au chaud dans ton jardin ♡',
+  'watering.doneCopy':
+    'La prochaine fleur t’attend demain. Une petite séance en plus aujourd’hui rend quand même tes calculs plus solides.',
   'watering.dueMany': '{count} fleurs à arroser · environ {minutes} min',
   'watering.dueOne': '1 fleur à arroser · environ 1 min',
-  'watering.extra': 'encore un peu, si le cœur t’en dit',
+  'watering.extra': 'petite séance en plus · pas de fleur en plus aujourd’hui',
   'watering.heading': 'l’arrosage du jour',
   'watering.resume': 'finir l’arrosage du jour',
-  'watering.rewardEarned': 'la petite fleur du jour est au jardin',
+  'watering.rewardEarned':
+    'Pas de fleur en plus aujourd’hui — cette séance rend quand même tes calculs plus solides.',
   'watering.rewardReady': 'la petite fleur du jour t’attend',
   'watering.start': 'arroser le jardin',
   'week.complete': 'ta semaine est fleurie ♡',

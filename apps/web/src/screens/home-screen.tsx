@@ -5,11 +5,13 @@ import { useState } from 'react'
 
 import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
 import { Bunny } from '../components/bunny.js'
+import { GardenIntroductionCard } from '../components/garden-introduction-card.js'
 import { InstallCard } from '../components/install-card.js'
 import { LanguageToggle } from '../components/language-toggle.js'
 import { OwnerAccessLink } from '../components/owner-access-link.js'
 import { ReminderCard } from '../components/reminder-card.js'
 import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
+import { practiceStore } from '../store.js'
 import { deriveDailyPracticeView } from '../daily-practice-view-model.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { usePracticeLauncher } from '../hooks/use-practice-launcher.js'
@@ -35,10 +37,12 @@ export function HomeScreen() {
   const launcher = usePracticeLauncher(data)
   const [showModes, setShowModes] = useState(false)
   const [sound, setSound] = useState(soundEnabled)
+  const [gardenIntroductionDismissed, setGardenIntroductionDismissed] = useState(false)
   const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
   const displayName = auth.data?.displayName ?? 'léa'
   const garden = LearningEngine.deriveGardenProgress({
     completedSessions: data?.gardenBloomCount ?? 0,
+    flowerOrder: data?.gardenCollection.flowerOrder,
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
   })
   const today = new Date()
@@ -102,6 +106,22 @@ export function HomeScreen() {
           : dailyView.dailyWateringDone
             ? t('watering.doneCopy')
             : t('home.ready')
+  const showGardenIntroduction =
+    data !== undefined &&
+    firstVisit &&
+    !data.gardenCollection.introductionSeen &&
+    !gardenIntroductionDismissed
+  const dismissGardenIntroduction = () => {
+    setGardenIntroductionDismissed(true)
+    void practiceStore
+      .markGardenIntroductionSeen()
+      .then(async () => {
+        if (!navigator.onLine) return
+        const response = await fetch('/api/v1/garden/introduction-seen', { method: 'POST' })
+        if (!response.ok) throw new Error('Garden introduction state was not saved')
+      })
+      .catch(() => undefined)
+  }
 
   return (
     <section className="home-screen">
@@ -125,6 +145,9 @@ export function HomeScreen() {
             <h1>{welcomeHeading}</h1>
             <p>{welcomeCopy}</p>
           </header>
+          {showGardenIntroduction ? (
+            <GardenIntroductionCard onDismiss={dismissGardenIntroduction} />
+          ) : null}
 
           <m.button
             className="primary-button"

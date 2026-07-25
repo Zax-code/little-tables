@@ -463,8 +463,7 @@ describe('LearningEngine', () => {
     })
 
     expect(rewards.map((reward) => reward.id)).toEqual([
-      'session:first-bloom',
-      'session:three-daisy',
+      'collection:rose-lotus',
       'session:five-pink-pot',
     ])
     expect(new Set(rewards.map((reward) => reward.id)).size).toBe(rewards.length)
@@ -472,10 +471,18 @@ describe('LearningEngine', () => {
 
   it.each([
     [0, []],
-    [1, ['session:first-bloom']],
-    [3, ['session:first-bloom', 'session:three-daisy']],
-    [5, ['session:first-bloom', 'session:three-daisy', 'session:five-pink-pot']],
-    [12, ['session:first-bloom', 'session:three-daisy', 'session:five-pink-pot']],
+    [1, []],
+    [3, ['collection:rose-lotus']],
+    [5, ['collection:rose-lotus', 'session:five-pink-pot']],
+    [
+      12,
+      [
+        'collection:rose-lotus',
+        'collection:twilight-lupine',
+        'collection:plum-snapdragon',
+        'session:five-pink-pot',
+      ],
+    ],
   ] as const)(
     'derives garden progress after %i completed sessions',
     (completedSessions, rewardIds) => {
@@ -502,22 +509,22 @@ describe('LearningEngine', () => {
         .map(({ stage }) => stage),
     ).toEqual(['dormant', 'dormant', 'locked'])
     expect(stagesAt(1).featuredPlant?.name).toBe('rose lotus')
-    expect(stagesAt(5).plants[0]?.stage).toBe('mature')
+    expect(stagesAt(3).plants[0]?.stage).toBe('mature')
     expect(
-      stagesAt(10)
+      stagesAt(6)
         .plants.slice(0, 3)
         .map(({ stage }) => stage),
     ).toEqual(['mature', 'mature', 'locked'])
-    expect(stagesAt(10).featuredPlant?.name).toBe('twilight lupine')
-    expect(stagesAt(11).plants[2]?.stage).toBe('locked')
-    expect(stagesAt(15).plants[2]?.stage).toBe('locked')
+    expect(stagesAt(6).featuredPlant?.name).toBe('twilight lupine')
+    expect(stagesAt(7).plants[2]?.stage).toBe('locked')
+    expect(stagesAt(9).plants[2]?.stage).toBe('locked')
   })
 
   it.each([
     [0, 'rose-lotus', 1, 1, 'growing', false],
-    [1, 'rose-lotus', 5, 4, 'mature', false],
-    [10, 'velvet-foxglove', 11, 1, 'growing', true],
-    [11, 'velvet-foxglove', 11, 0, 'growing', true],
+    [1, 'rose-lotus', 3, 2, 'mature', false],
+    [6, 'velvet-foxglove', 7, 1, 'growing', true],
+    [7, 'velvet-foxglove', 7, 0, 'growing', true],
   ] as const)(
     'derives the next garden milestone after %i blooms',
     (completedSessions, plantId, targetAt, bloomsRemaining, targetStage, unlocksPot) => {
@@ -536,7 +543,7 @@ describe('LearningEngine', () => {
     },
   )
 
-  it.each([45, 46, 100])('has no next garden milestone after %i blooms', (completedSessions) => {
+  it.each([27, 28, 100])('has no next garden milestone after %i blooms', (completedSessions) => {
     const fluentFact: FactMastery = {
       correctCount: 5,
       correctStreak: 5,
@@ -639,7 +646,7 @@ describe('LearningEngine', () => {
     for (let index = 1; index < rewardIdsByMilestone.length; index += 1) {
       const previousRewardIds = rewardIdsByMilestone[index - 1] ?? []
       const rewardIds = rewardIdsByMilestone[index] ?? []
-      expect(rewardIds.slice(0, previousRewardIds.length)).toEqual(previousRewardIds)
+      expect(previousRewardIds.every((rewardId) => rewardIds.includes(rewardId))).toBe(true)
     }
   })
 

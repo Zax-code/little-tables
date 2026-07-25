@@ -1,15 +1,24 @@
 import { describe, expect, it } from 'vitest'
+import { gardenFlowerIds } from '@little-tables/domain'
 
 import { decodeServerBootstrap } from './bootstrap-client.js'
 
 describe('decodeServerBootstrap', () => {
   it('validates transported progress and revives snapshot dates', async () => {
+    const flowerOrder = [...gardenFlowerIds].reverse()
     const bootstrap = await decodeServerBootstrap({
       algorithmVersion: '1',
       completedSessions: 3,
       gardenBloomCount: 1,
       practiceDayKeys: ['2026-07-16'],
       rewardedDayKeys: ['2026-07-16'],
+      gardenCollection: {
+        awardedFlowerIds: [],
+        bloomsPerFlower: 3,
+        catalogVersion: '1',
+        flowerOrder,
+        introductionSeen: false,
+      },
       snapshot: {
         algorithmVersion: '1',
         facts: {
@@ -35,6 +44,7 @@ describe('decodeServerBootstrap', () => {
     expect(bootstrap.snapshot.facts['2:5']?.dueAt).toBeInstanceOf(Date)
     expect(bootstrap.snapshot.facts['2:5']?.lastReviewedAt).toBeInstanceOf(Date)
     expect(bootstrap.rewardedDayKeys).toEqual(['2026-07-16'])
+    expect(bootstrap.gardenCollection.flowerOrder).toEqual(flowerOrder)
   })
 
   it('rejects malformed transported mastery state', async () => {

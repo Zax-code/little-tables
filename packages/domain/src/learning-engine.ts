@@ -166,7 +166,8 @@ export type GardenPlantStage = 'dormant' | 'growing' | 'locked' | 'mature'
 export type GardenChapterStage = 'complete' | 'growing' | 'locked'
 
 type GardenPlantMilestone = Readonly<{
-  id: string
+  chapterId: GardenChapterId
+  id: GardenPlantId
   lockedUntilStart: boolean
   masteryRequired: number
   matureAt: number
@@ -175,122 +176,127 @@ type GardenPlantMilestone = Readonly<{
 }>
 
 type GardenChapterMilestone = Readonly<{
-  id: string
+  id: GardenChapterId
   matureAt: number
   name: string
   plants: ReadonlyArray<GardenPlantMilestone>
   startAt: number
 }>
 
-const gardenChapterMilestones = [
+export const gardenFlowerCatalog = [
   {
-    id: 'sunny-meadow',
-    matureAt: 15,
-    name: 'sunny meadow',
-    plants: [
-      {
-        id: 'rose-lotus',
-        lockedUntilStart: false,
-        masteryRequired: 0,
-        matureAt: 5,
-        name: 'rose lotus',
-        startAt: 1,
-      },
-      {
-        id: 'twilight-lupine',
-        lockedUntilStart: false,
-        masteryRequired: 0,
-        matureAt: 10,
-        name: 'twilight lupine',
-        startAt: 6,
-      },
-      {
-        id: 'velvet-foxglove',
-        lockedUntilStart: true,
-        masteryRequired: 5,
-        matureAt: 15,
-        name: 'velvet foxglove',
-        startAt: 11,
-      },
-    ],
-    startAt: 1,
+    id: 'rose-lotus',
+    name: 'rose lotus',
   },
   {
-    id: 'secret-greenhouse',
-    matureAt: 30,
-    name: 'secret greenhouse',
-    plants: [
-      {
-        id: 'plum-snapdragon',
-        lockedUntilStart: false,
-        masteryRequired: 0,
-        matureAt: 20,
-        name: 'plum snapdragon',
-        startAt: 16,
-      },
-      {
-        id: 'sunset-zinnia',
-        lockedUntilStart: false,
-        masteryRequired: 0,
-        matureAt: 25,
-        name: 'sunset zinnia',
-        startAt: 21,
-      },
-      {
-        id: 'ruby-bleeding-heart',
-        lockedUntilStart: true,
-        masteryRequired: 15,
-        matureAt: 30,
-        name: 'ruby bleeding heart',
-        startAt: 26,
-      },
-    ],
-    startAt: 16,
+    id: 'twilight-lupine',
+    name: 'twilight lupine',
   },
   {
-    id: 'starlit-garden',
-    matureAt: 45,
-    name: 'starlit garden',
-    plants: [
-      {
-        id: 'blushing-peony',
-        lockedUntilStart: false,
-        masteryRequired: 0,
-        matureAt: 35,
-        name: 'blushing peony',
-        startAt: 31,
-      },
-      {
-        id: 'ivory-magnolia',
-        lockedUntilStart: false,
-        masteryRequired: 0,
-        matureAt: 40,
-        name: 'ivory magnolia',
-        startAt: 36,
-      },
-      {
-        id: 'blue-wisteria',
-        lockedUntilStart: true,
-        masteryRequired: 30,
-        matureAt: 45,
-        name: 'blue wisteria',
-        startAt: 41,
-      },
-    ],
-    startAt: 31,
+    id: 'velvet-foxglove',
+    name: 'velvet foxglove',
   },
-] as const satisfies ReadonlyArray<GardenChapterMilestone>
+  {
+    id: 'plum-snapdragon',
+    name: 'plum snapdragon',
+  },
+  {
+    id: 'sunset-zinnia',
+    name: 'sunset zinnia',
+  },
+  {
+    id: 'ruby-bleeding-heart',
+    name: 'ruby bleeding heart',
+  },
+  {
+    id: 'blushing-peony',
+    name: 'blushing peony',
+  },
+  {
+    id: 'ivory-magnolia',
+    name: 'ivory magnolia',
+  },
+  {
+    id: 'blue-wisteria',
+    name: 'blue wisteria',
+  },
+] as const
 
-export type GardenChapterId = (typeof gardenChapterMilestones)[number]['id']
-export type GardenPlantId = (typeof gardenChapterMilestones)[number]['plants'][number]['id']
+export type GardenPlantId = (typeof gardenFlowerCatalog)[number]['id']
 
-const gardenPlantMilestones: ReadonlyArray<
-  GardenPlantMilestone & Readonly<{ chapterId: GardenChapterId; id: GardenPlantId }>
-> = gardenChapterMilestones.flatMap((chapter) =>
-  chapter.plants.map((plant) => ({ ...plant, chapterId: chapter.id })),
+const gardenChapterDefinitions = [
+  { id: 'sunny-meadow', name: 'sunny meadow' },
+  { id: 'secret-greenhouse', name: 'secret greenhouse' },
+  { id: 'starlit-garden', name: 'starlit garden' },
+] as const
+
+export type GardenChapterId = (typeof gardenChapterDefinitions)[number]['id']
+
+export const gardenFlowerIds: ReadonlyArray<GardenPlantId> = gardenFlowerCatalog.map(({ id }) => id)
+export const gardenBloomsPerFlower = 3
+
+export type GardenCollectionSnapshot = Readonly<{
+  awardedFlowerIds: ReadonlyArray<GardenPlantId>
+  bloomsPerFlower: typeof gardenBloomsPerFlower
+  catalogVersion: '1'
+  flowerOrder: ReadonlyArray<GardenPlantId>
+  introductionSeen: boolean
+}>
+
+const gardenFlowerById: ReadonlyMap<GardenPlantId, (typeof gardenFlowerCatalog)[number]> = new Map(
+  gardenFlowerCatalog.map((flower) => [flower.id, flower]),
 )
 
+const normalizedFlowerOrder = (
+  flowerOrder: ReadonlyArray<GardenPlantId> | undefined,
+): ReadonlyArray<GardenPlantId> => {
+  const knownIds = new Set<GardenPlantId>(gardenFlowerIds)
+  const uniqueIds: GardenPlantId[] = []
+  for (const id of flowerOrder ?? []) {
+    if (knownIds.has(id) && !uniqueIds.includes(id)) uniqueIds.push(id)
+  }
+  return [...uniqueIds, ...gardenFlowerIds.filter((id) => !uniqueIds.includes(id))]
+}
+
+const gardenMilestonesForOrder = (
+  flowerOrder: ReadonlyArray<GardenPlantId> | undefined,
+): Readonly<{
+  chapters: ReadonlyArray<GardenChapterMilestone>
+  plants: ReadonlyArray<GardenPlantMilestone>
+}> => {
+  const plants = normalizedFlowerOrder(flowerOrder).map((id, index): GardenPlantMilestone => {
+    const chapterIndex = Math.floor(index / 3)
+    const chapter = gardenChapterDefinitions[chapterIndex]
+    const flower = gardenFlowerById.get(id)
+    if (chapter === undefined || flower === undefined) {
+      throw new Error(`Unknown garden flower at position ${index}`)
+    }
+    const chapterEnd = index % 3 === 2
+    return {
+      chapterId: chapter.id,
+      id,
+      lockedUntilStart: chapterEnd,
+      masteryRequired: chapterEnd ? ([5, 15, 30][chapterIndex] ?? 0) : 0,
+      matureAt: (index + 1) * gardenBloomsPerFlower,
+      name: flower.name,
+      startAt: index * gardenBloomsPerFlower + 1,
+    }
+  })
+  const chapters = gardenChapterDefinitions.map((chapter, chapterIndex) => {
+    const chapterPlants = plants.slice(chapterIndex * 3, chapterIndex * 3 + 3)
+    return {
+      ...chapter,
+      matureAt: (chapterIndex + 1) * 3 * gardenBloomsPerFlower,
+      plants: chapterPlants,
+      startAt: chapterIndex * 3 * gardenBloomsPerFlower + 1,
+    }
+  })
+  return { chapters, plants }
+}
+
 export type GardenPlantProgress = Readonly<{
+  bloomsEarned: number
+  bloomsRequired: number
   chapterId: GardenChapterId
   collected: boolean
   id: GardenPlantId
@@ -343,6 +349,7 @@ export type GardenProgress = Readonly<{
 
 type DeriveRewardsInput = Readonly<{
   completedSessions: number
+  flowerOrder?: ReadonlyArray<GardenPlantId> | undefined
   snapshot: LearningSnapshot
 }>
 
@@ -1246,33 +1253,43 @@ const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): Answer
 
 const deriveRewards = ({
   completedSessions,
+  flowerOrder,
   snapshot,
 }: DeriveRewardsInput): ReadonlyArray<GardenReward> => {
   const rewards: GardenReward[] = []
-  if (completedSessions >= 1) {
-    rewards.push({ id: 'session:first-bloom', kind: 'flower', label: 'first tulip' })
-  }
-  if (completedSessions >= 3) {
-    rewards.push({ id: 'session:three-daisy', kind: 'flower', label: 'sunny daisy' })
-  }
+  const fluentFacts = Object.values(snapshot.facts).filter((fact) => fact.state === 'fluent').length
+  const order = normalizedFlowerOrder(flowerOrder)
+  order.forEach((id, index) => {
+    const chapterEnd = index % 3 === 2
+    const masteryRequired = chapterEnd ? ([5, 15, 30][Math.floor(index / 3)] ?? 0) : 0
+    if (
+      completedSessions >= (index + 1) * gardenBloomsPerFlower &&
+      fluentFacts >= masteryRequired
+    ) {
+      rewards.push({
+        id: `collection:${id}`,
+        kind: 'flower',
+        label: gardenFlowerById.get(id)?.name ?? id,
+      })
+    }
+  })
   if (completedSessions >= 5) {
     rewards.push({ id: 'session:five-pink-pot', kind: 'pot', label: 'pink pot' })
   }
-  const fluentFacts = Object.values(snapshot.facts).filter((fact) => fact.state === 'fluent').length
   if (fluentFacts >= 10) {
     rewards.push({ id: 'mastery:ten-sparkle', kind: 'sparkle', label: 'garden sparkle' })
   }
-  if (completedSessions >= 15 && fluentFacts >= 5) {
+  if (completedSessions >= 9 && fluentFacts >= 5) {
     rewards.push({ id: 'chapter:sunny-meadow', kind: 'pot', label: 'sunny meadow pot' })
   }
-  if (completedSessions >= 30 && fluentFacts >= 15) {
+  if (completedSessions >= 18 && fluentFacts >= 15) {
     rewards.push({
       id: 'chapter:secret-greenhouse',
       kind: 'background',
       label: 'secret greenhouse backdrop',
     })
   }
-  if (completedSessions >= 45 && fluentFacts >= 30) {
+  if (completedSessions >= 27 && fluentFacts >= 30) {
     rewards.push({
       id: 'chapter:starlit-garden',
       kind: 'sparkle',
@@ -1290,7 +1307,8 @@ const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
   const fluentFacts = Object.values(input.snapshot.facts).filter(
     ({ state }) => state === 'fluent',
   ).length
-  const plants: ReadonlyArray<GardenPlantProgress> = gardenPlantMilestones.map((plant) => {
+  const milestones = gardenMilestonesForOrder(input.flowerOrder)
+  const plants: ReadonlyArray<GardenPlantProgress> = milestones.plants.map((plant) => {
     const masteryRemaining = Math.max(0, plant.masteryRequired - fluentFacts)
     const stage: GardenPlantStage =
       bloomCount < plant.startAt
@@ -1304,6 +1322,8 @@ const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
             : 'mature'
     return {
       ...plant,
+      bloomsEarned: Math.max(0, Math.min(gardenBloomsPerFlower, bloomCount - plant.startAt + 1)),
+      bloomsRequired: gardenBloomsPerFlower,
       collected: stage === 'mature',
       masteryRemaining,
       stage,
@@ -1316,7 +1336,7 @@ const deriveGardenProgress = (input: DeriveRewardsInput): GardenProgress => {
       : { targetAt: nextPlant.startAt, targetStage: 'growing' as const }
     : null
   const practiceDaysRemaining = nextTarget ? Math.max(0, nextTarget.targetAt - bloomCount) : 0
-  const chapters: ReadonlyArray<GardenChapterProgress> = gardenChapterMilestones.map((chapter) => {
+  const chapters: ReadonlyArray<GardenChapterProgress> = milestones.chapters.map((chapter) => {
     const chapterPlants = plants.filter(({ chapterId }) => chapterId === chapter.id)
     const collectedCount = chapterPlants.filter(({ collected }) => collected).length
     return {

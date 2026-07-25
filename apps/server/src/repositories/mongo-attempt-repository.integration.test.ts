@@ -6,8 +6,10 @@ import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
 import { AllowedEmailRepository } from './allowed-email-repository.js'
 import { AttemptRepository } from './attempt-repository.js'
+import { GardenCollectionRepository } from './garden-collection-repository.js'
 import { MongoAllowedEmailRepository } from './mongo-allowed-email-repository.js'
 import { MongoAttemptRepository } from './mongo-attempt-repository.js'
+import { MongoGardenCollectionRepository } from './mongo-garden-collection-repository.js'
 import { MongoProfileRepository } from './mongo-profile-repository.js'
 import { ProfileRepository } from './profile-repository.js'
 
@@ -131,5 +133,41 @@ describe('MongoAttemptRepository', () => {
       retained: 'Lulu',
       saved: 'Lulu',
     })
+  }, 30_000)
+
+  it('atomically preserves one duplicate-free personalized garden per learner', async () => {
+    const gardenLayer = MongoGardenCollectionRepository.layer(
+      `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`,
+      'integration',
+    )
+    const program = Effect.gen(function* () {
+      const repository = yield* GardenCollectionRepository
+      const first = yield* repository.loadOrCreate({
+        preferredFlowerPrefix: ['rose-lotus'],
+        profileId: 'garden-learner',
+      })
+      const second = yield* repository.loadOrCreate({
+        preferredFlowerPrefix: ['blue-wisteria'],
+        profileId: 'garden-learner',
+      })
+      yield* repository.reconcile('garden-learner', {
+        awardedFlowerIds: [first.flowerOrder[0] ?? 'rose-lotus'],
+        bloomCount: 3,
+        rewardedDayKeys: ['2026-07-23', '2026-07-24', '2026-07-25'],
+      })
+      const replayed = yield* repository.reconcile('garden-learner', {
+        awardedFlowerIds: [first.flowerOrder[0] ?? 'rose-lotus'],
+        bloomCount: 3,
+        rewardedDayKeys: ['2026-07-25'],
+      })
+      return { first, replayed, second }
+    }).pipe(Effect.provide(gardenLayer))
+
+    const result = await Effect.runPromise(program)
+
+    expect(result.second.flowerOrder).toEqual(result.first.flowerOrder)
+    expect(new Set(result.first.flowerOrder).size).toBe(9)
+    expect(result.replayed.awardedFlowerIds).toEqual([result.first.flowerOrder[0]])
+    expect(result.replayed.rewardedDayKeys).toEqual(['2026-07-23', '2026-07-24', '2026-07-25'])
   }, 30_000)
 })

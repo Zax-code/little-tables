@@ -11,7 +11,7 @@ import { Screen } from '../components/screen.js'
 import { useFlowerTransition } from '../flower-transition.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { returnToGardenAfterPractice } from '../practice-session-launch.js'
-import { celebrationRewardCopy } from './celebration-reward-copy.js'
+import { celebrationExtraPracticeCopy, celebrationRewardCopy } from './celebration-reward-copy.js'
 import { sessionInsightCopy } from './session-insight-copy.js'
 import { useI18n } from '../i18n.js'
 
@@ -37,6 +37,7 @@ export function CelebrationScreen() {
 
   const progress = LearningEngine.deriveGardenProgress({
     completedSessions: completion.bloomNumber,
+    flowerOrder: data.gardenCollection.flowerOrder,
     snapshot: data.snapshot,
   })
   const featuredPlant = progress.featuredPlant
@@ -94,6 +95,11 @@ export function CelebrationScreen() {
                 {t('celebration.gardenBloom')}
               </m.div>
               <p className="reward-explanation">{rewardCopy}</p>
+            </div>
+          ) : completion.sessionKind === 'extra-practice' ? (
+            <div className="reward-summary reward-summary--extra-practice">
+              <strong>{t('celebration.complete')}</strong>
+              <p className="reward-explanation">{celebrationExtraPracticeCopy(locale)}</p>
             </div>
           ) : null}
           <div className="celebration-actions">

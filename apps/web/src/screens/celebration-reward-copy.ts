@@ -13,8 +13,8 @@ export function celebrationRewardCopy(progress: GardenProgress, locale: Locale =
   if (plant === null) {
     const remaining = progress.nextStep.fluentFactsRemaining
     return remaining > 0
-      ? translate(locale, remaining === 1 ? 'chapter.oneToGo' : 'chapter.manyToGo', {
-          count: remaining,
+      ? translate(locale, 'garden.masteryBlocked', {
+          remaining,
         })
       : translate(locale, 'celebration.rewardAllBlooming')
   }
@@ -24,10 +24,13 @@ export function celebrationRewardCopy(progress: GardenProgress, locale: Locale =
     return translate(locale, 'celebration.rewardMature', { plant: plantName })
   }
 
-  const remaining = progress.nextStep.bloomsRemaining
   return translate(locale, 'celebration.rewardGrowing', {
-    bloom: translate(locale, remaining === 1 ? 'common.bloom' : 'common.blooms'),
-    count: remaining,
+    current: plant.bloomsEarned,
     plant: plantName,
+    remaining: plant.bloomsRequired - plant.bloomsEarned,
+    total: plant.bloomsRequired,
   })
 }
+
+export const celebrationExtraPracticeCopy = (locale: Locale = 'fr'): string =>
+  translate(locale, 'celebration.noExtraBloom')

@@ -100,7 +100,14 @@ describe('internationalization', () => {
       '3 calculs sur 8 sont bien ancrés sur le chemin à l’envers',
     )
     expect(translate('fr', 'garden.extraCopy')).toBe(
-      'La fleur du jour est déjà au chaud. Cette petite séance, c’est juste pour toi.',
+      'La fleur du jour est bien au chaud et la prochaine t’attend demain. Cette petite séance ne donne pas de fleur en plus aujourd’hui, mais rend tes calculs plus solides.',
     )
+  })
+
+  it('keeps the completed home card positive and explicit about tomorrow', () => {
+    expect(translate('en', 'watering.done')).toContain('safe in your garden')
+    expect(translate('en', 'watering.doneCopy')).toContain('The next bloom is ready tomorrow')
+    expect(translate('en', 'watering.rewardEarned')).toContain('still strengthens your math skills')
+    expect(translate('fr', 'watering.extra')).toContain('pas de fleur en plus aujourd’hui')
   })
 })

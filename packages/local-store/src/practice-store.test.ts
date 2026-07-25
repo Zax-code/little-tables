@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 
-import { LearningEngine } from '@little-tables/domain'
+import { LearningEngine, gardenFlowerIds } from '@little-tables/domain'
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -90,6 +90,39 @@ describe('IndexedDbPracticeStore', () => {
       gardenBloomCount: 1,
       rewardedDayKeys: ['2026-07-12'],
     })
+    store.close()
+  })
+
+  it('caches the server-authoritative personalized collection for offline use', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const store = new IndexedDbPracticeStore(databaseName)
+    const flowerOrder = [...gardenFlowerIds].reverse()
+
+    await store.replaceSnapshot(LearningEngine.emptySnapshot(), {
+      completedSessions: 3,
+      gardenBloomCount: 3,
+      gardenCollection: {
+        awardedFlowerIds: [flowerOrder[0] ?? 'blue-wisteria'],
+        bloomsPerFlower: 3,
+        catalogVersion: '1',
+        flowerOrder,
+        introductionSeen: false,
+      },
+      practiceDayKeys: ['2026-07-23', '2026-07-24', '2026-07-25'],
+      rewardedDayKeys: ['2026-07-23', '2026-07-24', '2026-07-25'],
+    })
+    await store.markGardenIntroductionSeen()
+
+    const offline = await store.load()
+    expect(offline.gardenCollection).toEqual({
+      awardedFlowerIds: [flowerOrder[0]],
+      bloomsPerFlower: 3,
+      catalogVersion: '1',
+      flowerOrder,
+      introductionSeen: true,
+    })
+    expect(offline.gardenBloomCount).toBe(3)
     store.close()
   })
 

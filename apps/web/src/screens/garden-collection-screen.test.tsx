@@ -1,6 +1,6 @@
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, expect, it, vi } from 'vitest'
-import { LearningEngine } from '@little-tables/domain'
+import { LearningEngine, gardenFlowerIds } from '@little-tables/domain'
 
 const bootstrapState = vi.hoisted<{ data: unknown }>(() => ({ data: undefined }))
 
@@ -31,7 +31,8 @@ describe('garden collection screen', () => {
 
   it('distinguishes plants still hidden, currently growing, and already in bloom', () => {
     bootstrapState.data = {
-      completedSessions: 16,
+      completedSessions: 10,
+      gardenCollection: { flowerOrder: gardenFlowerIds },
       snapshot: LearningEngine.emptySnapshot(),
     }
     vi.stubGlobal('window', { location: { search: '' } })
@@ -49,6 +50,7 @@ describe('garden collection screen', () => {
   it('uses the same approved full-length stem composition as the garden', () => {
     bootstrapState.data = {
       completedSessions: 5,
+      gardenCollection: { flowerOrder: gardenFlowerIds },
       snapshot: LearningEngine.emptySnapshot(),
     }
     vi.stubGlobal('window', { location: { search: '' } })

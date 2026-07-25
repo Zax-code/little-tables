@@ -1,4 +1,4 @@
-import { LearningEngine } from '@little-tables/domain'
+import { LearningEngine, gardenFlowerIds } from '@little-tables/domain'
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from '@effect/platform'
 import { Effect, Schema } from 'effect'
 import { existsSync, statSync } from 'node:fs'
@@ -15,6 +15,7 @@ import { AttemptIngestion } from '../application/attempt-ingestion.js'
 import { verifyGoogleCredential } from '../application/google-identity.js'
 import { Identity } from '../application/identity.js'
 import { AttemptRepository, ReminderLocaleSchema } from '../repositories/attempt-repository.js'
+import { GardenCollectionRepository } from '../repositories/garden-collection-repository.js'
 import {
   PreferredDisplayNameSchema,
   ProfileRepository,
@@ -285,8 +286,9 @@ const refreshSession = Effect.gen(function* () {
 })
 
 const ready = Effect.gen(function* () {
-  const repository = yield* AttemptRepository
-  yield* repository.health
+  const attemptRepository = yield* AttemptRepository
+  const gardenRepository = yield* GardenCollectionRepository
+  yield* Effect.all([attemptRepository.health, gardenRepository.health])
   return yield* json({ revision: appRevision, status: 'ready' })
 }).pipe(Effect.catchAll(() => json({ status: 'unavailable' }, 503)))
 
@@ -313,6 +315,7 @@ const bootstrap = Effect.gen(function* () {
   const identity = yield* authorizedIdentity
   if (identity === null) return yield* json({ error: 'unauthorized' }, 401)
   const repository = yield* AttemptRepository
+  const gardenRepository = yield* GardenCollectionRepository
   const attempts = yield* repository.list(identity.profileId)
   const snapshot = LearningEngine.reduce({ attempts, snapshot: LearningEngine.emptySnapshot() })
   const completedAttemptBySession = new Map<string, (typeof attempts)[number]>()
@@ -329,26 +332,72 @@ const bootstrap = Effect.gen(function* () {
   const dayKeyFor = ({ answeredAt, learningDayKey }: (typeof attempts)[number]) =>
     learningDayKey ?? answeredAt.toISOString().slice(0, 10)
   const practiceDayKeys = [...new Set(attempts.map(dayKeyFor))].sort()
-  const gardenRewards = LearningEngine.deriveGardenRewardLedger({
+  const derivedGardenRewards = LearningEngine.deriveGardenRewardLedger({
     completions: completedAttempts.map((attempt) => ({
       learningDayKey: dayKeyFor(attempt),
       sessionKind: attempt.sessionKind,
     })),
+  })
+  const legacyFlowerPrefixLength =
+    derivedGardenRewards.gardenBloomCount === 0
+      ? 0
+      : Math.min(gardenFlowerIds.length, Math.ceil(derivedGardenRewards.gardenBloomCount / 5))
+  const initialCollection = yield* gardenRepository.loadOrCreate({
+    preferredFlowerPrefix: gardenFlowerIds.slice(0, legacyFlowerPrefixLength),
+    profileId: identity.profileId,
+  })
+  const gardenRewards = LearningEngine.mergeGardenRewardLedgers({
+    ledgers: [
+      derivedGardenRewards,
+      {
+        gardenBloomCount: initialCollection.bloomCount,
+        rewardedDayKeys: initialCollection.rewardedDayKeys,
+      },
+    ],
+  })
+  const gardenProgress = LearningEngine.deriveGardenProgress({
+    completedSessions: gardenRewards.gardenBloomCount,
+    flowerOrder: initialCollection.flowerOrder,
+    snapshot,
+  })
+  const collection = yield* gardenRepository.reconcile(identity.profileId, {
+    awardedFlowerIds: [
+      ...initialCollection.awardedFlowerIds,
+      ...gardenProgress.plants.filter(({ stage }) => stage === 'mature').map(({ id }) => id),
+    ],
+    bloomCount: gardenRewards.gardenBloomCount,
+    rewardedDayKeys: gardenRewards.rewardedDayKeys,
   })
   return yield* json({
     algorithmVersion: snapshot.algorithmVersion,
     profile: { displayName: identity.displayName, id: identity.profileId },
     completedSessions,
     gardenBloomCount: gardenRewards.gardenBloomCount,
+    gardenCollection: {
+      awardedFlowerIds: collection.awardedFlowerIds,
+      bloomsPerFlower: collection.bloomsPerFlower,
+      catalogVersion: collection.catalogVersion,
+      flowerOrder: collection.flowerOrder,
+      introductionSeen: collection.introductionSeen,
+    },
     practiceDayKeys,
     rewardedDayKeys: gardenRewards.rewardedDayKeys,
     rewards: LearningEngine.deriveRewards({
       completedSessions: gardenRewards.gardenBloomCount,
+      flowerOrder: collection.flowerOrder,
       snapshot,
     }),
     snapshot,
   })
 }).pipe(Effect.catchAll(() => json({ error: 'bootstrap_unavailable' }, 503)))
+
+const markGardenIntroductionSeen = Effect.gen(function* () {
+  const profileId = yield* authorizedProfile
+  if (profileId === null) return yield* json({ error: 'unauthorized' }, 401)
+  const repository = yield* GardenCollectionRepository
+  yield* repository.markIntroductionSeen(profileId)
+  return yield* json({ introductionSeen: true })
+}).pipe(Effect.catchAll(() => json({ error: 'garden_introduction_update_failed' }, 503)))
 
 const notificationConfig = Effect.gen(function* () {
   const profileId = yield* authorizedProfile
@@ -427,6 +476,7 @@ export const httpApp = HttpRouter.empty.pipe(
   HttpRouter.del('/api/v1/admin/allowed-emails', removeAllowedEmail),
   HttpRouter.post('/api/v1/session/refresh', refreshSession),
   HttpRouter.get('/api/v1/bootstrap', bootstrap),
+  HttpRouter.post('/api/v1/garden/introduction-seen', markGardenIntroductionSeen),
   HttpRouter.post('/api/v1/attempts/sync', sync),
   HttpRouter.get('/api/v1/notifications/config', notificationConfig),
   HttpRouter.post('/api/v1/notifications/subscriptions', savePushSubscription),

@@ -681,7 +681,7 @@ describe('LearningEngine phase two', () => {
 
   it('derives three finite garden chapters and a nine-plant collection', () => {
     const progress = LearningEngine.deriveGardenProgress({
-      completedSessions: 45,
+      completedSessions: 27,
       snapshot: snapshotWithFluentFacts(30),
     })
 
@@ -694,7 +694,7 @@ describe('LearningEngine phase two', () => {
     expect(progress.plants.at(-1)).toMatchObject({
       chapterId: 'starlit-garden',
       id: 'blue-wisteria',
-      matureAt: 45,
+      matureAt: 27,
       stage: 'mature',
     })
     expect(progress.collection).toEqual({ collectedCount: 9, complete: true, totalCount: 9 })
@@ -702,13 +702,46 @@ describe('LearningEngine phase two', () => {
     expect(progress.nextStep).toBeNull()
   })
 
+  it('grows a personalized flower order once each over three unique daily blooms', () => {
+    const flowerOrder = [
+      'blue-wisteria',
+      'rose-lotus',
+      'ivory-magnolia',
+      'twilight-lupine',
+      'ruby-bleeding-heart',
+      'sunset-zinnia',
+      'blushing-peony',
+      'velvet-foxglove',
+      'plum-snapdragon',
+    ] as const
+    const progress = LearningEngine.deriveGardenProgress({
+      completedSessions: 6,
+      flowerOrder,
+      snapshot: snapshotWithFluentFacts(30),
+    })
+
+    expect(progress.plants.map(({ id }) => id)).toEqual(flowerOrder)
+    expect(
+      progress.plants.slice(0, 3).map(({ matureAt, stage, startAt }) => ({
+        matureAt,
+        stage,
+        startAt,
+      })),
+    ).toEqual([
+      { matureAt: 3, stage: 'mature', startAt: 1 },
+      { matureAt: 6, stage: 'mature', startAt: 4 },
+      { matureAt: 9, stage: 'locked', startAt: 7 },
+    ])
+    expect(new Set(progress.plants.map(({ id }) => id)).size).toBe(9)
+  })
+
   it('holds each showcase plant for durable mastery while preserving daily growth', () => {
     const waiting = LearningEngine.deriveGardenProgress({
-      completedSessions: 15,
+      completedSessions: 9,
       snapshot: LearningEngine.emptySnapshot(),
     })
     const ready = LearningEngine.deriveGardenProgress({
-      completedSessions: 15,
+      completedSessions: 9,
       snapshot: snapshotWithFluentFacts(5),
     })
 

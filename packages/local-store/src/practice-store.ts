@@ -1,6 +1,9 @@
 import {
   LearningEngine,
+  gardenBloomsPerFlower,
+  gardenFlowerIds,
   type AttemptEvent,
+  type GardenCollectionSnapshot,
   type LearningSnapshot,
   type PracticeQuestion,
   type PracticeSession,
@@ -23,6 +26,7 @@ type StateRecord = Readonly<{
   activeSession: StoredPracticeSession | null
   completedSessions: number
   gardenBloomCount?: number | undefined
+  gardenCollection?: GardenCollectionSnapshot | undefined
   id: 'current'
   lastCompletion?: unknown
   practiceDayKeys?: ReadonlyArray<string> | undefined
@@ -46,6 +50,7 @@ export type LocalBootstrap = Readonly<{
   activeSession: PracticeSession | null
   completedSessions: number
   gardenBloomCount: number
+  gardenCollection: GardenCollectionSnapshot
   lastCompletion: SessionCompletion | null
   practiceDayKeys: ReadonlyArray<string>
   rewardedDayKeys: ReadonlyArray<string>
@@ -144,6 +149,23 @@ const LearningSnapshotSchema = Schema.Struct({
   processedEventIds: Schema.Array(Schema.NonEmptyString),
 })
 
+const GardenPlantIdSchema = Schema.Literal(...gardenFlowerIds)
+const GardenCollectionSnapshotSchema = Schema.Struct({
+  awardedFlowerIds: Schema.Array(GardenPlantIdSchema),
+  bloomsPerFlower: Schema.Literal(gardenBloomsPerFlower),
+  catalogVersion: Schema.Literal('1'),
+  flowerOrder: Schema.Array(GardenPlantIdSchema).pipe(
+    Schema.filter(
+      (order) =>
+        order.length === gardenFlowerIds.length &&
+        new Set(order).size === gardenFlowerIds.length &&
+        gardenFlowerIds.every((id) => order.includes(id)),
+      { message: () => 'Garden flower order must contain every flower exactly once' },
+    ),
+  ),
+  introductionSeen: Schema.Boolean,
+})
+
 const AttemptEventSchema = Schema.Struct({
   answerMode: Schema.Literal('choice', 'keypad'),
   answeredAt: Schema.ValidDateFromSelf,
@@ -188,6 +210,7 @@ const StateRecordSchema = Schema.Struct({
   activeSession: Schema.NullOr(StoredPracticeSessionSchema),
   completedSessions: Schema.NonNegativeInt,
   gardenBloomCount: Schema.optional(Schema.NonNegativeInt),
+  gardenCollection: Schema.optional(GardenCollectionSnapshotSchema),
   id: Schema.Literal('current'),
   lastCompletion: Schema.optional(Schema.Unknown),
   practiceDayKeys: Schema.optional(Schema.Array(Schema.NonEmptyString)),
@@ -215,6 +238,14 @@ const gardenRewardLedgerFor = (state: StateRecord | undefined) =>
     gardenBloomCount: state?.gardenBloomCount,
     rewardedDayKeys: state?.rewardedDayKeys ?? state?.practiceDayKeys ?? [],
   })
+
+const defaultGardenCollection = (): GardenCollectionSnapshot => ({
+  awardedFlowerIds: [],
+  bloomsPerFlower: gardenBloomsPerFlower,
+  catalogVersion: '1',
+  flowerOrder: gardenFlowerIds,
+  introductionSeen: false,
+})
 
 const normalizeStoredSession = (session: StoredPracticeSession | null): PracticeSession | null =>
   session === null
@@ -278,6 +309,7 @@ export class IndexedDbPracticeStore {
           activeSession: null,
           completedSessions: 0,
           gardenBloomCount: 0,
+          gardenCollection: defaultGardenCollection(),
           lastCompletion: null,
           practiceDayKeys: [],
           rewardedDayKeys: [],
@@ -287,6 +319,7 @@ export class IndexedDbPracticeStore {
           activeSession: normalizeStoredSession(state.activeSession),
           completedSessions: state.completedSessions,
           gardenBloomCount: gardenRewards.gardenBloomCount,
+          gardenCollection: state.gardenCollection ?? defaultGardenCollection(),
           lastCompletion: decodeSessionCompletion(state.lastCompletion),
           practiceDayKeys: state.practiceDayKeys ?? [],
           rewardedDayKeys: gardenRewards.rewardedDayKeys,
@@ -313,6 +346,7 @@ export class IndexedDbPracticeStore {
           activeSession: session,
           completedSessions: current?.completedSessions ?? 0,
           gardenBloomCount: gardenRewards.gardenBloomCount,
+          gardenCollection: current?.gardenCollection,
           id: 'current',
           lastCompletion: decodeSessionCompletion(current?.lastCompletion),
           practiceDayKeys: [...new Set([...(current?.practiceDayKeys ?? []), practiceDayKey])],
@@ -332,6 +366,7 @@ export class IndexedDbPracticeStore {
       activeSession: session,
       completedSessions: current?.completedSessions ?? 0,
       gardenBloomCount: gardenRewards.gardenBloomCount,
+      gardenCollection: current?.gardenCollection,
       id: 'current',
       lastCompletion: decodeSessionCompletion(current?.lastCompletion),
       practiceDayKeys: current?.practiceDayKeys ?? [],
@@ -418,6 +453,7 @@ export class IndexedDbPracticeStore {
           activeSession: null,
           completedSessions,
           gardenBloomCount: gardenRewards.gardenBloomCount,
+          gardenCollection: current.gardenCollection,
           id: 'current',
           lastCompletion: completion,
           practiceDayKeys: current.practiceDayKeys ?? [],
@@ -435,6 +471,7 @@ export class IndexedDbPracticeStore {
     serverState?: Readonly<{
       completedSessions: number
       gardenBloomCount?: number
+      gardenCollection?: GardenCollectionSnapshot
       practiceDayKeys: ReadonlyArray<string>
       rewardedDayKeys?: ReadonlyArray<string>
     }>,
@@ -453,6 +490,7 @@ export class IndexedDbPracticeStore {
       ...current,
       completedSessions: Math.max(current.completedSessions, serverState?.completedSessions ?? 0),
       gardenBloomCount: gardenRewards.gardenBloomCount,
+      gardenCollection: serverState?.gardenCollection ?? current.gardenCollection,
       id: 'current',
       practiceDayKeys: [
         ...new Set([...current.practiceDayKeys, ...(serverState?.practiceDayKeys ?? [])]),
@@ -461,6 +499,18 @@ export class IndexedDbPracticeStore {
       sessionStartSnapshot:
         stored?.sessionStartSnapshot ?? (current.activeSession === null ? null : current.snapshot),
       snapshot,
+    })
+  }
+
+  async markGardenIntroductionSeen(): Promise<void> {
+    const current = await this.load()
+    await this.#database.state.put({
+      ...current,
+      gardenCollection: {
+        ...current.gardenCollection,
+        introductionSeen: true,
+      },
+      id: 'current',
     })
   }
 }

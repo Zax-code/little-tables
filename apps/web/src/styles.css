@@ -682,6 +682,51 @@ p {
   margin: 8px 0 26px;
   font-size: 1.05rem;
 }
+.garden-introduction-card {
+  margin: 0 0 18px;
+  padding: 15px;
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 6px 12px;
+  border: 1px solid var(--line-garden);
+  border-radius: 22px;
+  background: var(--surface-garden);
+  color: var(--ink-primary);
+  text-align: left;
+  box-shadow: var(--shadow-soft);
+}
+.garden-introduction-card__flower {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  grid-row: 1 / span 2;
+  border-radius: 14px;
+  background: var(--surface-card);
+  color: var(--accent-green);
+  font-size: 1.45rem;
+}
+.garden-introduction-card strong {
+  display: block;
+  margin-bottom: 3px;
+}
+.garden-introduction-card p {
+  color: var(--ink-muted);
+  font-size: 0.82rem;
+  line-height: 1.45;
+}
+.garden-introduction-card button {
+  min-height: 40px;
+  grid-column: 2;
+  justify-self: start;
+  padding: 0 14px;
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  background: var(--surface-card);
+  color: var(--action-primary-deep);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
 .home-screen > .primary-button,
 .home-intro > .primary-button {
   width: 100%;
@@ -2169,6 +2214,66 @@ p {
 .garden-plot__sparkle--3 {
   bottom: 3%;
   left: 45%;
+}
+.garden-how-it-grows,
+.garden-next-goal {
+  width: 100%;
+  border: 1px solid var(--line-garden);
+  border-radius: 20px;
+  background: rgb(255 253 249 / 92%);
+  box-shadow: 0 5px 18px rgb(90 50 55 / 5%);
+}
+.garden-how-it-grows {
+  margin-top: 14px;
+  padding: 0 15px;
+}
+.garden-how-it-grows summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  color: var(--action-primary-deep);
+  font-weight: 750;
+  cursor: pointer;
+}
+.garden-how-it-grows ul {
+  margin: 0 0 15px;
+  padding-left: 20px;
+  display: grid;
+  gap: 8px;
+  color: var(--ink-muted);
+  font-size: 0.8rem;
+  line-height: 1.45;
+}
+.garden-next-goal {
+  margin-top: 12px;
+  padding: 14px 16px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 3px 12px;
+  text-align: left;
+}
+.garden-next-goal > span {
+  grid-column: 1 / -1;
+  color: var(--ink-muted);
+  font-size: 0.7rem;
+  font-weight: 750;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.garden-next-goal strong {
+  color: var(--ink-primary);
+}
+.garden-next-goal p {
+  color: var(--action-primary-deep);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+.garden-next-goal small {
+  grid-column: 1 / -1;
+  margin-top: 3px;
+  color: var(--ink-muted);
+  font-size: 0.76rem;
+  line-height: 1.4;
 }
 .tomorrow-card {
   width: 100%;

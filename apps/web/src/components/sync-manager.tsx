@@ -29,16 +29,37 @@ export function SyncManager() {
       mutate(undefined, {
         onSuccess: () => {
           void (async () => {
-            const response = await fetch('/api/v1/bootstrap')
+            const [local, response] = await Promise.all([
+              practiceStore.load(),
+              fetch('/api/v1/bootstrap'),
+            ])
             if (response.status === 401) {
               await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
               return
             }
             if (!response.ok) return
-            const server = await decodeServerBootstrap(await response.json())
+            let server = await decodeServerBootstrap(await response.json())
+            if (
+              local.gardenCollection.introductionSeen &&
+              !server.gardenCollection.introductionSeen
+            ) {
+              const introductionResponse = await fetch('/api/v1/garden/introduction-seen', {
+                method: 'POST',
+              })
+              if (introductionResponse.ok) {
+                server = {
+                  ...server,
+                  gardenCollection: {
+                    ...server.gardenCollection,
+                    introductionSeen: true,
+                  },
+                }
+              }
+            }
             await practiceStore.replaceSnapshot(server.snapshot, {
               completedSessions: server.completedSessions,
               gardenBloomCount: server.gardenBloomCount,
+              gardenCollection: server.gardenCollection,
               practiceDayKeys: server.practiceDayKeys,
               rewardedDayKeys: server.rewardedDayKeys,
             })

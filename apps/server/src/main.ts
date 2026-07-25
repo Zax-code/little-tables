@@ -7,9 +7,11 @@ import { httpApp } from './http/app.js'
 import { DailyReminders } from './application/daily-reminders.js'
 import { InMemoryAllowedEmailRepository } from './repositories/in-memory-allowed-email-repository.js'
 import { InMemoryAttemptRepository } from './repositories/in-memory-attempt-repository.js'
+import { InMemoryGardenCollectionRepository } from './repositories/in-memory-garden-collection-repository.js'
 import { InMemoryProfileRepository } from './repositories/in-memory-profile-repository.js'
 import { MongoAllowedEmailRepository } from './repositories/mongo-allowed-email-repository.js'
 import { MongoAttemptRepository } from './repositories/mongo-attempt-repository.js'
+import { MongoGardenCollectionRepository } from './repositories/mongo-garden-collection-repository.js'
 import { MongoProfileRepository } from './repositories/mongo-profile-repository.js'
 
 const port = Number(process.env.PORT ?? 3000)
@@ -42,11 +44,13 @@ if (
 const repositoryLayer = process.env.MONGODB_URI
   ? Layer.mergeAll(
       MongoAttemptRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
+      MongoGardenCollectionRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
       MongoAllowedEmailRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
       MongoProfileRepository.layer(process.env.MONGODB_URI, process.env.MONGODB_DATABASE),
     )
   : Layer.mergeAll(
       InMemoryAttemptRepository.layer(),
+      InMemoryGardenCollectionRepository.layer(),
       InMemoryAllowedEmailRepository.layer(),
       InMemoryProfileRepository.layer(),
     )
