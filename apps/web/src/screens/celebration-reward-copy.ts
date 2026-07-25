@@ -20,12 +20,23 @@ export function celebrationRewardCopy(progress: GardenProgress, locale: Locale =
   if (progress.nextStep === null) return translate(locale, 'celebration.rewardAllBlooming')
 
   if (plant === null) {
-    const remaining = progress.nextStep.fluentFactsRemaining
-    return remaining > 0
-      ? translate(locale, 'garden.masteryBlocked', {
-          remaining,
-        })
-      : translate(locale, 'celebration.rewardAllBlooming')
+    const nextStep = progress.nextStep
+    if (nextStep.fluentFactsRemaining === 0) {
+      return translate(locale, 'celebration.rewardAllBlooming')
+    }
+    if (nextStep.blockedByMastery) {
+      return translate(locale, 'garden.masteryBlocked', {
+        remaining: nextStep.fluentFactsRemaining,
+      })
+    }
+    return translate(locale, 'celebration.rewardGrowingMastery', {
+      current: nextStep.plant.bloomsEarned,
+      plant: sentenceCase(translatePlantName(locale, nextStep.plant.id)),
+      remainingBlooms: nextStep.plant.bloomsRequired - nextStep.plant.bloomsEarned,
+      remainingFacts: nextStep.fluentFactsRemaining,
+      required: nextStep.plant.masteryRequired,
+      total: nextStep.plant.bloomsRequired,
+    })
   }
 
   const plantName = sentenceCase(translatePlantName(locale, plant.id))

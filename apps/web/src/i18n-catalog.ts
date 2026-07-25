@@ -75,6 +75,8 @@ const english = {
   'celebration.rewardAllBlooming': 'Every little plant is blooming.',
   'celebration.rewardGrowing':
     '{plant}: {current} of {total} daily blooms. {remaining} more to join your collection.',
+  'celebration.rewardGrowingMastery':
+    '{plant}: {current} of {total} daily blooms, with {remainingBlooms} more to grow. It also needs {required} multiplication facts answered without hints; {remainingFacts} to go.',
   'celebration.rewardMature':
     '{plant} is fully grown and has joined your collection. Next discovery: {nextPlant}.',
   'celebration.rewardMatureFinal':
@@ -411,6 +413,8 @@ const french: Record<TranslationKey, string> = {
   'celebration.rewardAllBlooming': 'Tout le petit jardin est en fleurs.',
   'celebration.rewardGrowing':
     '{plant} : progression {current} sur {total} fleurs du jour — encore {remaining} avant de rejoindre ta collection.',
+  'celebration.rewardGrowingMastery':
+    '{plant} : progression {current} sur {total} fleurs du jour — encore {remainingBlooms} pour éclore. Il faut aussi réussir {required} multiplications sans aide ; il en reste {remainingFacts}.',
   'celebration.rewardMature':
     '{plant} vient d’éclore et rejoint ta collection pour de bon. Prochaine découverte : {nextPlant}.',
   'celebration.rewardMatureFinal':

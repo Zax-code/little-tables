@@ -1,7 +1,7 @@
 import { HttpApp } from '@effect/platform'
 import { NodeHttpPlatform } from '@effect/platform-node'
 import type { AttemptEvent } from '@little-tables/domain'
-import { Effect, Layer } from 'effect'
+import { Effect, Layer, Schema } from 'effect'
 import { describe, expect, it } from 'vitest'
 
 import {
@@ -30,6 +30,17 @@ const baseAttempt: AttemptEvent = {
   sequence: 0,
   sessionId: 'session-1',
 }
+
+const GardenBootstrapTestSchema = Schema.Struct({
+  gardenCollection: Schema.Struct({
+    awardedFlowerIds: Schema.Array(Schema.String),
+    flowerOrder: Schema.Array(Schema.String),
+    introductionSeen: Schema.optional(Schema.Boolean),
+  }),
+})
+
+const decodeGardenBootstrap = async (response: Response) =>
+  Schema.decodeUnknownPromise(GardenBootstrapTestSchema)(await response.json())
 
 const repositoryWithAttempts = (
   attempts: ReadonlyArray<AttemptEvent>,
@@ -187,14 +198,9 @@ describe('practice HTTP interface', () => {
     )
     const { dispose, handler } = webHandler(repositoryWithAttempts(attempts))
     const firstResponse = await handler(new Request('http://little-tables.local/api/v1/bootstrap'))
-    const first = (await firstResponse.json()) as {
-      gardenCollection: {
-        awardedFlowerIds: ReadonlyArray<string>
-        flowerOrder: ReadonlyArray<string>
-      }
-    }
+    const first = await decodeGardenBootstrap(firstResponse)
     const secondResponse = await handler(new Request('http://little-tables.local/api/v1/bootstrap'))
-    const second = (await secondResponse.json()) as typeof first
+    const second = await decodeGardenBootstrap(secondResponse)
     await handler(
       new Request('http://little-tables.local/api/v1/garden/introduction-seen', {
         method: 'POST',
@@ -203,7 +209,7 @@ describe('practice HTTP interface', () => {
     const withIntroductionSeenResponse = await handler(
       new Request('http://little-tables.local/api/v1/bootstrap'),
     )
-    const withIntroductionSeen = (await withIntroductionSeenResponse.json()) as typeof first
+    const withIntroductionSeen = await decodeGardenBootstrap(withIntroductionSeenResponse)
     await dispose()
 
     expect(first.gardenCollection.flowerOrder).toHaveLength(9)

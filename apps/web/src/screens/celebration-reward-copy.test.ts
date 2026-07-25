@@ -52,6 +52,24 @@ describe('celebration reward copy', () => {
     )
   })
 
+  it.each([
+    [7, 1, 2],
+    [8, 2, 1],
+  ])(
+    'reports bloom and mastery progress together before the gate at bloom %i',
+    (completedSessions, current, remainingBlooms) => {
+      const progress = LearningEngine.deriveGardenProgress({
+        completedSessions,
+        snapshot: LearningEngine.emptySnapshot(),
+      })
+
+      expect(celebrationRewardCopy(progress, 'en')).toBe(
+        `Velvet foxglove: ${current} of 3 daily blooms, with ${remainingBlooms} more to grow. It also needs 5 multiplication facts answered without hints; 5 to go.`,
+      )
+      expect(celebrationRewardCopy(progress, 'en')).not.toContain('has all 3 blooms')
+    },
+  )
+
   it('celebrates extra-practice learning and says the next bloom is tomorrow', () => {
     expect(celebrationExtraPracticeCopy('en')).toBe(
       'Your math skills got stronger. The garden grows once per day, so there is no extra bloom today—the next bloom is ready tomorrow.',
