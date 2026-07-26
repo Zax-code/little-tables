@@ -15,7 +15,9 @@ import json
 from pathlib import Path
 from typing import Any
 
-from PIL import Image, ImageFilter
+from PIL import Image
+
+from character_alpha import protect_foreground_pixels
 
 
 ACTIVE_SCENES = {
@@ -199,11 +201,6 @@ def protect_foreground_interior(
     minimum_component_pixels: int,
 ) -> None:
     """Preserve opaque subject colors away from the reviewed soft-matte boundary."""
-    if erosion_pixels < 1:
-        raise ValueError("erosion pixels must be at least 1")
-    if minimum_component_pixels < 1:
-        raise ValueError("minimum component pixels must be at least 1")
-
     source_image = rgba(source)
     soft_image = rgba(soft_matte)
     edge_image = rgba(edge_color_matte) if edge_color_matte else soft_image.copy()
@@ -217,65 +214,18 @@ def protect_foreground_interior(
             "source and all mattes must have identical dimensions",
         )
 
-    hard_alpha = hard_image.getchannel("A")
-    width, height = hard_alpha.size
-    hard_data = bytearray(hard_alpha.tobytes())
-    visited = bytearray(width * height)
-    retained = bytearray(width * height)
-    for start, alpha in enumerate(hard_data):
-        if alpha == 0 or visited[start]:
-            continue
-        visited[start] = 1
-        stack = [start]
-        component: list[int] = []
-        touches_border = False
-        while stack:
-            index = stack.pop()
-            component.append(index)
-            x = index % width
-            y = index // width
-            touches_border = touches_border or (
-                x == 0 or y == 0 or x == width - 1 or y == height - 1
-            )
-            neighbors = []
-            if x > 0:
-                neighbors.append(index - 1)
-            if x < width - 1:
-                neighbors.append(index + 1)
-            if y > 0:
-                neighbors.append(index - width)
-            if y < height - 1:
-                neighbors.append(index + width)
-            for neighbor in neighbors:
-                if hard_data[neighbor] and not visited[neighbor]:
-                    visited[neighbor] = 1
-                    stack.append(neighbor)
-        if not touches_border and len(component) >= minimum_component_pixels:
-            for index in component:
-                retained[index] = 255
-
-    hard_alpha = Image.frombytes("L", (width, height), bytes(retained))
-    interior = hard_alpha.copy()
-    for _ in range(erosion_pixels):
-        interior = interior.filter(ImageFilter.MinFilter(3))
-
-    source_pixels = source_image.load()
-    edge_pixels = edge_image.load()
-    output_pixels = soft_image.load()
-    hard_pixels = hard_alpha.load()
-    interior_pixels = interior.load()
-    for y in range(source_image.height):
-        for x in range(source_image.width):
-            if hard_pixels[x, y] == 0:
-                output_pixels[x, y] = (0, 0, 0, 0)
-                continue
-            if interior_pixels[x, y] == 255:
-                red, green, blue, _ = source_pixels[x, y]
-                output_pixels[x, y] = (red, green, blue, 255)
-                continue
-            red, green, blue, _ = edge_pixels[x, y]
-            _, _, _, alpha = output_pixels[x, y]
-            output_pixels[x, y] = (red, green, blue, alpha)
+    width, height = source_image.size
+    output_data = protect_foreground_pixels(
+        source_image.tobytes(),
+        soft_image.tobytes(),
+        edge_image.tobytes(),
+        hard_image.getchannel("A").tobytes(),
+        width,
+        height,
+        erosion_pixels,
+        minimum_component_pixels,
+    )
+    soft_image = Image.frombytes("RGBA", (width, height), output_data)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     soft_image.save(output, format="PNG")
