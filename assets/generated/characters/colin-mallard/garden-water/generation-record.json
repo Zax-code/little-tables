@@ -38,13 +38,14 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -55,7 +56,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G1/alpha-source.png",
-        "sha256": "6ffe0c26ff0dd89a46e958d653b9ad28fe1771532f3c132c72fa8688ee2bf460"
+        "sha256": "9704570b6b437bcb28f7ef38dc77bfda9ac906d01453ee0835140ff1d69ddc9a"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -81,7 +82,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G1/final-frame.png",
-        "sha256": "362adcc65b913bd3ff44679a00a4346b54d51ba16bffc59dacb9eae3fb4b5ea2"
+        "sha256": "bb162c6a9e73e5bcc6b3f53175e038449ab8ac3de6a10f7275e17bab051af3bd"
       }
     },
     {
@@ -98,13 +99,14 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -115,7 +117,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G2/alpha-source.png",
-        "sha256": "f79b9746c68568c347018d2abe496c749f38321369ff5562e7ef9a5f6285f123"
+        "sha256": "da5a03584240bf93d6e35d44243f860f2f131df37eb04fd45432272c71b91d91"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -141,7 +143,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G2/final-frame.png",
-        "sha256": "b8f53e5a5675926bab5d4813af99b2083439813913fcd68ddf40ac95a11371b6"
+        "sha256": "4cec7492faf3e4b22984ae29e0936788194292a272b809f094bcb3207bd28cd7"
       }
     },
     {
@@ -158,13 +160,14 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -175,7 +178,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G3/alpha-source.png",
-        "sha256": "8651072c22cc3fbfce142f96254d5bc58ae66bd08429425a0ce76c48f510a3af"
+        "sha256": "e3b1dfeec4433717e0870ba207f256e9645b2a494edb765a23b79a759ded7caf"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -201,7 +204,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G3/final-frame.png",
-        "sha256": "a164566593d5c510849d411d227871e9b0501d6b2cac23f7fdecff3cfef3174b"
+        "sha256": "07b105cfaf3c4c81b3e3623fefff6aeb769bc1dd63b275e9b1749dd203f50cb7"
       }
     },
     {
@@ -218,13 +221,14 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -235,7 +239,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G4/alpha-source.png",
-        "sha256": "57be79f8c9cf40f36bfb3a0a3f3755d8770c8b46e4a77f9197fc787214575494"
+        "sha256": "6b465a69e8cb65a6c4a7c7a6735287c1c04745755ab7aa8518317513cec9680c"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -261,7 +265,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-water/G4/final-frame.png",
-        "sha256": "b2226727f64c83444632adf19eae395cda79bfefc761b4afbdbc8fc0246844bb"
+        "sha256": "90e1e63bde8e73fcb2e0acc472854ab06bfeaa322a2985fb0f82169f5a11dea0"
       }
     }
   ],
@@ -269,7 +273,7 @@
     "method": "lossless reviewed-frame sheet assembly only",
     "runtimeAsset": {
       "path": "apps/web/public/characters/colin-mallard/garden-water-sheet.webp",
-      "sha256": "a3ef64784fd7fb989ab21bccff3777a28d166336abc68b353f92df50b229e92c"
+      "sha256": "a6c9592853f759e0444dff06c1b6ece35bd67d08eb57c4f1e66f10663ad412fd"
     }
   }
 }

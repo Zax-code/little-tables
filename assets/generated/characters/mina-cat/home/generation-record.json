@@ -18,13 +18,14 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "autoKey": "border",
     "softMatte": true,
     "transparentThreshold": 12,
     "opaqueThreshold": 220,
     "despill": true,
     "edgeContract": 1,
-    "keyColor": "#ff00ff",
     "foregroundInteriorProtection": {
+      "edgeDespillKeyColor": "#ff00ff",
       "hardKeyColor": "#ff00ff",
       "hardTolerance": 64,
       "erosionPixels": 3,
@@ -55,10 +56,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/mina-cat/home/final-frame.png",
-    "sha256": "2c18ee6bb9920ec36ea3f6865b56a5f0a082a4f3445b6ab3ec05d3711214b291"
+    "sha256": "d763883b3a1bf831721048be863de00b2f629fd89dd4b574defdab60adc1485d"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/mina-cat/home.webp",
-    "sha256": "814560a012ebed9d9e44cc5596cb455828bba56fc511a4c37a55253320a6c925"
+    "sha256": "f0124fadd0cbcab27ea5cb70ab5739fd45422f377e392af4a80efe7b1a1aa698"
   }
 }

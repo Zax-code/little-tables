@@ -38,13 +38,14 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -55,7 +56,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C1/alpha-source.png",
-        "sha256": "1759eaba391c279ee065a23c125339455bd12d98cad379e6bf6946698511d799"
+        "sha256": "d56b82a309def90d5182ca2a500c410989d6b3952b00a2fbd00de6f1545dc4ab"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -81,7 +82,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C1/final-frame.png",
-        "sha256": "9671fdd26279b87fdc9202a9a6c1d8fe0ab42fa35715208223db1911e7899f3f"
+        "sha256": "11030852bc93d3baa7d3aa9f7228781ab4c61c448a3e4277c7b8289a248e06b9"
       }
     },
     {
@@ -98,13 +99,14 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -115,7 +117,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C2/alpha-source.png",
-        "sha256": "c46ae194f47f30981051ad932c98ac865f8d3967a7d499b780b74f3e13623032"
+        "sha256": "3d0a10c7634674487cfc25b75c062a4a4791760dc298626a86ccce7d2c9cc598"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -141,7 +143,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C2/final-frame.png",
-        "sha256": "32c2843521e5a68f4a8e0d55497132794437a8604ee817fb524fcb0ae7dfc33e"
+        "sha256": "e99333f4e825d852200d32845aac95dbaf8c59f9dfd05bb04fd64a2344629f7a"
       }
     },
     {
@@ -163,13 +165,14 @@
       ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -180,7 +183,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C3/alpha-source.png",
-        "sha256": "e2cdd03bf23c96eb3f31ea8a41077b4f4f209b8df619fdd6ff5188edc96d8b7c"
+        "sha256": "9920e33f83372bc697932707abd3473a381b183e2f8d8039b15c3967b6b32680"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -206,7 +209,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C3/final-frame.png",
-        "sha256": "cf13941936d0a081ba67d8fd4d3991a9b0adc5ebc2e9a490625d591f9eb8b866"
+        "sha256": "74c7f365f10dcd8ef9e71b7a728c3374f2c20fe8f035841185a6a3556417293d"
       }
     },
     {
@@ -223,13 +226,14 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
         "softMatte": true,
         "transparentThreshold": 12,
         "opaqueThreshold": 220,
         "despill": true,
         "edgeContract": 1,
-        "keyColor": "#ff00ff",
         "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
           "hardKeyColor": "#ff00ff",
           "hardTolerance": 64,
           "erosionPixels": 3,
@@ -240,7 +244,7 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C4/alpha-source.png",
-        "sha256": "5c73e96c08844ddd57b3119b18bc1b6c8fbebe91a092b5ff00f740b4fdc01714"
+        "sha256": "47b542f0b38f65924d0a99e8852a07f548d635eb81138d05d472ccdd43953966"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -266,7 +270,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C4/final-frame.png",
-        "sha256": "4c3420adb33568a9d5cd955e698842de4d2a23ad83693d87cd6d950d0359097f"
+        "sha256": "29ac07cb6a6c1b62322d75d8eaf1afd74c09ce98891105aa03f8af00fc6e70fa"
       }
     }
   ],
@@ -274,7 +278,7 @@
     "method": "lossless reviewed-frame sheet assembly only",
     "runtimeAsset": {
       "path": "apps/web/public/characters/colin-mallard/celebration-sheet.webp",
-      "sha256": "cd5fc9ca20fb997491648cebea42fd0f6bf19d9ea7c74bf4c0b01b62974babf7"
+      "sha256": "861a6e3291081a9e05a89658b12c60383f855435d0e22dcc0cac73a1683b4b50"
     }
   }
 }

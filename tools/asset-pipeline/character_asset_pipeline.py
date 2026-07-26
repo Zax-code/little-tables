@@ -192,6 +192,7 @@ def convert(source: Path, output: Path) -> None:
 def protect_foreground_interior(
     source: Path,
     soft_matte: Path,
+    edge_color_matte: Path | None,
     hard_matte: Path,
     output: Path,
     erosion_pixels: int,
@@ -205,10 +206,15 @@ def protect_foreground_interior(
 
     source_image = rgba(source)
     soft_image = rgba(soft_matte)
+    edge_image = rgba(edge_color_matte) if edge_color_matte else soft_image.copy()
     hard_image = rgba(hard_matte)
-    if source_image.size != soft_image.size or source_image.size != hard_image.size:
+    if (
+        source_image.size != soft_image.size
+        or source_image.size != edge_image.size
+        or source_image.size != hard_image.size
+    ):
         raise ValueError(
-            "source, soft matte, and hard matte must have identical dimensions",
+            "source and all mattes must have identical dimensions",
         )
 
     hard_alpha = hard_image.getchannel("A")
@@ -254,6 +260,7 @@ def protect_foreground_interior(
         interior = interior.filter(ImageFilter.MinFilter(3))
 
     source_pixels = source_image.load()
+    edge_pixels = edge_image.load()
     output_pixels = soft_image.load()
     hard_pixels = hard_alpha.load()
     interior_pixels = interior.load()
@@ -265,6 +272,10 @@ def protect_foreground_interior(
             if interior_pixels[x, y] == 255:
                 red, green, blue, _ = source_pixels[x, y]
                 output_pixels[x, y] = (red, green, blue, 255)
+                continue
+            red, green, blue, _ = edge_pixels[x, y]
+            _, _, _, alpha = output_pixels[x, y]
+            output_pixels[x, y] = (red, green, blue, alpha)
 
     output.parent.mkdir(parents=True, exist_ok=True)
     soft_image.save(output, format="PNG")
@@ -319,6 +330,7 @@ def parser() -> argparse.ArgumentParser:
     protect_command = commands.add_parser("protect-foreground-interior")
     protect_command.add_argument("--source", type=Path, required=True)
     protect_command.add_argument("--soft-matte", type=Path, required=True)
+    protect_command.add_argument("--edge-color-matte", type=Path)
     protect_command.add_argument("--hard-matte", type=Path, required=True)
     protect_command.add_argument("--output", type=Path, required=True)
     protect_command.add_argument("--erosion-pixels", type=int, default=1)
@@ -360,6 +372,7 @@ def main() -> None:
         protect_foreground_interior(
             args.source,
             args.soft_matte,
+            args.edge_color_matte,
             args.hard_matte,
             args.output,
             args.erosion_pixels,

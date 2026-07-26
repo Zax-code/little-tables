@@ -18,13 +18,14 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "autoKey": "border",
     "softMatte": true,
     "transparentThreshold": 12,
     "opaqueThreshold": 220,
     "despill": true,
     "edgeContract": 1,
-    "keyColor": "#ff00ff",
     "foregroundInteriorProtection": {
+      "edgeDespillKeyColor": "#ff00ff",
       "hardKeyColor": "#ff00ff",
       "hardTolerance": 64,
       "erosionPixels": 3,
@@ -55,10 +56,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/colin-mallard/practice-idle/final-frame.png",
-    "sha256": "dd27dbe5e17adfa1f4fdfccfc680ab1132d4d1e7941b2509bbb27dec6de830ac"
+    "sha256": "9da43975ec03a21e869c1d9b48836f2c1972622748339afb84e58bb3f1c712c5"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/colin-mallard/practice-idle.webp",
-    "sha256": "f6e0c72ee842dd52ec99b1f7848168fd5cd25e015f92515e966461ea1664b2f4"
+    "sha256": "996aedca7a13e12146d7496548930c4c23c68273c556cbdd1fc13d19ff5357ab"
   }
 }

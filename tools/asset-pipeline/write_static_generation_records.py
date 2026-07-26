@@ -120,9 +120,8 @@ def cleanup(character_id: str, scene: str) -> dict[str, object]:
     if (
         character_id == "colin-mallard" and scene != "update-recovery"
     ) or (character_id == "mina-cat" and scene == "home"):
-        settings.pop("autoKey")
-        settings["keyColor"] = "#ff00ff"
         settings["foregroundInteriorProtection"] = {
+            "edgeDespillKeyColor": "#ff00ff",
             "hardKeyColor": "#ff00ff",
             "hardTolerance": 64,
             "erosionPixels": 3,

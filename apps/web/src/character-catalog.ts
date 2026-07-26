@@ -166,7 +166,7 @@ const sceneOpticalBounds = {
   },
   'mina-cat': {
     connectProfile: [24, 31, 232, 223],
-    home: [48, 50, 279, 417],
+    home: [48, 50, 279, 416],
     practiceIdle: [35, 79, 291, 349],
     practiceCorrect: [38, 180, 634, 904],
     practiceEncourage: [25, 107, 745, 913],
@@ -187,14 +187,14 @@ const sceneOpticalBounds = {
     gardenWater: [152, 131, 1131, 1224],
   },
   'colin-mallard': {
-    connectProfile: [42, 24, 213, 207],
+    connectProfile: [42, 24, 214, 207],
     home: [38, 42, 291, 431],
     practiceIdle: [26, 49, 300, 349],
     practiceCorrect: [44, 138, 630, 904],
-    practiceEncourage: [27, 55, 759, 913],
+    practiceEncourage: [28, 55, 759, 913],
     updateRecovery: [70, 206, 948, 1162],
-    celebration: [95, 39, 1575, 375],
-    gardenWalk: [158, 91, 1060, 1149],
+    celebration: [95, 39, 1576, 375],
+    gardenWalk: [158, 91, 1060, 1148],
     gardenWater: [153, 76, 1130, 1212],
   },
 } as const satisfies Readonly<Record<CharacterId, Readonly<Record<CharacterSceneId, PixelBounds>>>>

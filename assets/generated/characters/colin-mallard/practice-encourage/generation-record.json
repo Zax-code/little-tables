@@ -18,13 +18,14 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "autoKey": "border",
     "softMatte": true,
     "transparentThreshold": 12,
     "opaqueThreshold": 220,
     "despill": true,
     "edgeContract": 1,
-    "keyColor": "#ff00ff",
     "foregroundInteriorProtection": {
+      "edgeDespillKeyColor": "#ff00ff",
       "hardKeyColor": "#ff00ff",
       "hardTolerance": 64,
       "erosionPixels": 3,
@@ -55,10 +56,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/colin-mallard/practice-encourage/final-frame.png",
-    "sha256": "49893ef9f426bce726f37e22138464eb6d88c3d497067c74329baaa495b627bc"
+    "sha256": "81e9e854ba48e1a16c250e31ec64120dc99f7d53d5acc57f29cb9a94c4ae3b9b"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/colin-mallard/practice-encourage.webp",
-    "sha256": "6365c5ba56ca4bebdab87aeb643e9e74d4195eb572a930c07283940a4cf43547"
+    "sha256": "1d8d3282c64ccf49ac0748ab97cb34d55d5cbb732dc995bf55f9e86a42a63bb4"
   }
 }

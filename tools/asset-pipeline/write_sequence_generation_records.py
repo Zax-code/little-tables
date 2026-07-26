@@ -161,9 +161,8 @@ def cleanup(character_id: str) -> dict[str, object]:
         "edgeContract": 1,
     }
     if character_id == "colin-mallard":
-        settings.pop("autoKey")
-        settings["keyColor"] = "#ff00ff"
         settings["foregroundInteriorProtection"] = {
+            "edgeDespillKeyColor": "#ff00ff",
             "hardKeyColor": "#ff00ff",
             "hardTolerance": 64,
             "erosionPixels": 3,

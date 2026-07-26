@@ -18,13 +18,14 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "autoKey": "border",
     "softMatte": true,
     "transparentThreshold": 12,
     "opaqueThreshold": 220,
     "despill": true,
     "edgeContract": 1,
-    "keyColor": "#ff00ff",
     "foregroundInteriorProtection": {
+      "edgeDespillKeyColor": "#ff00ff",
       "hardKeyColor": "#ff00ff",
       "hardTolerance": 64,
       "erosionPixels": 3,
@@ -55,10 +56,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/colin-mallard/home/final-frame.png",
-    "sha256": "c848aa94f47cab29dba0b146770598816d5405649390fb3af8eca11422bc8cd3"
+    "sha256": "c31a57110b8aef4ba876af38b44fdc7acb3f4f193664e2a24df62aad6e76431a"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/colin-mallard/home.webp",
-    "sha256": "ba340f40ac8194deff27bccda0c3e7e6bea6c5bd6c500e508909adaa9f07149e"
+    "sha256": "c493931026dfc5165d0b26fb970c2cdde03b3c7ff8fa58f2404d04aa2399e763"
   }
 }
