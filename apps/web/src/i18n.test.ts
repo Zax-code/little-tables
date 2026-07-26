@@ -243,4 +243,19 @@ describe('internationalization', () => {
       expect(translate('zh-Hans', `family.avatar.${avatarId}`)).toBe(chineseName)
     }
   })
+
+  it('describes authenticated character art with the selected first name', () => {
+    expect(translate('en', 'asset.walking', { character: 'Paco' })).toBe(
+      'Paco walking through the garden with a blue watering can',
+    )
+    expect(translate('fr', 'garden.plotCaretakerHere', { character: 'Mina' })).toBe(
+      'Mina arrose tranquillement ici.',
+    )
+    expect(translate('zh-Hans', 'asset.walking', { character: '帕科' })).toBe(
+      '帕科提着蓝色水壶走过花园',
+    )
+    expect(translate('zh-Hans', 'garden.plotCaretakerHere', { character: '米娜' })).toBe(
+      '米娜正在这里轻轻浇水。',
+    )
+  })
 })

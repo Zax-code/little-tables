@@ -7,7 +7,7 @@ describe('GoogleConnectButtonArtwork', () => {
   it('uses the generated Miffy face and app-styled connect copy', () => {
     const markup = renderToStaticMarkup(<GoogleConnectButtonArtwork />)
 
-    expect(markup).toContain('/generated/miffy-google-connect.webp')
+    expect(markup).toContain('/characters/miffy/connect-profile.webp')
     expect(markup).toContain('se connecter avec google')
     expect(markup).toContain('aria-hidden="true"')
   })
@@ -23,5 +23,6 @@ describe('PreferredNameForm', () => {
     expect(markup).toContain('value="Google Lou"')
     expect(markup).toContain('placeholder="Google Lou"')
     expect(markup).toContain('maxLength="40"')
+    expect(markup).toContain('/characters/miffy/home.webp')
   })
 })

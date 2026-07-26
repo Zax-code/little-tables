@@ -1,0 +1,243 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "malo-bear",
+  "sequence": "garden-water",
+  "productionContract": {
+    "cellDimensions": [
+      627,
+      627
+    ],
+    "layout": [
+      2,
+      2
+    ],
+    "sheetDimensions": [
+      1254,
+      1254
+    ],
+    "semanticOrder": [
+      "G1",
+      "G2",
+      "G3",
+      "G4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "G1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G1.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfront-facing ready pose with upright can and zero droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G1/generated-source.png",
+        "sha256": "3169faf1bdc2c2bbe2f817959e3b04b17f9bbfc419d4316ad146e50a65a383f7"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G1/alpha-source.png",
+        "sha256": "c4e921a03f74f70bedd5605387c4ffcdbd51334eb5d1e753e1830df7a2abeae0"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 0.948,
+        "offsetX": 22,
+        "offsetY": 22
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G1/final-frame.png",
+        "sha256": "520e15e29ca12e6890e2f6e33497dc27a59cf411a3672de2d44cbf7c97ce3876"
+      }
+    },
+    {
+      "frameId": "G2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G2.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\ninitial can tilt with exactly two separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G2/generated-source.png",
+        "sha256": "fa63de6bcdb1f683cb71331427b58400cd97a4a7d79a390300a48219aecb1471"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G2/alpha-source.png",
+        "sha256": "33c7d0e56603e1898d2b8db9e0b2cd3c0d537937a0141c9cf90a174f8a45766f"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 0.966,
+        "offsetX": -32,
+        "offsetY": 11
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G2/final-frame.png",
+        "sha256": "26abaf740f731cd831a253bee53d1684346a4c30e235c2522a0c09b02ee296e3"
+      }
+    },
+    {
+      "frameId": "G3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G3.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nshort pour with exactly four separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G3/generated-source.png",
+        "sha256": "5c19f8653e9d6d8f4d347c47272b18aadcc4d780dcd3cc28642c5dfce3f50ef6"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G3/alpha-source.png",
+        "sha256": "2f8ff2108e1d8de7adb45ae0c6d95daa533f6b73d2aedce4696b35122b634644"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.071,
+        "offsetX": -43,
+        "offsetY": -17
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G3/final-frame.png",
+        "sha256": "5e00455c423ad890c219de9f4a25ac3154a2b7f633c5704cd1f427169817f2e2"
+      }
+    },
+    {
+      "frameId": "G4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G4.png",
+        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfull pour with exactly eight separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G4/generated-source.png",
+        "sha256": "f53f9bda2971547b326e4ab55130703ce54d28e7fdfd30e8b68163521505fcfe"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G4/alpha-source.png",
+        "sha256": "64cf26429d3e102db2ee2009d98f5f281b7ae54a303f3c88a51958028f51a1fb"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.074,
+        "offsetX": -59,
+        "offsetY": -6
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/malo-bear/garden-water/G4/final-frame.png",
+        "sha256": "88f0745b62dda2ae4267db3c30d448f130841ab3485bf88a17486845cf274db8"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/malo-bear/garden-water-sheet.webp",
+      "sha256": "7460ef7cab1863ebd55039aafcd2a25b20bcd42e2695d7e4e92576fd52ee55f0"
+    }
+  }
+}

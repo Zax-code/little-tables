@@ -1280,6 +1280,23 @@ p {
   font-size: 0.72rem;
   font-weight: 750;
 }
+.character-asset-probe {
+  display: none;
+}
+.character-asset-retry {
+  min-height: 44px;
+  padding: 10px 14px;
+  pointer-events: auto;
+  color: var(--ink-primary);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 750;
+  line-height: 1.25;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--surface-control);
+  box-shadow: none;
+}
 .home-bunny {
   width: 210px;
   height: auto;

@@ -1,15 +1,21 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+const { cacheFirstSpy, registerRouteSpy } = vi.hoisted(() => ({
+  cacheFirstSpy: vi.fn(),
+  registerRouteSpy: vi.fn(),
+}))
+
 vi.mock('workbox-core', () => ({ clientsClaim: vi.fn() }))
 vi.mock('workbox-precaching', () => ({ precacheAndRoute: vi.fn() }))
-vi.mock('workbox-routing', () => ({ registerRoute: vi.fn() }))
+vi.mock('workbox-routing', () => ({ registerRoute: registerRouteSpy }))
 vi.mock('workbox-strategies', () => ({
-  CacheFirst: vi.fn(),
+  CacheFirst: cacheFirstSpy,
 }))
 
 describe('service worker updates', () => {
   beforeEach(() => {
     vi.resetModules()
+    vi.clearAllMocks()
     vi.unstubAllGlobals()
   })
 
@@ -39,6 +45,24 @@ describe('service worker updates', () => {
     onMessage?.({ data: { type: 'SKIP_WAITING' } } as MessageEvent)
 
     expect(skipWaiting).toHaveBeenCalledOnce()
+  })
+
+  it('uses a new immutable image cache namespace for character assets', async () => {
+    vi.stubGlobal('self', {
+      __WB_MANIFEST: [],
+      addEventListener: vi.fn(),
+      clients: { matchAll: vi.fn(), openWindow: vi.fn() },
+      location: { origin: 'https://little-tables.test' },
+      registration: { showNotification: vi.fn() },
+      skipWaiting: vi.fn(),
+    })
+
+    await import('./sw.js')
+
+    expect(cacheFirstSpy).toHaveBeenCalledWith({
+      cacheName: 'little-tables-visuals-v3',
+    })
+    expect(registerRouteSpy).toHaveBeenCalled()
   })
 
   it('keeps an update waiting so the current release retains its cached chunks', async () => {
@@ -84,6 +108,7 @@ describe('service worker updates', () => {
     listeners.get('activate')?.({ waitUntil } as unknown as ExtendableEvent)
 
     expect(deleteCache).toHaveBeenCalledWith('little-tables-bootstrap-v1')
+    expect(deleteCache).toHaveBeenCalledWith('little-tables-visuals-v2')
     expect(waitUntil).toHaveBeenCalledOnce()
   })
 

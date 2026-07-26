@@ -1,0 +1,67 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "colin-mallard",
+  "scene": "update-recovery",
+  "references": {
+    "reference1Pose": "assets/generated/characters/miffy/update-recovery/reference-1-pose.png",
+    "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png",
+    "reference3CorrectionSource": "assets/generated/characters/colin-mallard/update-recovery/rejected-generated-source-cyan-green-conflict.png"
+  },
+  "prompt": "Production raster correction for one existing update-recovery frame only.\n\nREFERENCE ROLES\nReference 1 is the authoritative active Miffy action/composition contract: preserve the kneeling thoughtful pose, tipped orange pot, fallen red tulip, spilled soil, clockwise pink retry arrow, prop layering, angles, endpoints, ground relationship, crop, visual scale, baseline, headroom, and right-side negative space.\nReference 2 is the mandatory Colin identity and wardrobe contract: Colin is the approved mallard with the exact canonical green head, orange beak and feet, leafy-green vest, lavender neckerchief, brown body, simple restrained black linework, proportions, and facial design.\nReference 3 is the already-reviewed Colin update-recovery source whose opaque subject pixels, pose, expression, props, prop positions, composition, and framing must remain visually unchanged. Correct only its flat cyan chroma-key background.\n\nOUTPUT\nReturn exactly one frame, not a sheet. Preserve Reference 3 as faithfully as possible but replace the entire cyan background with a perfectly flat, uniform solid #0000FF royal-blue chroma-key background suitable for local removal. Keep Colin\u2019s head fully green and unchanged. Keep the complete silhouette and every prop fully inside the same safe area. The pink retry arrow must remain solid, smooth, complete, clearly pink, and unchanged, with no holes, speckles, transparency simulation, or color shift. No shadows, scenery, text, logo, watermark, border, extra objects, extra flowers, extra soil, or altered wardrobe. Do not retain any cyan or magenta backdrop pixels. Do not create transparency; use only the flat royal-blue key behind the unchanged opaque illustration.",
+  "productionDimensions": [
+    1005,
+    1210
+  ],
+  "generatedSource": {
+    "path": "assets/generated/characters/colin-mallard/update-recovery/generated-source.png",
+    "sha256": "45aa8c12e903ff25233ffc5383bcd20b8ac7e354cf5095172684d28a1c07325e"
+  },
+  "rejectedSources": [
+    {
+      "path": "assets/generated/characters/colin-mallard/update-recovery/rejected-generated-source-cyan-green-conflict.png",
+      "sha256": "4be38382b3e134dbb5b24129628e74d1db452db590c687d3e656cd4829be69d0"
+    },
+    {
+      "path": "assets/generated/characters/colin-mallard/update-recovery/rejected-generated-source-magenta-arrow-conflict.png",
+      "sha256": "3092ab9a2d02954f6002c77a30e75a6968b31a941ea2e682d2e196e5fdc57945"
+    }
+  ],
+  "alphaCleanup": {
+    "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "autoKey": "border",
+    "softMatte": true,
+    "transparentThreshold": 12,
+    "opaqueThreshold": 220,
+    "despill": true,
+    "edgeContract": 1
+  },
+  "normalization": {
+    "method": "reviewed raster resize and transparent-canvas translation only",
+    "targetDimensions": [
+      1005,
+      1210
+    ],
+    "scale": 0.93,
+    "offsetX": 35,
+    "offsetY": 139
+  },
+  "review": {
+    "status": "approved",
+    "checks": [
+      "identity and fixed wardrobe",
+      "pose and semantic state",
+      "crop, visual scale, baseline, and prop endpoints",
+      "transparent corners and edge fringe",
+      "original-resolution visual inspection"
+    ]
+  },
+  "finalFrame": {
+    "path": "assets/generated/characters/colin-mallard/update-recovery/final-frame.png",
+    "sha256": "b1f2d845df4f0a060ba245127d45045b55deda5e42beef89733d943fc4fba95f"
+  },
+  "runtimeAsset": {
+    "path": "apps/web/public/characters/colin-mallard/update-recovery.webp",
+    "sha256": "359d4d88f5af59c0daa5eac5324e006df89c36915c4a02d34a449c470918f8e6"
+  }
+}

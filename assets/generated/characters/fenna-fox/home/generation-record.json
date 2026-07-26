@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "fenna-fox",
+  "scene": "home",
+  "references": {
+    "reference1Pose": "assets/generated/characters/miffy/home/reference-1-pose.png",
+    "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
+  },
+  "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for home.\nOutput exact 320:494 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy pose-and-composition contract. Preserve its action, camera, framing, ground line, optical center, negative space, props, and state.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nThe character stands full-body and presents one red tulip in the same hand, with the same flower endpoint, baseline, headroom, and negative space as Miffy.\n\nSTYLE\nUse the approved canonical character reference's simple flat children's-book language: solid restrained fills, simple black linework, calm canonical colors, and minimal features. No photorealism, painterly texture, complex detail, text, logo, watermark, border, shadows, or scenery.\n\nFRAMING / ALPHA CONTRACT\nKeep the complete silhouette and every required prop inside the safe area. Match the active Miffy reference's crop, apparent scale, baseline, prop endpoints, and transparent-padding contract. Use only flat chroma key behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep all required scene props separate from the wardrobe and in the Reference 1 positions.\n\nAVOID\nNo Miffy or rabbit ears, X mouth, pink dress, source-species leakage, extra limbs, extra props, extra flowers, extra droplets, text, logo, watermark, or border.",
+  "productionDimensions": [
+    320,
+    494
+  ],
+  "generatedSource": {
+    "path": "assets/generated/characters/fenna-fox/home/generated-source.png",
+    "sha256": "edb330c4ad3b5aafdc1bd2e84aa924bdfb7d37cabbf3ccb68db70872e3e74736"
+  },
+  "alphaCleanup": {
+    "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "autoKey": "border",
+    "softMatte": true,
+    "transparentThreshold": 12,
+    "opaqueThreshold": 220,
+    "despill": true,
+    "edgeContract": 1
+  },
+  "normalization": {
+    "method": "reviewed raster resize and transparent-canvas translation only",
+    "targetDimensions": [
+      320,
+      494
+    ],
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 0
+  },
+  "review": {
+    "status": "approved",
+    "checks": [
+      "identity and fixed wardrobe",
+      "pose and semantic state",
+      "crop, visual scale, baseline, and prop endpoints",
+      "transparent corners and edge fringe",
+      "original-resolution visual inspection"
+    ]
+  },
+  "finalFrame": {
+    "path": "assets/generated/characters/fenna-fox/home/final-frame.png",
+    "sha256": "b28df0af5fdef3aa09d548fb8f7f2b9268bd658bf39fcfa21f7b475a3d50a7ab"
+  },
+  "runtimeAsset": {
+    "path": "apps/web/public/characters/fenna-fox/home.webp",
+    "sha256": "eaccb8725cdf4b12122cf403d250ddb770f0c309efa1fd53550d8963466c6e50"
+  }
+}

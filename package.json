@@ -17,7 +17,8 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "smoke:docker": "sh tools/smoke-docker.sh",
-    "test": "pnpm -r --if-present test",
+    "test": "pnpm -r --if-present test && pnpm test:assets",
+    "test:assets": "python3 -m unittest discover -s tools/asset-pipeline -p 'test_*.py'",
     "typecheck": "pnpm -r --if-present typecheck"
   },
   "devDependencies": {

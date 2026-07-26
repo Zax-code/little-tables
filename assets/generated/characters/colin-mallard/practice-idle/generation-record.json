@@ -1,0 +1,65 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "colin-mallard",
+  "scene": "practice-idle",
+  "references": {
+    "reference1Pose": "assets/generated/characters/miffy/practice-idle/reference-1-pose.png",
+    "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+  },
+  "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for practice-idle.\nOutput exact 327:377 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy pose-and-composition contract. Preserve its action, camera, framing, ground line, optical center, negative space, props, and state.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nThe character peeks over the bottom edge with both paws or species-natural wing tips visible, matching the idle practice crop and baseline.\n\nSTYLE\nUse the approved canonical character reference's simple flat children's-book language: solid restrained fills, simple black linework, calm canonical colors, and minimal features. No photorealism, painterly texture, complex detail, text, logo, watermark, border, shadows, or scenery.\n\nFRAMING / ALPHA CONTRACT\nKeep the complete silhouette and every required prop inside the safe area. Match the active Miffy reference's crop, apparent scale, baseline, prop endpoints, and transparent-padding contract. Use only flat chroma key behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep all required scene props separate from the wardrobe and in the Reference 1 positions.\n\nAVOID\nNo Miffy or rabbit ears, X mouth, pink dress, source-species leakage, extra limbs, extra props, extra flowers, extra droplets, text, logo, watermark, or border.",
+  "productionDimensions": [
+    327,
+    377
+  ],
+  "generatedSource": {
+    "path": "assets/generated/characters/colin-mallard/practice-idle/generated-source.png",
+    "sha256": "91a8e509d2de2d5a658fd0527e329172d70c235dafb44f01cb73e83525a07854"
+  },
+  "alphaCleanup": {
+    "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+    "autoKey": "border",
+    "softMatte": true,
+    "transparentThreshold": 12,
+    "opaqueThreshold": 220,
+    "despill": true,
+    "edgeContract": 1,
+    "foregroundInteriorProtection": {
+      "edgeDespillKeyColor": "#ff00ff",
+      "hardKeyColor": "#ff00ff",
+      "hardTolerance": 64,
+      "erosionPixels": 3,
+      "minimumComponentPixels": 50,
+      "removeBorderComponents": true,
+      "method": "restore generated RGB only inside eroded opaque matte"
+    }
+  },
+  "normalization": {
+    "method": "reviewed raster resize and transparent-canvas translation only",
+    "targetDimensions": [
+      327,
+      377
+    ],
+    "scale": 1,
+    "offsetX": 0,
+    "offsetY": 15
+  },
+  "review": {
+    "status": "approved",
+    "checks": [
+      "identity and fixed wardrobe",
+      "pose and semantic state",
+      "crop, visual scale, baseline, and prop endpoints",
+      "transparent corners and edge fringe",
+      "original-resolution visual inspection"
+    ]
+  },
+  "finalFrame": {
+    "path": "assets/generated/characters/colin-mallard/practice-idle/final-frame.png",
+    "sha256": "9da43975ec03a21e869c1d9b48836f2c1972622748339afb84e58bb3f1c712c5"
+  },
+  "runtimeAsset": {
+    "path": "apps/web/public/characters/colin-mallard/practice-idle.webp",
+    "sha256": "996aedca7a13e12146d7496548930c4c23c68273c556cbdd1fc13d19ff5357ab"
+  }
+}

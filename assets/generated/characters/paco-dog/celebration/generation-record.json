@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "paco-dog",
+  "sequence": "celebration",
+  "productionContract": {
+    "cellDimensions": [
+      418,
+      418
+    ],
+    "layout": [
+      4,
+      1
+    ],
+    "sheetDimensions": [
+      1672,
+      418
+    ],
+    "semanticOrder": [
+      "C1",
+      "C2",
+      "C3",
+      "C4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "C1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C1.png",
+        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C1.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nanticipation crouch before the reward hop. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C1/generated-source.png",
+        "sha256": "a5c34e9fe1748f239f635c8ffe9a332c97c291d7af7a3741f4bfdff3d45a27dc"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C1/alpha-source.png",
+        "sha256": "b564cf520e7f4f4a8e001b96142c8658fbfca4e1c20f8f5f22ef2324edc56755"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1,
+        "offsetX": 0,
+        "offsetY": 28
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/paco-dog/celebration/C1/final-frame.png",
+        "sha256": "b53d07d1cc2c1f65f09e24bc53b91f545d41a0397feb89cc94a9566b69cfc71f"
+      }
+    },
+    {
+      "frameId": "C2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C2.png",
+        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C2.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nrising transition with the feet lifting. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C2/generated-source.png",
+        "sha256": "47b03715c293bf05ccde876bf2e8695822a7094d0e813d57fe9ed17e7ac3191e"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C2/alpha-source.png",
+        "sha256": "c7f4588e4804bd6a251808a1caffa6671096ce773a18ac6cfae7a0e136ce1daf"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.99,
+        "offsetX": 2,
+        "offsetY": 21
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/paco-dog/celebration/C2/final-frame.png",
+        "sha256": "f29ebf4e83412109542a6fb4d07f726548ee23ce912afdc21f225089cc3d210f"
+      }
+    },
+    {
+      "frameId": "C3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C3.png",
+        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C3.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nairborne reward-hop apex. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C3/generated-source.png",
+        "sha256": "d697cb609a5f91fd83c02f3ffcbcce17e71b453d7ce055b06ae84a6b381d4240"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/paco-dog/celebration/C3/rejected-generated-source.png",
+          "sha256": "34506c8927f5a05897a50f8278560a433f042dfab455f3e3eb43efe4b1070333"
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C3/alpha-source.png",
+        "sha256": "8770d921a3cdc3194f4b7da0745775465300f0862ce3a1b0057a88a5b034ed55"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 1.03,
+        "offsetX": -5,
+        "offsetY": 27
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/paco-dog/celebration/C3/final-frame.png",
+        "sha256": "09c6a7519b453d2dcd7127d36e352ecf555a63645aa6ae1d0cdd540cdd643c19"
+      }
+    },
+    {
+      "frameId": "C4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/celebration/reference-1-frames/C4.png",
+        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for celebration / C4.\nOutput exact 418:418 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy C4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nlanding and reset. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the reward-hop silhouette free of unrelated action props.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C4/generated-source.png",
+        "sha256": "3b9f39e115d6612d2845a3486365bf0c1ff390b86b21eb43ab39e2761ab3e971"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/paco-dog/celebration/C4/alpha-source.png",
+        "sha256": "81e3d37749bd6dda76d881577346a8ebfbec8cb16dfff00578c0d3425dddb85a"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          418,
+          418
+        ],
+        "scale": 0.99,
+        "offsetX": 2,
+        "offsetY": 15
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/paco-dog/celebration/C4/final-frame.png",
+        "sha256": "fc10ab1fa118730530b3413edd93e7b550838f968212e8ad9db1a0563e0850d7"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/paco-dog/celebration-sheet.webp",
+      "sha256": "636987b462e2ad995cff24f55689a7b0980b0b9da215319a0eddffeb5750119b"
+    }
+  }
+}

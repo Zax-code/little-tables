@@ -16,11 +16,10 @@ import { FlowerTransitionProvider } from './components/flower-transition.js'
 import { loadAdministratorStatus } from './admin-access.js'
 import { prefetchAllowedEmails } from './allowed-email-query.js'
 import {
-  celebrationSprite,
-  characterAssets,
-  gardenWalkingSprite,
-  gardenWateringSprite,
-} from './assets.js'
+  characterSourcesForPath,
+  safeMiffyCharacter,
+  type CharacterCatalogEntry,
+} from './character-catalog.js'
 import { decodeRouteImages } from './preload-images.js'
 import { useI18n } from './i18n.js'
 
@@ -50,7 +49,10 @@ const PracticeScreen = lazyRouteComponent(
 )
 const StatsScreen = lazyRouteComponent(() => import('./screens/stats-screen.js'), 'StatsScreen')
 
-type RouterContext = Readonly<{ queryClient: QueryClient | undefined }>
+type RouterContext = Readonly<{
+  character: CharacterCatalogEntry
+  queryClient: QueryClient | undefined
+}>
 
 function TabsLayout() {
   const pathname = useLocation({ select: (location) => location.pathname })
@@ -102,30 +104,29 @@ const homeRoute = createRoute({
 const practiceRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/practice',
-  loader: () =>
-    decodeRouteImages('practice', [
-      characterAssets.practice.src,
-      characterAssets.practiceCorrect.src,
-      characterAssets.practiceEncourage.src,
-    ]),
+  loader: ({ context }) =>
+    decodeRouteImages('practice', characterSourcesForPath(context.character, '/practice')),
   component: PracticeScreen,
 })
 const celebrationRoute = createRoute({
   getParentRoute: () => rootRoute,
   path: '/celebration',
-  loader: () => decodeRouteImages('celebration', [celebrationSprite.src]),
+  loader: ({ context }) =>
+    decodeRouteImages('celebration', characterSourcesForPath(context.character, '/celebration')),
   component: CelebrationScreen,
 })
 const gardenRoute = createRoute({
   getParentRoute: () => tabsRoute,
   path: '/garden',
-  loader: () => decodeRouteImages('garden', [gardenWalkingSprite.src, gardenWateringSprite.src]),
+  loader: ({ context }) =>
+    decodeRouteImages('garden', characterSourcesForPath(context.character, '/garden')),
   component: GardenScreen,
 })
 const gardenCollectionRoute = createRoute({
   getParentRoute: () => tabsRoute,
   path: '/garden/collection',
-  loader: () => decodeRouteImages('garden', [gardenWalkingSprite.src, gardenWateringSprite.src]),
+  loader: ({ context }) =>
+    decodeRouteImages('garden', characterSourcesForPath(context.character, '/garden/collection')),
   component: GardenCollectionScreen,
 })
 const statsRoute = createRoute({
@@ -157,7 +158,6 @@ const familyRoute = createRoute({
   path: '/family',
   component: FamilyScreen,
 })
-
 const routeTree = rootRoute.addChildren([
   tabsRoute.addChildren([homeRoute, gardenRoute, gardenCollectionRoute, statsRoute]),
   practiceRoute,
@@ -168,7 +168,7 @@ const routeTree = rootRoute.addChildren([
 
 export const router = createRouter({
   routeTree,
-  context: { queryClient: undefined },
+  context: { character: safeMiffyCharacter, queryClient: undefined },
   defaultPreload: 'intent',
 })
 

@@ -4,7 +4,7 @@ import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence, m } from 'motion/react'
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-import { PracticeBunny } from '../components/practice-bunny.js'
+import { PracticeCharacter } from '../components/practice-character.js'
 import { FactRescue } from '../components/fact-rescue.js'
 import { ProgressDots } from '../components/progress-dots.js'
 import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
@@ -197,7 +197,7 @@ export function PracticeScreen() {
               />
             )}
 
-            {feedback === null ? <PracticeBunny reaction="idle" /> : null}
+            {feedback === null ? <PracticeCharacter reaction="idle" /> : null}
           </m.div>
         </AnimatePresence>
 
@@ -208,7 +208,7 @@ export function PracticeScreen() {
             className={`feedback-tray feedback-${feedback.correct ? 'correct' : 'encourage'}`}
             role="status"
           >
-            <PracticeBunny
+            <PracticeCharacter
               className="feedback-bunny"
               reaction={feedback.correct ? 'correct' : 'encourage'}
             />

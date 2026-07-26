@@ -69,6 +69,23 @@ describe('preloadImageSources', () => {
     expect(images).toHaveLength(1)
   })
 
+  it('does not reuse another profile character when a route source changes', async () => {
+    class ImageConstructor implements PreloadableImage {
+      complete = true
+      decode = vi.fn(() => Promise.resolve())
+      onerror = null
+      onload = null
+      src = ''
+    }
+    vi.stubGlobal('Image', ImageConstructor)
+
+    const fenna = decodeRouteImages('practice', ['/characters/fenna-fox/practice-idle.webp'])
+    const paco = decodeRouteImages('practice', ['/characters/paco-dog/practice-idle.webp'])
+
+    expect(fenna).not.toBe(paco)
+    await Promise.all([fenna, paco])
+  })
+
   it('waits for every image to load and decode before resolving', async () => {
     const images = [createPendingImage(), createPendingImage()]
     const preload = preloadImageSources(['/first.png', '/second.png'], () => {

@@ -5,8 +5,18 @@ import { act, createElement, type ReactNode, useCallback, useMemo, useState } fr
 import { createRoot, type Root } from 'react-dom/client'
 import { afterEach, beforeEach, describe, expect, it, type Mock, vi } from 'vitest'
 
+const { preloadImageSourcesSpy } = vi.hoisted(() => ({
+  preloadImageSourcesSpy: vi.fn(() => Promise.resolve()),
+}))
+
 vi.mock('@tanstack/react-router', () => ({
+  useLocation: ({ select }: Readonly<{ select: (location: { pathname: string }) => string }>) =>
+    select({ pathname: '/practice' }),
   useNavigate: () => vi.fn(),
+}))
+
+vi.mock('../preload-images.js', () => ({
+  preloadImageSources: preloadImageSourcesSpy,
 }))
 
 vi.mock('motion/react', () => {
@@ -71,7 +81,7 @@ describe('ProfileSwitcher', () => {
     vi.useRealTimers()
   })
 
-  it('briefly locks switching, announces the selected member, and settles on saved identity', () => {
+  it('briefly locks switching, preloads the target art, and settles on saved identity', async () => {
     const trigger = container.querySelector<HTMLButtonElement>('.profile-switcher-button')
     if (trigger === null) throw new Error('Missing profile switcher trigger')
     expect(trigger.getAttribute('aria-label')).toBe(
@@ -92,13 +102,18 @@ describe('ProfileSwitcher', () => {
     expect(container.querySelector('.profile-switch-feedback')?.textContent).toContain(
       'Changement de profil vers Zak…',
     )
+    expect(preloadImageSourcesSpy).toHaveBeenCalledWith([
+      '/characters/paco-dog/practice-idle.webp',
+      '/characters/paco-dog/practice-correct.webp',
+      '/characters/paco-dog/practice-encourage.webp',
+    ])
     act(() => {
       vi.advanceTimersByTime(89)
     })
     expect(switchProfileSpy).not.toHaveBeenCalled()
 
-    act(() => {
-      vi.advanceTimersByTime(1)
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1)
     })
     expect(switchProfileSpy).toHaveBeenCalledExactlyOnceWith('member-two')
     expect(

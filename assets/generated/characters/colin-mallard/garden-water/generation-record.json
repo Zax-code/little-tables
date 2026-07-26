@@ -1,0 +1,279 @@
+{
+  "version": 1,
+  "tool": "built-in Image Generation",
+  "characterId": "colin-mallard",
+  "sequence": "garden-water",
+  "productionContract": {
+    "cellDimensions": [
+      627,
+      627
+    ],
+    "layout": [
+      2,
+      2
+    ],
+    "sheetDimensions": [
+      1254,
+      1254
+    ],
+    "semanticOrder": [
+      "G1",
+      "G2",
+      "G3",
+      "G4"
+    ]
+  },
+  "frames": [
+    {
+      "frameId": "G1",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G1.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G1.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfront-facing ready pose with upright can and zero droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G1/generated-source.png",
+        "sha256": "ed92e61e04e27a9dd860310a790e9b7600d43089e3bfdf9a601e5ce714654111"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1,
+        "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G1/alpha-source.png",
+        "sha256": "9704570b6b437bcb28f7ef38dc77bfda9ac906d01453ee0835140ff1d69ddc9a"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 0.966,
+        "offsetX": -4,
+        "offsetY": 27
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G1/final-frame.png",
+        "sha256": "bb162c6a9e73e5bcc6b3f53175e038449ab8ac3de6a10f7275e17bab051af3bd"
+      }
+    },
+    {
+      "frameId": "G2",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G2.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G2.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\ninitial can tilt with exactly two separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G2/generated-source.png",
+        "sha256": "09f115b4a2cfee97061f294164646d63bfbf99d1432a329e9d962a1f62822b06"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1,
+        "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G2/alpha-source.png",
+        "sha256": "da5a03584240bf93d6e35d44243f860f2f131df37eb04fd45432272c71b91d91"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.002,
+        "offsetX": -8,
+        "offsetY": 29
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G2/final-frame.png",
+        "sha256": "4cec7492faf3e4b22984ae29e0936788194292a272b809f094bcb3207bd28cd7"
+      }
+    },
+    {
+      "frameId": "G3",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G3.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G3.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nshort pour with exactly four separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G3/generated-source.png",
+        "sha256": "55a5473d2a077b70b7d7291ba122631f9fafc264ef22641c0fb691f683169cdd"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1,
+        "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G3/alpha-source.png",
+        "sha256": "e3b1dfeec4433717e0870ba207f256e9645b2a494edb765a23b79a759ded7caf"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 1.045,
+        "offsetX": -17,
+        "offsetY": 7
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G3/final-frame.png",
+        "sha256": "07b105cfaf3c4c81b3e3623fefff6aeb769bc1dd63b275e9b1749dd203f50cb7"
+      }
+    },
+    {
+      "frameId": "G4",
+      "references": {
+        "reference1Pose": "assets/generated/characters/miffy/garden-water/reference-1-frames/G4.png",
+        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+      },
+      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-water / G4.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy G4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nfull pour with exactly eight separated droplets. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete blue watering can and exactly the frame-specific water droplets shown by Reference 1.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "generatedSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G4/generated-source.png",
+        "sha256": "198762b99393bcba546c5b12f959c226c560ec8fa5e3e3b75ba6e383cafa1b9b"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1,
+        "foregroundInteriorProtection": {
+          "edgeDespillKeyColor": "#ff00ff",
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G4/alpha-source.png",
+        "sha256": "6b465a69e8cb65a6c4a7c7a6735287c1c04745755ab7aa8518317513cec9680c"
+      },
+      "normalization": {
+        "method": "reviewed raster resize and transparent-canvas translation only",
+        "targetDimensions": [
+          627,
+          627
+        ],
+        "scale": 0.97,
+        "offsetX": -12,
+        "offsetY": 33
+      },
+      "review": {
+        "status": "approved",
+        "checks": [
+          "active runtime reference frame",
+          "identity and fixed wardrobe",
+          "action phase and pose landmarks",
+          "baseline, crop, apparent scale, and prop endpoints",
+          "frame-specific droplet count and placement",
+          "transparent corners, fringe, and complete silhouette",
+          "original-resolution inspection and sequence continuity"
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/colin-mallard/garden-water/G4/final-frame.png",
+        "sha256": "90e1e63bde8e73fcb2e0acc472854ab06bfeaa322a2985fb0f82169f5a11dea0"
+      }
+    }
+  ],
+  "assembly": {
+    "method": "lossless reviewed-frame sheet assembly only",
+    "runtimeAsset": {
+      "path": "apps/web/public/characters/colin-mallard/garden-water-sheet.webp",
+      "sha256": "a6c9592853f759e0444dff06c1b6ece35bd67d08eb57c4f1e66f10663ad412fd"
+    }
+  }
+}

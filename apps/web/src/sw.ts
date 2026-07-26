@@ -40,7 +40,12 @@ clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
 
 self.addEventListener('activate', (event) => {
-  event.waitUntil(caches.delete('little-tables-bootstrap-v1'))
+  event.waitUntil(
+    Promise.all([
+      caches.delete('little-tables-bootstrap-v1'),
+      caches.delete('little-tables-visuals-v2'),
+    ]),
+  )
 })
 
 self.addEventListener('message', (event) => {
@@ -122,5 +127,5 @@ registerRoute(
     request.method === 'GET' &&
     url.origin === self.location.origin &&
     request.destination === 'image',
-  new CacheFirst({ cacheName: 'little-tables-visuals-v2' }),
+  new CacheFirst({ cacheName: 'little-tables-visuals-v3' }),
 )

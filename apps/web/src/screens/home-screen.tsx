@@ -4,7 +4,7 @@ import { m } from 'motion/react'
 import { useState } from 'react'
 
 import { authStatusQueryKey, fetchAuthStatus } from '../auth-client.js'
-import { Bunny } from '../components/bunny.js'
+import { CharacterIllustration } from '../components/character-illustration.js'
 import { GardenIntroductionCard } from '../components/garden-introduction-card.js'
 import { InstallCard } from '../components/install-card.js'
 import { LanguageToggle } from '../components/language-toggle.js'
@@ -195,7 +195,7 @@ export function HomeScreen() {
             </div>
           ) : null}
         </div>
-        <Bunny className="home-bunny" scene="home" />
+        <CharacterIllustration className="home-bunny" scene="home" />
       </div>
 
       <div className="home-dashboard">

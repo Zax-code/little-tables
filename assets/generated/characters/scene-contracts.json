@@ -1,0 +1,631 @@
+{
+  "scenes": {
+    "connect-profile": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-google-connect.webp",
+      "dimensions": [
+        256,
+        256
+      ],
+      "reference": "assets/generated/characters/miffy/connect-profile/reference-1-pose.png",
+      "sourceSha256": "b7dce8229826d20d261624160f60e7dbae16a4c412c4065e37c98dd8fa18fd1a",
+      "size": [
+        256,
+        256
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        37,
+        4,
+        219,
+        252
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "home": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-home.webp",
+      "dimensions": [
+        320,
+        494
+      ],
+      "reference": "assets/generated/characters/miffy/home/reference-1-pose.png",
+      "sourceSha256": "2473b83e8317d300184dfb7c3a8404e68235fae537c598d29f2de16fa1c50c51",
+      "size": [
+        320,
+        494
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        28,
+        28,
+        292,
+        466
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "practice-idle": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-practice.webp",
+      "dimensions": [
+        327,
+        377
+      ],
+      "reference": "assets/generated/characters/miffy/practice-idle/reference-1-pose.png",
+      "sourceSha256": "7f048dc233f42a7bf88f2a70e5e65945663259811d8b5a18f913c0ea7d78ac06",
+      "size": [
+        327,
+        377
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        28,
+        28,
+        299,
+        349
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "practice-correct": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-practice-correct.webp",
+      "dimensions": [
+        669,
+        922
+      ],
+      "reference": "assets/generated/characters/miffy/practice-correct/reference-1-pose.png",
+      "sourceSha256": "c1330ce2bb173d0689c75b6d2f1a085d266d2a5bfca59c93b8a5193875fc7af4",
+      "size": [
+        669,
+        922
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        18,
+        18,
+        651,
+        904
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "practice-encourage": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-practice-encourage.webp",
+      "dimensions": [
+        785,
+        931
+      ],
+      "reference": "assets/generated/characters/miffy/practice-encourage/reference-1-pose.png",
+      "sourceSha256": "0cd36a2e677657e1335725f2c3798eb72540b2007181112f45a5cd1ec4d5d66a",
+      "size": [
+        785,
+        931
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        18,
+        18,
+        767,
+        913
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    },
+    "update-recovery": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-update-recovery-v3.webp",
+      "dimensions": [
+        1005,
+        1210
+      ],
+      "reference": "assets/generated/characters/miffy/update-recovery/reference-1-pose.png",
+      "sourceSha256": "2a533443e8182ca12950cd999965a47251eaa404687be16a9b4d5a2bf3952422",
+      "size": [
+        1005,
+        1210
+      ],
+      "alphaExtrema": [
+        0,
+        255
+      ],
+      "alphaBounds": [
+        48,
+        48,
+        957,
+        1162
+      ],
+      "cornerAlpha": [
+        0,
+        0,
+        0,
+        0
+      ]
+    }
+  },
+  "sequences": {
+    "celebration": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-celebration-sprite-simple.webp",
+      "cellDimensions": [
+        418,
+        418
+      ],
+      "frames": {
+        "C1": {
+          "cell": [
+            0,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/celebration/reference-1-frames/C1.png",
+          "size": [
+            418,
+            418
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            103,
+            46,
+            315,
+            372
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [209, 199],
+            "eyeLineY": 202,
+            "footBottomY": 372
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "C2": {
+          "cell": [
+            1,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/celebration/reference-1-frames/C2.png",
+          "size": [
+            418,
+            418
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            102,
+            64,
+            316,
+            355
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [209, 209],
+            "eyeLineY": 218,
+            "footBottomY": 355
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "C3": {
+          "cell": [
+            2,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/celebration/reference-1-frames/C3.png",
+          "size": [
+            418,
+            418
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            102,
+            42,
+            317,
+            376
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [210, 193],
+            "eyeLineY": 198,
+            "footBottomY": 376
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "C4": {
+          "cell": [
+            3,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/celebration/reference-1-frames/C4.png",
+          "size": [
+            418,
+            418
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            103,
+            46,
+            315,
+            372
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [209, 199],
+            "eyeLineY": 202,
+            "footBottomY": 372
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "layout": [
+        4,
+        1
+      ],
+      "sheetDimensions": [
+        1672,
+        418
+      ],
+      "sourceSha256": "e69f6a9d392dceee24f76a830d045560c44b74289292c3c0fbc509e7f61faa6f"
+    },
+    "garden-walk": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-garden-walking-sprite.webp",
+      "cellDimensions": [
+        627,
+        627
+      ],
+      "frames": {
+        "W1": {
+          "cell": [
+            0,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            232,
+            80,
+            513,
+            541
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [337, 267],
+            "eyeLineY": 284,
+            "footBottomY": 541,
+            "wateringCanSpoutEndpoint": [501, 451]
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "W2": {
+          "cell": [
+            1,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W2.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            175,
+            78,
+            433,
+            541
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [266, 271],
+            "eyeLineY": 289,
+            "footBottomY": 541,
+            "wateringCanSpoutEndpoint": [418, 447]
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "W3": {
+          "cell": [
+            0,
+            1
+          ],
+          "reference": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W3.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            232,
+            57,
+            514,
+            522
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [340, 245],
+            "eyeLineY": 264,
+            "footBottomY": 522,
+            "wateringCanSpoutEndpoint": [500, 419]
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "W4": {
+          "cell": [
+            1,
+            1
+          ],
+          "reference": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W4.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            170,
+            58,
+            428,
+            520
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [260, 247],
+            "eyeLineY": 267,
+            "footBottomY": 520,
+            "wateringCanSpoutEndpoint": [415, 417]
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "layout": [
+        2,
+        2
+      ],
+      "sheetDimensions": [
+        1254,
+        1254
+      ],
+      "sourceSha256": "7f4268bfcf87b4602cf070c7dabb0b8876c0ed742b689ea0776ff850d31e8261"
+    },
+    "garden-water": {
+      "activeRuntimeSource": "apps/web/public/generated/miffy-garden-watering-sprite.webp",
+      "cellDimensions": [
+        627,
+        627
+      ],
+      "frames": {
+        "G1": {
+          "cell": [
+            0,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/garden-water/reference-1-frames/G1.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            186,
+            28,
+            488,
+            570
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [307, 278],
+            "eyeLineY": 290,
+            "footBottomY": 570,
+            "wateringCanSpoutEndpoint": [466, 456],
+            "lastDropletEndpoint": null
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "G2": {
+          "cell": [
+            1,
+            0
+          ],
+          "reference": "assets/generated/characters/miffy/garden-water/reference-1-frames/G2.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            143,
+            29,
+            488,
+            570
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [268, 273],
+            "eyeLineY": 290,
+            "footBottomY": 570,
+            "wateringCanSpoutEndpoint": [421, 480],
+            "lastDropletEndpoint": [481, 541]
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "G3": {
+          "cell": [
+            0,
+            1
+          ],
+          "reference": "assets/generated/characters/miffy/garden-water/reference-1-frames/G3.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            183,
+            23,
+            536,
+            554
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [308, 265],
+            "eyeLineY": 282,
+            "footBottomY": 554,
+            "wateringCanSpoutEndpoint": [454, 461],
+            "lastDropletEndpoint": [527, 537]
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "G4": {
+          "cell": [
+            1,
+            1
+          ],
+          "reference": "assets/generated/characters/miffy/garden-water/reference-1-frames/G4.png",
+          "size": [
+            627,
+            627
+          ],
+          "alphaExtrema": [
+            0,
+            255
+          ],
+          "alphaBounds": [
+            149,
+            23,
+            498,
+            586
+          ],
+          "landmarks": {
+            "opticalHeadCenter": [275, 263],
+            "eyeLineY": 281,
+            "footBottomY": 554,
+            "wateringCanSpoutEndpoint": [405, 480],
+            "lastDropletEndpoint": [489, 582]
+          },
+          "cornerAlpha": [
+            0,
+            0,
+            0,
+            0
+          ]
+        }
+      },
+      "layout": [
+        2,
+        2
+      ],
+      "sheetDimensions": [
+        1254,
+        1254
+      ],
+      "sourceSha256": "b364ab31572643354cc63307181da5f6cf546895c04850266e7bd5bafd241694"
+    }
+  },
+  "version": 2
+}

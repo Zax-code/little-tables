@@ -2,10 +2,10 @@
 
 ## Current coverage
 
-The branch is rebased onto local `main` at `2a9d790`. Simplified Chinese covers every current typed
-catalog key, including family profiles, the six-character avatar roster, first-visit garden
-guidance, once-per-day watering, three-day growth goals, mastery gates, rewards, empty/error states,
-and accessibility copy.
+Simplified Chinese covers every current typed catalog key, including family profiles, the
+six-character avatar roster, selected-character scenes, first-visit garden guidance, once-per-day
+watering, three-day growth goals, mastery gates, rewards, empty/error states, and accessibility
+copy.
 
 The shared Chinese vocabulary is:
 
@@ -28,21 +28,16 @@ fallback notification does not revert to French when Chinese is selected. Locale
 manifests keep install-sheet metadata in the selected language. Only the French manifest advertises
 the current French screenshots; English and Chinese omit them until matching captures exist.
 
-## Later selected-character integration
+## Selected-character integration
 
-The approved “selected profile character everywhere” work has not yet landed on `main`. During that
-integration, update these existing Miffy-specific keys in all three locales rather than adding
-English-only copy:
+Authenticated character scenes use the active profile’s selected character. Every `asset.*`
+accessibility description and both garden caretaker descriptions share a `{character}` placeholder
+across English, French, and Chinese. The placeholder is populated from the localized
+`family.avatar.*` name, with natural Chinese word order such as `{character}正在轻轻浇水。`.
 
-- `ambient.wateringCan`;
-- every `asset.*` accessibility description;
-- `garden.plotCaretakerHere` and `garden.plotCaretakerAway`.
-
-Prefer a `{character}` placeholder shared by English, French, and Chinese, populated from the
-existing localized `family.avatar.*` names. In Chinese, write the action around the interpolated
-name naturally (for example, `{character}正在轻轻浇水。`); do not mechanically substitute a name into
-English word order. Any new scene, decode failure, preload status, or character-specific error key
-introduced by that work also needs a nonblank `zh-Hans` entry with identical placeholders.
+Any future scene, decode failure, preload status, or character-specific error key needs a nonblank
+`zh-Hans` entry with the same placeholders as English. Keep generic ambient copy, including
+`ambient.wateringCan`, independent of a specific character.
 
 Retired avatar IDs `sunbeam`, `bluebell`, and `berry` must continue to resolve to `米菲` without
 rewriting stored profiles. Pre-authentication Miffy art remains the approved safe fallback.

@@ -2,7 +2,6 @@ import { useQuery, useQueryClient } from '@tanstack/react-query'
 import type { PropsWithChildren, SyntheticEvent } from 'react'
 import { useEffect, useRef, useState } from 'react'
 
-import { googleConnectIcon } from '../assets.js'
 import {
   authStatusQueryKey,
   fetchAuthStatus,
@@ -19,14 +18,20 @@ import {
   persistOfflineAuthGrant,
   readOfflineAuthGrant,
 } from '../offline-auth.js'
-import { Bunny } from './bunny.js'
+import { safeMiffyCharacter } from '../character-catalog.js'
+import { SafeMiffyIllustration } from './character-illustration.js'
 import { Screen } from './screen.js'
 
 export function GoogleConnectButtonArtwork() {
   const { t } = useI18n()
   return (
     <span aria-hidden="true" className="google-button-artwork">
-      <img alt="" src={googleConnectIcon.src} />
+      <img
+        alt=""
+        height={safeMiffyCharacter.scenes.connectProfile.height}
+        src={safeMiffyCharacter.scenes.connectProfile.src}
+        width={safeMiffyCharacter.scenes.connectProfile.width}
+      />
       <span>{t('auth.connectGoogle')}</span>
     </span>
   )
@@ -61,7 +66,7 @@ export function PreferredNameForm({
         <h1>{t('auth.nameChoiceTitle')}</h1>
         <p>{t('auth.nameChoiceCopy')}</p>
       </div>
-      <Bunny className="auth-bunny" scene="home" />
+      <SafeMiffyIllustration className="auth-bunny" scene="home" />
       <form className="name-choice-form" onSubmit={submit}>
         <label htmlFor="preferred-name">{t('auth.nameChoiceLabel')}</label>
         <input
@@ -226,7 +231,7 @@ export function AuthGate({ children }: PropsWithChildren) {
             <h1>{t('auth.required')}</h1>
             <p>{t('auth.internetRequired')}</p>
           </div>
-          <Bunny className="auth-bunny" scene="home" />
+          <SafeMiffyIllustration className="auth-bunny" scene="home" />
           <button
             className="primary-button auth-retry"
             onClick={() => void auth.refetch()}
@@ -246,7 +251,7 @@ export function AuthGate({ children }: PropsWithChildren) {
           <h1>{t('auth.waitingTitle')}</h1>
           <p>{t('auth.waitingCopy')}</p>
         </div>
-        <Bunny className="auth-bunny" scene="home" />
+        <SafeMiffyIllustration className="auth-bunny" scene="home" />
         {auth.data?.googleClientId === null || auth.data?.googleClientId === undefined ? (
           <p className="auth-error" role="alert">
             {t('auth.signInUnavailable')}
