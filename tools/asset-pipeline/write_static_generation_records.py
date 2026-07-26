@@ -6,7 +6,6 @@ from __future__ import annotations
 import hashlib
 import json
 from pathlib import Path
-from typing import Any
 
 from PIL import Image
 
@@ -100,7 +99,7 @@ OFFSETS: dict[tuple[str, str], dict[str, float | int]] = {
     ("colin-mallard", "update-recovery"): {
         "scale": 0.93,
         "offsetX": 35,
-        "offsetY": 172,
+        "offsetY": 139,
     },
 }
 
@@ -109,33 +108,8 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def cleanup(character_id: str, scene: str) -> dict[str, Any]:
-    if character_id == "colin-mallard":
-        if scene == "connect-profile":
-            return {
-                "keyColor": "#ff00ff",
-                "softMatte": True,
-                "transparentThreshold": 12,
-                "opaqueThreshold": 220,
-                "despill": True,
-                "edgeContract": 1,
-            }
-        return {
-            "keyColor": "#ff00ff",
-            "tolerance": 64,
-            "softMatte": False,
-            "despill": True,
-            "edgeContract": 1,
-        }
-    if scene == "home" and character_id == "mina-cat":
-        return {
-            "keyColor": "#ff00ff",
-            "tolerance": 64,
-            "softMatte": False,
-            "despill": True,
-            "edgeContract": 1,
-        }
-    return {
+def cleanup(character_id: str, scene: str) -> dict[str, object]:
+    settings: dict[str, object] = {
         "autoKey": "border",
         "softMatte": True,
         "transparentThreshold": 12,
@@ -143,6 +117,20 @@ def cleanup(character_id: str, scene: str) -> dict[str, Any]:
         "despill": True,
         "edgeContract": 1,
     }
+    if (
+        character_id == "colin-mallard" and scene != "update-recovery"
+    ) or (character_id == "mina-cat" and scene == "home"):
+        settings.pop("autoKey")
+        settings["keyColor"] = "#ff00ff"
+        settings["foregroundInteriorProtection"] = {
+            "hardKeyColor": "#ff00ff",
+            "hardTolerance": 64,
+            "erosionPixels": 3,
+            "minimumComponentPixels": 50,
+            "removeBorderComponents": True,
+            "method": "restore generated RGB only inside eroded opaque matte",
+        }
+    return settings
 
 
 def prompt(
@@ -153,6 +141,16 @@ def prompt(
     dimensions: list[int],
     state: str,
 ) -> str:
+    if character_name == "Colin" and scene == "update-recovery":
+        return """Production raster correction for one existing update-recovery frame only.
+
+REFERENCE ROLES
+Reference 1 is the authoritative active Miffy action/composition contract: preserve the kneeling thoughtful pose, tipped orange pot, fallen red tulip, spilled soil, clockwise pink retry arrow, prop layering, angles, endpoints, ground relationship, crop, visual scale, baseline, headroom, and right-side negative space.
+Reference 2 is the mandatory Colin identity and wardrobe contract: Colin is the approved mallard with the exact canonical green head, orange beak and feet, leafy-green vest, lavender neckerchief, brown body, simple restrained black linework, proportions, and facial design.
+Reference 3 is the already-reviewed Colin update-recovery source whose opaque subject pixels, pose, expression, props, prop positions, composition, and framing must remain visually unchanged. Correct only its flat cyan chroma-key background.
+
+OUTPUT
+Return exactly one frame, not a sheet. Preserve Reference 3 as faithfully as possible but replace the entire cyan background with a perfectly flat, uniform solid #0000FF royal-blue chroma-key background suitable for local removal. Keep Colin’s head fully green and unchanged. Keep the complete silhouette and every prop fully inside the same safe area. The pink retry arrow must remain solid, smooth, complete, clearly pink, and unchanged, with no holes, speckles, transparency simulation, or color shift. No shadows, scenery, text, logo, watermark, border, extra objects, extra flowers, extra soil, or altered wardrobe. Do not retain any cyan or magenta backdrop pixels. Do not create transparency; use only the flat royal-blue key behind the unchanged opaque illustration."""
     key = "magenta" if character_name == "Colin" or scene == "home" else "green"
     return f"""USE CASE / OUTPUT
 Create one production raster frame for {scene}.
@@ -194,17 +192,29 @@ def main() -> None:
                 size = list(image.size)
             if size != definition["dimensions"]:
                 raise ValueError(f"{final}: {size} != {definition['dimensions']}")
+            references = {
+                "reference1Pose": str(
+                    ASSET_ROOT / "miffy" / scene / "reference-1-pose.png",
+                ).replace(f"{ROOT}/", ""),
+                "reference2Identity": str(identity).replace(f"{ROOT}/", ""),
+            }
+            rejected = [
+                {
+                    "path": str(path).replace(f"{ROOT}/", ""),
+                    "sha256": sha256(path),
+                }
+                for path in sorted(scene_dir.glob("rejected*.png"))
+            ]
+            if character_id == "colin-mallard" and scene == "update-recovery":
+                references["reference3CorrectionSource"] = str(
+                    scene_dir / "rejected-generated-source-cyan-green-conflict.png",
+                ).replace(f"{ROOT}/", "")
             record = {
                 "version": 1,
                 "tool": "built-in Image Generation",
                 "characterId": character_id,
                 "scene": scene,
-                "references": {
-                    "reference1Pose": str(
-                        ASSET_ROOT / "miffy" / scene / "reference-1-pose.png",
-                    ).replace(f"{ROOT}/", ""),
-                    "reference2Identity": str(identity).replace(f"{ROOT}/", ""),
-                },
+                "references": references,
                 "prompt": prompt(
                     name,
                     species,
@@ -218,6 +228,7 @@ def main() -> None:
                     "path": str(source).replace(f"{ROOT}/", ""),
                     "sha256": sha256(source),
                 },
+                **({"rejectedSources": rejected} if rejected else {}),
                 "alphaCleanup": {
                     "helper": (
                         "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py"

@@ -18,11 +18,20 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-    "keyColor": "#ff00ff",
-    "tolerance": 64,
-    "softMatte": false,
+    "softMatte": true,
+    "transparentThreshold": 12,
+    "opaqueThreshold": 220,
     "despill": true,
-    "edgeContract": 1
+    "edgeContract": 1,
+    "keyColor": "#ff00ff",
+    "foregroundInteriorProtection": {
+      "hardKeyColor": "#ff00ff",
+      "hardTolerance": 64,
+      "erosionPixels": 3,
+      "minimumComponentPixels": 50,
+      "removeBorderComponents": true,
+      "method": "restore generated RGB only inside eroded opaque matte"
+    }
   },
   "normalization": {
     "method": "reviewed raster resize and transparent-canvas translation only",
@@ -46,10 +55,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/colin-mallard/practice-idle/final-frame.png",
-    "sha256": "22e5064ff5da281619025c23aa17bbe9df00291be8db52b99b02289ff6dcf166"
+    "sha256": "dd27dbe5e17adfa1f4fdfccfc680ab1132d4d1e7941b2509bbb27dec6de830ac"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/colin-mallard/practice-idle.webp",
-    "sha256": "ad832501d4f2c0cb6e0582d70a85d3d7fe83dbd10d3fdf23994f9c4c6c59a85a"
+    "sha256": "f6e0c72ee842dd52ec99b1f7848168fd5cd25e015f92515e966461ea1664b2f4"
   }
 }

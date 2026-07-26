@@ -18,11 +18,20 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-    "keyColor": "#ff00ff",
-    "tolerance": 64,
-    "softMatte": false,
+    "softMatte": true,
+    "transparentThreshold": 12,
+    "opaqueThreshold": 220,
     "despill": true,
-    "edgeContract": 1
+    "edgeContract": 1,
+    "keyColor": "#ff00ff",
+    "foregroundInteriorProtection": {
+      "hardKeyColor": "#ff00ff",
+      "hardTolerance": 64,
+      "erosionPixels": 3,
+      "minimumComponentPixels": 50,
+      "removeBorderComponents": true,
+      "method": "restore generated RGB only inside eroded opaque matte"
+    }
   },
   "normalization": {
     "method": "reviewed raster resize and transparent-canvas translation only",
@@ -46,10 +55,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/mina-cat/home/final-frame.png",
-    "sha256": "72e4f9e751e497bfa03e2602d89abbaab0437cbe5ae396660e68b7b27cf6ae6e"
+    "sha256": "2c18ee6bb9920ec36ea3f6865b56a5f0a082a4f3445b6ab3ec05d3711214b291"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/mina-cat/home.webp",
-    "sha256": "9f7ba558ce0b97d71778c9b1e33d3eb0e98912873ebdfac06624dac76912a76e"
+    "sha256": "814560a012ebed9d9e44cc5596cb455828bba56fc511a4c37a55253320a6c925"
   }
 }

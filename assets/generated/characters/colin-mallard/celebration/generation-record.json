@@ -38,15 +38,24 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C1/alpha-source.png",
-        "sha256": "3fab4b2e73a5612737e2fbfd320949325c804fbf3e8b0c91f3c5cedba3409dec"
+        "sha256": "1759eaba391c279ee065a23c125339455bd12d98cad379e6bf6946698511d799"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -72,7 +81,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C1/final-frame.png",
-        "sha256": "77dc109ebd4d82b848310563b365ef3a24a4dbc1922eca34ab424d620a4d7ac3"
+        "sha256": "9671fdd26279b87fdc9202a9a6c1d8fe0ab42fa35715208223db1911e7899f3f"
       }
     },
     {
@@ -89,15 +98,24 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C2/alpha-source.png",
-        "sha256": "fbe887cd08af76b6b2eb2437755f3ad757aa872ad0dfd07f02191303cdda1236"
+        "sha256": "c46ae194f47f30981051ad932c98ac865f8d3967a7d499b780b74f3e13623032"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -123,7 +141,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C2/final-frame.png",
-        "sha256": "9836c1720f1d76ec7000cd63a5e51a64985db81f3c7709cfc15dea085fc89da1"
+        "sha256": "32c2843521e5a68f4a8e0d55497132794437a8604ee817fb524fcb0ae7dfc33e"
       }
     },
     {
@@ -145,15 +163,24 @@
       ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C3/alpha-source.png",
-        "sha256": "646d5492259f19ef64a88aeeb6213cc25943fe952852d42fcf0518fae949712d"
+        "sha256": "e2cdd03bf23c96eb3f31ea8a41077b4f4f209b8df619fdd6ff5188edc96d8b7c"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -179,7 +206,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C3/final-frame.png",
-        "sha256": "3492e4bb4f15c480299615c97d80250041b3fc4c85bbcb5ac0b511705eb88bda"
+        "sha256": "cf13941936d0a081ba67d8fd4d3991a9b0adc5ebc2e9a490625d591f9eb8b866"
       }
     },
     {
@@ -196,15 +223,24 @@
       "rejectedSources": [],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/celebration/C4/alpha-source.png",
-        "sha256": "ce6a8f73a316dc60a1ee0b5484a424cfc0f4601e245873e6377eea814fc7c58d"
+        "sha256": "5c73e96c08844ddd57b3119b18bc1b6c8fbebe91a092b5ff00f740b4fdc01714"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -230,7 +266,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/celebration/C4/final-frame.png",
-        "sha256": "78a6f9c859b81afcdd196e9632df3b2d4b28ac2241c629b67fbccbbc973da4e8"
+        "sha256": "4c3420adb33568a9d5cd955e698842de4d2a23ad83693d87cd6d950d0359097f"
       }
     }
   ],
@@ -238,7 +274,7 @@
     "method": "lossless reviewed-frame sheet assembly only",
     "runtimeAsset": {
       "path": "apps/web/public/characters/colin-mallard/celebration-sheet.webp",
-      "sha256": "29dc151c7b1657b22ddc5a0fe2f6f99f68319cd4fc15f2445ddeb045a2c01332"
+      "sha256": "cd5fc9ca20fb997491648cebea42fd0f6bf19d9ea7c74bf4c0b01b62974babf7"
     }
   }
 }

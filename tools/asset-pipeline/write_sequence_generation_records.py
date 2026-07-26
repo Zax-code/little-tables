@@ -150,17 +150,8 @@ def sha256(path: Path) -> str:
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
-def cleanup(character_id: str) -> dict[str, Any]:
-    if character_id == "colin-mallard":
-        return {
-            "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-            "keyColor": "#ff00ff",
-            "tolerance": 64,
-            "softMatte": False,
-            "despill": True,
-            "edgeContract": 1,
-        }
-    return {
+def cleanup(character_id: str) -> dict[str, object]:
+    settings: dict[str, object] = {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
         "softMatte": True,
@@ -169,6 +160,18 @@ def cleanup(character_id: str) -> dict[str, Any]:
         "despill": True,
         "edgeContract": 1,
     }
+    if character_id == "colin-mallard":
+        settings.pop("autoKey")
+        settings["keyColor"] = "#ff00ff"
+        settings["foregroundInteriorProtection"] = {
+            "hardKeyColor": "#ff00ff",
+            "hardTolerance": 64,
+            "erosionPixels": 3,
+            "minimumComponentPixels": 50,
+            "removeBorderComponents": True,
+            "method": "restore generated RGB only inside eroded opaque matte",
+        }
+    return settings
 
 
 def prompt(

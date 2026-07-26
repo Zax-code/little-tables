@@ -43,15 +43,24 @@
       ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W1/alpha-source.png",
-        "sha256": "dc3f586fa40f4f8bd9505a35f7a5ebc7c00d7034509ac71a34c39a474214c424"
+        "sha256": "9d0b201557ad274de98d12acfc40be5ec93a4f3fe2ec5c2a486a24059a21cc1d"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -77,7 +86,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W1/final-frame.png",
-        "sha256": "cfc3a493276a38878fd33d83aef1c3ad934c928c2e969f69da918d202d4e3eeb"
+        "sha256": "6112bf97eb082bb242776f882bd65393f806a80e924a610fa5b4a65d118145c9"
       }
     },
     {
@@ -103,15 +112,24 @@
       ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W2/alpha-source.png",
-        "sha256": "38f9ee0560dd2a3eec97a6c631b5242734783fe6e06cbb635ff771853aeb118e"
+        "sha256": "71a9519dd1d3479bebc07d5e9fa2056a03801c25429bcf3690dd74cc70b3034b"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -137,7 +155,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W2/final-frame.png",
-        "sha256": "b30852c3c8c951acf28d4089f7b476d334bf35837ede206e208bd14de1f6740a"
+        "sha256": "1fba623a9c85753e977bdb4c4b03cf6ce6ecf1a779d7144ed805aa943f9a0bb5"
       }
     },
     {
@@ -163,15 +181,24 @@
       ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W3/alpha-source.png",
-        "sha256": "444350655ce4a8844924ca79e827bde3681f2df6d9da0a434358ced0369ae574"
+        "sha256": "5c95827bc22cab51e778a85d203296752575d04044cb56a893ad16824084f27b"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -197,7 +224,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W3/final-frame.png",
-        "sha256": "e55e3533cbe6a4deb2e9648e44184fd504e3c8d67a14287b162474f231717659"
+        "sha256": "ecd610042b34e8eb6b9fb6ed54e94ea6b5fc481ad4dd0289a42815299236b699"
       }
     },
     {
@@ -223,15 +250,24 @@
       ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-        "keyColor": "#ff00ff",
-        "tolerance": 64,
-        "softMatte": false,
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
         "despill": true,
-        "edgeContract": 1
+        "edgeContract": 1,
+        "keyColor": "#ff00ff",
+        "foregroundInteriorProtection": {
+          "hardKeyColor": "#ff00ff",
+          "hardTolerance": 64,
+          "erosionPixels": 3,
+          "minimumComponentPixels": 50,
+          "removeBorderComponents": true,
+          "method": "restore generated RGB only inside eroded opaque matte"
+        }
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W4/alpha-source.png",
-        "sha256": "e3695266fe182960b5f475189344af2e6cf8c3daaa1ee2c814724de6d89c5eb0"
+        "sha256": "39372ef8bb80f14565e0a1637103f65b9032e05fe9049068f2581331b72f1f0b"
       },
       "normalization": {
         "method": "reviewed raster resize and transparent-canvas translation only",
@@ -257,7 +293,7 @@
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W4/final-frame.png",
-        "sha256": "d74367dd926ea5d9a1efab13c3164a342d07410b092c82edf99252b361ca3256"
+        "sha256": "97e6525db901a21c9984b8aadd9c1b73b7a867cf16162901cd571bfd11c1d82f"
       }
     }
   ],
@@ -265,7 +301,7 @@
     "method": "lossless reviewed-frame sheet assembly only",
     "runtimeAsset": {
       "path": "apps/web/public/characters/colin-mallard/garden-walk-sheet.webp",
-      "sha256": "77f144ec6ac085778cd99e4dd2cdb776552c4edbf59c99aa3b9b9990d6151ee5"
+      "sha256": "a0eec8d43f59d0f32ff4e6fa4b7601c53764362099e2fa5f9c2087e3f0c275ad"
     }
   }
 }

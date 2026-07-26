@@ -18,12 +18,20 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-    "keyColor": "#ff00ff",
     "softMatte": true,
     "transparentThreshold": 12,
     "opaqueThreshold": 220,
     "despill": true,
-    "edgeContract": 1
+    "edgeContract": 1,
+    "keyColor": "#ff00ff",
+    "foregroundInteriorProtection": {
+      "hardKeyColor": "#ff00ff",
+      "hardTolerance": 64,
+      "erosionPixels": 3,
+      "minimumComponentPixels": 50,
+      "removeBorderComponents": true,
+      "method": "restore generated RGB only inside eroded opaque matte"
+    }
   },
   "normalization": {
     "method": "reviewed raster resize and transparent-canvas translation only",

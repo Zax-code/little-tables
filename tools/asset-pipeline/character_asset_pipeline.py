@@ -15,7 +15,7 @@ import json
 from pathlib import Path
 from typing import Any
 
-from PIL import Image
+from PIL import Image, ImageFilter
 
 
 ACTIVE_SCENES = {
@@ -189,6 +189,87 @@ def convert(source: Path, output: Path) -> None:
     image.save(output, format="WEBP", lossless=True, method=6)
 
 
+def protect_foreground_interior(
+    source: Path,
+    soft_matte: Path,
+    hard_matte: Path,
+    output: Path,
+    erosion_pixels: int,
+    minimum_component_pixels: int,
+) -> None:
+    """Preserve opaque subject colors away from the reviewed soft-matte boundary."""
+    if erosion_pixels < 1:
+        raise ValueError("erosion pixels must be at least 1")
+    if minimum_component_pixels < 1:
+        raise ValueError("minimum component pixels must be at least 1")
+
+    source_image = rgba(source)
+    soft_image = rgba(soft_matte)
+    hard_image = rgba(hard_matte)
+    if source_image.size != soft_image.size or source_image.size != hard_image.size:
+        raise ValueError(
+            "source, soft matte, and hard matte must have identical dimensions",
+        )
+
+    hard_alpha = hard_image.getchannel("A")
+    width, height = hard_alpha.size
+    hard_data = bytearray(hard_alpha.tobytes())
+    visited = bytearray(width * height)
+    retained = bytearray(width * height)
+    for start, alpha in enumerate(hard_data):
+        if alpha == 0 or visited[start]:
+            continue
+        visited[start] = 1
+        stack = [start]
+        component: list[int] = []
+        touches_border = False
+        while stack:
+            index = stack.pop()
+            component.append(index)
+            x = index % width
+            y = index // width
+            touches_border = touches_border or (
+                x == 0 or y == 0 or x == width - 1 or y == height - 1
+            )
+            neighbors = []
+            if x > 0:
+                neighbors.append(index - 1)
+            if x < width - 1:
+                neighbors.append(index + 1)
+            if y > 0:
+                neighbors.append(index - width)
+            if y < height - 1:
+                neighbors.append(index + width)
+            for neighbor in neighbors:
+                if hard_data[neighbor] and not visited[neighbor]:
+                    visited[neighbor] = 1
+                    stack.append(neighbor)
+        if not touches_border and len(component) >= minimum_component_pixels:
+            for index in component:
+                retained[index] = 255
+
+    hard_alpha = Image.frombytes("L", (width, height), bytes(retained))
+    interior = hard_alpha.copy()
+    for _ in range(erosion_pixels):
+        interior = interior.filter(ImageFilter.MinFilter(3))
+
+    source_pixels = source_image.load()
+    output_pixels = soft_image.load()
+    hard_pixels = hard_alpha.load()
+    interior_pixels = interior.load()
+    for y in range(source_image.height):
+        for x in range(source_image.width):
+            if hard_pixels[x, y] == 0:
+                output_pixels[x, y] = (0, 0, 0, 0)
+                continue
+            if interior_pixels[x, y] == 255:
+                red, green, blue, _ = source_pixels[x, y]
+                output_pixels[x, y] = (red, green, blue, 255)
+
+    output.parent.mkdir(parents=True, exist_ok=True)
+    soft_image.save(output, format="PNG")
+
+
 def validate(paths: list[Path], expected_width: int, expected_height: int) -> None:
     failures: list[str] = []
     for path in paths:
@@ -235,6 +316,14 @@ def parser() -> argparse.ArgumentParser:
     convert_command.add_argument("--source", type=Path, required=True)
     convert_command.add_argument("--output", type=Path, required=True)
 
+    protect_command = commands.add_parser("protect-foreground-interior")
+    protect_command.add_argument("--source", type=Path, required=True)
+    protect_command.add_argument("--soft-matte", type=Path, required=True)
+    protect_command.add_argument("--hard-matte", type=Path, required=True)
+    protect_command.add_argument("--output", type=Path, required=True)
+    protect_command.add_argument("--erosion-pixels", type=int, default=1)
+    protect_command.add_argument("--minimum-component-pixels", type=int, default=50)
+
     validate_command = commands.add_parser("validate")
     validate_command.add_argument("--paths", nargs="+", type=Path, required=True)
     validate_command.add_argument("--width", type=int, required=True)
@@ -267,6 +356,15 @@ def main() -> None:
         )
     elif args.command == "convert":
         convert(args.source, args.output)
+    elif args.command == "protect-foreground-interior":
+        protect_foreground_interior(
+            args.source,
+            args.soft_matte,
+            args.hard_matte,
+            args.output,
+            args.erosion_pixels,
+            args.minimum_component_pixels,
+        )
     elif args.command == "validate":
         validate(args.paths, args.width, args.height)
 

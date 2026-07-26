@@ -18,11 +18,20 @@
   },
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-    "keyColor": "#ff00ff",
-    "tolerance": 64,
-    "softMatte": false,
+    "softMatte": true,
+    "transparentThreshold": 12,
+    "opaqueThreshold": 220,
     "despill": true,
-    "edgeContract": 1
+    "edgeContract": 1,
+    "keyColor": "#ff00ff",
+    "foregroundInteriorProtection": {
+      "hardKeyColor": "#ff00ff",
+      "hardTolerance": 64,
+      "erosionPixels": 3,
+      "minimumComponentPixels": 50,
+      "removeBorderComponents": true,
+      "method": "restore generated RGB only inside eroded opaque matte"
+    }
   },
   "normalization": {
     "method": "reviewed raster resize and transparent-canvas translation only",
@@ -46,10 +55,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/colin-mallard/practice-correct/final-frame.png",
-    "sha256": "067a1d7aa9954f5863511119891f5cca998119fce00cbe6d72a2f693de210fbb"
+    "sha256": "e6353d69d5a31ccb54535edddb468c143e910bf6580190516210fe62403fa541"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/colin-mallard/practice-correct.webp",
-    "sha256": "00daa2042bd5a1ccc47049887f286a3d4c9ec224363db702c2e950674e093faa"
+    "sha256": "0efe6b5a0025ea6d0ac9757e8a861775ab154b9499b7fc463d9adba6e4ebbe39"
   }
 }

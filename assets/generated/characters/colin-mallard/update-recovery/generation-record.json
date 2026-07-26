@@ -5,22 +5,34 @@
   "scene": "update-recovery",
   "references": {
     "reference1Pose": "assets/generated/characters/miffy/update-recovery/reference-1-pose.png",
-    "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
+    "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png",
+    "reference3CorrectionSource": "assets/generated/characters/colin-mallard/update-recovery/rejected-generated-source-cyan-green-conflict.png"
   },
-  "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for update-recovery.\nOutput exact 1005:1210 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy pose-and-composition contract. Preserve its action, camera, framing, ground line, optical center, negative space, props, and state.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nThe character kneels thoughtfully at left beside the same tipped orange pot, fallen red tulip, spilled soil, and clockwise pink retry arrow. Preserve prop layering, angle, endpoints, ground line, and right-side negative space.\n\nSTYLE\nUse the approved canonical character reference's simple flat children's-book language: solid restrained fills, simple black linework, calm canonical colors, and minimal features. No photorealism, painterly texture, complex detail, text, logo, watermark, border, shadows, or scenery.\n\nFRAMING / ALPHA CONTRACT\nKeep the complete silhouette and every required prop inside the safe area. Match the active Miffy reference's crop, apparent scale, baseline, prop endpoints, and transparent-padding contract. Use only flat chroma key behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep all required scene props separate from the wardrobe and in the Reference 1 positions.\n\nAVOID\nNo Miffy or rabbit ears, X mouth, pink dress, source-species leakage, extra limbs, extra props, extra flowers, extra droplets, text, logo, watermark, or border.",
+  "prompt": "Production raster correction for one existing update-recovery frame only.\n\nREFERENCE ROLES\nReference 1 is the authoritative active Miffy action/composition contract: preserve the kneeling thoughtful pose, tipped orange pot, fallen red tulip, spilled soil, clockwise pink retry arrow, prop layering, angles, endpoints, ground relationship, crop, visual scale, baseline, headroom, and right-side negative space.\nReference 2 is the mandatory Colin identity and wardrobe contract: Colin is the approved mallard with the exact canonical green head, orange beak and feet, leafy-green vest, lavender neckerchief, brown body, simple restrained black linework, proportions, and facial design.\nReference 3 is the already-reviewed Colin update-recovery source whose opaque subject pixels, pose, expression, props, prop positions, composition, and framing must remain visually unchanged. Correct only its flat cyan chroma-key background.\n\nOUTPUT\nReturn exactly one frame, not a sheet. Preserve Reference 3 as faithfully as possible but replace the entire cyan background with a perfectly flat, uniform solid #0000FF royal-blue chroma-key background suitable for local removal. Keep Colin\u2019s head fully green and unchanged. Keep the complete silhouette and every prop fully inside the same safe area. The pink retry arrow must remain solid, smooth, complete, clearly pink, and unchanged, with no holes, speckles, transparency simulation, or color shift. No shadows, scenery, text, logo, watermark, border, extra objects, extra flowers, extra soil, or altered wardrobe. Do not retain any cyan or magenta backdrop pixels. Do not create transparency; use only the flat royal-blue key behind the unchanged opaque illustration.",
   "productionDimensions": [
     1005,
     1210
   ],
   "generatedSource": {
     "path": "assets/generated/characters/colin-mallard/update-recovery/generated-source.png",
-    "sha256": "3092ab9a2d02954f6002c77a30e75a6968b31a941ea2e682d2e196e5fdc57945"
+    "sha256": "45aa8c12e903ff25233ffc5383bcd20b8ac7e354cf5095172684d28a1c07325e"
   },
+  "rejectedSources": [
+    {
+      "path": "assets/generated/characters/colin-mallard/update-recovery/rejected-generated-source-cyan-green-conflict.png",
+      "sha256": "4be38382b3e134dbb5b24129628e74d1db452db590c687d3e656cd4829be69d0"
+    },
+    {
+      "path": "assets/generated/characters/colin-mallard/update-recovery/rejected-generated-source-magenta-arrow-conflict.png",
+      "sha256": "3092ab9a2d02954f6002c77a30e75a6968b31a941ea2e682d2e196e5fdc57945"
+    }
+  ],
   "alphaCleanup": {
     "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
-    "keyColor": "#ff00ff",
-    "tolerance": 64,
-    "softMatte": false,
+    "autoKey": "border",
+    "softMatte": true,
+    "transparentThreshold": 12,
+    "opaqueThreshold": 220,
     "despill": true,
     "edgeContract": 1
   },
@@ -32,7 +44,7 @@
     ],
     "scale": 0.93,
     "offsetX": 35,
-    "offsetY": 172
+    "offsetY": 139
   },
   "review": {
     "status": "approved",
@@ -46,10 +58,10 @@
   },
   "finalFrame": {
     "path": "assets/generated/characters/colin-mallard/update-recovery/final-frame.png",
-    "sha256": "725bd4e086ef0b60cb93693cd53202f1182e4874abdcaf865898fa36d9f90c45"
+    "sha256": "b1f2d845df4f0a060ba245127d45045b55deda5e42beef89733d943fc4fba95f"
   },
   "runtimeAsset": {
     "path": "apps/web/public/characters/colin-mallard/update-recovery.webp",
-    "sha256": "60734679d716a50b411d4735f2def97376893d9e359c54e2a188fccd7476857f"
+    "sha256": "359d4d88f5af59c0daa5eac5324e006df89c36915c4a02d34a449c470918f8e6"
   }
 }
