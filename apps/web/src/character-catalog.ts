@@ -199,6 +199,16 @@ const sceneOpticalBounds = {
   },
 } as const satisfies Readonly<Record<CharacterId, Readonly<Record<CharacterSceneId, PixelBounds>>>>
 
+function createSceneAsset(id: CharacterId, sceneId: CharacterSceneId): CharacterAsset {
+  const definition = sceneDefinitions[sceneId]
+  return {
+    ...definition,
+    opticalBounds: sceneOpticalBounds[id][sceneId],
+    source: 'gpt-image-built-in',
+    src: `/characters/${id}/${definition.fileName}`,
+  }
+}
+
 function createCharacter(id: CharacterId): CharacterCatalogEntry {
   return {
     avatar: {
@@ -214,20 +224,17 @@ function createCharacter(id: CharacterId): CharacterCatalogEntry {
       pourPointOffsetY: 0,
     },
     id,
-    scenes: Object.fromEntries(
-      characterSceneIds.map((sceneId) => {
-        const definition = sceneDefinitions[sceneId]
-        return [
-          sceneId,
-          {
-            ...definition,
-            opticalBounds: sceneOpticalBounds[id][sceneId],
-            source: 'gpt-image-built-in',
-            src: `/characters/${id}/${definition.fileName}`,
-          },
-        ]
-      }),
-    ) as Readonly<Record<CharacterSceneId, CharacterAsset>>,
+    scenes: {
+      connectProfile: createSceneAsset(id, 'connectProfile'),
+      home: createSceneAsset(id, 'home'),
+      practiceIdle: createSceneAsset(id, 'practiceIdle'),
+      practiceCorrect: createSceneAsset(id, 'practiceCorrect'),
+      practiceEncourage: createSceneAsset(id, 'practiceEncourage'),
+      updateRecovery: createSceneAsset(id, 'updateRecovery'),
+      celebration: createSceneAsset(id, 'celebration'),
+      gardenWalk: createSceneAsset(id, 'gardenWalk'),
+      gardenWater: createSceneAsset(id, 'gardenWater'),
+    } satisfies Readonly<Record<CharacterSceneId, CharacterAsset>>,
   }
 }
 
