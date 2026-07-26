@@ -9,5 +9,6 @@ playwright-report/
 test-results/
 *.log
 *.tsbuildinfo
+__pycache__/
 assets/references/
 assets/generated/drafts/
