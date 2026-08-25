@@ -42,6 +42,12 @@ the previous image when the new release is unhealthy. Production application
 secrets and the persistent Mongo volume remain on the VPS and are never copied
 into GitHub or an image.
 
+Rootful Podman Quadlets own the application, MongoDB, and the existing named
+Mongo volume. The active app Quadlet records the exact immutable image tag;
+ordinary releases restart only the application. The one-time migration and
+rollback procedure is documented in
+[`deploy/QUADLET_RUNBOOK.md`](./deploy/QUADLET_RUNBOOK.md).
+
 The normal development flow is:
 
 ```sh
