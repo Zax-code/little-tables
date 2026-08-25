@@ -40,6 +40,9 @@ class QuadletDeploymentTest(unittest.TestCase):
         self.assertIn("ContainerName=little-tables-app", container)
         self.assertIn("EnvironmentFile=/etc/little-tables/little-tables.env", container)
         self.assertIn("Network=host", container)
+        self.assertIn("Memory=512m", container)
+        self.assertIn("PidsLimit=256", container)
+        self.assertIn("NoNewPrivileges=true", container)
         self.assertIn("Pull=never", container)
         self.assertIn("StopTimeout=15", container)
         self.assertIn("Restart=always", service)
@@ -53,6 +56,8 @@ class QuadletDeploymentTest(unittest.TestCase):
         self.assertIn("PublishPort=127.0.0.1:27018:27017", container)
         self.assertIn("Pull=never", container)
         self.assertIn("Volume=little-tables-mongo-data.volume:/data/db", container)
+        self.assertIn("Memory=1g", container)
+        self.assertIn("PidsLimit=512", container)
         self.assertEqual(volume, ["VolumeName=little-tables-mongo-data"])
 
     def test_renderer_accepts_only_an_immutable_project_image(self) -> None:

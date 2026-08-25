@@ -10,6 +10,9 @@ EnvironmentFile=/etc/little-tables/little-tables.env
 Network=host
 Pull=never
 StopTimeout=15
+Memory=512m
+PidsLimit=256
+NoNewPrivileges=true
 
 [Service]
 Restart=always

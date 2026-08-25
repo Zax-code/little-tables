@@ -16,6 +16,12 @@ checks both `/health/ready` and the running container's image name. A failed
 deployment renders and starts the previous image again. MongoDB is not restarted
 by ordinary application deployments.
 
+The app is bounded to 512 MiB and 256 PIDs and runs with no-new-privileges. The
+MongoDB container is bounded to 1 GiB and 512 PIDs. These ceilings leave ample
+headroom over the pre-migration production peaks (about 29 MiB for the app and
+46 MiB for MongoDB) while preventing either private workload from becoming an
+unbounded host consumer.
+
 Production secrets remain only in `/etc/little-tables/little-tables.env` and the
 registry auth file remains only in `/etc/little-tables/ghcr-auth.json`. Do not
 print either file. Caddy is unchanged by this migration.
@@ -53,7 +59,8 @@ Adventure Time, or any other service.
    The generated app must use the current immutable image, host networking, the
    production environment file, and a dependency on Mongo. The generated Mongo
    service must bind only `127.0.0.1:27018` and resolve the volume name to
-   `little-tables-mongo-data`.
+   `little-tables-mongo-data`. Confirm the generated Podman arguments retain the
+   documented memory, PID, and no-new-privileges bounds.
 
 5. Install the template at
    `/usr/local/share/little-tables/little-tables.container.in`, the renderer at

@@ -8,6 +8,8 @@ PublishPort=127.0.0.1:27018:27017
 Pull=never
 StopTimeout=10
 Volume=little-tables-mongo-data.volume:/data/db
+Memory=1g
+PidsLimit=512
 
 [Service]
 Restart=always

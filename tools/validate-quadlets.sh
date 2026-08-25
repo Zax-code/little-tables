@@ -30,10 +30,15 @@ command -v "$runtime" >/dev/null 2>&1 || {
     grep -Fq "Requires=little-tables-mongo.service" /tmp/generated
     grep -Fq -- "--network host" /tmp/generated
     grep -Fq -- "--env-file /etc/little-tables/little-tables.env" /tmp/generated
+    grep -Fq -- "--memory 512m" /tmp/generated
+    grep -Fq -- "--pids-limit 256" /tmp/generated
+    grep -Fq -- "--security-opt=no-new-privileges" /tmp/generated
     grep -Fq "ghcr.io/zax-code/little-tables:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa" /tmp/generated
     grep -Fq "SourcePath=/tmp/quadlets/little-tables-mongo.container" /tmp/generated
     grep -Fq -- "--publish 127.0.0.1:27018:27017" /tmp/generated
     grep -Fq -- "-v little-tables-mongo-data:/data/db" /tmp/generated
+    grep -Fq -- "--memory 1g" /tmp/generated
+    grep -Fq -- "--pids-limit 512" /tmp/generated
 
     # Exercise a failed release and prove that the deployer restores the
     # previous literal image in both the Quadlet and the running-image model.
