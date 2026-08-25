@@ -1,0 +1,5 @@
+[Unit]
+Description=Little Tables MongoDB persistent data
+
+[Volume]
+VolumeName=little-tables-mongo-data
