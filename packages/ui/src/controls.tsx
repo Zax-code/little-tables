@@ -119,3 +119,84 @@ export function TextField({ className, counter, label, id, ...props }: TextField
     </label>
   )
 }
+
+export type TimePickerProps = Readonly<{
+  className?: string
+  /** How an hour reads in the user's language, e.g. `18 h` or `6 PM`. */
+  formatHour: (hour: number) => string
+  hourLabel: string
+  /** Earliest and latest times, and the step, in minutes after midnight. */
+  max: number
+  min: number
+  minuteLabel: string
+  onChange: (minutes: number) => void
+  step: number
+  value: number
+}>
+
+const selectClass =
+  'min-h-14 flex-1 appearance-none rounded-control border-2 border-transparent bg-surface px-4 text-center text-title-3 font-extrabold text-label outline-none focus-visible:border-tint'
+
+/**
+ * A time of day as an hour and minutes. Native selects open the system wheel on phones; the
+ * minutes follow the step and stay within the range.
+ */
+export function TimePicker({
+  className,
+  formatHour,
+  hourLabel,
+  max,
+  min,
+  minuteLabel,
+  onChange,
+  step,
+  value,
+}: TimePickerProps) {
+  const hour = Math.floor(value / 60)
+  const hours = Array.from(
+    { length: Math.floor(max / 60) - Math.floor(min / 60) + 1 },
+    (_, index) => Math.floor(min / 60) + index,
+  )
+  const minutesOf = (candidate: number) =>
+    Array.from({ length: 60 / step }, (_, index) => index * step).filter((minute) => {
+      const total = candidate * 60 + minute
+      return total >= min && total <= max
+    })
+  const clamp = (total: number) => Math.min(max, Math.max(min, total))
+  return (
+    <div className={cn('flex items-center gap-2', className)}>
+      <select
+        aria-label={hourLabel}
+        className={selectClass}
+        onChange={(event) => {
+          const next = Number(event.target.value)
+          const minutes = minutesOf(next)
+          const kept = minutes.includes(value % 60) ? value % 60 : (minutes[0] ?? 0)
+          onChange(clamp(next * 60 + kept))
+        }}
+        value={hour}
+      >
+        {hours.map((candidate) => (
+          <option key={candidate} value={candidate}>
+            {formatHour(candidate)}
+          </option>
+        ))}
+      </select>
+      <span aria-hidden className="text-title-3 font-extrabold text-label-3">
+        :
+      </span>
+      <select
+        aria-label={minuteLabel}
+        className={selectClass}
+        onChange={(event) => onChange(clamp(hour * 60 + Number(event.target.value)))}
+        value={value % 60}
+      >
+        {minutesOf(hour).map((minute) => (
+          <option key={minute} value={minute}>
+            {String(minute).padStart(2, '0')}
+          </option>
+        ))}
+      </select>
+    </div>
+  )
+}

@@ -13,8 +13,8 @@ use axum::middleware::{self, Next};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{delete, get, patch, post, put};
 use lt_auth::{SESSION_COOKIE, SessionClaims, normalize_email};
-use lt_domain::model::LearningPathSettings;
-use lt_store::{ChildProfile, PushSubscription, RemoveChildResult};
+use lt_domain::model::{LearningPathSettings, LearningSnapshot};
+use lt_store::{ChildProfile, PushSubscription, RemoveChildResult, day_key_of};
 use serde::de::DeserializeOwned;
 use serde::{Deserialize, Deserializer};
 use serde_json::{Value, json};
@@ -22,6 +22,7 @@ use serde_json::{Value, json};
 use crate::bootstrap::{collection_json, profile_state};
 use crate::ingestion::{Instants, decode_attempt_with, ingest};
 use crate::limits::client_ip;
+use crate::parent_lock;
 use crate::state::{AppState, cookie, now};
 use crate::v1::{
     DEFAULT_AVATAR, SELECTABLE_AVATARS, error, family_for_identity, is_valid_name, json_response,
@@ -41,6 +42,12 @@ impl IntoResponse for Failure {
     }
 }
 
+impl From<Response> for Failure {
+    fn from(response: Response) -> Self {
+        Self(Box::new(response))
+    }
+}
+
 impl From<lt_store::StoreError> for Failure {
     fn from(failure: lt_store::StoreError) -> Self {
         tracing::error!(%failure, "storage failed");
@@ -48,13 +55,13 @@ impl From<lt_store::StoreError> for Failure {
     }
 }
 
-fn fail(status: StatusCode, code: &str) -> Failure {
+pub(crate) fn fail(status: StatusCode, code: &str) -> Failure {
     Failure(Box::new(error(status, code)))
 }
 
-type Reply = Result<Response, Failure>;
+pub(crate) type Reply = Result<Response, Failure>;
 
-fn body<T: DeserializeOwned>(bytes: &[u8], code: &str) -> Result<T, Failure> {
+pub(crate) fn body<T: DeserializeOwned>(bytes: &[u8], code: &str) -> Result<T, Failure> {
     serde_json::from_slice(bytes).map_err(|_| fail(StatusCode::BAD_REQUEST, code))
 }
 
@@ -155,8 +162,19 @@ pub fn router(state: AppState) -> Router<AppState> {
             "/api/v2/family/profiles/{profile_id}/learning-paths",
             put(update_learning_paths),
         )
+        .route(
+            "/api/v2/family/parent-lock",
+            get(parent_lock::status)
+                .put(parent_lock::set)
+                .delete(parent_lock::reset),
+        )
+        .route(
+            "/api/v2/family/parent-lock/verify",
+            post(parent_lock::verify),
+        )
         .route("/api/v2/profiles/{profile_id}/bootstrap", get(bootstrap))
         .route("/api/v2/profiles/{profile_id}/attempts", post(attempts))
+        .route("/api/v2/profiles/{profile_id}/insights", get(insights))
         .route(
             "/api/v2/profiles/{profile_id}/garden/introduction-seen",
             post(introduction_seen),
@@ -293,7 +311,7 @@ async fn refresh(State(state): State<AppState>, headers: HeaderMap) -> Reply {
 
 /* Family ------------------------------------------------------------------------------------- */
 
-async fn family(
+pub(crate) async fn family(
     state: &AppState,
     headers: &HeaderMap,
 ) -> Result<(lt_store::Family, SessionClaims), Failure> {
@@ -500,6 +518,58 @@ async fn remove_profile(
 }
 
 /* Learning ----------------------------------------------------------------------------------- */
+
+#[derive(Deserialize)]
+struct InsightsQuery {
+    range: Option<String>,
+    today: Option<String>,
+}
+
+/// What a parent sees in "What's hard", over the last 7 or 30 learning days. The app names its
+/// own today, since learning days follow the child's time zone.
+async fn insights(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    Path(profile_id): Path<String>,
+    Query(query): Query<InsightsQuery>,
+) -> Reply {
+    owner(&state, &headers, &profile_id).await?;
+    let range_days = match query.range.as_deref() {
+        None | Some("7d") => 7,
+        Some("30d") => 30,
+        Some(_) => return Err(fail(StatusCode::BAD_REQUEST, "invalid_range")),
+    };
+    let today = match query.today {
+        Some(today) if chrono::NaiveDate::parse_from_str(&today, "%Y-%m-%d").is_ok() => today,
+        Some(_) => return Err(fail(StatusCode::BAD_REQUEST, "invalid_day_key")),
+        None => chrono::Utc::now().format("%Y-%m-%d").to_string(),
+    };
+    let profile = state
+        .store
+        .find_profile(&profile_id)
+        .await?
+        .ok_or_else(|| fail(StatusCode::NOT_FOUND, "profile_not_found"))?;
+    let attempts = state.store.list_attempts(&profile_id).await?;
+    let from = lt_domain::insights::period_start(&today, range_days);
+    let earlier: Vec<_> = attempts
+        .iter()
+        .filter(|attempt| day_key_of(attempt) < from)
+        .cloned()
+        .collect();
+    let utc = lt_domain::day_key::UtcDayKeys;
+    let before = lt_domain::reduce(&LearningSnapshot::default(), &earlier, "UTC", &utc);
+    let after = lt_domain::reduce(&before, &attempts, "UTC", &utc);
+    let insights = lt_domain::insights::derive_insights(&lt_domain::insights::InsightsInput {
+        after: &after,
+        attempts: &attempts,
+        before: &before,
+        day_key_of: &day_key_of,
+        learning_paths: &profile.learning_paths.unwrap_or_default(),
+        range_days,
+        today_key: &today,
+    });
+    Ok(ok(serde_json::to_value(insights).unwrap_or_default()))
+}
 
 async fn bootstrap(
     State(state): State<AppState>,

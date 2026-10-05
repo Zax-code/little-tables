@@ -1,0 +1,77 @@
+/** The parent code in front of the parent space (§6.4): choose, enter, change, forgot. */
+export const en = {
+  'lock.change': 'Change the parent code',
+  'lock.changed': 'The parent code has changed.',
+  'lock.chooseCopy': 'Four digits, to keep the parent space for grown-ups.',
+  'lock.chooseTitle': 'Choose a parent code',
+  'lock.confirmTitle': 'Type it again',
+  'lock.currentTitle': 'Current code',
+  'lock.enterTitle': 'Parent code',
+  'lock.erase': 'Erase',
+  'lock.forgot': 'Forgot the code?',
+  'lock.forgotCopy':
+    'Sign in again with the family’s Google account to choose a new code. Progress is kept.',
+  'lock.forgotTitle': 'Choose a new code',
+  'lock.locked': 'Too many tries. Try again at {time}.',
+  'lock.mismatch': 'The two codes differ. Start again.',
+  'lock.newTitle': 'New code',
+  'lock.offlineUnknown': 'Connect to the internet once to open the parent space on this device.',
+  'lock.progress': '{count} of 4 digits',
+  'lock.reset': 'Choose a new code',
+  'lock.resetFailed': 'This Google account does not own this family.',
+  'lock.unavailable': 'The parent space could not open. Check the connection.',
+  'lock.wrong.one': 'Wrong code. {count} try left.',
+  'lock.wrong.other': 'Wrong code. {count} tries left.',
+}
+
+type Messages = Record<keyof typeof en, string>
+
+export const fr: Messages = {
+  'lock.change': 'Changer le code parent',
+  'lock.changed': 'Le code parent a changé.',
+  'lock.chooseCopy': 'Quatre chiffres, pour garder l’espace parent aux grands.',
+  'lock.chooseTitle': 'Choisis un code parent',
+  'lock.confirmTitle': 'Tape-le encore une fois',
+  'lock.currentTitle': 'Code actuel',
+  'lock.enterTitle': 'Code parent',
+  'lock.erase': 'Effacer',
+  'lock.forgot': 'Code oublié ?',
+  'lock.forgotCopy':
+    'Reconnecte-toi avec le compte Google de la famille pour choisir un nouveau code. Les progrès sont conservés.',
+  'lock.forgotTitle': 'Choisir un nouveau code',
+  'lock.locked': 'Trop d’essais. Réessaie à {time}.',
+  'lock.mismatch': 'Les deux codes sont différents. Recommence.',
+  'lock.newTitle': 'Nouveau code',
+  'lock.offlineUnknown':
+    'Connecte-toi une fois à internet pour ouvrir l’espace parent sur cet appareil.',
+  'lock.progress': '{count} chiffres sur 4',
+  'lock.reset': 'Choisir un nouveau code',
+  'lock.resetFailed': 'Ce compte Google n’est pas celui de la famille.',
+  'lock.unavailable': 'L’espace parent n’a pas pu s’ouvrir. Vérifie la connexion.',
+  'lock.wrong.one': 'Code incorrect. Encore {count} essai.',
+  'lock.wrong.other': 'Code incorrect. Encore {count} essais.',
+}
+
+export const zh: Messages = {
+  'lock.change': '更改家长密码',
+  'lock.changed': '家长密码已更改。',
+  'lock.chooseCopy': '四位数字，让家长空间只属于大人。',
+  'lock.chooseTitle': '设置家长密码',
+  'lock.confirmTitle': '再输入一次',
+  'lock.currentTitle': '当前密码',
+  'lock.enterTitle': '家长密码',
+  'lock.erase': '删除',
+  'lock.forgot': '忘记密码？',
+  'lock.forgotCopy': '用家庭的 Google 账号重新登录，即可设置新密码。学习进度会保留。',
+  'lock.forgotTitle': '设置新密码',
+  'lock.locked': '尝试次数太多。请在 {time} 后再试。',
+  'lock.mismatch': '两次输入的密码不同。请重新开始。',
+  'lock.newTitle': '新密码',
+  'lock.offlineUnknown': '请先联网一次，才能在这台设备上打开家长空间。',
+  'lock.progress': '已输入 {count} 位，共 4 位',
+  'lock.reset': '设置新密码',
+  'lock.resetFailed': '这个 Google 账号不属于这个家庭。',
+  'lock.unavailable': '家长空间无法打开。请检查网络连接。',
+  'lock.wrong.one': '密码错误。还可以试 {count} 次。',
+  'lock.wrong.other': '密码错误。还可以试 {count} 次。',
+}

@@ -15,7 +15,17 @@ import {
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { Effect } from 'effect'
-import { Download, Languages, LogOut, Palette, Plus, RefreshCw, Users, Volume2 } from 'lucide-react'
+import {
+  Download,
+  Languages,
+  LockKeyhole,
+  LogOut,
+  Palette,
+  Plus,
+  RefreshCw,
+  Users,
+  Volume2,
+} from 'lucide-react'
 import { useId, useState, type SyntheticEvent } from 'react'
 
 import { useApp } from '../app/app-context.js'
@@ -30,6 +40,7 @@ import type { Translator } from '../i18n/translator.js'
 import { InstallSteps } from '../install.js'
 import { useInstall } from '../install-prompt.js'
 import { failureCode, useApi } from './api.js'
+import { ChangeCodeSheet } from './change-code-sheet.js'
 
 const languageNames: Readonly<Record<Language, string>> = {
   en: 'English',
@@ -235,6 +246,7 @@ export function SettingsScreen() {
   const { preferences, setPreferences } = useApp()
   const { t } = useI18n()
   const navigate = useNavigate()
+  const [changingCode, setChangingCode] = useState(false)
   const update = (change: Partial<Preferences>) => setPreferences({ ...preferences, ...change })
   return (
     <Screen
@@ -300,6 +312,19 @@ export function SettingsScreen() {
           title={t('settings.soundCopy')}
         />
       </ListGroup>
+      <ListGroup>
+        <ListRow
+          leading={
+            <IconTile className="bg-tint">
+              <LockKeyhole aria-hidden />
+            </IconTile>
+          }
+          onClick={() => setChangingCode(true)}
+          title={t('lock.change')}
+          trailing="chevron"
+        />
+      </ListGroup>
+      <ChangeCodeSheet onOpenChange={setChangingCode} open={changingCode} />
     </Screen>
   )
 }

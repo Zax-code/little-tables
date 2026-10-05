@@ -44,6 +44,20 @@
   --garden-page-dot: rgb(113 107 103 / 35%);
 }
 
+/* A locked pot stays quiet at night instead of glowing white. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --garden-lock-surface: #47433a;
+    --garden-lock-line: #a49e86;
+    --garden-lock-ink: #c8c1a6;
+  }
+}
+:root[data-theme='dark'] {
+  --garden-lock-surface: #47433a;
+  --garden-lock-line: #a49e86;
+  --garden-lock-ink: #c8c1a6;
+}
+
 html,
 body,
 #root {

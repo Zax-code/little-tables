@@ -9,6 +9,8 @@ import {
   LearningPathSettings,
   LearningSnapshot,
   Millis,
+  PracticeAnswer,
+  SkillId,
 } from '@little-tables/engine/schema'
 import { Schema } from 'effect'
 
@@ -145,6 +147,67 @@ export const AllowedEmails = Schema.Struct({
 export const EmailAdded = Schema.Struct({ created: Schema.Boolean, email: Schema.String })
 export const EmailRemoved = Schema.Struct({ email: Schema.String, removed: Schema.Boolean })
 
+export const ParentLockStatus = Schema.Struct({
+  configured: Schema.Boolean,
+  lockedUntil: Schema.NullOr(Millis),
+  /** Changes with the code: a device whose copy has another salt must drop it. */
+  pinSalt: Schema.NullOr(Schema.String),
+})
+export type ParentLockStatus = typeof ParentLockStatus.Type
+
+/** What a device needs to check the parent code offline (PBKDF2, `docs/rewrite` §6.4). */
+export const ParentLockDevice = Schema.Struct({
+  pinHashParams: Schema.Struct({ hash: Schema.Literal('SHA-256'), iterations: Int }),
+  pinSalt: Schema.String,
+})
+export type ParentLockDevice = typeof ParentLockDevice.Type
+
+export const WrongPin = Schema.Struct({
+  error: Schema.Literal('wrong_pin'),
+  remainingAttempts: Int,
+})
+export const LockedPin = Schema.Struct({
+  error: Schema.Literal('parent_lock_locked'),
+  lockedUntil: Millis,
+})
+
+export const StruggleReason = Schema.Literal('mistakes', 'lapses', 'slow')
+export type StruggleReason = typeof StruggleReason.Type
+
+export const Struggle = Schema.Struct({
+  answers: Int,
+  commonWrongAnswer: Schema.NullOr(PracticeAnswer),
+  factKey: Schema.String,
+  lapses: Int,
+  medianLatencyMs: Schema.NullOr(Schema.Number),
+  mistakes: Int,
+  reasons: Schema.Array(StruggleReason),
+  skill: Schema.NullOr(SkillId),
+})
+export type Struggle = typeof Struggle.Type
+
+/** "What's hard" for a parent, over the last 7 or 30 learning days (`docs/rewrite` §5.6). */
+export const Insights = Schema.Struct({
+  answers: Int,
+  correctAnswers: Int,
+  fromDayKey: DayKey,
+  growth: Schema.Struct({
+    becameFamiliar: Schema.Array(Schema.String),
+    becameFluent: Schema.Array(Schema.String),
+  }),
+  regularity: Schema.Struct({
+    bloomingWeeks: Int,
+    practicedDays: Int,
+    rangeDays: Int,
+    weeks: Int,
+  }),
+  struggles: Schema.Array(Struggle),
+  timeSpentMs: Int,
+  toDayKey: DayKey,
+  wellOnTheWay: Schema.Struct({ skills: Schema.Array(SkillId), tables: Schema.Array(Int) }),
+})
+export type Insights = typeof Insights.Type
+
 /** Every response of the contract, by the name the Rust test records it under. */
 export const responses = {
   addEmail: EmailAdded,
@@ -153,17 +216,25 @@ export const responses = {
   authStatusSignedOut: AuthStatus,
   bootstrap: Bootstrap,
   createProfile: ProfileResponse,
+  insights: Insights,
   introductionSeen: IntroductionSeen,
   listEmails: AllowedEmails,
   listProfiles: ProfilesResponse,
+  lockedPin: LockedPin,
   logout: Logout,
   onboarding: ProfileResponse,
+  parentLockStatus: ParentLockStatus,
+  parentLockUnset: ParentLockStatus,
   refresh: Refresh,
   removeEmail: EmailRemoved,
   removeProfile: RemovedProfile,
+  resetParentLock: ParentLockStatus,
+  setParentLock: ParentLockDevice,
   signIn: SignIn,
   subscribe: Subscribed,
   unsubscribe: Unsubscribed,
   updateLearningPaths: ProfileResponse,
   updateProfile: ProfileResponse,
+  verifyParentLock: ParentLockDevice,
+  wrongPin: WrongPin,
 } as const

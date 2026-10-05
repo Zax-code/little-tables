@@ -512,4 +512,12 @@ describe('device settings', () => {
     expect(device.seenCards()).toEqual([])
     expect(createDevice(null).preferences().language).toBe('fr')
   })
+
+  it('remembers the new paths per child, including what the previous app saw', () => {
+    const device = createDevice(memoryStorage({ 'little-tables:new-paths-seen:lou': '1' }))
+    expect(device.sawNewPaths('lou')).toBe(true)
+    expect(device.sawNewPaths('zoe')).toBe(false)
+    device.markCardSeen('new-paths:zoe')
+    expect(device.sawNewPaths('zoe')).toBe(true)
+  })
 })

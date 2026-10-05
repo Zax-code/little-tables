@@ -8,6 +8,11 @@ export type MessageValues = Readonly<Record<string, number | string>>
 const locales: Readonly<Record<Language, string>> = { en: 'en', fr: 'fr', 'zh-Hans': 'zh-Hans' }
 
 type Formatters = Readonly<{
+  /** A time of day given in minutes after midnight (formatted as UTC). */
+  clock: Intl.DateTimeFormat
+  hours: Intl.DateTimeFormat
+  /** An instant, in the device's own time zone. */
+  local: Intl.DateTimeFormat
   numbers: Intl.NumberFormat
   plurals: Intl.PluralRules
   relative: Intl.RelativeTimeFormat
@@ -18,6 +23,9 @@ type Formatters = Readonly<{
 const formatters = {} as Record<Language, Formatters>
 for (const [language, locale] of Object.entries(locales) as ReadonlyArray<[Language, string]>) {
   formatters[language] = {
+    clock: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' }),
+    hours: new Intl.DateTimeFormat(locale, { hour: 'numeric', timeZone: 'UTC' }),
+    local: new Intl.DateTimeFormat(locale, { hour: 'numeric', minute: '2-digit' }),
     numbers: new Intl.NumberFormat(locale),
     plurals: new Intl.PluralRules(locale),
     relative: new Intl.RelativeTimeFormat(locale, { numeric: 'auto' }),
@@ -35,7 +43,7 @@ export const interpolate = (template: string, values: MessageValues = {}) =>
 
 export const createTranslator = (language: Language) => {
   const catalog = messages[language]
-  const { numbers, plurals, relative, weekdays } = formatters[language]
+  const { clock, hours, local, numbers, plurals, relative, weekdays } = formatters[language]
   return {
     language,
     /** A message, with `{name}` placeholders replaced. */
@@ -54,6 +62,12 @@ export const createTranslator = (language: Language) => {
     /** The day of the week of a UTC date. */
     weekday: (date: Date, width: keyof Formatters['weekdays']) => weekdays[width].format(date),
     number: (value: number) => numbers.format(value),
+    /** 18:30, 6:30 PM… for a time of day in minutes after midnight. */
+    clock: (minutes: number) => clock.format(Date.UTC(2000, 0, 1, 0, minutes)),
+    /** 18 h, 6 PM… for an hour of the day. */
+    hour: (hour: number) => hours.format(Date.UTC(2000, 0, 1, hour)),
+    /** The time of an instant on this device. */
+    timeOf: (instant: number) => local.format(instant),
   }
 }
 

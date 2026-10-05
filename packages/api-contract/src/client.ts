@@ -18,9 +18,12 @@ import {
   Bootstrap,
   EmailAdded,
   EmailRemoved,
+  Insights,
   IntroductionSeen,
   Logout,
   NotificationConfig,
+  ParentLockDevice,
+  ParentLockStatus,
   ProfileResponse,
   ProfilesResponse,
   Refresh,
@@ -36,7 +39,11 @@ import {
 /** The server refused the request; `code` is its `error` field. */
 export class ApiError extends Data.TaggedError('ApiError')<{
   readonly code: string
+  /** Until when a locked parent code stays closed. */
+  readonly lockedUntil?: number
   readonly message: string
+  /** Wrong parent codes still allowed before it locks. */
+  readonly remainingAttempts?: number
   readonly status: number
 }> {}
 
@@ -52,7 +59,9 @@ export type ApiFailure = ApiError | ContractError | NetworkError
 
 const ErrorBody = Schema.Struct({
   error: Schema.optional(Schema.String),
+  lockedUntil: Schema.optional(Schema.Number),
   message: Schema.optional(Schema.String),
+  remainingAttempts: Schema.optional(Schema.Number),
 })
 
 export type ProfileChanges = Readonly<{
@@ -88,13 +97,19 @@ const make = (baseUrl: string) =>
                   }),
                 )
               : HttpClientResponse.schemaBodyJson(ErrorBody)(response).pipe(
-                  Effect.orElseSucceed(() => ({ error: undefined, message: undefined })),
+                  Effect.orElseSucceed((): typeof ErrorBody.Type => ({})),
                   Effect.flatMap((body) =>
                     Effect.fail(
                       new ApiError({
                         code: body.error ?? 'unknown',
                         message: body.message ?? '',
                         status: response.status,
+                        ...(body.lockedUntil === undefined
+                          ? {}
+                          : { lockedUntil: body.lockedUntil }),
+                        ...(body.remainingAttempts === undefined
+                          ? {}
+                          : { remainingAttempts: body.remainingAttempts }),
                       }),
                     ),
                   ),
@@ -120,6 +135,13 @@ const make = (baseUrl: string) =>
         call(Bootstrap, HttpClientRequest.get(`${profilePath(profileId)}/bootstrap`)),
       createProfile: (input: Readonly<{ avatarId: SelectableAvatarId; name: string }>) =>
         call(ProfileResponse, json(HttpClientRequest.post('/api/v2/family/profiles'), input)),
+      insights: (profileId: string, range: '7d' | '30d', today: string) =>
+        call(
+          Insights,
+          HttpClientRequest.get(`${profilePath(profileId)}/insights`).pipe(
+            HttpClientRequest.setUrlParams({ range, today }),
+          ),
+        ),
       introductionSeen: (profileId: string) =>
         call(
           IntroductionSeen,
@@ -130,6 +152,27 @@ const make = (baseUrl: string) =>
         call(NotificationConfig, HttpClientRequest.get('/api/v2/notifications/config')),
       onboarding: (input: Readonly<{ avatarId?: SelectableAvatarId; name: string }>) =>
         call(ProfileResponse, json(HttpClientRequest.post('/api/v2/family/onboarding'), input)),
+      parentLock: () => call(ParentLockStatus, HttpClientRequest.get('/api/v2/family/parent-lock')),
+      /** Forgets the code; `credential` is a Google ID token from a sign-in made just now. */
+      resetParentLock: (credential: string | null) =>
+        call(
+          ParentLockStatus,
+          json(HttpClientRequest.del('/api/v2/family/parent-lock'), { credential }),
+        ),
+      /** Sets the code, or changes it with the current one. */
+      setParentLock: (pin: string, currentPin?: string) =>
+        call(
+          ParentLockDevice,
+          json(
+            HttpClientRequest.put('/api/v2/family/parent-lock'),
+            currentPin === undefined ? { pin } : { currentPin, pin },
+          ),
+        ),
+      verifyParentLock: (pin: string) =>
+        call(
+          ParentLockDevice,
+          json(HttpClientRequest.post('/api/v2/family/parent-lock/verify'), { pin }),
+        ),
       profiles: () => call(ProfilesResponse, HttpClientRequest.get('/api/v2/family/profiles')),
       refresh: () => call(Refresh, HttpClientRequest.post('/api/v2/auth/refresh')),
       removeEmail: (email: string) =>

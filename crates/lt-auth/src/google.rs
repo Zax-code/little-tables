@@ -15,6 +15,8 @@ pub struct GoogleIdentity {
     /// Lowercase name shown until the parent chooses one.
     pub display_name: String,
     pub email: String,
+    /// When Google issued the token, in Unix milliseconds.
+    pub issued_at: Option<i64>,
     pub subject: String,
 }
 
@@ -24,6 +26,7 @@ pub struct GoogleClaims {
     #[serde(default, deserialize_with = "boolean_or_text")]
     pub email_verified: bool,
     pub given_name: Option<String>,
+    pub iat: Option<i64>,
     pub name: Option<String>,
     pub sub: Option<String>,
 }
@@ -66,6 +69,7 @@ pub fn identity_from_claims(claims: &GoogleClaims) -> Option<GoogleIdentity> {
     Some(GoogleIdentity {
         display_name: name.to_lowercase(),
         email,
+        issued_at: claims.iat.map(|seconds| seconds.saturating_mul(1000)),
         subject,
     })
 }

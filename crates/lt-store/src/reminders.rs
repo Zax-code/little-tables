@@ -211,101 +211,6 @@ impl Store {
         transaction.commit().await?;
         Ok(())
     }
-
-    /// The family's parent code hash and salt, with its failure counter and lock deadline.
-    pub async fn parent_lock(
-        &self,
-        google_subject: &str,
-    ) -> Result<Option<(String, String, i64, Option<Millis>)>> {
-        let row = sqlx::query(
-            "SELECT pin_hash, pin_salt, failed_attempts, locked_until FROM parent_locks WHERE family_subject = ?",
-        )
-        .bind(google_subject)
-        .fetch_optional(self.pool())
-        .await?;
-        row.map(|row| {
-            Ok((
-                row.try_get("pin_hash")?,
-                row.try_get("pin_salt")?,
-                row.try_get("failed_attempts")?,
-                row.try_get("locked_until")?,
-            ))
-        })
-        .transpose()
-    }
-
-    pub async fn set_parent_lock(
-        &self,
-        google_subject: &str,
-        pin_hash: &str,
-        pin_salt: &str,
-        now: Millis,
-    ) -> Result<()> {
-        let (_guard, mut transaction) = self.write().await?;
-        sqlx::query(
-            "INSERT INTO parent_locks (family_subject, pin_hash, pin_salt, failed_attempts, locked_until, updated_at)
-             VALUES (?, ?, ?, 0, NULL, ?)
-             ON CONFLICT (family_subject) DO UPDATE SET pin_hash = excluded.pin_hash, pin_salt = excluded.pin_salt,
-               failed_attempts = 0, locked_until = NULL, updated_at = excluded.updated_at",
-        )
-        .bind(google_subject)
-        .bind(pin_hash)
-        .bind(pin_salt)
-        .bind(now)
-        .execute(&mut *transaction)
-        .await?;
-        transaction.commit().await?;
-        Ok(())
-    }
-
-    /// Records a failed attempt; after `limit` failures the code locks until `lock_until`.
-    pub async fn record_parent_lock_failure(
-        &self,
-        google_subject: &str,
-        limit: i64,
-        lock_until: Millis,
-        now: Millis,
-    ) -> Result<()> {
-        let (_guard, mut transaction) = self.write().await?;
-        sqlx::query(
-            "UPDATE parent_locks SET failed_attempts = failed_attempts + 1,
-               locked_until = CASE WHEN failed_attempts + 1 >= ? THEN ? ELSE locked_until END, updated_at = ?
-             WHERE family_subject = ?",
-        )
-        .bind(limit)
-        .bind(lock_until)
-        .bind(now)
-        .bind(google_subject)
-        .execute(&mut *transaction)
-        .await?;
-        transaction.commit().await?;
-        Ok(())
-    }
-
-    pub async fn reset_parent_lock_failures(
-        &self,
-        google_subject: &str,
-        now: Millis,
-    ) -> Result<()> {
-        let (_guard, mut transaction) = self.write().await?;
-        sqlx::query("UPDATE parent_locks SET failed_attempts = 0, locked_until = NULL, updated_at = ? WHERE family_subject = ?")
-            .bind(now)
-            .bind(google_subject)
-            .execute(&mut *transaction)
-            .await?;
-        transaction.commit().await?;
-        Ok(())
-    }
-
-    pub async fn clear_parent_lock(&self, google_subject: &str) -> Result<()> {
-        let (_guard, mut transaction) = self.write().await?;
-        sqlx::query("DELETE FROM parent_locks WHERE family_subject = ?")
-            .bind(google_subject)
-            .execute(&mut *transaction)
-            .await?;
-        transaction.commit().await?;
-        Ok(())
-    }
 }
 
 #[cfg(test)]
@@ -366,25 +271,5 @@ mod tests {
             .await
             .unwrap();
         assert!(!store.has_push_subscription(&profile).await.unwrap());
-    }
-
-    #[tokio::test]
-    async fn parent_lock_counts_failures_and_locks() {
-        let (store, _directory) = store().await;
-        store
-            .ensure_family("g", "léa", None, "sprout", 0)
-            .await
-            .unwrap();
-        store.set_parent_lock("g", "hash", "salt", 1).await.unwrap();
-        for _ in 0..5 {
-            store
-                .record_parent_lock_failure("g", 5, 900, 2)
-                .await
-                .unwrap();
-        }
-        let (_, _, failures, locked_until) = store.parent_lock("g").await.unwrap().unwrap();
-        assert_eq!((failures, locked_until), (5, Some(900)));
-        store.reset_parent_lock_failures("g", 3).await.unwrap();
-        assert_eq!(store.parent_lock("g").await.unwrap().unwrap().2, 0);
     }
 }

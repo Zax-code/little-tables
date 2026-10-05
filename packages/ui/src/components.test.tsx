@@ -6,7 +6,7 @@ import { useState, type ReactElement } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import { Button, IconButton } from './button.js'
-import { Chip, SegmentedControl, Switch, TextField } from './controls.js'
+import { Chip, SegmentedControl, Switch, TextField, TimePicker } from './controls.js'
 import { Avatar, Badge, EmptyState, ProgressBar, ProgressRing, WeekStrip } from './display.js'
 import { IconTile, ListGroup, ListRow } from './list.js'
 import {
@@ -264,5 +264,53 @@ describe('CharacterDock', () => {
   it('has no bubble while idle', () => {
     render(<CharacterDock label="Miffy attend" pose="idle" poses={poses} />)
     expect(screen.queryByRole('status')).toBeNull()
+  })
+})
+
+describe('TimePicker', () => {
+  function Reminder({ initial }: Readonly<{ initial: number }>) {
+    const [value, setValue] = useState(initial)
+    return (
+      <>
+        <TimePicker
+          formatHour={(hour) => `${hour} h`}
+          hourLabel="Hour"
+          max={21 * 60}
+          min={7 * 60}
+          minuteLabel="Minutes"
+          onChange={setValue}
+          step={15}
+          value={value}
+        />
+        <output>{value}</output>
+      </>
+    )
+  }
+
+  it('is accessible', async () => {
+    await expectAccessible(<Reminder initial={18 * 60} />)
+  })
+
+  it('offers quarter hours within the range and keeps the minutes across hours', async () => {
+    const user = userEvent.setup()
+    render(<Reminder initial={18 * 60 + 45} />)
+    const hour = screen.getByRole('combobox', { name: 'Hour' })
+    expect(
+      screen.getAllByRole('option', { name: /h$/ }).map(({ textContent }) => textContent),
+    ).toEqual(Array.from({ length: 15 }, (_, index) => `${index + 7} h`))
+    await user.selectOptions(hour, '20')
+    expect(screen.getByRole('status')).toHaveTextContent(String(20 * 60 + 45))
+    // 21:45 is past the latest time: only 21:00 is left.
+    await user.selectOptions(hour, '21')
+    expect(screen.getByRole('status')).toHaveTextContent(String(21 * 60))
+    expect(
+      screen
+        .getAllByRole('option')
+        .filter((option) => !option.textContent.endsWith('h'))
+        .map(({ textContent }) => textContent),
+    ).toEqual(['00'])
+    await user.selectOptions(hour, '7')
+    await user.selectOptions(screen.getByRole('combobox', { name: 'Minutes' }), '30')
+    expect(screen.getByRole('status')).toHaveTextContent(String(7 * 60 + 30))
   })
 })

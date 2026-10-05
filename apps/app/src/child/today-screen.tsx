@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
 import { useProfileState } from '../app/profile-state.js'
-import { useDailyQuestionCount, useGarden, useRhythm } from '../app/derived.js'
+import { useDailyQuestionCount, useGarden, useLearningProgress, useRhythm } from '../app/derived.js'
 import { CharacterImage } from '../characters/character-image.js'
 import { characterNames, characterOf } from '../characters/characters.js'
 import type { ProfileState } from '../data/schema.js'
@@ -16,6 +16,7 @@ import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
 import { ChildTabBar, ChildTopBar } from './chrome.js'
 import { useLaunch } from './launch.js'
+import { NewPathsSheet } from './new-paths-sheet.js'
 import { OtherSessionsSheet } from './other-sessions-sheet.js'
 import { weekDays } from './week.js'
 
@@ -35,6 +36,7 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
   const questions = useDailyQuestionCount(state, activeProfile.learningPaths, openedAt)
   const launch = useLaunch()
   const [choosing, setChoosing] = useState(false)
+  const progress = useLearningProgress(state, activeProfile.learningPaths)
   const name = activeProfile.name
   const session = state.activeSession
   const firstVisit = state.snapshot.processedEventIds.length === 0 && state.completedSessions === 0
@@ -164,6 +166,9 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
         title={t('week.title')}
       />
       <OtherSessionsSheet onOpenChange={setChoosing} open={choosing} state={state} />
+      {session === null ? (
+        <NewPathsSheet paths={progress.paths} tablesAcquired={progress.packs.bonus1112.unlocked} />
+      ) : null}
     </Screen>
   )
 }

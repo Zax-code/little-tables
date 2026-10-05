@@ -332,13 +332,14 @@ doivent lui appartenir, puisque la base impose les clés étrangères.
 | GET/POST     | `/family/profiles`                                | Lister · créer                                                                |
 | PATCH/DELETE | `/family/profiles/{id}`                           | Modifier (nom, avatar, `reminderMinute`) · retirer (dernier interdit)         |
 | PUT          | `/family/profiles/{id}/learning-paths`            | Réglages scolaires                                                            |
+| GET          | `/family/parent-lock`                             | État : `configured`, `lockedUntil`, `pinSalt` (périme le cache hors-ligne)    |
 | PUT          | `/family/parent-lock`                             | Définir ou changer le code (code courant requis s'il existe)                  |
 | POST         | `/family/parent-lock/verify`                      | Vérifier ; renvoie `{pinHashParams, pinSalt}` pour le cache hors-ligne (§6.4) |
 | DELETE       | `/family/parent-lock`                             | Réinitialiser ; exige un ID token Google frais dans le corps                  |
 | GET          | `/profiles/{id}/bootstrap`                        | État complet du profil                                                        |
 | POST         | `/profiles/{id}/attempts`                         | Ingestion d'un lot d'événements (≤ 100)                                       |
 | POST         | `/profiles/{id}/garden/introduction-seen`         | Carte d'intro vue                                                             |
-| GET          | `/profiles/{id}/insights?range=7d\|30d`           | Vue parent des difficultés (§5.6)                                             |
+| GET          | `/profiles/{id}/insights?range=7d\|30d&today=…`   | Vue parent des difficultés (§5.6) ; `today` = jour d'apprentissage de l'app   |
 | GET          | `/notifications/config`                           | Clé publique VAPID uniquement                                                 |
 | POST/DELETE  | `/profiles/{id}/notifications/subscriptions`      | Abonner · désabonner (`DELETE …/subscriptions?endpoint=…`)                    |
 | GET/POST     | `/admin/allowed-emails`                           | Lister · ajouter (admins, sinon 403)                                          |
@@ -508,8 +509,9 @@ en réutilisant les composants existants :
 - **Hors-ligne** : après une vérification en ligne réussie, le client stocke un hachage local PBKDF2 (WebCrypto,
   100 000 itérations, sel fourni par le serveur) du code ; la vérification hors-ligne se fait contre ce hachage. Le
   serveur reste la référence ; changer le code invalide le cache à la prochaine sync.
-- Anti-force brute : 5 échecs → verrou 15 min (serveur et local). Réinitialisation : reconnexion Google (ID token frais)
-  puis nouveau code.
+- Anti-force brute : 5 échecs → verrou 15 min (serveur et local), puis le compte repart de zéro. Un code faux répond
+  403 `wrong_pin` avec `remainingAttempts`, un code verrouillé 423 `parent_lock_locked` avec `lockedUntil`.
+  Réinitialisation : reconnexion Google (ID token émis il y a moins de 10 min, même `sub`) puis nouveau code.
 - Une fois ouvert, l'espace parent reste déverrouillé 5 min ou jusqu'au retour à l'espace enfant.
 
 ### 6.5 Système de composants (`packages/ui`)

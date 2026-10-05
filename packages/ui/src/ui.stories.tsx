@@ -3,7 +3,7 @@ import { Bell, Droplets, Languages, LockKeyhole, Pause, SunMoon, Volume2 } from 
 import { useState } from 'react'
 
 import { Button, IconButton } from './button.js'
-import { Chip, SegmentedControl, Switch, TextField } from './controls.js'
+import { Chip, SegmentedControl, Switch, TextField, TimePicker } from './controls.js'
 import { Avatar, Badge, EmptyState, ProgressBar, ProgressRing, WeekStrip } from './display.js'
 import { IconTile, ListGroup, ListRow } from './list.js'
 import {
@@ -346,3 +346,24 @@ export const Empty: Story = () => (
     title="Pas de connexion"
   />
 )
+
+export const ReminderTime: Story = () => {
+  const [minutes, setMinutes] = useState(18 * 60)
+  return (
+    <div className="flex max-w-sm flex-col gap-3 bg-surface-2 p-4">
+      <TimePicker
+        formatHour={(hour) => `${hour} h`}
+        hourLabel="Heure"
+        max={21 * 60}
+        min={7 * 60}
+        minuteLabel="Minutes"
+        onChange={setMinutes}
+        step={15}
+        value={minutes}
+      />
+      <p className="text-footnote text-label-2">
+        Rappel à {Math.floor(minutes / 60)} h {String(minutes % 60).padStart(2, '0')}
+      </p>
+    </div>
+  )
+}

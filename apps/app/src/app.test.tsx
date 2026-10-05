@@ -5,6 +5,7 @@
  */
 import {
   ApiClient,
+  ApiError,
   type ApiClientService,
   type Bootstrap,
   type ChildProfile,
@@ -30,16 +31,22 @@ const defaultPaths = {
 } as const
 
 /** A server keeping one family in memory. */
-const memoryServer = () => {
+const memoryServer = (childId: string) => {
   let onboarded = false
   let child: ChildProfile = {
     avatarId: 'sprout',
-    id: 'first-child',
+    id: childId,
     learningPaths: defaultPaths,
     name: 'google',
     reminderMinute: 1080,
   }
   const received: AttemptEvent[] = []
+  let pin: string | null = null
+  let failures = 0
+  const device = () => ({
+    pinHashParams: { hash: 'SHA-256' as const, iterations: 1000 },
+    pinSalt: `salt-${pin}`,
+  })
   const bootstrap = (profileId: string): Bootstrap => ({
     completedSessions: 0,
     gardenBloomCount: 0,
@@ -65,6 +72,31 @@ const memoryServer = () => {
     bootstrap: (profileId: string) => Effect.succeed(bootstrap(profileId)),
     introductionSeen: () => Effect.succeed({ introductionSeen: true as const }),
     logout: () => Effect.succeed({ status: 'signed-out' as const }),
+    parentLock: () =>
+      Effect.sync(() => ({
+        configured: pin !== null,
+        lockedUntil: null,
+        pinSalt: pin === null ? null : `salt-${pin}`,
+      })),
+    setParentLock: (next: string) =>
+      Effect.sync(() => {
+        pin = next
+        return device()
+      }),
+    verifyParentLock: (given: string) =>
+      given === pin
+        ? Effect.sync(() => {
+            failures = 0
+            return device()
+          })
+        : Effect.fail(
+            new ApiError({
+              code: 'wrong_pin',
+              message: '',
+              remainingAttempts: 5 - (failures += 1),
+              status: 403,
+            }),
+          ),
     onboarding: (input: { name: string }) =>
       Effect.sync(() => {
         onboarded = true
@@ -106,23 +138,28 @@ beforeAll(() => {
 
 afterEach(cleanup)
 
+/** Opens the app on a fresh device and names the first child. */
+const openApp = async (childId: string) => {
+  window.history.replaceState(null, '', '/')
+  const server = memoryServer(childId)
+  const runtime = createRuntime(Layer.mergeAll(server.layer, testEngine, LocalStore.layer))
+  const user = userEvent.setup()
+  render(
+    <QueryClientProvider
+      client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+    >
+      <App device={createDevice(memoryStorage())} runtime={runtime} />
+    </QueryClientProvider>,
+  )
+  await user.type(await screen.findByRole('textbox', { name: 'Prénom' }), 'Léa')
+  await user.click(screen.getByRole('button', { name: 'Ouvrir mon jardin' }))
+  expect(await screen.findByRole('heading', { name: 'Coucou Léa ♡' })).toBeInTheDocument()
+  return { runtime, server, user }
+}
+
 describe('the new app', () => {
   it('opens, names the first child, waters the garden and syncs the answers', async () => {
-    window.history.replaceState(null, '', '/')
-    const server = memoryServer()
-    const runtime = createRuntime(Layer.mergeAll(server.layer, testEngine, LocalStore.layer))
-    const user = userEvent.setup()
-    render(
-      <QueryClientProvider
-        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
-      >
-        <App device={createDevice(memoryStorage())} runtime={runtime} />
-      </QueryClientProvider>,
-    )
-
-    await user.type(await screen.findByRole('textbox', { name: 'Prénom' }), 'Léa')
-    await user.click(screen.getByRole('button', { name: 'Ouvrir mon jardin' }))
-    expect(await screen.findByRole('heading', { name: 'Coucou Léa ♡' })).toBeInTheDocument()
+    const { runtime, server, user } = await openApp('waterer')
 
     await user.click(screen.getByRole('button', { name: 'Arroser mon jardin' }))
     for (let index = 0; index < 20; index += 1) {
@@ -170,6 +207,39 @@ describe('the new app', () => {
 
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
     await waitFor(() => expect(server.received.length).toBeGreaterThanOrEqual(5))
+    await runtime.dispose()
+  }, 30_000)
+
+  it('keeps the parent space behind a code chosen on the first visit', async () => {
+    const { runtime, user } = await openApp('parent-code')
+    const typeCode = async (code: string) => {
+      for (const digit of code) await user.click(screen.getByRole('button', { name: digit }))
+    }
+
+    await user.click(screen.getByRole('button', { name: 'Espace parents' }))
+    expect(
+      await screen.findByRole('heading', { name: 'Choisis un code parent' }, { timeout: 5000 }),
+    ).toBeInTheDocument()
+    await typeCode('2468')
+    expect(
+      await screen.findByRole('heading', { name: 'Tape-le encore une fois' }),
+    ).toBeInTheDocument()
+    await typeCode('2468')
+    expect(
+      await screen.findByRole('heading', { name: 'Parents' }, { timeout: 5000 }),
+    ).toBeInTheDocument()
+
+    // Back in the child space, the code is asked again.
+    await user.click(screen.getByRole('button', { name: 'OK' }))
+    await screen.findByRole('heading', { name: 'Coucou Léa ♡' })
+    await user.click(screen.getByRole('button', { name: 'Espace parents' }))
+    expect(await screen.findByRole('heading', { name: 'Code parent' })).toBeInTheDocument()
+    await typeCode('1111')
+    expect(await screen.findByText('Code incorrect. Encore 4 essais.')).toBeInTheDocument()
+    await typeCode('2468')
+    expect(
+      await screen.findByRole('heading', { name: 'Parents' }, { timeout: 5000 }),
+    ).toBeInTheDocument()
     await runtime.dispose()
   }, 30_000)
 })
