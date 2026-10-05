@@ -11106,7 +11106,7 @@
                   "effect": {
                     "type": "shadow",
                     "shadowType": "outer",
-                    "color": "#EADFD4",
+                    "color": "$separator",
                     "offset": {
                       "x": 0,
                       "y": 3
@@ -11139,7 +11139,7 @@
                   "effect": {
                     "type": "shadow",
                     "shadowType": "outer",
-                    "color": "#D9CCBF",
+                    "color": "$separator",
                     "offset": {
                       "x": 0,
                       "y": 2
@@ -11193,7 +11193,6 @@
       "x": 6000,
       "y": 1700,
       "name": "R1 · Espace enfant",
-      "width": 3400,
       "fill": "$surface-2",
       "layout": "vertical",
       "gap": 40,
@@ -11261,11 +11260,11 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 20,
+                  "gap": 12,
                   "padding": [
-                    4,
+                    0,
                     16,
-                    16,
+                    10,
                     16
                   ],
                   "children": [
@@ -11858,11 +11857,11 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 20,
+                  "gap": 12,
                   "padding": [
-                    4,
+                    0,
                     16,
-                    16,
+                    10,
                     16
                   ],
                   "children": [
@@ -11989,7 +11988,7 @@
                       "id": "P7IIK2",
                       "name": "Jardin aperçu",
                       "width": "fill_container",
-                      "height": 196,
+                      "height": 156,
                       "fill": "$leaf-soft",
                       "cornerRadius": 26,
                       "gap": 8,
@@ -12083,8 +12082,8 @@
                           "type": "frame",
                           "id": "wdwjm",
                           "name": "Plante image",
-                          "width": 118,
-                          "height": 156,
+                          "width": 100,
+                          "height": 136,
                           "fill": {
                             "type": "image",
                             "enabled": true,
@@ -12526,11 +12525,11 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 20,
+                  "gap": 14,
                   "padding": [
-                    4,
+                    0,
                     16,
-                    16,
+                    10,
                     16
                   ],
                   "children": [
@@ -13150,11 +13149,11 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 20,
+                  "gap": 14,
                   "padding": [
-                    4,
+                    0,
                     16,
-                    16,
+                    10,
                     16
                   ],
                   "children": [
@@ -13283,7 +13282,7 @@
                       "id": "zltyB",
                       "name": "Jardin aperçu",
                       "width": "fill_container",
-                      "height": 196,
+                      "height": 168,
                       "fill": "$leaf-soft",
                       "cornerRadius": 26,
                       "gap": 8,
@@ -13377,8 +13376,8 @@
                           "type": "frame",
                           "id": "k8MCi7",
                           "name": "Plante image",
-                          "width": 118,
-                          "height": 156,
+                          "width": 100,
+                          "height": 136,
                           "fill": {
                             "type": "image",
                             "enabled": true,
@@ -15539,7 +15538,9 @@
                               "id": "XTXTl",
                               "name": "Titre",
                               "fill": "$label",
-                              "content": "Nouvelle version prête",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Nouvelle version",
                               "fontFamily": "$font",
                               "fontSize": 16,
                               "fontWeight": "800"
@@ -15549,7 +15550,9 @@
                               "id": "pBi3i",
                               "name": "Sous",
                               "fill": "$label-2",
-                              "content": "Elle s'installe en un instant.",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "Prête en un instant",
                               "fontFamily": "$font",
                               "fontSize": 14,
                               "fontWeight": "600"
@@ -15642,7 +15645,6 @@
       "x": 6000,
       "y": 3900,
       "name": "R2 · Séance",
-      "width": 5000,
       "fill": "$surface-2",
       "layout": "vertical",
       "gap": 40,
@@ -15683,7 +15685,7 @@
               "fill": "$label-2",
               "textGrowth": "fixed-width",
               "width": 1100,
-              "content": "Présentée en plein écran. La question en haut, la réponse au pouce en bas, un seul clavier pour tout. Le retour monte en feuille sans masquer la question.",
+              "content": "Miffy est accoudée au bord du panneau de réponse. En attente : seuls la tête et les pattes dépassent, avec une légère respiration (bob de 2 px, 3 s). Bonne réponse : elle se hisse d'un ressort (≈ 0,5 s, léger dépassement), lève les bras et sa bulle s'ouvre. Erreur : elle sort calmement la tête, la main au menton, le temps de regarder l'indice avec l'enfant. Mouvement réduit : simple fondu entre les poses.",
               "lineHeight": 1.4,
               "fontFamily": "$font",
               "fontSize": 18,
@@ -15835,19 +15837,6 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "lcg2o",
-                      "name": "Personnage",
-                      "width": 96,
-                      "height": 120,
-                      "fill": {
-                        "type": "image",
-                        "enabled": true,
-                        "url": "assets/art/miffy-practice-idle.png",
-                        "mode": "fit"
-                      }
-                    },
-                    {
                       "type": "text",
                       "id": "c5sSwY",
                       "name": "Énoncé",
@@ -15874,13 +15863,84 @@
                 },
                 {
                   "type": "frame",
+                  "id": "SQMp5",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "F7zzcK",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "tKgpo",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "sd0wg",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "aG3vT",
+                      "name": "Personnage",
+                      "width": 78,
+                      "height": 90,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "nztEj",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -16094,19 +16154,6 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "wJVXf",
-                      "name": "Personnage",
-                      "width": 96,
-                      "height": 120,
-                      "fill": {
-                        "type": "image",
-                        "enabled": true,
-                        "url": "assets/art/miffy-practice-idle.png",
-                        "mode": "fit"
-                      }
-                    },
-                    {
                       "type": "text",
                       "id": "u4DmjN",
                       "name": "Énoncé",
@@ -16145,13 +16192,84 @@
                 },
                 {
                   "type": "frame",
+                  "id": "LhqoD",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "xsBeg",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "qnvYn",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "TPfpd",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Uoe6e",
+                      "name": "Personnage",
+                      "width": 78,
+                      "height": 90,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "jTXMO",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -16507,13 +16625,94 @@
                 },
                 {
                   "type": "frame",
+                  "id": "HCOT5",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "PXhdm",
+                      "name": "Bulle",
+                      "fill": "$surface",
+                      "cornerRadius": [
+                        20,
+                        20,
+                        6,
+                        20
+                      ],
+                      "stroke": "$separator",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": [
+                        10,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "L6O99Y",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 20,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "ITADq",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Iu6ds",
+                      "name": "Personnage",
+                      "width": 104,
+                      "height": 138,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-correct.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "jEDyL",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$leaf-soft",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -16588,82 +16787,6 @@
                               "content": "63"
                             }
                           }
-                        }
-                      ]
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "a4MTM",
-                  "name": "Retour",
-                  "width": "fill_container",
-                  "fill": "$leaf-soft",
-                  "cornerRadius": [
-                    28,
-                    28,
-                    44,
-                    44
-                  ],
-                  "layout": "vertical",
-                  "gap": 14,
-                  "padding": [
-                    20,
-                    20,
-                    34,
-                    20
-                  ],
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "XqGwq",
-                      "name": "Ligne",
-                      "width": "fill_container",
-                      "gap": 14,
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "uRJEu",
-                          "name": "Personnage",
-                          "width": 72,
-                          "height": 88,
-                          "fill": {
-                            "type": "image",
-                            "enabled": true,
-                            "url": "assets/art/miffy-practice-correct.png",
-                            "mode": "fit"
-                          }
-                        },
-                        {
-                          "type": "frame",
-                          "id": "C8QX7e",
-                          "name": "Texte",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 2,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "xhvEe",
-                              "name": "Titre",
-                              "fill": "$leaf",
-                              "content": "Oui ! 56 ♡",
-                              "fontFamily": "$font",
-                              "fontSize": 26,
-                              "fontWeight": "900"
-                            },
-                            {
-                              "type": "text",
-                              "id": "Nzu3u",
-                              "name": "Sous",
-                              "fill": "$label-2",
-                              "content": "7 × 8 = 56",
-                              "fontFamily": "$font",
-                              "fontSize": 16,
-                              "fontWeight": "700"
-                            }
-                          ]
                         }
                       ]
                     },
@@ -16838,78 +16961,99 @@
                 },
                 {
                   "type": "frame",
+                  "id": "J9wXN",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Qgd7F",
+                      "name": "Bulle",
+                      "fill": "$surface",
+                      "cornerRadius": [
+                        20,
+                        20,
+                        6,
+                        20
+                      ],
+                      "stroke": "$separator",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": [
+                        10,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "UqP5v",
+                          "name": "Titre",
+                          "fill": "$sun",
+                          "content": "Hmm… c'était 10",
+                          "fontFamily": "$font",
+                          "fontSize": 20,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "QaLxJ",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "On regarde ensemble ?",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "Q1y6z",
+                      "name": "Personnage",
+                      "width": 118,
+                      "height": 140,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-encourage.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "eliBy",
                   "name": "Retour",
                   "width": "fill_container",
                   "fill": "$sun-soft",
                   "cornerRadius": [
-                    28,
-                    28,
+                    30,
+                    30,
                     44,
                     44
                   ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 14,
                   "padding": [
-                    20,
-                    20,
+                    18,
+                    16,
                     34,
-                    20
+                    16
                   ],
                   "children": [
-                    {
-                      "type": "frame",
-                      "id": "yBL9O",
-                      "name": "Ligne",
-                      "width": "fill_container",
-                      "gap": 14,
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "F4ZiO",
-                          "name": "Personnage",
-                          "width": 64,
-                          "height": 80,
-                          "fill": {
-                            "type": "image",
-                            "enabled": true,
-                            "url": "assets/art/miffy-practice-encourage.png",
-                            "mode": "fit"
-                          }
-                        },
-                        {
-                          "type": "frame",
-                          "id": "efZhl",
-                          "name": "Texte",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 2,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "CxlyY",
-                              "name": "Titre",
-                              "fill": "$sun",
-                              "content": "Presque — c'est 10",
-                              "fontFamily": "$font",
-                              "fontSize": 24,
-                              "fontWeight": "900"
-                            },
-                            {
-                              "type": "text",
-                              "id": "iukRO",
-                              "name": "Sous",
-                              "fill": "$label-2",
-                              "content": "Elle reviendra dans un moment.",
-                              "fontFamily": "$font",
-                              "fontSize": 15,
-                              "fontWeight": "700"
-                            }
-                          ]
-                        }
-                      ]
-                    },
                     {
                       "type": "frame",
                       "id": "bxtKv",
@@ -17374,13 +17518,84 @@
                 },
                 {
                   "type": "frame",
+                  "id": "nxXfU",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "xxSTT",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "Q7UKwM",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "yye6b",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "AHoCl",
+                      "name": "Personnage",
+                      "width": 78,
+                      "height": 90,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "Kj2ZK",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -17704,8 +17919,10 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 14,
+                  "gap": 10,
                   "padding": [
+                    18,
+                    20,
                     8,
                     20
                   ],
@@ -17715,7 +17932,10 @@
                     {
                       "type": "text",
                       "id": "oNf5H",
+                      "x": 128.5,
+                      "y": 31.5,
                       "name": "Chemin",
+                      "enabled": false,
                       "fill": "$tint",
                       "content": "Opérations posées",
                       "fontFamily": "$font",
@@ -17884,15 +18104,20 @@
                               "name": "Case u",
                               "width": 64,
                               "height": 30,
-                              "fill": "$tint-soft",
+                              "fill": "$surface-2",
                               "cornerRadius": 15,
+                              "stroke": "$separator",
+                              "strokeWidth": 1,
                               "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
                                   "type": "text",
                                   "id": "UAdG8",
+                                  "x": 27,
+                                  "y": 4,
                                   "name": "Chiffre",
+                                  "enabled": false,
                                   "fill": "$tint",
                                   "content": "1",
                                   "fontFamily": "$font",
@@ -17927,7 +18152,7 @@
                               "id": "KQ2Xv",
                               "name": "Case c",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "cornerRadius": 16,
                               "justifyContent": "center",
                               "alignItems": "center",
@@ -17939,7 +18164,7 @@
                                   "fill": "$label",
                                   "content": "2",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -17949,7 +18174,7 @@
                               "id": "s5kVVT",
                               "name": "Case d",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "cornerRadius": 16,
                               "justifyContent": "center",
                               "alignItems": "center",
@@ -17961,7 +18186,7 @@
                                   "fill": "$label",
                                   "content": "4",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -17971,7 +18196,7 @@
                               "id": "K9wOyN",
                               "name": "Case u",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "cornerRadius": 16,
                               "justifyContent": "center",
                               "alignItems": "center",
@@ -17983,7 +18208,7 @@
                                   "fill": "$label",
                                   "content": "5",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -18015,7 +18240,7 @@
                               "id": "l6U5cu",
                               "name": "Case c",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "cornerRadius": 16,
                               "justifyContent": "center",
                               "alignItems": "center",
@@ -18027,7 +18252,7 @@
                                   "fill": "$label",
                                   "content": "4",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -18037,7 +18262,7 @@
                               "id": "HS4PT",
                               "name": "Case d",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "cornerRadius": 16,
                               "justifyContent": "center",
                               "alignItems": "center",
@@ -18049,7 +18274,7 @@
                                   "fill": "$label",
                                   "content": "3",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -18059,7 +18284,7 @@
                               "id": "FWdMQ",
                               "name": "Case u",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "cornerRadius": 16,
                               "justifyContent": "center",
                               "alignItems": "center",
@@ -18071,7 +18296,7 @@
                                   "fill": "$label",
                                   "content": "7",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -18111,7 +18336,7 @@
                               "id": "jhiRv",
                               "name": "Case c",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "fill": "$surface-2",
                               "cornerRadius": 16,
                               "stroke": "$tint",
@@ -18124,7 +18349,7 @@
                               "id": "D5T4P",
                               "name": "Case d",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "fill": "$surface-2",
                               "cornerRadius": 16,
                               "stroke": "$separator",
@@ -18139,7 +18364,7 @@
                                   "fill": "$label",
                                   "content": "8",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -18149,7 +18374,7 @@
                               "id": "cIE66",
                               "name": "Case u",
                               "width": 64,
-                              "height": 64,
+                              "height": 52,
                               "fill": "$surface-2",
                               "cornerRadius": 16,
                               "stroke": "$separator",
@@ -18164,7 +18389,7 @@
                                   "fill": "$label",
                                   "content": "2",
                                   "fontFamily": "$font",
-                                  "fontSize": 40,
+                                  "fontSize": 34,
                                   "fontWeight": "900"
                                 }
                               ]
@@ -18176,10 +18401,13 @@
                     {
                       "type": "text",
                       "id": "oZq9Y",
+                      "x": 20,
+                      "y": 327,
                       "name": "Consigne",
+                      "enabled": false,
                       "fill": "$label-2",
                       "textGrowth": "fixed-width",
-                      "width": "fill_container",
+                      "width": "fill_container(350)",
                       "content": "Écris de droite à gauche. Touche une case pour poser une retenue.",
                       "textAlign": "center",
                       "fontFamily": "$font",
@@ -18190,13 +18418,84 @@
                 },
                 {
                   "type": "frame",
+                  "id": "t29Bos",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "GKFpv",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "AXeia",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "cpXCY",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "zDajq",
+                      "name": "Personnage",
+                      "width": 64,
+                      "height": 74,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "jNzMt",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -18659,13 +18958,84 @@
                 },
                 {
                   "type": "frame",
+                  "id": "nno0e",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "IiQ5G",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "oJIL9",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "EQevk",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "nzhy9",
+                      "name": "Personnage",
+                      "width": 78,
+                      "height": 90,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "GGuR9",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -19243,7 +19613,7 @@
                         {
                           "type": "frame",
                           "id": "ScxN4",
-                          "x": 201,
+                          "x": 216,
                           "y": 12,
                           "name": "Coccinelle",
                           "width": 48,
@@ -19270,7 +19640,7 @@
                         {
                           "type": "rectangle",
                           "id": "yWM7U",
-                          "x": 224,
+                          "x": 239,
                           "y": 60,
                           "name": "Tige",
                           "fill": "$danger",
@@ -19293,13 +19663,84 @@
                 },
                 {
                   "type": "frame",
+                  "id": "fAVEh",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "yCMHS",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "m6wbGN",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "A832D",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "hHS8D",
+                      "name": "Personnage",
+                      "width": 78,
+                      "height": 90,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "QEeVp",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -19657,13 +20098,84 @@
                 },
                 {
                   "type": "frame",
+                  "id": "L5ShY",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "xM5ZH",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "c0QG6",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "spKq5",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "T0HfC",
+                      "name": "Personnage",
+                      "width": 78,
+                      "height": 90,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
                   "id": "k6D5g",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -19908,7 +20420,6 @@
       "x": 6000,
       "y": 6100,
       "name": "R3 · Célébration, jardin, progrès",
-      "width": 3400,
       "fill": "$surface-2",
       "layout": "vertical",
       "gap": 40,
@@ -20027,8 +20538,8 @@
                       "type": "frame",
                       "id": "SVG8U",
                       "name": "Personnage",
-                      "width": 220,
-                      "height": 220,
+                      "width": 260,
+                      "height": 250,
                       "fill": {
                         "type": "image",
                         "enabled": true,
@@ -20403,7 +20914,7 @@
                       "name": "Scène",
                       "clip": true,
                       "width": "fill_container",
-                      "height": 330,
+                      "height": 350,
                       "fill": {
                         "type": "gradient",
                         "gradientType": "linear",
@@ -20465,20 +20976,32 @@
                           "id": "h7AQW",
                           "name": "Plantes",
                           "width": "fill_container",
-                          "height": "fill_container",
-                          "padding": [
-                            0,
-                            10
-                          ],
-                          "justifyContent": "space_around",
-                          "alignItems": "end",
+                          "height": 262,
+                          "layout": "none",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "YtqNr",
-                              "name": "Lotus rose",
-                              "width": 96,
-                              "height": 130,
+                              "id": "LHbHk",
+                              "x": 31,
+                              "y": 92,
+                              "name": "Miffy arrose",
+                              "width": 184,
+                              "height": 184,
+                              "fill": {
+                                "type": "image",
+                                "enabled": true,
+                                "url": "assets/art/miffy-watering.png",
+                                "mode": "fit"
+                              }
+                            },
+                            {
+                              "type": "frame",
+                              "id": "o5ET8F",
+                              "x": 14,
+                              "y": 150,
+                              "name": "Lotus rose (fleuri)",
+                              "width": 82,
+                              "height": 112,
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
@@ -20488,23 +21011,12 @@
                             },
                             {
                               "type": "frame",
-                              "id": "kUQ26",
-                              "name": "Miffy",
-                              "width": 70,
-                              "height": 108,
-                              "fill": {
-                                "type": "image",
-                                "enabled": true,
-                                "url": "assets/art/miffy-home.png",
-                                "mode": "fit"
-                              }
-                            },
-                            {
-                              "type": "frame",
-                              "id": "QWLfl",
-                              "name": "Lupin",
-                              "width": 96,
-                              "height": 130,
+                              "id": "sw0Py",
+                              "x": 138,
+                              "y": 150,
+                              "name": "Lupin (en croissance)",
+                              "width": 82,
+                              "height": 112,
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
@@ -20514,17 +21026,29 @@
                             },
                             {
                               "type": "frame",
-                              "id": "NELBN",
-                              "name": "Verrouillée",
-                              "width": 70,
-                              "height": 90,
-                              "fill": "#FFFFFF55",
-                              "cornerRadius": [
-                                35,
-                                35,
-                                12,
-                                12
-                              ],
+                              "id": "oJHHR",
+                              "x": 262,
+                              "y": 150,
+                              "name": "Pot vide",
+                              "width": 82,
+                              "height": 112,
+                              "fill": {
+                                "type": "image",
+                                "enabled": true,
+                                "url": "assets/art/plant-pot-lilac.png",
+                                "mode": "fit"
+                              }
+                            },
+                            {
+                              "type": "frame",
+                              "id": "CgNDI",
+                              "x": 287,
+                              "y": 212,
+                              "name": "Cadenas",
+                              "width": 32,
+                              "height": 32,
+                              "fill": "$surface",
+                              "cornerRadius": 16,
                               "stroke": "$label-3",
                               "strokeWidth": 2,
                               "justifyContent": "center",
@@ -20532,13 +21056,13 @@
                               "children": [
                                 {
                                   "type": "icon",
-                                  "id": "p6fw0G",
+                                  "id": "bAZs0",
                                   "name": "Cadenas",
-                                  "width": 22,
-                                  "height": 22,
+                                  "width": 16,
+                                  "height": 16,
                                   "icon": "lock",
                                   "library": "lucide",
-                                  "fill": "$label-3"
+                                  "fill": "$label-2"
                                 }
                               ]
                             }
@@ -23026,7 +23550,6 @@
       "x": 6000,
       "y": 7400,
       "name": "R4 · Espace parent",
-      "width": 4600,
       "fill": "$surface-2",
       "layout": "vertical",
       "gap": 40,
@@ -23573,7 +24096,8 @@
                   "width": "fill_container",
                   "descendants": {
                     "LOiQb": {
-                      "enabled": false
+                      "enabled": true,
+                      "opacity": 0
                     },
                     "xuB8d": {
                       "content": ""
@@ -23600,7 +24124,7 @@
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 22,
+                  "gap": 16,
                   "padding": [
                     4,
                     16,
@@ -23642,7 +24166,7 @@
                               "id": "rfKgr",
                               "name": "Ligne Léa",
                               "width": "fill_container",
-                              "height": 64,
+                              "height": 58,
                               "gap": 14,
                               "padding": [
                                 0,
@@ -23719,7 +24243,7 @@
                               "id": "GRCbf",
                               "name": "Ligne Zoé",
                               "width": "fill_container",
-                              "height": 64,
+                              "height": 58,
                               "gap": 14,
                               "padding": [
                                 0,
@@ -23796,7 +24320,7 @@
                               "id": "mp3no",
                               "name": "Ligne Tom",
                               "width": "fill_container",
-                              "height": 64,
+                              "height": 58,
                               "gap": 14,
                               "padding": [
                                 0,
@@ -28110,7 +28634,6 @@
       "theme": {
         "mode": "dark"
       },
-      "width": 2600,
       "fill": "#0B0907",
       "layout": "vertical",
       "gap": 40,
@@ -28154,7 +28677,7 @@
           "children": [
             {
               "type": "frame",
-              "id": "Er3Di",
+              "id": "u25h8c",
               "name": "A2 · sombre",
               "theme": {
                 "mode": "dark"
@@ -28169,29 +28692,29 @@
               "layout": "vertical",
               "children": [
                 {
-                  "id": "VAJFe",
+                  "id": "QQNQ4",
                   "type": "ref",
                   "ref": "Ebzi7",
                   "name": "StatusBar"
                 },
                 {
                   "type": "frame",
-                  "id": "vUGbP",
+                  "id": "SHrc3",
                   "name": "Contenu",
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 20,
+                  "gap": 12,
                   "padding": [
-                    4,
+                    0,
                     16,
-                    16,
+                    10,
                     16
                   ],
                   "children": [
                     {
                       "type": "frame",
-                      "id": "Ohfvu",
+                      "id": "B3sOD",
                       "name": "Barre profil",
                       "width": "fill_container",
                       "justifyContent": "space_between",
@@ -28199,7 +28722,7 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "E5Om19",
+                          "id": "R5ip6V",
                           "name": "Profil",
                           "fill": "$surface",
                           "cornerRadius": 24,
@@ -28216,7 +28739,7 @@
                           "children": [
                             {
                               "type": "frame",
-                              "id": "Wmibn",
+                              "id": "yg0TC",
                               "name": "Avatar",
                               "width": 36,
                               "height": 36,
@@ -28230,7 +28753,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "yfsEh",
+                              "id": "A8U3dI",
                               "name": "Prénom",
                               "fill": "$label",
                               "content": "Léa",
@@ -28240,7 +28763,7 @@
                             },
                             {
                               "type": "icon",
-                              "id": "fAHT6",
+                              "id": "C1aEla",
                               "name": "Chevron",
                               "width": 16,
                               "height": 16,
@@ -28252,7 +28775,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "WsVTB",
+                          "id": "Ooarm",
                           "name": "Parents",
                           "width": 44,
                           "height": 44,
@@ -28265,7 +28788,7 @@
                           "children": [
                             {
                               "type": "icon",
-                              "id": "Oxken",
+                              "id": "NTqAl",
                               "name": "Icône",
                               "width": 20,
                               "height": 20,
@@ -28279,7 +28802,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "QMyfJ",
+                      "id": "Dqlpu",
                       "name": "Salut",
                       "width": "fill_container",
                       "layout": "vertical",
@@ -28287,7 +28810,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "qRwdK",
+                          "id": "muoDd",
                           "name": "Grand titre",
                           "fill": "$label",
                           "content": "Bonjour Léa ♡",
@@ -28297,7 +28820,7 @@
                         },
                         {
                           "type": "text",
-                          "id": "L4wBiZ",
+                          "id": "OgLFe",
                           "name": "Sous-titre",
                           "fill": "$label-2",
                           "content": "Prête pour une petite victoire ?",
@@ -28309,10 +28832,10 @@
                     },
                     {
                       "type": "frame",
-                      "id": "c6imH",
+                      "id": "JeKym",
                       "name": "Jardin aperçu",
                       "width": "fill_container",
-                      "height": 196,
+                      "height": 156,
                       "fill": "$leaf-soft",
                       "cornerRadius": 26,
                       "gap": 8,
@@ -28320,7 +28843,7 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "c6FKRU",
+                          "id": "AzxEm",
                           "name": "Texte",
                           "width": "fill_container",
                           "height": "fill_container",
@@ -28330,7 +28853,7 @@
                           "children": [
                             {
                               "type": "text",
-                              "id": "F5CMO4",
+                              "id": "IUvhw",
                               "name": "Eyebrow",
                               "fill": "$leaf",
                               "content": "PLANTE EN COURS",
@@ -28341,7 +28864,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "GxOBc",
+                              "id": "p2tdJB",
                               "name": "Plante",
                               "fill": "$label",
                               "textGrowth": "fixed-width",
@@ -28354,7 +28877,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "cctpy",
+                              "id": "gwbzD",
                               "name": "Progression",
                               "fill": "$label-2",
                               "textGrowth": "fixed-width",
@@ -28366,7 +28889,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "sYKzM",
+                              "id": "cwnyr",
                               "name": "Barre",
                               "width": "fill_container",
                               "gap": 4,
@@ -28374,7 +28897,7 @@
                                 {
                                   "type": "rectangle",
                                   "cornerRadius": 4,
-                                  "id": "BhZwu",
+                                  "id": "c3mqN7",
                                   "name": "Segment",
                                   "fill": "$leaf",
                                   "width": "fill_container",
@@ -28383,7 +28906,7 @@
                                 {
                                   "type": "rectangle",
                                   "cornerRadius": 4,
-                                  "id": "C9vGiD",
+                                  "id": "z4UHzk",
                                   "name": "Segment",
                                   "fill": "$surface",
                                   "width": "fill_container",
@@ -28392,7 +28915,7 @@
                                 {
                                   "type": "rectangle",
                                   "cornerRadius": 4,
-                                  "id": "INTAX",
+                                  "id": "XRtDA",
                                   "name": "Segment",
                                   "fill": "$surface",
                                   "width": "fill_container",
@@ -28404,10 +28927,10 @@
                         },
                         {
                           "type": "frame",
-                          "id": "bNYUp",
+                          "id": "V4hi2b",
                           "name": "Plante image",
-                          "width": 118,
-                          "height": 156,
+                          "width": 100,
+                          "height": 136,
                           "fill": {
                             "type": "image",
                             "enabled": true,
@@ -28419,7 +28942,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "gYnpD",
+                      "id": "liBPq",
                       "name": "Semaine fleurie",
                       "width": "fill_container",
                       "fill": "$surface",
@@ -28430,7 +28953,7 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "X0GTue",
+                          "id": "cqHjC",
                           "name": "Titre semaine",
                           "width": "fill_container",
                           "justifyContent": "space_between",
@@ -28438,7 +28961,7 @@
                           "children": [
                             {
                               "type": "text",
-                              "id": "WGMgG",
+                              "id": "iv77Y",
                               "name": "Titre",
                               "fill": "$label",
                               "content": "Ma semaine",
@@ -28448,7 +28971,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "CZM2F",
+                              "id": "Vnnq5",
                               "name": "Statut",
                               "fill": "$label-2",
                               "content": "Encore 1 jour",
@@ -28460,14 +28983,14 @@
                         },
                         {
                           "type": "frame",
-                          "id": "t7sDX",
+                          "id": "TnkGI",
                           "name": "Jours",
                           "width": "fill_container",
                           "justifyContent": "space_between",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "nMLYp",
+                              "id": "BFQN9",
                               "name": "Jour 1",
                               "layout": "vertical",
                               "gap": 6,
@@ -28475,7 +28998,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "QhPVd",
+                                  "id": "Zy0HZ",
                                   "name": "Pastille",
                                   "width": 38,
                                   "height": 38,
@@ -28486,7 +29009,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "JzSzP",
+                                      "id": "uvb3e",
                                       "name": "Fleur",
                                       "width": 20,
                                       "height": 20,
@@ -28498,7 +29021,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "LjWiw",
+                                  "id": "pOw02",
                                   "name": "Lettre",
                                   "fill": "$label-2",
                                   "content": "L",
@@ -28510,7 +29033,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "e6KIc",
+                              "id": "JFLoK",
                               "name": "Jour 2",
                               "layout": "vertical",
                               "gap": 6,
@@ -28518,7 +29041,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "LcqhF",
+                                  "id": "wbck5",
                                   "name": "Pastille",
                                   "width": 38,
                                   "height": 38,
@@ -28529,7 +29052,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "a2eec8",
+                                      "id": "Qdm4p",
                                       "name": "Fleur",
                                       "width": 20,
                                       "height": 20,
@@ -28541,7 +29064,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "qgI5W",
+                                  "id": "C3bB7",
                                   "name": "Lettre",
                                   "fill": "$label-2",
                                   "content": "M",
@@ -28553,7 +29076,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "jE4De",
+                              "id": "JzaB4",
                               "name": "Jour 3",
                               "layout": "vertical",
                               "gap": 6,
@@ -28561,7 +29084,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "ybCRN",
+                                  "id": "YooPd",
                                   "name": "Pastille",
                                   "width": 38,
                                   "height": 38,
@@ -28572,7 +29095,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "T3WSIF",
+                                  "id": "IbeS1",
                                   "name": "Lettre",
                                   "fill": "$label-2",
                                   "content": "M",
@@ -28584,7 +29107,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "IZnLj",
+                              "id": "Aa4dx",
                               "name": "Jour 4",
                               "layout": "vertical",
                               "gap": 6,
@@ -28592,7 +29115,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "sV4AX",
+                                  "id": "yDXAw",
                                   "name": "Pastille",
                                   "width": 38,
                                   "height": 38,
@@ -28603,7 +29126,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "m1O62",
+                                  "id": "TzMe4",
                                   "name": "Lettre",
                                   "fill": "$label-2",
                                   "content": "J",
@@ -28615,7 +29138,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "VG9vK",
+                              "id": "K5jmNI",
                               "name": "Jour 5",
                               "layout": "vertical",
                               "gap": 6,
@@ -28623,7 +29146,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "J8OkbD",
+                                  "id": "zt79w",
                                   "name": "Pastille",
                                   "width": 38,
                                   "height": 38,
@@ -28636,7 +29159,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "FleOy",
+                                  "id": "Q0Kzg7",
                                   "name": "Lettre",
                                   "fill": "$tint",
                                   "content": "V",
@@ -28648,7 +29171,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "w01hB",
+                              "id": "vTI0D",
                               "name": "Jour 6",
                               "layout": "vertical",
                               "gap": 6,
@@ -28656,7 +29179,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "Mw1sr",
+                                  "id": "kYSfB",
                                   "name": "Pastille",
                                   "width": 38,
                                   "height": 38,
@@ -28667,7 +29190,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "GeFU9",
+                                  "id": "zCPj4",
                                   "name": "Lettre",
                                   "fill": "$label-2",
                                   "content": "S",
@@ -28679,7 +29202,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "fxMFy",
+                              "id": "C6ZvXW",
                               "name": "Jour 7",
                               "layout": "vertical",
                               "gap": 6,
@@ -28687,7 +29210,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "IyvwI",
+                                  "id": "qDg0G",
                                   "name": "Pastille",
                                   "width": 38,
                                   "height": 38,
@@ -28698,7 +29221,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "v1H5I",
+                                  "id": "v0cee",
                                   "name": "Lettre",
                                   "fill": "$label-2",
                                   "content": "D",
@@ -28714,14 +29237,14 @@
                     },
                     {
                       "type": "frame",
-                      "id": "L5puuz",
+                      "id": "m97bkt",
                       "name": "Espace",
                       "width": "fill_container",
                       "height": "fill_container"
                     },
                     {
                       "type": "frame",
-                      "id": "Z6lPzI",
+                      "id": "JXAhK",
                       "name": "Actions",
                       "width": "fill_container",
                       "layout": "vertical",
@@ -28729,7 +29252,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "z3dPl",
+                          "id": "gJdzx",
                           "name": "Info séance",
                           "fill": "$label-2",
                           "textGrowth": "fixed-width",
@@ -28741,7 +29264,7 @@
                           "fontWeight": "700"
                         },
                         {
-                          "id": "LJh9I",
+                          "id": "IT94J",
                           "type": "ref",
                           "ref": "SonfD",
                           "name": "CTA",
@@ -28756,7 +29279,7 @@
                           }
                         },
                         {
-                          "id": "xGaz7",
+                          "id": "iLsQQ",
                           "type": "ref",
                           "ref": "MKTK1",
                           "name": "Secondaire",
@@ -28773,7 +29296,7 @@
                 },
                 {
                   "type": "frame",
-                  "id": "J9eGNw",
+                  "id": "GWwOB",
                   "name": "Pied",
                   "width": "fill_container",
                   "padding": [
@@ -28785,7 +29308,7 @@
                   "justifyContent": "center",
                   "children": [
                     {
-                      "id": "zoR7S",
+                      "id": "Qr11B",
                       "type": "ref",
                       "ref": "HjNgI",
                       "name": "TabBar",
@@ -28825,7 +29348,7 @@
             },
             {
               "type": "frame",
-              "id": "NRztB",
+              "id": "QwUGm",
               "name": "C1 · sombre",
               "theme": {
                 "mode": "dark"
@@ -28840,14 +29363,14 @@
               "layout": "vertical",
               "children": [
                 {
-                  "id": "hVXTW",
+                  "id": "qQGtx",
                   "type": "ref",
                   "ref": "Ebzi7",
                   "name": "StatusBar"
                 },
                 {
                   "type": "frame",
-                  "id": "i488s8",
+                  "id": "hoEXV",
                   "name": "Barre séance",
                   "width": "fill_container",
                   "gap": 12,
@@ -28859,7 +29382,7 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "S9bmt",
+                      "id": "FtmDx",
                       "name": "Pause",
                       "width": 44,
                       "height": 44,
@@ -28872,7 +29395,7 @@
                       "children": [
                         {
                           "type": "icon",
-                          "id": "XP0hE",
+                          "id": "t5Uxzu",
                           "name": "Icône",
                           "width": 20,
                           "height": 20,
@@ -28884,7 +29407,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "zfiUU",
+                      "id": "ruV5O",
                       "name": "Progression",
                       "width": "fill_container",
                       "gap": 6,
@@ -28892,7 +29415,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "OQxZU",
+                          "id": "gTMSo",
                           "name": "Étape",
                           "fill": "$tint",
                           "width": "fill_container",
@@ -28901,7 +29424,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "C3fHrv",
+                          "id": "mvJqY",
                           "name": "Étape",
                           "fill": "$tint",
                           "width": "fill_container",
@@ -28910,7 +29433,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "jYFRZ",
+                          "id": "YRfuZ",
                           "name": "Étape",
                           "fill": "$tint-soft",
                           "width": "fill_container",
@@ -28919,7 +29442,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "yOoou",
+                          "id": "ytqi6",
                           "name": "Étape",
                           "fill": "$surface",
                           "width": "fill_container",
@@ -28928,7 +29451,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "o1ATE",
+                          "id": "CGKxX",
                           "name": "Étape",
                           "fill": "$surface",
                           "width": "fill_container",
@@ -28938,7 +29461,7 @@
                     },
                     {
                       "type": "text",
-                      "id": "W3EZ9",
+                      "id": "p0i9g",
                       "name": "Compteur",
                       "fill": "$label-2",
                       "content": "3/5",
@@ -28950,7 +29473,7 @@
                 },
                 {
                   "type": "frame",
-                  "id": "iiBAM",
+                  "id": "LOov8",
                   "name": "Question",
                   "width": "fill_container",
                   "height": "fill_container",
@@ -28964,21 +29487,8 @@
                   "alignItems": "center",
                   "children": [
                     {
-                      "type": "frame",
-                      "id": "LIf5A",
-                      "name": "Personnage",
-                      "width": 96,
-                      "height": 120,
-                      "fill": {
-                        "type": "image",
-                        "enabled": true,
-                        "url": "assets/art/miffy-practice-idle.png",
-                        "mode": "fit"
-                      }
-                    },
-                    {
                       "type": "text",
-                      "id": "nEvoc",
+                      "id": "QnYOZ",
                       "name": "Énoncé",
                       "fill": "$label",
                       "content": "7 × 8",
@@ -28988,7 +29498,7 @@
                     },
                     {
                       "type": "text",
-                      "id": "v6S4d",
+                      "id": "dSOeh",
                       "name": "Consigne",
                       "fill": "$label-2",
                       "textGrowth": "fixed-width",
@@ -29003,13 +29513,84 @@
                 },
                 {
                   "type": "frame",
-                  "id": "I98N8",
+                  "id": "jZncJ",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "jrPjF",
+                      "x": 104,
+                      "y": 12.5,
+                      "name": "Texte",
+                      "enabled": false,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "CWT9q",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 26,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "t70MpJ",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "GI7xt",
+                      "name": "Personnage",
+                      "width": 78,
+                      "height": 90,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-idle.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "DavPx",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$surface-2",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -29017,13 +29598,13 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "K4dBBj",
+                      "id": "ldFOa",
                       "name": "Ligne tuiles",
                       "width": "fill_container",
                       "gap": 10,
                       "children": [
                         {
-                          "id": "Ml1kA",
+                          "id": "by4Nd",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 54",
@@ -29035,7 +29616,7 @@
                           }
                         },
                         {
-                          "id": "suzkP",
+                          "id": "PFSsy",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 56",
@@ -29050,13 +29631,13 @@
                     },
                     {
                       "type": "frame",
-                      "id": "kYKyX",
+                      "id": "M737jb",
                       "name": "Ligne tuiles",
                       "width": "fill_container",
                       "gap": 10,
                       "children": [
                         {
-                          "id": "f41yn",
+                          "id": "MQZso",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 48",
@@ -29068,7 +29649,7 @@
                           }
                         },
                         {
-                          "id": "LWYib",
+                          "id": "CgKc6",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 63",
@@ -29087,7 +29668,7 @@
             },
             {
               "type": "frame",
-              "id": "Z7P27d",
+              "id": "mKTbP",
               "name": "C3 · sombre",
               "theme": {
                 "mode": "dark"
@@ -29102,14 +29683,14 @@
               "layout": "vertical",
               "children": [
                 {
-                  "id": "UMdkM",
+                  "id": "W7UJi",
                   "type": "ref",
                   "ref": "Ebzi7",
                   "name": "StatusBar"
                 },
                 {
                   "type": "frame",
-                  "id": "eXNzl",
+                  "id": "lIHl1",
                   "name": "Barre séance",
                   "width": "fill_container",
                   "gap": 12,
@@ -29121,7 +29702,7 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "Kccfi",
+                      "id": "acVjJ",
                       "name": "Pause",
                       "width": 44,
                       "height": 44,
@@ -29134,7 +29715,7 @@
                       "children": [
                         {
                           "type": "icon",
-                          "id": "V5I0HB",
+                          "id": "QCgCV",
                           "name": "Icône",
                           "width": 20,
                           "height": 20,
@@ -29146,7 +29727,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "OZ95I",
+                      "id": "HgqDY",
                       "name": "Progression",
                       "width": "fill_container",
                       "gap": 6,
@@ -29154,7 +29735,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "r1OJWl",
+                          "id": "b64gk",
                           "name": "Étape",
                           "fill": "$tint",
                           "width": "fill_container",
@@ -29163,7 +29744,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "uZXLM",
+                          "id": "Wlxay",
                           "name": "Étape",
                           "fill": "$tint",
                           "width": "fill_container",
@@ -29172,7 +29753,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "pHR7F",
+                          "id": "SUrXw",
                           "name": "Étape",
                           "fill": "$tint-soft",
                           "width": "fill_container",
@@ -29181,7 +29762,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "sxXJO",
+                          "id": "RPyoi",
                           "name": "Étape",
                           "fill": "$surface",
                           "width": "fill_container",
@@ -29190,7 +29771,7 @@
                         {
                           "type": "rectangle",
                           "cornerRadius": 5,
-                          "id": "r214Ek",
+                          "id": "hmAhg",
                           "name": "Étape",
                           "fill": "$surface",
                           "width": "fill_container",
@@ -29200,7 +29781,7 @@
                     },
                     {
                       "type": "text",
-                      "id": "iHGQC",
+                      "id": "XZOXM",
                       "name": "Compteur",
                       "fill": "$label-2",
                       "content": "3/5",
@@ -29212,7 +29793,7 @@
                 },
                 {
                   "type": "frame",
-                  "id": "sBiiD",
+                  "id": "J8eBO1",
                   "name": "Question",
                   "width": "fill_container",
                   "height": "fill_container",
@@ -29227,7 +29808,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "nNykc",
+                      "id": "JXBO7",
                       "name": "Énoncé",
                       "fill": "$label",
                       "content": "7 × 8",
@@ -29239,13 +29820,94 @@
                 },
                 {
                   "type": "frame",
-                  "id": "ZZa1B",
+                  "id": "w1Khb",
+                  "name": "Rebord Miffy",
+                  "width": "fill_container",
+                  "gap": 10,
+                  "padding": [
+                    0,
+                    22
+                  ],
+                  "justifyContent": "end",
+                  "alignItems": "center",
+                  "children": [
+                    {
+                      "type": "frame",
+                      "id": "Qk2yG",
+                      "name": "Bulle",
+                      "fill": "$surface",
+                      "cornerRadius": [
+                        20,
+                        20,
+                        6,
+                        20
+                      ],
+                      "stroke": "$separator",
+                      "strokeWidth": 1,
+                      "layout": "vertical",
+                      "gap": 2,
+                      "padding": [
+                        10,
+                        16
+                      ],
+                      "children": [
+                        {
+                          "type": "text",
+                          "id": "x2dHfe",
+                          "name": "Titre",
+                          "fill": "$leaf",
+                          "content": "Oui ! 56 ♡",
+                          "fontFamily": "$font",
+                          "fontSize": 20,
+                          "fontWeight": "900"
+                        },
+                        {
+                          "type": "text",
+                          "id": "OcANO",
+                          "name": "Sous",
+                          "fill": "$label-2",
+                          "content": "7 × 8 = 56",
+                          "fontFamily": "$font",
+                          "fontSize": 16,
+                          "fontWeight": "700"
+                        }
+                      ]
+                    },
+                    {
+                      "type": "frame",
+                      "id": "a0gsYV",
+                      "name": "Personnage",
+                      "width": 104,
+                      "height": 138,
+                      "fill": {
+                        "type": "image",
+                        "enabled": true,
+                        "url": "assets/art/miffy-practice-correct.png",
+                        "mode": "fit"
+                      }
+                    }
+                  ]
+                },
+                {
+                  "type": "frame",
+                  "id": "o4k9y9",
                   "name": "Réponse",
                   "width": "fill_container",
+                  "fill": "$leaf-soft",
+                  "cornerRadius": [
+                    30,
+                    30,
+                    44,
+                    44
+                  ],
+                  "stroke": "$separator",
+                  "strokeWidth": {
+                    "top": 1.5
+                  },
                   "layout": "vertical",
                   "gap": 10,
                   "padding": [
-                    8,
+                    18,
                     16,
                     34,
                     16
@@ -29253,13 +29915,13 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "aHomm",
+                      "id": "QdpqH",
                       "name": "Ligne tuiles",
                       "width": "fill_container",
                       "gap": 10,
                       "children": [
                         {
-                          "id": "xGxuY",
+                          "id": "d40ZY",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 54",
@@ -29272,7 +29934,7 @@
                           }
                         },
                         {
-                          "id": "VlBSU",
+                          "id": "lQx9J",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 56",
@@ -29290,13 +29952,13 @@
                     },
                     {
                       "type": "frame",
-                      "id": "D266t",
+                      "id": "jL2YQ",
                       "name": "Ligne tuiles",
                       "width": "fill_container",
                       "gap": 10,
                       "children": [
                         {
-                          "id": "q0ZiL",
+                          "id": "xtxy0",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 48",
@@ -29309,7 +29971,7 @@
                           }
                         },
                         {
-                          "id": "KJJKe",
+                          "id": "usKpJ",
                           "type": "ref",
                           "ref": "OKwIm",
                           "name": "Tuile 63",
@@ -29322,85 +29984,9 @@
                           }
                         }
                       ]
-                    }
-                  ]
-                },
-                {
-                  "type": "frame",
-                  "id": "qsQka",
-                  "name": "Retour",
-                  "width": "fill_container",
-                  "fill": "$leaf-soft",
-                  "cornerRadius": [
-                    28,
-                    28,
-                    44,
-                    44
-                  ],
-                  "layout": "vertical",
-                  "gap": 14,
-                  "padding": [
-                    20,
-                    20,
-                    34,
-                    20
-                  ],
-                  "children": [
-                    {
-                      "type": "frame",
-                      "id": "NQ7pc",
-                      "name": "Ligne",
-                      "width": "fill_container",
-                      "gap": 14,
-                      "alignItems": "center",
-                      "children": [
-                        {
-                          "type": "frame",
-                          "id": "EDIzj",
-                          "name": "Personnage",
-                          "width": 72,
-                          "height": 88,
-                          "fill": {
-                            "type": "image",
-                            "enabled": true,
-                            "url": "assets/art/miffy-practice-correct.png",
-                            "mode": "fit"
-                          }
-                        },
-                        {
-                          "type": "frame",
-                          "id": "MSYJd",
-                          "name": "Texte",
-                          "width": "fill_container",
-                          "layout": "vertical",
-                          "gap": 2,
-                          "children": [
-                            {
-                              "type": "text",
-                              "id": "M928DY",
-                              "name": "Titre",
-                              "fill": "$leaf",
-                              "content": "Oui ! 56 ♡",
-                              "fontFamily": "$font",
-                              "fontSize": 26,
-                              "fontWeight": "900"
-                            },
-                            {
-                              "type": "text",
-                              "id": "Ko9Ze",
-                              "name": "Sous",
-                              "fill": "$label-2",
-                              "content": "7 × 8 = 56",
-                              "fontFamily": "$font",
-                              "fontSize": 16,
-                              "fontWeight": "700"
-                            }
-                          ]
-                        }
-                      ]
                     },
                     {
-                      "id": "O3FvX",
+                      "id": "IinZY",
                       "type": "ref",
                       "ref": "SonfD",
                       "name": "Suivant",
@@ -29421,7 +30007,7 @@
             },
             {
               "type": "frame",
-              "id": "HeJSq",
+              "id": "Ck9O0",
               "name": "D2 · sombre",
               "theme": {
                 "mode": "dark"
@@ -29436,14 +30022,14 @@
               "layout": "vertical",
               "children": [
                 {
-                  "id": "YFgvQ",
+                  "id": "lLEpC",
                   "type": "ref",
                   "ref": "Ebzi7",
                   "name": "StatusBar"
                 },
                 {
                   "type": "frame",
-                  "id": "KgQex",
+                  "id": "cZe6K",
                   "name": "Contenu",
                   "width": "fill_container",
                   "height": "fill_container",
@@ -29458,7 +30044,7 @@
                   "children": [
                     {
                       "type": "text",
-                      "id": "J2fFZu",
+                      "id": "UpXZn",
                       "name": "Grand titre",
                       "fill": "$label",
                       "content": "Mon jardin",
@@ -29468,7 +30054,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "Fwoi4",
+                      "id": "M6m2Fy",
                       "name": "Moment du jour",
                       "fill": "$surface",
                       "cornerRadius": 14,
@@ -29481,7 +30067,7 @@
                       "children": [
                         {
                           "type": "icon",
-                          "id": "k3mOLn",
+                          "id": "kTq4c",
                           "name": "Icône",
                           "width": 16,
                           "height": 16,
@@ -29491,7 +30077,7 @@
                         },
                         {
                           "type": "text",
-                          "id": "E2WBhn",
+                          "id": "UKYm1",
                           "name": "Texte",
                           "fill": "$label-2",
                           "content": "Une coccinelle est passée te dire coucou",
@@ -29503,11 +30089,11 @@
                     },
                     {
                       "type": "frame",
-                      "id": "umoMh",
+                      "id": "MzCjw",
                       "name": "Scène",
                       "clip": true,
                       "width": "fill_container",
-                      "height": 330,
+                      "height": 350,
                       "fill": {
                         "type": "gradient",
                         "gradientType": "linear",
@@ -29532,7 +30118,7 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "O0L11W",
+                          "id": "Bz3FH",
                           "name": "Chapitre",
                           "width": "fill_container",
                           "padding": [
@@ -29544,7 +30130,7 @@
                           "children": [
                             {
                               "type": "text",
-                              "id": "Xvir5",
+                              "id": "WfE5z",
                               "name": "Titre",
                               "fill": "$label-2",
                               "content": "Chapitre 1 · Les premières fleurs",
@@ -29554,7 +30140,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "C8Ryu",
+                              "id": "n3O6p8",
                               "name": "Compte",
                               "fill": "$label-2",
                               "content": "1/3",
@@ -29566,23 +30152,35 @@
                         },
                         {
                           "type": "frame",
-                          "id": "uaNWS",
+                          "id": "X87tvT",
                           "name": "Plantes",
                           "width": "fill_container",
-                          "height": "fill_container",
-                          "padding": [
-                            0,
-                            10
-                          ],
-                          "justifyContent": "space_around",
-                          "alignItems": "end",
+                          "height": 262,
+                          "layout": "none",
                           "children": [
                             {
                               "type": "frame",
-                              "id": "BQK46",
-                              "name": "Lotus rose",
-                              "width": 96,
-                              "height": 130,
+                              "id": "IdWMf",
+                              "x": 31,
+                              "y": 92,
+                              "name": "Miffy arrose",
+                              "width": 184,
+                              "height": 184,
+                              "fill": {
+                                "type": "image",
+                                "enabled": true,
+                                "url": "assets/art/miffy-watering.png",
+                                "mode": "fit"
+                              }
+                            },
+                            {
+                              "type": "frame",
+                              "id": "YoRIl",
+                              "x": 14,
+                              "y": 150,
+                              "name": "Lotus rose (fleuri)",
+                              "width": 82,
+                              "height": 112,
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
@@ -29592,23 +30190,12 @@
                             },
                             {
                               "type": "frame",
-                              "id": "kWxSt",
-                              "name": "Miffy",
-                              "width": 70,
-                              "height": 108,
-                              "fill": {
-                                "type": "image",
-                                "enabled": true,
-                                "url": "assets/art/miffy-home.png",
-                                "mode": "fit"
-                              }
-                            },
-                            {
-                              "type": "frame",
-                              "id": "CA7ix",
-                              "name": "Lupin",
-                              "width": 96,
-                              "height": 130,
+                              "id": "Rlvy9",
+                              "x": 138,
+                              "y": 150,
+                              "name": "Lupin (en croissance)",
+                              "width": 82,
+                              "height": 112,
                               "fill": {
                                 "type": "image",
                                 "enabled": true,
@@ -29618,17 +30205,29 @@
                             },
                             {
                               "type": "frame",
-                              "id": "Gv3te",
-                              "name": "Verrouillée",
-                              "width": 70,
-                              "height": 90,
-                              "fill": "#FFFFFF55",
-                              "cornerRadius": [
-                                35,
-                                35,
-                                12,
-                                12
-                              ],
+                              "id": "E1UCf6",
+                              "x": 262,
+                              "y": 150,
+                              "name": "Pot vide",
+                              "width": 82,
+                              "height": 112,
+                              "fill": {
+                                "type": "image",
+                                "enabled": true,
+                                "url": "assets/art/plant-pot-lilac.png",
+                                "mode": "fit"
+                              }
+                            },
+                            {
+                              "type": "frame",
+                              "id": "boXl3",
+                              "x": 287,
+                              "y": 212,
+                              "name": "Cadenas",
+                              "width": 32,
+                              "height": 32,
+                              "fill": "$surface",
+                              "cornerRadius": 16,
                               "stroke": "$label-3",
                               "strokeWidth": 2,
                               "justifyContent": "center",
@@ -29636,13 +30235,13 @@
                               "children": [
                                 {
                                   "type": "icon",
-                                  "id": "e4N5N",
+                                  "id": "XyLdX",
                                   "name": "Cadenas",
-                                  "width": 22,
-                                  "height": 22,
+                                  "width": 16,
+                                  "height": 16,
                                   "icon": "lock",
                                   "library": "lucide",
-                                  "fill": "$label-3"
+                                  "fill": "$label-2"
                                 }
                               ]
                             }
@@ -29650,7 +30249,7 @@
                         },
                         {
                           "type": "rectangle",
-                          "id": "Ke9mn",
+                          "id": "O8uqvp",
                           "name": "Terre",
                           "fill": "$soil",
                           "width": "fill_container",
@@ -29660,7 +30259,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "PLaTu",
+                      "id": "lgNmm",
                       "name": "Pages",
                       "width": "fill_container",
                       "gap": 6,
@@ -29668,7 +30267,7 @@
                       "children": [
                         {
                           "type": "ellipse",
-                          "id": "YRnbA",
+                          "id": "c2GexX",
                           "name": "Point",
                           "fill": "$tint",
                           "width": 8,
@@ -29676,7 +30275,7 @@
                         },
                         {
                           "type": "ellipse",
-                          "id": "xUcWz",
+                          "id": "j9MrCj",
                           "name": "Point",
                           "fill": "$label-3",
                           "width": 8,
@@ -29684,7 +30283,7 @@
                         },
                         {
                           "type": "ellipse",
-                          "id": "eiW5N",
+                          "id": "yKoSO",
                           "name": "Point",
                           "fill": "$label-3",
                           "width": 8,
@@ -29694,7 +30293,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "D3XEwz",
+                      "id": "tAjXp",
                       "name": "Liens",
                       "clip": true,
                       "width": "fill_container",
@@ -29702,7 +30301,7 @@
                       "layout": "vertical",
                       "children": [
                         {
-                          "id": "VKlgH",
+                          "id": "nzLOC",
                           "type": "ref",
                           "ref": "kzq9l",
                           "name": "Prochain objectif",
@@ -29724,14 +30323,14 @@
                         },
                         {
                           "type": "rectangle",
-                          "id": "K8OhN",
+                          "id": "zoqih",
                           "name": "Séparateur",
                           "fill": "$separator",
                           "width": "fill_container",
                           "height": 1
                         },
                         {
-                          "id": "FjnDZ",
+                          "id": "cfyZU",
                           "type": "ref",
                           "ref": "kzq9l",
                           "name": "Herbier",
@@ -29753,14 +30352,14 @@
                         },
                         {
                           "type": "rectangle",
-                          "id": "mVyAv",
+                          "id": "Hjc0A",
                           "name": "Séparateur",
                           "fill": "$separator",
                           "width": "fill_container",
                           "height": 1
                         },
                         {
-                          "id": "teKuc",
+                          "id": "f8Sed",
                           "type": "ref",
                           "ref": "kzq9l",
                           "name": "Aide",
@@ -29786,7 +30385,7 @@
                 },
                 {
                   "type": "frame",
-                  "id": "rkvaU",
+                  "id": "cVEPE",
                   "name": "Pied",
                   "width": "fill_container",
                   "padding": [
@@ -29798,7 +30397,7 @@
                   "justifyContent": "center",
                   "children": [
                     {
-                      "id": "TD7zs",
+                      "id": "Zfl0W",
                       "type": "ref",
                       "ref": "HjNgI",
                       "name": "TabBar",
@@ -30750,7 +31349,7 @@
             },
             {
               "type": "frame",
-              "id": "WnQxV",
+              "id": "lZUuz",
               "name": "E2 · sombre",
               "theme": {
                 "mode": "dark"
@@ -30765,27 +31364,28 @@
               "layout": "vertical",
               "children": [
                 {
-                  "id": "HukVv",
+                  "id": "n6bzXk",
                   "type": "ref",
                   "ref": "Ebzi7",
                   "name": "StatusBar"
                 },
                 {
-                  "id": "d0ods",
+                  "id": "XJXYi",
                   "type": "ref",
                   "ref": "YcQNA",
                   "name": "NavBar",
                   "width": "fill_container",
                   "descendants": {
                     "LOiQb": {
-                      "enabled": false
+                      "enabled": true,
+                      "opacity": 0
                     },
                     "xuB8d": {
                       "content": ""
                     },
                     "FyZlB": {
                       "type": "text",
-                      "id": "G2vGgY",
+                      "id": "MHW9T",
                       "name": "Action",
                       "fill": "$tint",
                       "content": "OK",
@@ -30800,12 +31400,12 @@
                 },
                 {
                   "type": "frame",
-                  "id": "BPe7v",
+                  "id": "t6Ov9",
                   "name": "Contenu",
                   "width": "fill_container",
                   "height": "fill_container",
                   "layout": "vertical",
-                  "gap": 22,
+                  "gap": 16,
                   "padding": [
                     4,
                     16,
@@ -30815,7 +31415,7 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "i1ePh",
+                      "id": "AgUvB",
                       "name": "Groupe Enfants",
                       "width": "fill_container",
                       "layout": "vertical",
@@ -30823,7 +31423,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "Y8934",
+                          "id": "qskX2",
                           "name": "Titre groupe",
                           "fill": "$label-2",
                           "content": "ENFANTS",
@@ -30834,7 +31434,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "ZMOer",
+                          "id": "O7guY",
                           "name": "Liste",
                           "clip": true,
                           "width": "fill_container",
@@ -30844,10 +31444,10 @@
                           "children": [
                             {
                               "type": "frame",
-                              "id": "K5gNu3",
+                              "id": "wzocD",
                               "name": "Ligne Léa",
                               "width": "fill_container",
-                              "height": 64,
+                              "height": 58,
                               "gap": 14,
                               "padding": [
                                 0,
@@ -30857,7 +31457,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "Y1KYM",
+                                  "id": "klAtl",
                                   "name": "Avatar",
                                   "width": 40,
                                   "height": 40,
@@ -30871,7 +31471,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "b7991l",
+                                  "id": "U9ZgEx",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -30879,7 +31479,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "R7wKz",
+                                      "id": "oX93U",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Léa",
@@ -30889,7 +31489,7 @@
                                     },
                                     {
                                       "type": "text",
-                                      "id": "Q7T7nv",
+                                      "id": "pRtlp",
                                       "name": "Sous",
                                       "fill": "$label-2",
                                       "content": "Arrosage fait aujourd'hui",
@@ -30901,7 +31501,7 @@
                                 },
                                 {
                                   "type": "icon",
-                                  "id": "hcfdc",
+                                  "id": "P6OpQ",
                                   "name": "Chevron",
                                   "width": 20,
                                   "height": 20,
@@ -30913,7 +31513,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "c2hPD",
+                              "id": "Dd4JE",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -30921,10 +31521,10 @@
                             },
                             {
                               "type": "frame",
-                              "id": "SMfSo",
+                              "id": "ypfB8",
                               "name": "Ligne Zoé",
                               "width": "fill_container",
-                              "height": 64,
+                              "height": 58,
                               "gap": 14,
                               "padding": [
                                 0,
@@ -30934,7 +31534,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "XRCc7",
+                                  "id": "vldn9",
                                   "name": "Avatar",
                                   "width": 40,
                                   "height": 40,
@@ -30948,7 +31548,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "J2WbJ",
+                                  "id": "qZS1M",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -30956,7 +31556,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "H7N1SK",
+                                      "id": "q9kop",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Zoé",
@@ -30966,7 +31566,7 @@
                                     },
                                     {
                                       "type": "text",
-                                      "id": "a3Ejz",
+                                      "id": "Xw33q",
                                       "name": "Sous",
                                       "fill": "$label-2",
                                       "content": "Dernière séance hier",
@@ -30978,7 +31578,7 @@
                                 },
                                 {
                                   "type": "icon",
-                                  "id": "MhHLJ",
+                                  "id": "v666Y",
                                   "name": "Chevron",
                                   "width": 20,
                                   "height": 20,
@@ -30990,7 +31590,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "Nh5xP",
+                              "id": "GRu09",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -30998,10 +31598,10 @@
                             },
                             {
                               "type": "frame",
-                              "id": "P8qij",
+                              "id": "j1gFw",
                               "name": "Ligne Tom",
                               "width": "fill_container",
-                              "height": 64,
+                              "height": 58,
                               "gap": 14,
                               "padding": [
                                 0,
@@ -31011,7 +31611,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "KEte7",
+                                  "id": "L7Ucv",
                                   "name": "Avatar",
                                   "width": 40,
                                   "height": 40,
@@ -31025,7 +31625,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "Jsws5",
+                                  "id": "J1FxN",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31033,7 +31633,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "SfZm0",
+                                      "id": "CXf8e",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Tom",
@@ -31043,7 +31643,7 @@
                                     },
                                     {
                                       "type": "text",
-                                      "id": "yFUMM",
+                                      "id": "O1iUh",
                                       "name": "Sous",
                                       "fill": "$label-2",
                                       "content": "Pas encore commencé",
@@ -31055,7 +31655,7 @@
                                 },
                                 {
                                   "type": "icon",
-                                  "id": "LePu1",
+                                  "id": "X6ijj",
                                   "name": "Chevron",
                                   "width": 20,
                                   "height": 20,
@@ -31067,7 +31667,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "yd1mX",
+                              "id": "f2un6w",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -31075,7 +31675,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "IkoEg",
+                              "id": "DTMvU",
                               "name": "Ligne Ajouter un enfant",
                               "width": "fill_container",
                               "height": 56,
@@ -31088,7 +31688,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "VSbts",
+                                  "id": "yuAz0",
                                   "name": "Tuile",
                                   "width": 32,
                                   "height": 32,
@@ -31099,7 +31699,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "yoIgh",
+                                      "id": "E8Wo1",
                                       "name": "Icône",
                                       "width": 18,
                                       "height": 18,
@@ -31111,7 +31711,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "wPg2J",
+                                  "id": "K5zI2",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31119,7 +31719,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "kGfLe",
+                                      "id": "i82CMp",
                                       "name": "Titre",
                                       "fill": "$tint",
                                       "content": "Ajouter un enfant",
@@ -31137,7 +31737,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "QpH89",
+                      "id": "y6g5w",
                       "name": "Groupe Réglages",
                       "width": "fill_container",
                       "layout": "vertical",
@@ -31145,7 +31745,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "GTIOT",
+                          "id": "Wis21",
                           "name": "Titre groupe",
                           "fill": "$label-2",
                           "content": "RÉGLAGES",
@@ -31156,7 +31756,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "Y6UUEf",
+                          "id": "wAONk",
                           "name": "Liste",
                           "clip": true,
                           "width": "fill_container",
@@ -31166,7 +31766,7 @@
                           "children": [
                             {
                               "type": "frame",
-                              "id": "fGwfw",
+                              "id": "h9CLnG",
                               "name": "Ligne Rappels",
                               "width": "fill_container",
                               "height": 56,
@@ -31179,7 +31779,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "JB9I9",
+                                  "id": "MT7OR",
                                   "name": "Tuile",
                                   "width": 32,
                                   "height": 32,
@@ -31190,7 +31790,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "poDHo",
+                                      "id": "ctRgh",
                                       "name": "Icône",
                                       "width": 18,
                                       "height": 18,
@@ -31202,7 +31802,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "N1i7H",
+                                  "id": "FrJKu",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31210,7 +31810,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "uLNkx",
+                                      "id": "liRXq",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Rappels",
@@ -31222,7 +31822,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "I1Jrz",
+                                  "id": "g9DzWt",
                                   "name": "Détail",
                                   "fill": "$label-2",
                                   "content": "3 actifs",
@@ -31232,7 +31832,7 @@
                                 },
                                 {
                                   "type": "icon",
-                                  "id": "Ose7j",
+                                  "id": "qeVXM",
                                   "name": "Chevron",
                                   "width": 20,
                                   "height": 20,
@@ -31244,7 +31844,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "yLMhn",
+                              "id": "E0VIe",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -31252,7 +31852,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "LYjOB",
+                              "id": "nnc3P",
                               "name": "Ligne Apparence",
                               "width": "fill_container",
                               "height": 56,
@@ -31265,7 +31865,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "fsjSA",
+                                  "id": "TfHvI",
                                   "name": "Tuile",
                                   "width": 32,
                                   "height": 32,
@@ -31276,7 +31876,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "W9FGb",
+                                      "id": "Z0qKFH",
                                       "name": "Icône",
                                       "width": 18,
                                       "height": 18,
@@ -31288,7 +31888,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "ACAHc",
+                                  "id": "ICXtl",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31296,7 +31896,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "TREkJ",
+                                      "id": "d8bYRs",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Apparence",
@@ -31308,7 +31908,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "EPKK2",
+                                  "id": "e1kMi6",
                                   "name": "Détail",
                                   "fill": "$label-2",
                                   "content": "Système",
@@ -31318,7 +31918,7 @@
                                 },
                                 {
                                   "type": "icon",
-                                  "id": "L5cG9",
+                                  "id": "LrzDG",
                                   "name": "Chevron",
                                   "width": 20,
                                   "height": 20,
@@ -31330,7 +31930,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "QHN5x",
+                              "id": "sWenK",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -31338,7 +31938,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "tZQOz",
+                              "id": "khFia",
                               "name": "Ligne Langue",
                               "width": "fill_container",
                               "height": 56,
@@ -31351,7 +31951,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "IC7Mn",
+                                  "id": "Tf1OY",
                                   "name": "Tuile",
                                   "width": 32,
                                   "height": 32,
@@ -31362,7 +31962,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "VzsvQ",
+                                      "id": "u02xc",
                                       "name": "Icône",
                                       "width": 18,
                                       "height": 18,
@@ -31374,7 +31974,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "DRlmt",
+                                  "id": "nBFKh",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31382,7 +31982,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "gkSFA",
+                                      "id": "ebFTa",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Langue",
@@ -31394,7 +31994,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "K8UgvP",
+                                  "id": "O25it",
                                   "name": "Détail",
                                   "fill": "$label-2",
                                   "content": "Français",
@@ -31404,7 +32004,7 @@
                                 },
                                 {
                                   "type": "icon",
-                                  "id": "ojS6C",
+                                  "id": "cNgSo",
                                   "name": "Chevron",
                                   "width": 20,
                                   "height": 20,
@@ -31416,7 +32016,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "ps8Z3",
+                              "id": "HB7fI",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -31424,7 +32024,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "hLYSk",
+                              "id": "KR2qh",
                               "name": "Ligne Son",
                               "width": "fill_container",
                               "height": 56,
@@ -31437,7 +32037,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "HCsEg",
+                                  "id": "SlnxR",
                                   "name": "Tuile",
                                   "width": 32,
                                   "height": 32,
@@ -31448,7 +32048,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "Cm6DI",
+                                      "id": "i8j1Cd",
                                       "name": "Icône",
                                       "width": 18,
                                       "height": 18,
@@ -31460,7 +32060,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "IaXBr",
+                                  "id": "tHOut",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31468,7 +32068,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "C4TejY",
+                                      "id": "e87c9L",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Son",
@@ -31480,7 +32080,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "Pbfbo",
+                                  "id": "f13on",
                                   "name": "Interrupteur",
                                   "width": 52,
                                   "height": 32,
@@ -31491,7 +32091,7 @@
                                   "children": [
                                     {
                                       "type": "ellipse",
-                                      "id": "W52hhL",
+                                      "id": "yirPd",
                                       "name": "Bouton",
                                       "fill": "#FFFFFF",
                                       "width": 26,
@@ -31507,7 +32107,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "F9f7w0",
+                      "id": "XfCxe",
                       "name": "Groupe Compte",
                       "width": "fill_container",
                       "layout": "vertical",
@@ -31515,7 +32115,7 @@
                       "children": [
                         {
                           "type": "text",
-                          "id": "Vyz6m",
+                          "id": "ZQJND",
                           "name": "Titre groupe",
                           "fill": "$label-2",
                           "content": "COMPTE",
@@ -31526,7 +32126,7 @@
                         },
                         {
                           "type": "frame",
-                          "id": "Ujx4Y",
+                          "id": "bDLfM",
                           "name": "Liste",
                           "clip": true,
                           "width": "fill_container",
@@ -31536,7 +32136,7 @@
                           "children": [
                             {
                               "type": "frame",
-                              "id": "prXRD",
+                              "id": "t91VOr",
                               "name": "Ligne Qui peut entrer",
                               "width": "fill_container",
                               "height": 56,
@@ -31549,7 +32149,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "c11Zx7",
+                                  "id": "WudeC",
                                   "name": "Tuile",
                                   "width": 32,
                                   "height": 32,
@@ -31560,7 +32160,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "oZBED",
+                                      "id": "N6FiT",
                                       "name": "Icône",
                                       "width": 18,
                                       "height": 18,
@@ -31572,7 +32172,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "mF8s6",
+                                  "id": "bnrSA",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31580,7 +32180,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "rFZJz",
+                                      "id": "TE6bF",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Qui peut entrer",
@@ -31592,7 +32192,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "Yhn40",
+                                  "id": "nY5ox",
                                   "name": "Détail",
                                   "fill": "$label-2",
                                   "content": "4",
@@ -31602,7 +32202,7 @@
                                 },
                                 {
                                   "type": "icon",
-                                  "id": "XpN3G",
+                                  "id": "tqJEn",
                                   "name": "Chevron",
                                   "width": 20,
                                   "height": 20,
@@ -31614,7 +32214,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "CPmxt",
+                              "id": "e02rtS",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -31622,7 +32222,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "LUaQQ",
+                              "id": "QDaNM",
                               "name": "Ligne Synchronisation",
                               "width": "fill_container",
                               "height": 56,
@@ -31635,7 +32235,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "W1j4R5",
+                                  "id": "qO3WV",
                                   "name": "Tuile",
                                   "width": 32,
                                   "height": 32,
@@ -31646,7 +32246,7 @@
                                   "children": [
                                     {
                                       "type": "icon",
-                                      "id": "zb8Vk",
+                                      "id": "Ha6cN",
                                       "name": "Icône",
                                       "width": 18,
                                       "height": 18,
@@ -31658,7 +32258,7 @@
                                 },
                                 {
                                   "type": "frame",
-                                  "id": "qZ1E0",
+                                  "id": "sbQA2",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31666,7 +32266,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "OLxXW",
+                                      "id": "z2IV0",
                                       "name": "Titre",
                                       "fill": "$label",
                                       "content": "Synchronisation",
@@ -31678,7 +32278,7 @@
                                 },
                                 {
                                   "type": "text",
-                                  "id": "WEFO2",
+                                  "id": "OCFoy",
                                   "name": "Détail",
                                   "fill": "$label-2",
                                   "content": "À jour",
@@ -31690,7 +32290,7 @@
                             },
                             {
                               "type": "rectangle",
-                              "id": "SB8jW",
+                              "id": "NPMPt",
                               "name": "Séparateur",
                               "fill": "$separator",
                               "width": "fill_container",
@@ -31698,7 +32298,7 @@
                             },
                             {
                               "type": "frame",
-                              "id": "QcTRu",
+                              "id": "Cwjlg",
                               "name": "Ligne Se déconnecter",
                               "width": "fill_container",
                               "height": 56,
@@ -31711,7 +32311,7 @@
                               "children": [
                                 {
                                   "type": "frame",
-                                  "id": "GVkb1",
+                                  "id": "s3tUp",
                                   "name": "Texte",
                                   "width": "fill_container",
                                   "layout": "vertical",
@@ -31719,7 +32319,7 @@
                                   "children": [
                                     {
                                       "type": "text",
-                                      "id": "C1vSj",
+                                      "id": "gy3hr",
                                       "name": "Titre",
                                       "fill": "$danger",
                                       "content": "Se déconnecter",
