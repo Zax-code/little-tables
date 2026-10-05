@@ -1,0 +1,176 @@
+/*
+ * little tables design tokens (board R0 of design/little-tables-rewrite.pen).
+ * Import once from the app: `@import '@little-tables/ui/styles.css';` after `@import 'tailwindcss';`.
+ */
+@import '@fontsource-variable/nunito';
+
+@source './';
+
+:root {
+  color-scheme: light;
+  --lt-bg: #fff8f1;
+  --lt-surface: #ffffff;
+  --lt-surface-2: #f7eee5;
+  --lt-label: #1f1a16;
+  --lt-label-2: #6f665e;
+  --lt-label-3: #a39990;
+  --lt-separator: #eadfd4;
+  --lt-tint: #de4c74;
+  --lt-tint-soft: #fce6ec;
+  --lt-on-tint: #ffffff;
+  --lt-leaf: #2f8752;
+  --lt-leaf-soft: #e2f3e7;
+  --lt-sun: #c77a0e;
+  --lt-sun-soft: #fdf0d8;
+  --lt-sky: #3b74d1;
+  --lt-sky-soft: #e3edfb;
+  --lt-danger: #d23a2c;
+  --lt-danger-soft: #fce5e2;
+  --lt-soil: #efe2d1;
+  --lt-glass: #ffffffd9;
+  --lt-scrim: #1f1a1666;
+  --lt-shadow: #1f1a1620;
+
+  /* Text size chosen in the parent space (Safari does not apply Dynamic Type to web apps). */
+  --lt-text-scale: 1;
+
+  --lt-ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --lt-duration-fast: 150ms;
+  --lt-duration: 250ms;
+  --lt-duration-slow: 450ms;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    color-scheme: dark;
+    --lt-bg: #14110e;
+    --lt-surface: #221d19;
+    --lt-surface-2: #2d2722;
+    --lt-label: #f8f2eb;
+    --lt-label-2: #b8ada2;
+    --lt-label-3: #7d736a;
+    --lt-separator: #3a322c;
+    --lt-tint: #ff7598;
+    --lt-tint-soft: #45222d;
+    --lt-leaf: #6bcb8e;
+    --lt-leaf-soft: #1c3526;
+    --lt-sun: #f5b54a;
+    --lt-sun-soft: #3a2d16;
+    --lt-sky: #7da8f0;
+    --lt-sky-soft: #1b2840;
+    --lt-danger: #ff6b5e;
+    --lt-danger-soft: #40201c;
+    --lt-soil: #3a2e24;
+    --lt-glass: #2a2420d9;
+    --lt-scrim: #00000099;
+    --lt-shadow: #00000066;
+  }
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --lt-bg: #14110e;
+  --lt-surface: #221d19;
+  --lt-surface-2: #2d2722;
+  --lt-label: #f8f2eb;
+  --lt-label-2: #b8ada2;
+  --lt-label-3: #7d736a;
+  --lt-separator: #3a322c;
+  --lt-tint: #ff7598;
+  --lt-tint-soft: #45222d;
+  --lt-leaf: #6bcb8e;
+  --lt-leaf-soft: #1c3526;
+  --lt-sun: #f5b54a;
+  --lt-sun-soft: #3a2d16;
+  --lt-sky: #7da8f0;
+  --lt-sky-soft: #1b2840;
+  --lt-danger: #ff6b5e;
+  --lt-danger-soft: #40201c;
+  --lt-soil: #3a2e24;
+  --lt-glass: #2a2420d9;
+  --lt-scrim: #00000099;
+  --lt-shadow: #00000066;
+}
+
+@theme inline {
+  --color-bg: var(--lt-bg);
+  --color-surface: var(--lt-surface);
+  --color-surface-2: var(--lt-surface-2);
+  --color-label: var(--lt-label);
+  --color-label-2: var(--lt-label-2);
+  --color-label-3: var(--lt-label-3);
+  --color-separator: var(--lt-separator);
+  --color-tint: var(--lt-tint);
+  --color-tint-soft: var(--lt-tint-soft);
+  --color-on-tint: var(--lt-on-tint);
+  --color-leaf: var(--lt-leaf);
+  --color-leaf-soft: var(--lt-leaf-soft);
+  --color-sun: var(--lt-sun);
+  --color-sun-soft: var(--lt-sun-soft);
+  --color-sky: var(--lt-sky);
+  --color-sky-soft: var(--lt-sky-soft);
+  --color-danger: var(--lt-danger);
+  --color-danger-soft: var(--lt-danger-soft);
+  --color-soil: var(--lt-soil);
+  --color-glass: var(--lt-glass);
+  --color-scrim: var(--lt-scrim);
+
+  --font-sans: 'Nunito Variable', ui-rounded, system-ui, sans-serif;
+
+  --radius-control: 1rem;
+  --radius-card: 1.375rem;
+  --radius-sheet: 1.75rem;
+
+  --ease-out-soft: var(--lt-ease-out);
+
+  --text-footnote: 0.8125rem;
+  --text-subhead: 0.9375rem;
+  --text-body: 1.0625rem;
+  --text-title-3: 1.25rem;
+  --text-title-2: 1.5rem;
+  --text-title-1: 1.75rem;
+  --text-large-title: 2.125rem;
+  --text-exercise: 4rem;
+}
+
+@layer base {
+  html {
+    font-size: calc(100% * var(--lt-text-scale));
+    -webkit-tap-highlight-color: transparent;
+    text-size-adjust: 100%;
+  }
+
+  body {
+    background: var(--lt-bg);
+    color: var(--lt-label);
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--lt-tint);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 1ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 1ms !important;
+    }
+  }
+}
+
+@utility safe-top {
+  padding-top: env(safe-area-inset-top);
+}
+
+@utility safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+@utility tabular {
+  font-variant-numeric: tabular-nums;
+}

@@ -13,9 +13,10 @@
   },
   "scripts": {
     "build:wasm": "bash ../../tools/build-wasm.sh",
-    "build": "pnpm build:wasm && tsc -p tsconfig.build.json",
+    "build": "tsc -p tsconfig.build.json",
     "pretest": "pnpm build:wasm",
     "test": "vitest run",
+    "pretypecheck": "pnpm build:wasm",
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {

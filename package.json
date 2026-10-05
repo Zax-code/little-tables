@@ -9,7 +9,8 @@
   },
   "scripts": {
     "build": "pnpm -r --if-present build",
-    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm test && pnpm validate:quadlets && pnpm build",
+    "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm check:rust && pnpm test && pnpm validate:quadlets && pnpm build",
+    "check:rust": "cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace",
     "dev": "pnpm --filter @little-tables/web dev",
     "dev:server": "pnpm --filter @little-tables/server dev",
     "doctor": "react-doctor apps/web --yes",

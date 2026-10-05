@@ -9,6 +9,8 @@ export default tseslint.config(
       '**/dist/**',
       '**/coverage/**',
       '**/wasm/**',
+      'packages/ui/build/**',
+      '**/.ladle/config.mjs',
       'apps/web/public/generated/**',
       'eslint.config.mjs',
       'target/**',

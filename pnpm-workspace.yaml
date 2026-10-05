@@ -22,8 +22,10 @@ minimumReleaseAgeExclude:
 
 allowBuilds:
   '@parcel/watcher': true
+  '@swc/core': true
   cpu-features: true
   esbuild: true
   msgpackr-extract: true
+  msw: false
   protobufjs: true
   ssh2: true
