@@ -75,7 +75,8 @@ function ArithmeticPrompt({
           {t(exercise.operation === 'double' ? 'exercise.doubleOf' : 'exercise.halfOf')}
         </span>
         <span>
-          {number(exercise.left)} <span className="equation-equals">=</span>{' '}
+          {/* An arrow, not “=”: 300 is not equal to its double. */}
+          {number(exercise.left)} <span className="equation-equals">→</span>{' '}
           <Blank filled={answerText} />
         </span>
       </div>

@@ -3952,13 +3952,18 @@ p {
 }
 .garden-bed-compact .bed-part {
   min-height: 34px;
+  padding: 4px;
+  place-items: center;
   border-radius: 7px;
 }
-.garden-bed-compact .bed-part {
+.garden-bed-compact .bed-flower {
   place-items: center;
 }
 .garden-bed-compact .flower-glyph {
-  width: min(26px, 86%);
+  display: block;
+  width: auto;
+  height: 26px;
+  max-width: 100%;
 }
 .planting-bed .bed-part {
   min-height: 84px;

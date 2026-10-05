@@ -204,7 +204,8 @@ export function PracticeScreen() {
             {t('practice.growing', { count: session.currentIndex })}
           </span>
           <span className="question-count">
-            {session.currentIndex + 1}/{session.questions.length}
+            {Math.min(session.currentIndex + 1, session.questions.length)}/
+            {session.questions.length}
           </span>
         </div>
         <ProgressDots current={session.currentIndex} total={session.questions.length} />

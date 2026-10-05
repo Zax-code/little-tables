@@ -612,7 +612,7 @@ const generateNumeration = (key: string, context: GeneratorContext): Exercise =>
       return withArithmeticChoices(
         arithmetic('numeration', double ? 'double' : 'half', value, 2),
         context,
-        [-50, 50, -100, 100, value, -value / 2],
+        double ? [-50, 50, -100, 100, value, -value / 2] : [-50, 50, -100, 100, value * 1.5],
       )
     }
     case 'numeration:round-1000': {
