@@ -91,7 +91,9 @@ jobs:
           echo "archive=$archive" >>"$GITHUB_OUTPUT"
 
       - name: Smoke-test server release
-        run: tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
+        run: |
+          tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
+          WEB=web PORT=4319 tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
 
       - name: Upload server release
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1

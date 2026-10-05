@@ -5,6 +5,7 @@ ENV CI=true
 RUN corepack enable
 
 COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
+COPY apps/app/package.json apps/app/package.json
 COPY apps/server/package.json apps/server/package.json
 COPY apps/web/package.json apps/web/package.json
 COPY packages/domain/package.json packages/domain/package.json
@@ -16,7 +17,8 @@ COPY tools/golden/package.json tools/golden/package.json
 RUN pnpm install --frozen-lockfile
 
 COPY . .
-RUN pnpm build
+# The previous server and app only; the new app needs the Rust engine built to WebAssembly.
+RUN pnpm --filter @little-tables/server... --filter @little-tables/web... build
 RUN pnpm --filter @little-tables/server deploy --prod --legacy /prod/server
 
 FROM node:22-bookworm-slim AS runtime
