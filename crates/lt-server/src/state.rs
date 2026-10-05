@@ -60,11 +60,6 @@ pub fn cookie<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
         })
 }
 
-/// A string header, as the previous server read it.
-pub fn header<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
-    headers.get(name).and_then(|value| value.to_str().ok())
-}
-
 impl AppState {
     pub fn new(
         config: Arc<Config>,
@@ -189,23 +184,21 @@ impl AppState {
         allowed.then_some(claims)
     }
 
-    /// The profile a request acts on: the requested one when it belongs to the caller's family,
-    /// otherwise the session's profile or the family's first.
-    pub async fn profile_for(
+    /// Whether the profile belongs to the caller's family.
+    pub async fn owns_profile(
         &self,
         identity: &SessionClaims,
-        headers: &HeaderMap,
-        requested: Option<&str>,
-    ) -> lt_store::Result<Option<String>> {
-        let selected = requested.or_else(|| header(headers, "x-little-tables-profile-id"));
-        let Some(family) = self.store.find_family(&identity.google_subject).await? else {
-            return Ok(None);
-        };
-        let owns = |id: &str| family.profiles.iter().any(|profile| profile.id == id);
-        Ok(match selected {
-            Some(selected) => owns(selected).then(|| selected.to_owned()),
-            None if owns(&identity.profile_id) => Some(identity.profile_id.clone()),
-            None => family.profiles.first().map(|profile| profile.id.clone()),
-        })
+        profile_id: &str,
+    ) -> lt_store::Result<bool> {
+        Ok(self
+            .store
+            .find_family(&identity.google_subject)
+            .await?
+            .is_some_and(|family| {
+                family
+                    .profiles
+                    .iter()
+                    .any(|profile| profile.id == profile_id)
+            }))
     }
 }

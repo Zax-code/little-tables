@@ -6,8 +6,8 @@ use axum::extract::State;
 use axum::http::{HeaderMap, HeaderValue, StatusCode, Uri, header};
 use axum::response::{IntoResponse, Response};
 
+use crate::http::error;
 use crate::state::AppState;
-use crate::v1::error;
 
 /// Where a navigation must go instead, when authentication is required.
 pub fn navigation_redirect(authenticated: bool, pathname: &str) -> Option<&'static str> {
@@ -51,6 +51,10 @@ pub async fn static_web_app(
     uri: Uri,
 ) -> Response {
     let pathname = uri.path();
+    // An API path no route answers (such as the retired `/api/v1`) is an API error, never the app.
+    if pathname == "/api" || pathname.starts_with("/api/") {
+        return error(StatusCode::NOT_FOUND, "not_found");
+    }
     let relative = if pathname == "/" {
         "index.html".to_owned()
     } else {

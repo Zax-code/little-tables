@@ -5,12 +5,12 @@
 
 pub mod bootstrap;
 pub mod config;
+pub mod http;
 pub mod import;
 pub mod ingestion;
 pub mod limits;
 pub mod parent_lock;
 pub mod state;
-pub mod v1;
 pub mod v2;
 pub mod web;
 
@@ -32,8 +32,8 @@ const BODY_LIMIT: usize = 256 * 1024;
 
 async fn ready(State(state): State<AppState>) -> Response {
     match state.store.health().await {
-        Ok(()) => v1::ok(json!({ "revision": state.config.revision, "status": "ready" })),
-        Err(_) => v1::json_response(
+        Ok(()) => http::ok(json!({ "revision": state.config.revision, "status": "ready" })),
+        Err(_) => http::json_response(
             StatusCode::SERVICE_UNAVAILABLE,
             json!({ "status": "unavailable" }),
         ),
@@ -55,10 +55,9 @@ pub fn app(state: AppState) -> Router {
     Router::new()
         .route(
             "/health/live",
-            get(|| async { v1::ok(json!({ "status": "ok" })) }),
+            get(|| async { http::ok(json!({ "status": "ok" })) }),
         )
         .route("/health/ready", get(ready))
-        .merge(v1::router())
         .merge(v2::router(state.clone()))
         .fallback(fallback)
         .method_not_allowed_fallback(fallback)
