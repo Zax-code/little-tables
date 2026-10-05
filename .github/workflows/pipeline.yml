@@ -130,7 +130,11 @@ jobs:
 
   deploy:
     name: Deploy production
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Paused while the rewrite runs in pre-production: merges build and publish but do not deploy.
+    # Set the repository variable DEPLOY_ON_MERGE to `true` to deploy again.
+    if: >-
+      github.ref == 'refs/heads/main' && github.event_name != 'pull_request' &&
+      vars.DEPLOY_ON_MERGE == 'true'
     needs: publish
     runs-on: ubuntu-24.04
     timeout-minutes: 10
