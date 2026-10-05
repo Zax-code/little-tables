@@ -29,7 +29,8 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
   const { count, t } = translator
   const rhythm = useRhythm(state)
   const garden = useGarden(state)
-  const questions = useDailyQuestionCount(state, activeProfile.learningPaths)
+  const [openedAt] = useState(() => Date.now())
+  const questions = useDailyQuestionCount(state, activeProfile.learningPaths, openedAt)
   const launch = useLaunch()
   const [choosing, setChoosing] = useState(false)
   const name = activeProfile.name

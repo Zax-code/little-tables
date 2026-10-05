@@ -50,7 +50,7 @@ export const playChime = () => {
 /** A short vibration where supported; silently nothing elsewhere. */
 export const tap = () => {
   try {
-    navigator.vibrate?.(12)
+    if ('vibrate' in navigator) navigator.vibrate(12)
   } catch {
     // Some browsers refuse vibration outside a gesture.
   }

@@ -3,12 +3,7 @@
  * panel at the bottom with the child's character leaning on its edge, and a calm pause.
  */
 import { Engine, type EngineApi } from '@little-tables/engine'
-import type {
-  Exercise,
-  PracticeAnswer,
-  PracticeQuestion,
-  PracticeSession,
-} from '@little-tables/engine/schema'
+import type { PracticeQuestion, PracticeSession } from '@little-tables/engine/schema'
 import {
   Alert,
   Button,
@@ -24,6 +19,7 @@ import { Effect } from 'effect'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import { useApp, useProfileState, useSetProfileState } from '../app/app-context.js'
+import { useSync } from '../app/sync-manager.js'
 import { characterNames, characterOf, sceneOf } from '../characters/characters.js'
 import { LocalStore } from '../data/local-store.js'
 import { answerQuestion, completeSession, continueSession } from '../data/practice.js'
@@ -48,12 +44,19 @@ export function SessionScreen() {
 
 type Feedback = Readonly<{ question: PracticeQuestion; settled: Settled }>
 
+/** Runs an engine operation; the engine is loaded before the first screen. */
+const runEngine = <A,>(
+  runtime: ReturnType<typeof useApp>['runtime'],
+  effect: (engine: EngineApi) => Effect.Effect<A, unknown>,
+) => runtime.runSync(Effect.flatMap(Engine, effect))
+
 function Session({ initial, state }: Readonly<{ initial: PracticeSession; state: ProfileState }>) {
   const { activeProfile, preferences, runtime } = useApp()
   const translator = useI18n()
   const { t } = translator
   const navigate = useNavigate()
   const setState = useSetProfileState()
+  const sync = useSync()
   const [session, setSession] = useState(initial)
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [pausing, setPausing] = useState(false)
@@ -62,30 +65,28 @@ function Session({ initial, state }: Readonly<{ initial: PracticeSession; state:
   const question = feedback?.question ?? session.questions[session.currentIndex]
   const total = session.questions.length
 
-  const engine = useCallback(
-    <A,>(effect: (engine: EngineApi) => Effect.Effect<A, unknown>) =>
-      runtime.runSync(Effect.flatMap(Engine, effect)),
-    [runtime],
-  )
+  const engine = <A,>(effect: (engine: EngineApi) => Effect.Effect<A, unknown>) =>
+    runEngine(runtime, effect)
+  const shownExercise = question?.exercise
   const description = useMemo(
     () =>
-      question?.exercise === undefined
+      shownExercise === undefined
         ? null
-        : engine((it) => it.describeExercise(question.exercise as Exercise)),
-    [engine, question],
+        : runEngine(runtime, (it) => it.describeExercise(shownExercise)),
+    [runtime, shownExercise],
   )
   const answer = useMemo(
-    () => (question === undefined ? 0 : engine((it) => it.correctAnswer(question))),
-    [engine, question],
+    () => (question === undefined ? 0 : runEngine(runtime, (it) => it.correctAnswer(question))),
+    [runtime, question],
   )
   const strategies = useMemo(
     () =>
       feedback === null || feedback.settled.correct || feedback.question.exercise !== undefined
         ? []
-        : engine((it) =>
+        : runEngine(runtime, (it) =>
             it.deriveRescueStrategies({ question: feedback.question, snapshot: state.snapshot }),
           ),
-    [engine, feedback, state.snapshot],
+    [runtime, feedback, state.snapshot],
   )
 
   const finish = useCallback(async () => {
@@ -94,7 +95,8 @@ function Session({ initial, state }: Readonly<{ initial: PracticeSession; state:
       await runtime.runPromise(Effect.flatMap(LocalStore, (store) => store.load(activeProfile.id))),
     )
     await navigate({ replace: true, to: '/celebration' })
-  }, [activeProfile.id, navigate, runtime, setState])
+    void sync.synchronize()
+  }, [activeProfile.id, navigate, runtime, setState, sync])
 
   // A session whose last answer was given before the app closed is finished on opening.
   useEffect(() => {
@@ -161,11 +163,14 @@ function Session({ initial, state }: Readonly<{ initial: PracticeSession; state:
     exercise === undefined || description === null
       ? `${question.left} ${question.operation === 'divide' ? '÷' : '×'} ${question.right} = ${answer}`
       : exerciseStatement(exercise, description, translator.language)
+  /** A right answer written another way, such as 6/8 for 3/4. */
   const equivalent =
     settled?.correct === true &&
     settled.response !== null &&
     description !== null &&
     isEquivalentForm(description, settled.response)
+      ? settled.response
+      : null
   const pose: CharacterPose = settled === null ? 'idle' : settled.correct ? 'correct' : 'encourage'
   const wrongColumn =
     exercise?.kind === 'column' &&
@@ -182,10 +187,10 @@ function Session({ initial, state }: Readonly<{ initial: PracticeSession; state:
     settled === null ? null : settled.correct ? (
       <span className="flex flex-col">
         <strong className="text-callout font-extrabold">
-          {equivalent && settled.response !== null
+          {equivalent !== null
             ? t('practice.yesAlso', {
                 answer: answerText,
-                given: formatAnswer(settled.response as PracticeAnswer, translator.language),
+                given: formatAnswer(equivalent, translator.language),
               })
             : t('session.bubbleYes', { answer: answerText })}
         </strong>

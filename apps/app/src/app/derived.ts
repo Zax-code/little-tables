@@ -71,19 +71,23 @@ export function useLearningProgress(state: ProfileState, paths: LearningPathSett
   )
 }
 
-/** How many questions today's watering will ask (the active one, or a new one). */
-export function useDailyQuestionCount(state: ProfileState, paths: LearningPathSettings) {
+/** How many questions today's watering will ask (the active one, or a new one at `now`). */
+export function useDailyQuestionCount(
+  state: ProfileState,
+  paths: LearningPathSettings,
+  now: number,
+) {
   const { runtime } = useApp()
   return useMemo(() => {
     if (state.activeSession?.kind === 'daily-watering') return state.activeSession.questions.length
     return derive(runtime, (engine) =>
       engine.createSession({
-        now: Date.now(),
+        now,
         policy: { curriculum: { paths }, kind: 'daily-watering' },
         seed: 0,
         snapshot: state.snapshot,
         timeZone: deviceTimeZone(),
       }),
     ).questions.length
-  }, [paths, runtime, state.activeSession, state.snapshot])
+  }, [now, paths, runtime, state.activeSession, state.snapshot])
 }

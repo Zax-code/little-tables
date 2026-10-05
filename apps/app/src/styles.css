@@ -62,3 +62,121 @@ body,
     transition-duration: 1ms !important;
   }
 }
+
+/* Character sprite sheets: a strip of four poses (celebration) or a 2 × 2 grid (garden). */
+.sprite-sheet {
+  display: block;
+  width: 100%;
+  height: 100%;
+  background-repeat: no-repeat;
+  will-change: background-position;
+}
+.sprite-celebration {
+  background-size: 400% 100%;
+  animation: sprite-celebration 1.8s steps(1, end) infinite;
+}
+.sprite-hop {
+  animation: sprite-hop 1.8s linear infinite;
+}
+.sprite-water {
+  background-size: 200% 200%;
+  animation: sprite-water 2.6s steps(1, end) infinite;
+}
+.sprite-walk {
+  background-size: 200% 200%;
+  animation: sprite-walk 0.58s steps(1, end) infinite;
+}
+.sprite-still {
+  animation: none;
+}
+@keyframes sprite-celebration {
+  0%,
+  30% {
+    background-position: 0 0;
+  }
+  36%,
+  49% {
+    background-position: 33.333% 0;
+  }
+  55%,
+  68% {
+    background-position: 66.667% 0;
+  }
+  74%,
+  100% {
+    background-position: 100% 0;
+  }
+}
+@keyframes sprite-hop {
+  0%,
+  49%,
+  74%,
+  100% {
+    transform: translateY(0);
+  }
+  55%,
+  68% {
+    transform: translateY(-18px);
+  }
+  62% {
+    transform: translateY(-28px);
+  }
+}
+@keyframes sprite-water {
+  0%,
+  48%,
+  100% {
+    background-position: 0 0;
+  }
+  49%,
+  60% {
+    background-position: 100% 0;
+  }
+  61%,
+  73% {
+    background-position: 0 100%;
+  }
+  74%,
+  88% {
+    background-position: 100% 100%;
+  }
+  89%,
+  96% {
+    background-position: 100% 0;
+  }
+}
+@keyframes sprite-walk {
+  0%,
+  24% {
+    background-position: 0 0;
+  }
+  25%,
+  49% {
+    background-position: 100% 0;
+  }
+  50%,
+  74% {
+    background-position: 0 100%;
+  }
+  75%,
+  100% {
+    background-position: 100% 100%;
+  }
+}
+@keyframes plant-drink {
+  0%,
+  45%,
+  100% {
+    transform: scale(1);
+  }
+  60% {
+    transform: scale(1.04, 0.97);
+  }
+  75% {
+    transform: scale(0.98, 1.03);
+  }
+}
+.plant-drink {
+  transform-origin: 50% 100%;
+  animation: plant-drink 2.6s ease-in-out infinite;
+}

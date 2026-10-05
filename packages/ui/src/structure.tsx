@@ -3,6 +3,8 @@ import { Slot } from '@radix-ui/react-slot'
 import { ChevronLeft, X } from 'lucide-react'
 import { cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Toaster as SonnerToaster } from 'sonner'
+
+export { toast } from 'sonner'
 import { Drawer } from 'vaul'
 
 import { Button } from './button.js'
@@ -235,7 +237,7 @@ export function Alert({
   )
 }
 
-/** Banners at the top of the screen (new version, saved, errors). Use `toast` from `sonner`. */
+/** Banners at the top of the screen (new version, saved, errors). Show them with `toast`. */
 export function Toaster(props: ComponentPropsWithRef<typeof SonnerToaster>) {
   return (
     <SonnerToaster

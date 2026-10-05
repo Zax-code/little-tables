@@ -32,6 +32,21 @@ describe('catalogues', () => {
   })
 })
 
+describe('counted messages', () => {
+  it('show the count in the singular, since French counts 0 as singular', () => {
+    // Sentences only used for at least one item may say “one” in words.
+    const missing = Object.entries(messages).flatMap(([language, catalogue]) =>
+      Object.entries(catalogue).flatMap(([key, text]) =>
+        key.endsWith('.one') && !key.startsWith('insight.') && !text.includes('{count}')
+          ? [`${language} ${key}`]
+          : [],
+      ),
+    )
+    expect(missing).toEqual([])
+    expect(createTranslator('fr').count('garden.flowers', 0)).toBe('0 fleur')
+  })
+})
+
 describe('translator', () => {
   it('fills placeholders and picks plural forms', () => {
     expect(interpolate('{a} and {b}', { a: 1 })).toBe('1 and {b}')
