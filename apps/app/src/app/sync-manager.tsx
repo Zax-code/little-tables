@@ -70,10 +70,13 @@ export function SyncManager({ children }: Readonly<{ children: ReactNode }>) {
         profileIds: current.profiles.map(({ id }) => id),
       }).pipe(
         Effect.flatMap((result) =>
-          Effect.map(
-            Effect.flatMap(ApiClient, (api) => api.profiles()),
-            ({ profiles }) => ({ profiles, result }),
-          ),
+          Effect.flatMap(ApiClient, (api) =>
+            Effect.all({
+              // A code changed elsewhere makes this device's offline copy useless.
+              lock: Effect.option(api.parentLock()),
+              profiles: Effect.map(api.profiles(), ({ profiles }) => profiles),
+            }),
+          ).pipe(Effect.map(({ lock, profiles }) => ({ lock, profiles, result }))),
         ),
         Effect.either,
       ),
@@ -87,7 +90,8 @@ export function SyncManager({ children }: Readonly<{ children: ReactNode }>) {
       setState({ kind: 'error', pending: await countPending() })
       return
     }
-    const { profiles, result } = outcome.right
+    const { lock, profiles, result } = outcome.right
+    if (lock._tag === 'Some') device.parentCode.reconcile(lock.value.pinSalt)
     await Promise.all(
       result.gone.map((gone) =>
         runtime.runPromise(Effect.flatMap(LocalStore, (store) => store.remove(gone))),

@@ -2,12 +2,11 @@
  * Screens shown before a family is open (mockups B1 to B4): sign-in, the first child's name, no
  * connection at the first opening, and recovery after an error.
  */
-import { ApiClient } from '@little-tables/api-contract'
 import { Button, Screen, TextField } from '@little-tables/ui'
 import { RefreshCw, RotateCcw, Sprout } from 'lucide-react'
-import { Effect } from 'effect'
 import { useEffect, useId, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 
+import { runApi } from '../app/run-api.js'
 import { CharacterImage } from '../characters/character-image.js'
 import type { SceneId } from '../characters/characters.js'
 import { useI18n } from '../i18n/i18n.js'
@@ -69,8 +68,7 @@ export function SignInScreen({ googleClientId, onSignedIn, runtime }: SignInProp
       onCredential: (credential) => {
         setPending(true)
         setError(null)
-        void runtime
-          .runPromise(Effect.flatMap(ApiClient, (api) => api.signIn(credential)))
+        void runApi(runtime, (api) => api.signIn(credential))
           .then(onSignedIn)
           .catch((failure: unknown) => {
             const code = (failure as { code?: unknown }).code
@@ -121,8 +119,7 @@ export function OnboardingScreen({ onDone, runtime }: OnboardingProps) {
     if (pending || trimmed === '') return
     setPending(true)
     setError(null)
-    void runtime
-      .runPromise(Effect.flatMap(ApiClient, (api) => api.onboarding({ name: trimmed })))
+    void runApi(runtime, (api) => api.onboarding({ name: trimmed }))
       .then(onDone)
       .catch(() => setError(t('onboarding.failed')))
       .finally(() => setPending(false))

@@ -1,15 +1,15 @@
-import { ApiClient, type ApiClientService, type ApiFailure } from '@little-tables/api-contract'
-import { Effect } from 'effect'
+import type { ApiClientService, ApiFailure } from '@little-tables/api-contract'
+import type { Effect } from 'effect'
 import { useCallback } from 'react'
 
 import { useApp } from '../app/app-context.js'
+import { runApi } from '../app/run-api.js'
 
 /** Runs one call of the v2 API; the promise rejects with the tagged failure. */
 export function useApi() {
   const { runtime } = useApp()
   return useCallback(
-    <A>(call: (api: ApiClientService) => Effect.Effect<A, ApiFailure>) =>
-      runtime.runPromise(Effect.flatMap(ApiClient, call)),
+    <A>(call: (api: ApiClientService) => Effect.Effect<A, ApiFailure>) => runApi(runtime, call),
     [runtime],
   )
 }

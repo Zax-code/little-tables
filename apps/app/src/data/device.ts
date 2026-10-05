@@ -6,6 +6,7 @@ import { ApiSchema, type ChildProfile } from '@little-tables/api-contract'
 import { LearningPathSettings, defaultLearningPathSettings } from '@little-tables/engine/schema'
 import { Either, Schema } from 'effect'
 
+import { createParentCode } from '../parents/parent-code.js'
 import {
   AuthGrant,
   Preferences,
@@ -71,6 +72,9 @@ const readJson = <A, I>(schema: Schema.Schema<A, I>, key: string, storage: Stora
 }
 
 export const createDevice = (storage: Storage | null = defaultStorage()) => ({
+  /** This device's copy of the parent code, for offline checks. */
+  parentCode: createParentCode(storage),
+
   activeProfileId: () => read(keys.activeProfile, storage),
   setActiveProfileId: (profileId: string | null) => write(keys.activeProfile, profileId, storage),
 
@@ -125,6 +129,7 @@ export const createDevice = (storage: Storage | null = defaultStorage()) => ({
     for (const key of [keys.activeProfile, keys.authGrant, keys.profilesCache, keys.seenCards]) {
       write(key, null, storage)
     }
+    createParentCode(storage).forget()
   },
 
   /**

@@ -7,16 +7,25 @@ import {
   lazyRouteComponent,
   Navigate,
   Outlet,
+  useRouterState,
   type RouteComponent,
 } from '@tanstack/react-router'
+import { useEffect } from 'react'
 
 import { useApp } from './app/app-context.js'
 import { RecoveryScreen } from './access/access-screens.js'
 import { TodayScreen } from './child/today-screen.js'
+import { parentSpace } from './parents/parent-code.js'
+import { ParentGate } from './parents/parent-gate.js'
 import { UpdateBanner } from './pwa.js'
 import { reloadWithLatestServiceWorker } from './service-worker-client.js'
 
 function Root() {
+  const pathname = useRouterState({ select: (state) => state.location.pathname })
+  // Back in the child space, the parent space asks for the code again.
+  useEffect(() => {
+    if (!pathname.startsWith('/parents')) parentSpace.close()
+  }, [pathname])
   return (
     <>
       <Outlet />
@@ -77,6 +86,19 @@ const root = createRootRoute({
 const route = <Path extends string>(path: Path, component: RouteComponent) =>
   createRoute({ component, getParentRoute: () => root, path })
 
+/** Every parent screen sits behind the parent code. */
+const parents = createRoute({
+  component: () => (
+    <ParentGate>
+      <Outlet />
+    </ParentGate>
+  ),
+  getParentRoute: () => root,
+  id: 'parents',
+})
+const parentRoute = <Path extends string>(path: Path, component: RouteComponent) =>
+  createRoute({ component, getParentRoute: () => parents, path })
+
 const routeTree = root.addChildren([
   route('/', TodayScreen),
   route('/garden', GardenScreen),
@@ -86,12 +108,14 @@ const routeTree = root.addChildren([
   route('/progress/paths', PathsScreen),
   route('/session', SessionScreen),
   route('/celebration', CelebrationScreen),
-  route('/parents', ParentsHomeScreen),
-  route('/parents/settings', SettingsScreen),
-  route('/parents/access', AdminOnly),
-  route('/parents/new-child', NewChildScreen),
-  route('/parents/children/$profileId', ChildScreen),
-  route('/parents/children/$profileId/school', SchoolScreen),
+  parents.addChildren([
+    parentRoute('/parents', ParentsHomeScreen),
+    parentRoute('/parents/settings', SettingsScreen),
+    parentRoute('/parents/access', AdminOnly),
+    parentRoute('/parents/new-child', NewChildScreen),
+    parentRoute('/parents/children/$profileId', ChildScreen),
+    parentRoute('/parents/children/$profileId/school', SchoolScreen),
+  ]),
 ])
 
 export const router = createRouter({ defaultPreload: 'intent', routeTree, scrollRestoration: true })
