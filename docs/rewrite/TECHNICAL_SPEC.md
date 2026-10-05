@@ -1,18 +1,23 @@
 # little tables — Spécifications techniques de la réécriture
 
-Statut : brouillon v0.1 (5 octobre 2026) · à valider avant le démarrage du lot 1.
+Statut : **v0.2 (5 octobre 2026) · prête pour le lot 1**. Les points encore ouverts sont regroupés en §8.4 avec,
+pour chacun, la valeur retenue par défaut si personne ne tranche.
 
 Ce document décrit la réécriture complète de little tables avec :
 
 - **Rust** pour le serveur et pour le moteur pédagogique partagé ;
 - **Effect v3 / TypeScript** pour toute la logique applicative côté client (services, schémas, hors-ligne, sync) ;
 - **React** pour l'interface ;
-- un **système de composants de type shadcn/ui** (primitives Radix, Tailwind CSS v4, variantes CVA), adapté aux Human Interface Guidelines d'Apple.
+- un **système de composants de type shadcn/ui** (primitives Radix, Tailwind CSS v4, variantes CVA), adapté aux Human
+  Interface Guidelines d'Apple.
 
-La réécriture conserve toutes les fonctionnalités existantes. L'inventaire de référence est le fichier Pencil
-[`design/little-tables-rewrite.pen`](../../design/little-tables-rewrite.pen) (boards 00 à 13, captures dans
-[`design/assets/legacy/`](../../design/assets/legacy/)). Sa **matrice de couverture** (board 13) renvoie vers les
-sections de ce document. Le design actuel sert uniquement de checklist : le redesign n'est pas contraint par lui.
+La réécriture conserve toutes les fonctionnalités existantes. Les références :
+
+- **Inventaire de l'existant** : boards 00 à 13 de [`design/little-tables-rewrite.pen`](../../design/little-tables-rewrite.pen),
+  captures dans [`design/assets/legacy/`](../../design/assets/legacy/). La matrice de couverture (board 13) renvoie
+  vers les sections de ce document.
+- **Maquettes du redesign** : boards R0 à R5 du même fichier, exportées dans [`design/exports/`](../../design/exports/).
+  Elles font foi pour l'interface (§6).
 
 ---
 
@@ -20,21 +25,22 @@ sections de ce document. Le design actuel sert uniquement de checklist : le rede
 
 ### 1.1 Objectifs
 
-1. **Parité fonctionnelle totale** avec l'application actuelle (voir §3 à §5 et la matrice de couverture).
-2. **Expérience mobile excellente**, iPhone d'abord, conforme aux HIG : zones tactiles ≥ 44 pt, actions principales
-   au pouce, feuilles (sheets) natives, grands titres, safe areas, Dynamic Type, mode sombre, mouvement réduit.
+1. **Parité fonctionnelle totale** avec l'application actuelle (§3 à §5 et matrice de couverture).
+2. **Expérience mobile excellente**, iPhone d'abord, conforme aux HIG : zones tactiles ≥ 44 pt, action principale
+   au pouce, feuilles, grands titres, safe areas, taille de texte réglable, mode sombre, mouvement réduit.
 3. **Une seule implémentation du moteur pédagogique**, exécutée à l'identique sur le serveur (natif) et dans le
-   navigateur (WebAssembly), ce qui supprime le risque de divergence actuel entre deux exécutions du même code TS.
-4. **Hors-ligne d'abord** conservé : l'enfant peut faire toute une séance sans réseau ; la sync est transparente.
-5. **Séparer l'espace enfant et l'espace parent** (absent aujourd'hui).
-6. Corriger la dette listée au board 12 (déconnexion, CSRF, admin codé en dur, recalcul complet à chaque bootstrap…).
+   navigateur (WebAssembly).
+4. **Hors-ligne d'abord** conservé : une séance entière sans réseau ; sync transparente.
+5. **Espace enfant et espace parent séparés** (absent aujourd'hui).
+6. Dette corrigée (board 12) : déconnexion, CSRF, admin codé en dur, recalcul complet à chaque bootstrap, clés mortes.
 
-### 1.2 Non-objectifs (lot 1)
+### 1.2 Non-objectifs
 
-- Application native App Store (on reste une PWA ; l'architecture ne l'empêche pas plus tard).
+- Application native App Store (on reste une PWA).
 - Nouveaux contenus pédagogiques au-delà des 11 compétences actuelles.
-- Changement d'hébergement : même VPS et même Caddy ; seul le mode de déploiement passe de Quadlets à une release
-  immuable systemd (§7.3), toujours avec contrôle de santé et rollback automatique.
+- Sign in with Apple (décision §8.2).
+- Changement d'hébergement : même VPS, même Caddy, même port `32140`. Seul le mode de déploiement change (§7.3).
+- « Se déconnecter de tous les appareils » : la déconnexion ne concerne que l'appareil courant (§5.2).
 
 ---
 
@@ -48,21 +54,21 @@ sections de ce document. Le design actuel sert uniquement de checklist : le rede
 │        │                                                                  │
 │ Effect v3 runtime (ManagedRuntime)                                        │
 │   ├─ DomainEngine  ──► lt-domain.wasm (Rust → wasm-bindgen)               │
-│   ├─ LocalStore    ──► IndexedDB (Dexie) : events, outbox, projections    │
-│   ├─ SyncService   ──► HttpApiClient (schémas générés)                    │
-│   ├─ AuthService, ProfileService, ReminderService, PwaService, I18n       │
-│ Service worker (Workbox) : précache, images, push                         │
+│   ├─ LocalStore    ──► IndexedDB (Dexie) : events, outbox, state          │
+│   ├─ SyncService   ──► HttpClient Effect (schémas api-contract)           │
+│   ├─ Auth, Profile, ParentLock, Reminder, Pwa, Preferences, I18n          │
+│ Service worker (Workbox) : précache (bundles + wasm + art), push          │
 └───────────────────────────────────┬──────────────────────────────────────┘
                                     │ HTTPS JSON /api/v2 (cookie de session)
 ┌───────────────────────────────────▼──────────────────────────────────────┐
-│ Serveur Rust (axum + tokio)                                               │
-│   ├─ lt-domain (natif)   ├─ lt-api (handlers, schémas serde/schemars)     │
-│   ├─ lt-store (SQLite)   ├─ lt-auth (Google ID token, sessions, CSRF)     │
+│ Serveur Rust (axum + tokio), binaire unique avec la PWA embarquée         │
+│   ├─ lt-domain (natif)   ├─ lt-api (handlers + types serde/schemars)      │
+│   ├─ lt-store (SQLite)   ├─ lt-auth (Google ID token, session, CSRF, PIN) │
 │   ├─ lt-push (Web Push VAPID, worker de rappels)                          │
-│   └─ fichiers statiques de la PWA (même origine)                          │
+│   └─ adaptateur /api/v1 (transition, retiré au lot 5)                     │
 └───────────────────────────────────┬──────────────────────────────────────┘
                                     │
-                SQLite (WAL) · /var/lib/little-tables
+                SQLite (WAL) · /var/lib/little-tables/little-tables.db
 ```
 
 ### 2.2 Organisation du dépôt
@@ -71,96 +77,97 @@ Workspace pnpm + workspace Cargo dans le même dépôt.
 
 ```
 crates/
-  lt-domain/        moteur pédagogique pur (no_std-friendly, sans I/O)
-  lt-domain-wasm/   bindings wasm-bindgen + tsify (types TS générés)
-  lt-api/           types HTTP (serde + schemars) = source de vérité du contrat
-  lt-auth/          vérification Google, sessions HMAC, CSRF, allowlist
-  lt-store/         repositories SQLite (sqlx), migrations, import Mongo
-  lt-push/          envoi Web Push, worker de rappels
-  lt-server/        binaire axum (main), config, wiring, statiques
+  lt-domain/        moteur pédagogique pur (sans I/O, sans horloge, sans aléa implicite)
+  lt-domain-wasm/   bindings wasm-bindgen (JSON in / JSON out)
+  lt-api/           types HTTP (serde + schemars) + export JSON Schema
+  lt-auth/          vérification Google, session HMAC, CSRF, code parent
+  lt-store/         SQLite (sqlx), migrations, import Mongo
+  lt-push/          Web Push, worker de rappels
+  lt-server/        binaire axum, config, wiring, statiques embarqués, commandes admin
 apps/
   web/              PWA React
 packages/
-  ui/               système de composants (shadcn adapté HIG) + tokens
-  api-contract/     schémas Effect générés depuis le JSON Schema de lt-api
+  ui/               système de composants + tokens
+  api-contract/     schémas Effect de l'API et du domaine (écrits à la main, vérifiés contre lt-api, §2.4)
   domain/           façade Effect autour de lt-domain.wasm
   local-store/      Dexie + schémas Effect
   i18n/             catalogues fr / en / zh-Hans typés
 tools/
-  golden/           générateur de vecteurs de test depuis l'ancien moteur TS
-  codegen/          JSON Schema → Effect Schema
-deploy/             unité systemd, Caddy, script de release immuable
+  golden/           moteur TS actuel gelé + générateur de vecteurs de test (§7.2)
+deploy/             unité systemd, timer de sauvegarde, Caddy, script de release
 ```
 
-### 2.3 Choix structurants et justification
+### 2.3 Choix structurants
 
-| Sujet                 | Choix                                                                               | Pourquoi                                                                                                        |
-| --------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
-| Moteur partagé        | Crate Rust `lt-domain` compilé natif + WASM                                         | Une seule source de vérité, exécutée à l'identique hors-ligne et au serveur.                                    |
-| Framework HTTP        | axum 0.8 + tokio + tower-http                                                       | Standard de fait, middlewares (compression, traces, limites).                                                   |
-| Base de données       | SQLite (WAL) via `sqlx`                                                             | Usage familial, zéro service à opérer, sauvegarde `.backup`, aligné sur le VPS (§5.6).                          |
-| Contrat API           | Types Rust (`serde` + `schemars`) → JSON Schema → Effect Schema généré              | Le serveur est la source de vérité ; le client ne peut pas dériver. CI vérifie que le code généré est à jour.   |
-| Client logique        | Effect v3 (Layer, Context.Tag, Schema, Stream, Schedule)                            | Gestion explicite des erreurs, retries, ressources, testabilité.                                                |
-| Cache serveur côté UI | TanStack Query alimenté par des programmes Effect                                   | Cache, invalidation, état de chargement React éprouvés.                                                         |
-| Routage               | TanStack Router (typé)                                                              | Loaders, préchargement des illustrations, garde d'accès dans le routeur (corrige la réécriture d'URL manuelle). |
-| Composants            | shadcn/ui (copie locale), Radix, Tailwind v4, CVA, Vaul (feuilles), Sonner (toasts) | Composants possédés dans le dépôt, accessibles, faciles à adapter aux HIG.                                      |
-| Animations            | `motion` (ex-Framer Motion) + CSS                                                   | Ressorts, `AnimatePresence`, respect de `prefers-reduced-motion`.                                               |
-| Stockage local        | IndexedDB via Dexie, schémas Effect                                                 | Continuité, migration des bases existantes (§4.6).                                                              |
+| Sujet                 | Choix                                                                           | Pourquoi                                                                               |
+| --------------------- | ------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| Moteur partagé        | Crate Rust `lt-domain`, natif + WASM                                            | Une seule source de vérité, exécutée à l'identique hors-ligne et au serveur.           |
+| Framework HTTP        | axum 0.8 + tokio + tower-http                                                   | Standard de fait, middlewares (compression, traces, limites).                          |
+| Base de données       | SQLite (WAL) via `sqlx`, bibliothèque embarquée                                 | Usage familial, zéro service à opérer, sauvegarde `.backup`, aligné sur le VPS (§5.7). |
+| Contrat API           | Types Rust → JSON Schema ; schémas Effect vérifiés contre lui en CI             | Pas de générateur de code à maintenir ; toute dérive casse la CI (§2.4).               |
+| Client logique        | Effect v3 (Layer, Context.Tag, Schema, Schedule)                                | Erreurs explicites, retries, ressources, testabilité.                                  |
+| Cache serveur côté UI | TanStack Query alimenté par des programmes Effect                               | Cache, invalidation, états de chargement éprouvés.                                     |
+| Routage               | TanStack Router                                                                 | Loaders, préchargement des illustrations, garde d'accès dans le routeur.               |
+| Composants            | shadcn/ui copié dans le dépôt, Radix, Tailwind v4, CVA, Vaul (feuilles), Sonner | Composants possédés, accessibles, adaptés aux HIG.                                     |
+| Animations            | `motion` + CSS                                                                  | Ressorts, `AnimatePresence`, `prefers-reduced-motion`.                                 |
+| Stockage local        | IndexedDB via Dexie, schémas Effect                                             | Continuité, migration des bases existantes (§4.6).                                     |
 
 ### 2.4 Contrat entre Rust et TypeScript
 
-1. `lt-api` déclare chaque requête et réponse en Rust (`#[derive(Serialize, Deserialize, JsonSchema)]`).
-2. `cargo run -p lt-api --bin export-schema` produit `packages/api-contract/schema.json`.
-3. `tools/codegen` produit `packages/api-contract/src/generated.ts` (Effect `Schema`) et un `HttpApi` Effect.
-4. Les types du moteur (`Exercise`, `PracticeAnswer`, `AttemptEvent`, `LearningSnapshot`…) sont exportés par
-   `tsify` depuis `lt-domain-wasm` et décodés côté client par les mêmes schémas Effect.
-5. CI : `pnpm codegen && git diff --exit-code` ; tests de contrat qui lancent le serveur Rust et rejouent le client
-   Effect contre lui.
+1. `lt-api` et `lt-domain` dérivent `JsonSchema` (schemars) sur tous les types exposés.
+   `cargo run -p lt-api --bin export-schema` écrit `packages/api-contract/schema.json`.
+2. Les schémas Effect de `packages/api-contract` sont **écrits à la main** (lisibles, annotés, avec les transformations
+   dates ↔ millisecondes).
+3. Un test CI produit le JSON Schema de chaque schéma Effect (`JSONSchema.make`) et le compare, après normalisation,
+   à celui exporté par Rust. Toute divergence fait échouer la CI. On évite ainsi d'écrire et de maintenir un
+   générateur de code.
+4. Le WASM reçoit et renvoie du JSON (`serde-wasm-bindgen`) ; la façade `packages/domain` décode ses sorties avec les
+   mêmes schémas. Les dates traversent la frontière en millisecondes UTC, les clés de jour en chaînes `YYYY-MM-DD`.
+5. Tests de contrat : le client Effect rejoue chaque endpoint contre le serveur Rust lancé en CI.
 
 ---
 
 ## 3. Moteur pédagogique (`lt-domain`)
 
-Le moteur est une **réécriture fidèle** des règles actuelles (`packages/domain`). Toute différence de comportement
-est un bug, sauf mention contraire. Les règles exhaustives sont listées au board 11 du fichier Pencil ; ce chapitre fixe le
-périmètre et les garanties.
+Le moteur est une **réécriture fidèle** des règles actuelles (`packages/domain`), prouvée par les vecteurs dorés
+(§7.2). Les règles exhaustives sont au board 11 du fichier Pencil ; ce chapitre fixe le périmètre, l'API et les
+quelques changements assumés.
 
 ### 3.1 Réglages de parcours (par profil)
 
-- `LearningPathSettings { enabledSkills (≤ 11), focusSkill | null, mode: automatic | manual, subtractionMethod: compensation | decomposition }`.
-- Par défaut : `{ [], null, automatic, compensation }`.
-- `deriveOpenSkills` : une compétence cochée est toujours ouverte ; en mode automatique elle s'ouvre si les 55 faits de base
-  sont familiers ou fluides **et** que son prérequis est rempli.
-- Niveaux ouverts en séquence selon la porte de la compétence (`all`, `seen`, `familiar`).
+- `LearningPathSettings { enabledSkills (≤ 11), focusSkill | null, mode: automatic | manual, subtractionMethod: compensation | decomposition }`,
+  défaut `{ [], null, automatic, compensation }`.
+- Une compétence cochée est toujours ouverte ; en mode automatique elle s'ouvre si les 55 faits de base sont
+  familiers ou fluides **et** que son prérequis est rempli. Niveaux ouverts en séquence selon la porte (`all`, `seen`,
+  `familiar`).
 - `subtractionMethod` n'affecte que l'affichage et les indices, jamais la correction.
 
 ### 3.2 Exercices
 
-- 11 compétences, 3 parcours (additions, grands nombres, fractions) ; clés et générateurs identiques à l'existant
-  (`add:a:b`, `sub:t:p`, `numeration:*`, `nearten:*`, `column:*`, `frac:*`).
+- 11 compétences, 3 parcours ; clés, générateurs, `expectedAnswer`, `isExerciseWellFormed`, `isProductionExercise`,
+  `validateExerciseAttempt` identiques à l'existant.
 - Types : `arithmetic`, `column`, `fraction-read` (lire / construire), `fraction-equal`, `fraction-pick`,
   `fraction-line` (lire / placer), `fraction-compare`, `fraction-operation` (dont histoire).
-- Réponses : `integer`, `fraction` (avec entier 0..2), `comparison`, `tick`, `selection`.
-- Réponses équivalentes acceptées pour les fractions (produit en croix).
-- `isProductionExercise`, `isExerciseWellFormed`, `expectedAnswer`, `validateExerciseAttempt` : identiques.
+- Réponses : `integer`, `fraction` (entier 0..2), `comparison`, `tick`, `selection`. Équivalences de fractions acceptées.
 
 ### 3.3 Séance
 
-- Questions × et ÷ : tuiles (4 choix, distracteurs `choicesFor`) tant que le fait n'est pas familier, puis pavé.
-- Une erreur insère une copie de la question 3 places plus loin et retire la dernière (longueur constante).
-- Latence mesurée (seuils : 3 s pour ×/÷, 4 s pour +/−, aucun pour les colonnes) ; jamais affichée.
-- Astuces multiplication : rangées, commutativité, pont depuis un fait fluide (ancres 10, 5, 2, 1, 12, 11, 9, 8, 7, 6, 4, 3).
-- Astuces des parcours : cadres de dix, sauts, blocs base 10, doubles/moitiés, colonne par colonne, plates-bandes, règle.
+- Questions × et ÷ : tuiles (4 choix) tant que le fait n'est pas familier, puis pavé.
+- Erreur : copie de la question 3 places plus loin, dernière question retirée (longueur constante).
+- Latence mesurée (3 s pour ×/÷, 4 s pour +/−, aucune limite pour les colonnes) ; jamais affichée à l'enfant.
+- Astuces : rangées, commutativité, pont depuis un fait fluide (ancres 10, 5, 2, 1, 12, 11, 9, 8, 7, 6, 4, 3) ;
+  parcours : cadres de dix, sauts, blocs base 10, doubles/moitiés, colonne par colonne, plates-bandes, règle.
+  **Changement assumé** : l'astuce de la droite graduée ne révèle plus la position exacte (board 05b).
 
 ### 3.4 Composition des séances
 
-- Arrosage du jour : budget `min(8, max(5, dus_ou_fragiles))` points ; max 2 opérations posées ; max 2 familles
+- Arrosage du jour : budget `min(8, max(5, dus_ou_fragiles))` points ; ≤ 2 opérations posées ; ≤ 2 familles
   d'interaction ; focus école ≈ moitié des points.
 - Séances alternatives : 5 rapides ; focus table (8) ; 11·12 (8) ; division (6) ; compétence (8, ou 9 pour une colonne).
-- RNG : LCG `state = state * 1664525 + 1013904223 (mod 2³²)`, Fisher-Yates depuis la fin. **Bit-exact** avec
-  l'implémentation actuelle (vecteurs dorés, §8.2).
-- Correction prévue (board 12) : la limite « ≤ 2 nouveaux éléments par séance » de la spec CE2 sera tenue dans tous les cas.
-  Ce changement est versionné (`algorithmVersion: "2"`) et documenté dans les notes de version.
+- RNG : LCG `state = state × 1664525 + 1013904223 (mod 2³²)`, Fisher-Yates depuis la fin. **Bit-exact** (§7.2).
+- La limite « ≤ 2 nouveaux éléments par séance » de la spec CE2 n'est pas tenue par le code actuel. Le lot 1 reproduit
+  le comportement actuel (`algorithmVersion: "1"`). La correction est une décision séparée, après parité, livrée
+  comme `algorithmVersion: "2"` avec ses propres vecteurs (§8.4).
 
 ### 3.5 Jardin et récompenses
 
@@ -178,18 +185,28 @@ périmètre et les garanties.
 ### 3.7 API du crate
 
 ```rust
-pub fn reduce(snapshot: &LearningSnapshot, attempts: &[AttemptEvent], tz: Tz) -> LearningSnapshot;
-pub fn create_session(input: &SessionInput, policy: &SessionPolicy) -> PracticeSession;
-pub fn answer(session: &PracticeSession, response: PracticeAnswer, at: Instant, event_id: Uuid) -> AnswerOutcome;
-pub fn derive_practice_rhythm(..) -> PracticeRhythm;
-pub fn derive_learning_progress(..) -> LearningProgress;
-pub fn derive_garden_progress(..) -> GardenProgress;
-pub fn derive_rewards(..) -> Vec<Reward>;
+pub type UnixMillis = i64;          // horodatage UTC
+pub type DayKey = String;           // "YYYY-MM-DD", calculé par l'appelant dans le fuseau du learner
+
+pub fn reduce(snapshot: &LearningSnapshot, attempts: &[AttemptEvent]) -> LearningSnapshot;
+pub fn create_session(input: &SessionInput, policy: &SessionPolicy, now: UnixMillis, today: &DayKey, seed: u32) -> PracticeSession;
+pub fn answer(session: &PracticeSession, response: &PracticeAnswer, at: UnixMillis, day: &DayKey, event_id: &str) -> AnswerOutcome;
 pub fn validate_attempt(attempt: &AttemptEvent) -> Result<(), AttemptRejection>;
+pub fn derive_open_skills(..) / derive_path_progress(..) / derive_learning_progress(..);
+pub fn derive_practice_rhythm(.., today: &DayKey) -> PracticeRhythm;
+pub fn derive_garden_reward_ledger(..) / merge_garden_reward_ledgers(..) / derive_garden_progress(..) / derive_rewards(..);
+pub fn derive_session_insight(..) / derive_rescue_strategies(..);
+pub fn derive_insights(attempts: &[AttemptEvent], range_days: u16, today: &DayKey) -> ParentInsights;   // §5.6
 ```
 
-Contraintes : pas d'I/O, pas d'horloge ni d'aléa implicites (passés en paramètres), fuseaux via `chrono-tz`,
-dates en millisecondes UTC à la frontière WASM.
+Contraintes :
+
+- pas d'I/O, pas d'horloge ni d'aléa implicites ; `seed`, `now`, `today` et `event_id` sont fournis par l'appelant ;
+- **aucune base de fuseaux horaires dans le WASM** : les clés de jour sont calculées côté client avec `Intl`
+  (comportement actuel, `learningDayKey` est déjà stocké dans chaque événement). Le serveur n'a besoin de fuseaux que
+  pour les rappels (`chrono-tz`, natif uniquement, feature-gated) ;
+- `reduce` applique les événements dans l'ordre fourni ; c'est l'appelant qui trie par `(answeredAt, sequence)` (§5.4) ;
+- `AttemptEvent` gagne un champ optionnel `algorithmVersion` (défaut `"1"` à la lecture d'anciens événements).
 
 ---
 
@@ -197,62 +214,72 @@ dates en millisecondes UTC à la frontière WASM.
 
 ### 4.1 Services Effect
 
-| Service (`Context.Tag`)                   | Rôle                                                                                                |
-| ----------------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `DomainEngine`                            | Façade typée du WASM ; chargement paresseux, `Effect.cached`.                                       |
-| `LocalStore`                              | Base IndexedDB par profil ; transactions ; erreurs taguées (`StoreDecodeError`, `QuotaExceeded`).   |
-| `PracticeService`                         | Démarrer, répondre, reprendre, terminer une séance (transactionnel).                                |
-| `SyncService`                             | Vider les outbox, bootstrap, fusion, renouvellement de session. `Schedule` exponentiel avec jitter. |
-| `AuthService`                             | Statut, grant hors-ligne, connexion, déconnexion, choix du prénom.                                  |
-| `ProfileService`                          | Profils, profil actif, réglages de parcours.                                                        |
-| `ReminderService`                         | Permission, abonnement push, locale et fuseau.                                                      |
-| `PwaService`                              | Enregistrement du SW, mises à jour, récupération après erreur.                                      |
-| `I18n`, `Sound`, `Haptics`, `Preferences` | Préférences appareil.                                                                               |
+| Service             | Rôle                                                                                                     |
+| ------------------- | -------------------------------------------------------------------------------------------------------- |
+| `DomainEngine`      | Façade typée du WASM, chargement paresseux, `Effect.cached`.                                             |
+| `LocalStore`        | IndexedDB par profil ; transactions ; erreurs taguées (`StoreDecodeError`, `QuotaExceeded`).             |
+| `PracticeService`   | Démarrer, répondre, reprendre, terminer une séance (transactionnel).                                     |
+| `SyncService`       | Vider les outbox, bootstrap, fusion, renouvellement. `Schedule` exponentiel avec jitter, plafonné.       |
+| `AuthService`       | Statut, grant hors-ligne, connexion, déconnexion, onboarding du prénom.                                  |
+| `ProfileService`    | Profils, profil actif, réglages scolaires, heure de rappel.                                              |
+| `ParentLockService` | Définir / vérifier / réinitialiser le code parent, cache hors-ligne (§6.4).                              |
+| `ReminderService`   | Permission, abonnement push, locale et fuseau.                                                           |
+| `PwaService`        | Enregistrement du SW, mises à jour, récupération après erreur, installation.                             |
+| `Preferences`       | Réglages appareil : langue, son, apparence, taille du texte, cartes vues (localStorage, schémas Effect). |
+| `I18n`, `Sound`     | Catalogues et carillon.                                                                                  |
 
-Le runtime est un `ManagedRuntime` unique ; les tests remplacent les couches (Layer) par des doubles en mémoire.
+Le runtime est un `ManagedRuntime` unique ; les tests remplacent les couches par des doubles en mémoire. Pas de
+service « haptique » : `navigator.vibrate` est appelé en best-effort depuis `Sound` et n'est jamais porteur
+d'information.
 
 ### 4.2 Modèle de données local (IndexedDB)
 
 Base `little-tables-v3:{profileId}` :
 
-- `events` : `&eventId, sessionId, answeredAt` (événements de réponse immuables) ;
+- `events` : `&eventId, sessionId, [sessionId+sequence], answeredAt` ;
 - `outbox` : `&eventId, createdAt` ;
-- `state` : `&id` (séance active, snapshot, dernière complétion, ledger, collection, jours) ;
-- `meta` : versions d'algorithme et de schéma.
+- `state` : une ligne `current` (séance active, snapshot, dernière complétion, ledger, collection, jours) ;
+- `meta` : `algorithmVersion`, `schemaVersion`, compteur et dernières raisons des événements rejetés par le serveur.
 
-Les écritures d'une réponse (event + outbox + état) sont **atomiques**.
+Les écritures d'une réponse (événement + outbox + état) sont **atomiques** (une transaction Dexie).
+
+Hors base : `little-tables:preferences` (langue, son, apparence, taille du texte), `little-tables:active-profile`,
+`little-tables:profiles-cache`, `little-tables:auth-grant`, `little-tables:parent-lock`, `little-tables:seen-cards`.
 
 ### 4.3 Sync
 
 - Déclencheurs : démarrage (+1,5 s), retour en ligne, retour au premier plan, fin de séance.
-- Étapes : vider l'outbox de **tous** les profils (lots de 100), `GET /bootstrap` du profil actif, fusion, renouvellement.
+- Étapes, dans l'ordre : (1) vider l'outbox de **tous** les profils par lots de 100 ; (2) seulement si toutes les
+  outbox sont vides, `GET /profiles/{id}/bootstrap` du profil actif et fusion ; (3) `POST /auth/refresh`.
 - Fusion : snapshot serveur gagnant ; `completedSessions` = max ; ledger = max + union ; collection serveur gagnante ;
   jours = union ; séance active locale conservée.
-- Acquittement : acceptés, doublons et rejetés sont retirés de l'outbox ; les rejets sont journalisés (télémétrie §7.3).
-- 401 → re-verrouillage de l'app (grant invalidé).
-- Indicateur de sync visible **uniquement dans l'espace parent** (l'enfant voit au plus « enregistré »).
+- Acquittement : acceptés, doublons et rejetés sont retirés de l'outbox ; les rejets sont comptés dans `meta` et
+  visibles dans l'espace parent (ligne « Synchronisation »).
+- 401 → grant invalidé, retour à l'écran de connexion. 403 sur un profil → profil retiré du cache local.
+- L'enfant ne voit jamais l'état de sync ; le parent voit « À jour », « En attente (n) » ou « Erreur ».
 
 ### 4.4 Session hors-ligne
 
-Grant local `{displayName, profileId, expiresAt, nameChoiceRequired}` décodé par schéma ; ouvre l'app sans réseau
+Grant local `{displayName, profileId, expiresAt, nameChoiceRequired}` validé par schéma ; ouvre l'app sans réseau
 jusqu'à expiration ; effacé à la déconnexion ou si le serveur répond « déconnecté ».
 
 ### 4.5 PWA
 
-- Workbox `injectManifest` : précache des bundles et des illustrations critiques du personnage actif, images en
-  CacheFirst, API jamais en cache.
-- Mises à jour : vérification toutes les 60 s quand visible + focus/online ; invite non bloquante ; écran de
-  récupération (mise à jour du SW + rechargement) branché sur l'error boundary du routeur.
-- Manifestes localisés (fr, en, zh-Hans), `display: standalone`, portrait, icônes masquables, captures d'écran.
-- Installation : instructions iOS (Partager → Sur l'écran d'accueil) + `beforeinstallprompt` ailleurs.
+- Workbox `injectManifest` : précache des bundles, du `.wasm` (hash dans le nom) et des illustrations du personnage
+  par défaut ; autres images en CacheFirst ; API jamais en cache.
+- Mises à jour : vérification toutes les 60 s quand visible + focus/online ; bannière non bloquante (maquette B5) ;
+  écran de récupération (B4) branché sur l'error boundary du routeur.
+- Manifestes localisés (fr, en, zh-Hans), `display: standalone`, portrait, icônes masquables.
+- Installation : instructions iOS + `beforeinstallprompt` ailleurs, depuis l'espace parent et une fois en bannière
+  après la première séance.
 - Push : affichage localisé, clic → focus ou ouverture.
 
 ### 4.6 Migration des données appareil
 
-Au premier lancement de la nouvelle version : lecture des bases `little-tables-v1` (profil historique « lou ») et
-`little-tables-v2:{id}`, copie des événements et de l'outbox vers `v3`, conservation des clés `localStorage`
-existantes (locale, son, profil actif, cartes vues) sous leurs nouveaux noms. Les anciennes bases sont supprimées
-seulement après une sync réussie.
+Au premier lancement de la nouvelle PWA : lecture des bases `little-tables-v1` (profil « lou ») et
+`little-tables-v2:{id}`, copie des événements et de l'outbox vers `v3`, reprise des clés `localStorage` existantes
+sous leurs nouveaux noms. Les anciennes bases ne sont supprimées qu'après une sync réussie. **Livrée avec la
+première version de la nouvelle PWA (lot 3)**, sinon les événements non synchronisés des appareils seraient perdus.
 
 ---
 
@@ -260,116 +287,149 @@ seulement après une sync réussie.
 
 ### 5.1 Configuration
 
-Variables reprises à l'identique : `PORT`, `HOST`, `SESSION_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_ALLOWED_EMAILS`,
-`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `APP_REVISION`. Nouvelles : `DATABASE_PATH`
-(par défaut `/var/lib/little-tables/little-tables.db`), `ADMIN_EMAILS` (remplace l'email codé en dur), `RUST_LOG`.
-Retirées : `MONGODB_URI`, `MONGODB_DATABASE`, `WEB_DIST_PATH` (la PWA est embarquée dans le binaire, `rust-embed`).
-Démarrage refusé en production si une variable obligatoire manque (mode éphémère explicite pour les tests de fumée).
+| Variable                                | Rôle                                                                                                     |
+| --------------------------------------- | -------------------------------------------------------------------------------------------------------- |
+| `PORT`, `HOST`                          | Écoute (défaut `127.0.0.1:32140` en production)                                                          |
+| `PUBLIC_ORIGIN`                         | **Nouveau.** `https://math.leaetzak.love` ; sert aux vérifications d'origine et à VAPID                  |
+| `DATABASE_PATH`                         | **Nouveau.** Défaut `/var/lib/little-tables/little-tables.db`                                            |
+| `SESSION_SECRET`, `GOOGLE_CLIENT_ID`    | Inchangés                                                                                                |
+| `ADMIN_EMAILS`                          | **Nouveau.** Remplace l'email codé en dur                                                                |
+| `GOOGLE_ALLOWED_EMAILS`                 | Inchangé (liste blanche d'amorçage)                                                                      |
+| `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY` | Inchangés (`VAPID_SUBJECT` dérivé de `PUBLIC_ORIGIN`)                                                    |
+| `APP_REVISION`, `RUST_LOG`              | Révision affichée par `/health/ready` ; niveau de logs                                                   |
+| `AUTH_MODE=disabled`                    | **Nouveau.** Identité de développement sans Google ; refusé si `NODE_ENV`-équivalent `LT_ENV=production` |
 
-### 5.2 Authentification
+Retirées : `MONGODB_URI`, `MONGODB_DATABASE`, `WEB_DIST_PATH` (PWA embarquée via `rust-embed`),
+`LITTLE_TABLES_UNSAFE_EPHEMERAL` (remplacée par `LT_ENV=smoke`). En production, toute variable obligatoire manquante
+empêche le démarrage.
 
-- Connexion Google : vérification de l'ID token (JWKS Google mis en cache, audience = client ID, `email_verified`).
-- Sign in with Apple : hors périmètre de la réécriture ; le modèle d'identité (sujet + fournisseur) le permettra plus tard.
-- Allowlist : admins (`ADMIN_EMAILS`) → bloqués en base → env → base. Retirer un email incrémente `sessionVersion`.
-- Session : cookie `little-tables-session` HttpOnly, Secure, SameSite=Lax, 30 jours, HMAC-SHA256, renouvelé à la sync.
-  Format conservé pour ne pas déconnecter les utilisateurs au déploiement.
-- **Nouveau** : `POST /api/v2/auth/logout` ; vérification `Origin`/`Sec-Fetch-Site` sur toutes les requêtes
-  mutantes ; jeton CSRF double-submit.
-- Choix du prénom au premier login (atomique sur `onboardingComplete`).
+### 5.2 Authentification et sécurité des requêtes
+
+- Connexion Google : vérification de l'ID token (JWKS Google en cache, audience = client ID, `email_verified`).
+- Allowlist : admins (`ADMIN_EMAILS`) → bloqués en base → env → base. Retirer un email incrémente `session_version`.
+- Session : cookie `little-tables-session` HttpOnly, Secure, SameSite=Lax, 30 jours, HMAC-SHA256, renouvelé par
+  `POST /auth/refresh`. Format conservé pour ne pas déconnecter les familles au déploiement.
+- **Déconnexion** : `POST /auth/logout` efface le cookie (et le client efface grant, cache profils et code parent).
+  Le cookie reste stateless ; une révocation globale passe par `session_version` (retrait de l'email).
+- **Protection CSRF**, simple et suffisante pour une SPA même origine : chaque requête mutante doit porter l'en-tête
+  `X-Little-Tables: 1` (un navigateur ne l'ajoute jamais à une requête cross-site simple) **et** un `Origin` ou
+  `Sec-Fetch-Site` compatible avec `PUBLIC_ORIGIN`. Pas de jeton double-submit.
+- Onboarding : `POST /family/onboarding {name}` crée le premier enfant (atomique sur `onboarding_complete`).
 
 ### 5.3 Endpoints (`/api/v2`)
 
-| Méthode         | Chemin                                       | Rôle                                                     |
-| --------------- | -------------------------------------------- | -------------------------------------------------------- |
-| GET             | `/health/live`, `/health/ready`              | Santé (contrat identique : `revision`, `status`)         |
-| GET             | `/auth/status`                               | Statut, `isAdmin`, `googleClientId`, expiration          |
-| POST            | `/auth/google` · `/auth/logout`              | Connexion · déconnexion                                  |
-| PUT             | `/profile/name`                              | Prénom initial                                           |
-| GET/POST        | `/family/profiles`                           | Lister · créer un profil                                 |
-| PATCH/DELETE    | `/family/profiles/{id}`                      | Modifier · retirer (dernier profil interdit)             |
-| PUT             | `/family/profiles/{id}/learning-paths`       | Réglages scolaires                                       |
-| POST            | `/family/parent-lock`                        | Définir / vérifier le code parent (§6.4)                 |
-| GET             | `/profiles/{id}/bootstrap`                   | État complet du profil                                   |
-| POST            | `/profiles/{id}/attempts:sync`               | Ingestion d'événements (≤ 100)                           |
-| POST            | `/profiles/{id}/garden/introduction-seen`    | Carte d'intro vue                                        |
-| GET             | `/notifications/config`                      | Clé publique VAPID, heure du rappel                      |
-| POST/DELETE     | `/profiles/{id}/notifications/subscriptions` | Abonner · désabonner                                     |
-| GET/POST/DELETE | `/admin/allowed-emails`                      | Liste d'accès (admins)                                   |
-| GET             | `/*`                                         | PWA, redirections de navigation, `index.html` sans cache |
+| Méthode      | Chemin                                            | Rôle                                                                          |
+| ------------ | ------------------------------------------------- | ----------------------------------------------------------------------------- |
+| GET          | `/health/live`, `/health/ready`                   | Santé (`revision`, `status`)                                                  |
+| GET          | `/auth/status`                                    | Statut, `isAdmin`, `googleClientId`, expiration                               |
+| POST         | `/auth/google` · `/auth/logout` · `/auth/refresh` | Connexion · déconnexion · renouvellement                                      |
+| POST         | `/family/onboarding`                              | Prénom du premier enfant                                                      |
+| GET/POST     | `/family/profiles`                                | Lister · créer                                                                |
+| PATCH/DELETE | `/family/profiles/{id}`                           | Modifier (nom, avatar, `reminderMinute`) · retirer (dernier interdit)         |
+| PUT          | `/family/profiles/{id}/learning-paths`            | Réglages scolaires                                                            |
+| PUT          | `/family/parent-lock`                             | Définir ou changer le code (code courant requis s'il existe)                  |
+| POST         | `/family/parent-lock/verify`                      | Vérifier ; renvoie `{pinHashParams, pinSalt}` pour le cache hors-ligne (§6.4) |
+| DELETE       | `/family/parent-lock`                             | Réinitialiser ; exige un ID token Google frais dans le corps                  |
+| GET          | `/profiles/{id}/bootstrap`                        | État complet du profil                                                        |
+| POST         | `/profiles/{id}/attempts`                         | Ingestion d'un lot d'événements (≤ 100)                                       |
+| POST         | `/profiles/{id}/garden/introduction-seen`         | Carte d'intro vue                                                             |
+| GET          | `/profiles/{id}/insights?range=7d\|30d`           | Vue parent des difficultés (§5.6)                                             |
+| GET          | `/notifications/config`                           | Clé publique VAPID uniquement                                                 |
+| POST/DELETE  | `/profiles/{id}/notifications/subscriptions`      | Abonner · désabonner (`DELETE …/subscriptions/{endpoint}`)                    |
+| GET/POST     | `/admin/allowed-emails`                           | Lister · ajouter (admins, sinon 403)                                          |
+| DELETE       | `/admin/allowed-emails/{email}`                   | Retirer (409 pour un admin)                                                   |
+| GET          | `/*`                                              | PWA ; redirections de navigation `/` ↔ `/sign-in` ; `index.html` sans cache   |
 
-Le profil passe dans le chemin (et non plus dans un en-tête). `/api/v1` reste servi pendant la transition par une
-couche d'adaptation, puis est retiré.
+Le profil passe dans le chemin. Les préférences d'appareil (langue, son, apparence, taille du texte) ne sont pas
+synchronisées ; l'heure de rappel l'est (champ du profil).
+
+**Adaptateur `/api/v1`** (lots 2 → 5) : le serveur Rust sert aussi le contrat v1 actuel à l'identique (mêmes chemins,
+même en-tête `x-little-tables-profile-id`, même JSON de bootstrap), pour que la PWA actuelle fonctionne sans
+changement pendant la transition. Il est validé en rejouant la suite de tests existante d'`apps/web` contre le serveur
+Rust (§7.2).
 
 ### 5.4 Ingestion et bootstrap
 
-- Validation par `lt-domain::validate_attempt` (mêmes raisons : `duplicate_in_batch`, `invalid_answer`,
-  `inconsistent_attempt`) ; `INSERT … ON CONFLICT(event_id) DO NOTHING` dans une seule transaction par lot.
-- **Nouveau** : projection incrémentale `learning_snapshots` (snapshot + dernier événement traité) mise à jour dans
-  la même transaction que l'ingestion ; le bootstrap ne rejoue plus tout l'historique. Recalcul complet possible
-  (`little-tables admin rebuild-snapshots`) et vérifié en CI sur des historiques synthétiques.
+- Validation par `lt-domain::validate_attempt` (raisons inchangées : `duplicate_in_batch`, `invalid_answer`,
+  `inconsistent_attempt`). Insertion `ON CONFLICT(event_id) DO NOTHING` dans une transaction par lot ; les conflits
+  sont renvoyés en `duplicates`.
+- **Durcissement** : contrainte unique `(profile_id, session_id, sequence)`. Un second événement pour le même rang
+  d'une même séance (cas : séance reprise sur deux appareils) est rejeté avec la raison `duplicate_sequence`. C'est un
+  comportement nouveau, documenté dans les notes de version.
+- **Projection incrémentale** `learning_snapshots` : chaque profil garde son snapshot et un filigrane
+  `(last_answered_at, last_sequence)`. À l'ingestion, dans la même transaction :
+  - si tous les nouveaux événements sont postérieurs au filigrane, ils sont appliqués par `reduce` dans l'ordre
+    `(answered_at, sequence)` (chemin rapide) ;
+  - sinon (événement en retard venu d'un autre appareil), le snapshot est recalculé depuis zéro pour ce profil
+    (quelques milliers d'événements au plus, quelques millisecondes).
+    Le résultat est ainsi toujours identique à un recalcul complet, ce que la CI vérifie sur des historiques
+    synthétiques désordonnés. `little-tables admin rebuild-snapshots` recalcule tout.
+- Bootstrap : lecture du snapshot, du ledger et de la collection ; aucun rejeu.
 
 ### 5.5 Rappels Web Push
 
-- Worker tokio toutes les 60 s, non réentrant ; envoi si heure locale ≥ 18 h, jour ≠ dernier envoi, et aucune
-  réponse ce jour-là ; TTL 6 h ; 404/410 → suppression.
-- Crate `web-push` (VAPID) ; textes localisés fr / en / zh-Hans.
-- **Nouveau** : heure du rappel réglable **par enfant** dans l'espace parent (par défaut 18 h, pas de 15 min,
-  plage 7 h – 21 h) ; stockée sur l'abonnement et sur le profil ; `GET /notifications/config` renvoie l'heure du profil.
+- Worker tokio toutes les 60 s, non réentrant ; par abonnement : envoi si `heure locale ≥ reminder_minute du profil`,
+  jour local ≠ dernier envoi, et aucune réponse ce jour-là ; TTL 6 h ; 404/410 → suppression.
+- Le fuseau reste par abonnement (celui de l'appareil) ; l'heure de rappel est **par profil** (`profiles.reminder_minute`,
+  défaut 18 h 00, pas de 15 min, plage 7 h – 21 h, `null` = désactivé). Le worker fait la jointure ; rien n'est dupliqué
+  sur l'abonnement.
+- Textes localisés fr / en / zh-Hans ; `tag` par jour.
 
-### 5.5 bis Vue parent des difficultés
+### 5.6 Vue parent des difficultés
 
-Endpoint `GET /profiles/{id}/insights?range=7d|30d` calculé par `lt-domain` à partir des événements :
+`GET /profiles/{id}/insights?range=7d|30d`, calculé par `lt-domain::derive_insights` à partir des événements de la
+période :
 
-- faits et compétences qui posent problème (taux d'erreur, rechutes `lapseCount`, faits lents), avec les erreurs
-  typiques (réponse donnée vs attendue) ;
-- régularité (jours pratiqués, semaines fleuries) et temps passé (somme des latences plafonnées par question) ;
-- progression des états de maîtrise sur la période (nouveaux familiers / fluides).
+- faits et compétences à retravailler : taux d'erreur ≥ 40 % sur ≥ 3 réponses, rechutes (`lapseCount`), faits lents
+  (latence médiane au-dessus du seuil), avec la réponse fausse la plus fréquente ;
+- régularité : jours pratiqués, semaines fleuries ; temps : somme des latences plafonnées à 30 s par question ;
+- progression : faits devenus familiers / fluides sur la période ; « bien parti » = tables et compétences entièrement
+  enracinées.
 
-Affichée uniquement dans l'espace parent ; jamais de score ni de comparaison entre enfants.
+Réservé à l'espace parent ; jamais de score ni de comparaison entre enfants.
 
-### 5.6 Stockage : SQLite
+### 5.7 Stockage : SQLite
 
-Choix (5 octobre 2026) : **SQLite** via `sqlx` (requêtes vérifiées à la compilation, migrations versionnées dans
-`crates/lt-store/migrations`). Cohérent avec la majorité des services du VPS (Love Letters, Loup-Garou, Raclettefin,
-Observatory, dashboard Prodigium) ; dimensionné pour un usage familial (un écrivain à la fois, quelques profils).
+`sqlx` avec requêtes vérifiées à la compilation ; migrations versionnées dans `crates/lt-store/migrations`.
+Réglages : `journal_mode=WAL`, `synchronous=NORMAL`, `foreign_keys=ON`, `busy_timeout=5000` ; une connexion
+d'écriture, un pool de lecture.
 
-Réglages : `journal_mode=WAL`, `synchronous=NORMAL`, `foreign_keys=ON`, `busy_timeout=5000` ; un pool d'écriture
-d'une connexion, plusieurs lecteurs.
+| Table                | Colonnes principales                                                                                                                                                    | Contraintes / index                                                                           |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| `families`           | `google_subject` PK, `onboarding_complete`, `created_at`, `updated_at`                                                                                                  |                                                                                               |
+| `profiles`           | `id` PK (UUID, ou `lou` pour le profil historique), `family_subject` FK, `name`, `avatar_id`, `learning_paths` JSON, `reminder_minute` NULL, `created_at`, `updated_at` | index `family_subject`                                                                        |
+| `attempt_events`     | `event_id` PK, `profile_id` FK, `session_id`, `sequence`, `answered_at`, `learning_day_key`, `fact_key`, `payload` JSON, `received_at`                                  | index `(profile_id, answered_at, sequence)` ; **unique `(profile_id, session_id, sequence)`** |
+| `learning_snapshots` | `profile_id` PK, `algorithm_version`, `snapshot` JSON, `last_answered_at`, `last_sequence`, `updated_at`                                                                |                                                                                               |
+| `garden_collections` | `profile_id` PK, `awarded_flower_ids` JSON, `flower_order` JSON, `bloom_count`, `rewarded_day_keys` JSON, `introduction_seen`, `catalog_version`                        |                                                                                               |
+| `allowed_emails`     | `email` PK, `status`, `session_version`, `added_at`, `added_by`, `removed_at`, `removed_by`                                                                             |                                                                                               |
+| `push_subscriptions` | `endpoint` PK, `profile_id` FK, `keys_auth`, `keys_p256dh`, `expiration_time`, `locale`, `timezone`, `last_sent_day_key`, `updated_at`                                  | index `profile_id`                                                                            |
+| `parent_locks`       | `family_subject` PK, `pin_hash` (Argon2id), `pin_salt`, `failed_attempts`, `locked_until`, `updated_at`                                                                 |                                                                                               |
 
-Schéma :
-
-| Table                | Colonnes principales                                                                                                                                      | Contraintes / index                                                                                |
-| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
-| `families`           | `google_subject` PK, `onboarding_complete`, `schema_version`, `updated_at`                                                                                |                                                                                                    |
-| `profiles`           | `id` PK (UUID ou `lou`), `family_subject` FK, `name`, `avatar_id`, `learning_paths` (JSON), `reminder_minute`, `created_at`, `updated_at`                 | index `family_subject`                                                                             |
-| `attempt_events`     | `event_id` PK, `profile_id` FK, `session_id`, `sequence`, `answered_at`, `learning_day_key`, `fact_key`, `payload` (JSON `AttemptEvent`), `received_at`   | index `(profile_id, answered_at, sequence)`, unique `(profile_id, session_id, sequence, event_id)` |
-| `learning_snapshots` | `profile_id` PK, `algorithm_version`, `snapshot` (JSON), `last_event_rowid`, `updated_at`                                                                 |                                                                                                    |
-| `garden_collections` | `profile_id` PK, `awarded_flower_ids`, `flower_order`, `bloom_count`, `rewarded_day_keys` (JSON), `introduction_seen`, `catalog_version`                  |                                                                                                    |
-| `allowed_emails`     | `email` PK, `status`, `session_version`, `added_at`, `added_by`, `removed_at`, `removed_by`                                                               |                                                                                                    |
-| `push_subscriptions` | `endpoint` PK, `profile_id` FK, `keys_auth`, `keys_p256dh`, `expiration_time`, `locale`, `timezone`, `reminder_minute`, `last_sent_day_key`, `updated_at` | index `profile_id`                                                                                 |
-| `parent_locks`       | `family_subject` PK, `pin_hash` (Argon2id), `failed_attempts`, `locked_until`                                                                             |                                                                                                    |
-
-L'`event_id` reste globalement unique (comportement actuel). Les règles métier des repositories Mongo actuels sont
-reprises : dernier profil non supprimable, profil « lou » réservé à l'admin, avatars inconnus → `sprout`, ordre des
-fleurs avec préfixe historique puis mélange.
+Toutes les clés étrangères vers `profiles` sont `ON DELETE CASCADE` : retirer un enfant supprime ses événements,
+son snapshot, son jardin et ses abonnements (le dialogue dit « définitif », le serveur fait pareil). Règles reprises
+des repositories actuels : dernier profil non supprimable, `lou` réservé à l'admin, avatar inconnu → `sprout`, ordre
+des fleurs = préfixe historique puis mélange.
 
 **Migration depuis MongoDB** (une seule fois, lot 2) :
 
-1. Sauvegarde `mongodump` de la base de production + copie hors VPS.
-2. `little-tables admin import-mongo --uri … --database little_tables` : lit chaque collection, applique les
-   migrations paresseuses existantes (document historique → famille v2, avatars), écrit dans SQLite en transaction.
-3. Vérifications automatiques : nombres de documents par collection, recalcul des snapshots et comparaison du
-   bootstrap JSON (ancien serveur vs nouveau) pour chaque profil ; échec = pas de bascule.
-4. Bascule (fenêtre courte, outbox des appareils conservée : aucune perte), Mongo arrêté mais conservé 30 jours,
-   puis retrait du conteneur, du volume et des Quadlets après accord explicite.
+1. `mongodump` de la production + copie hors VPS.
+2. `little-tables admin import-mongo --uri … --database little_tables` : applique les migrations paresseuses actuelles
+   (document historique → famille v2, avatars) et écrit dans SQLite en une transaction. Les événements qui violeraient
+   la contrainte `(profile_id, session_id, sequence)` sont importés **sans** la contrainte (ajoutée après, en ignorant
+   les doublons historiques listés dans le rapport d'import).
+3. Vérifications : comptages par collection ; pour chaque profil, bootstrap JSON de l'ancien serveur = bootstrap JSON
+   de l'adaptateur v1 Rust. Échec = pas de bascule.
+4. Bascule courte (les outbox des appareils absorbent la fenêtre) ; Mongo arrêté mais conservé 30 jours ; retrait
+   du conteneur, du volume et des Quadlets après accord explicite.
 
-Sauvegardes : `sqlite3 .backup` (jamais de copie du seul fichier principal en WAL) avant chaque déploiement et
-quotidiennement par un timer systemd, avec rotation et copie hors VPS.
+Sauvegardes : `sqlite3 .backup` avant chaque déploiement et chaque nuit (timer systemd), rotation 14 jours, copie
+hors VPS.
 
-### 5.7 Observabilité et sécurité
+### 5.8 Observabilité et limites
 
-- `tracing` + JSON structuré, identifiant de requête, durée, statut ; pas d'emails ni de jetons dans les logs.
-- Limites : taille de corps, débit par IP sur `/auth/*`, timeouts.
+- `tracing` JSON : identifiant de requête, route, durée, statut ; jamais d'email, de jeton ni de code parent.
+- Limites : taille de corps (256 Ko), débit par IP sur `/auth/*` et `/family/parent-lock/verify` (IP lue dans
+  `X-Forwarded-For` uniquement si la connexion vient de la boucle locale, c'est-à-dire de Caddy), timeouts.
 - En-têtes de sécurité conservés dans Caddy (CSP compatible Google Identity Services, HSTS, COOP).
 
 ---
@@ -378,72 +438,102 @@ quotidiennement par un timer systemd, avec rotation et copie hors VPS.
 
 ### 6.1 Principes (HIG)
 
-- **Clarté** : une intention principale par écran ; texte court ; pas de jargon technique pour l'enfant.
-- **Déférence** : l'illustration et le jardin servent le contenu, ils ne le recouvrent pas.
-- **Profondeur** : navigation par onglets + piles ; feuilles modales pour les choix secondaires ; transitions qui
-  expliquent la hiérarchie (push/pop, feuille qui monte).
-- Zones tactiles ≥ 44 × 44 pt ; actions principales dans la moitié basse ; respect des safe areas
-  (`env(safe-area-inset-*)`) ; barre d'onglets en bas.
-- Typographie à base de rem pilotée par une échelle de type « Dynamic Type » (réglage de taille dans l'app + taille
-  système) ; contraste AA minimum, AAA pour les nombres des exercices.
-- Mode clair et sombre ; `prefers-reduced-motion` et `prefers-reduced-transparency` respectés.
-- Retour multisensoriel : visuel + son (optionnel) + haptique quand disponible (limité sur iOS Safari, voir §6.5).
+- **Clarté** : une intention principale par écran ; texte court ; aucun jargon technique côté enfant.
+- **Déférence** : illustrations et jardin servent le contenu sans le recouvrir.
+- **Profondeur** : onglets + piles ; feuilles pour les choix secondaires ; transitions push/pop et feuille qui monte.
+- Zones tactiles ≥ 44 × 44 pt ; action principale dans la moitié basse ; safe areas ; barre d'onglets flottante en bas.
+- Typographie Nunito (arrondie, proche de SF Rounded) sur une échelle en `rem` ; taille réglable dans l'espace parent
+  (Safari iOS n'applique pas Dynamic Type aux PWA) ; contraste AA, AAA pour les nombres des exercices.
+- Clair et sombre (tokens du board R0) ; `prefers-reduced-motion` et `prefers-reduced-transparency` respectés.
+- Retour multisensoriel : visuel + son optionnel ; haptique best-effort.
 
-### 6.2 Architecture d'information proposée
+### 6.2 Architecture d'information (maquettes R1 à R5)
 
-Le redesign repart de zéro. Proposition de départ, à valider sur le canvas :
+- **Espace enfant**, barre d'onglets à 3 entrées :
+  - **Aujourd'hui** (A1–A4) : bouton principal en bas (« Arroser mon jardin » / « Reprendre » / « Petite séance bonus »),
+    plante en cours, semaine fleurie ; « Autres séances » en feuille (A5) ; pastille profil en haut à gauche → feuille
+    « Qui joue ? » (A6) ; cadenas en haut à droite → espace parent.
+  - **Jardin** (D2) : scène d'un chapitre, balayage horizontal entre chapitres, jardinier derrière la rangée de pots,
+    pots vides cadenassés pour les plantes verrouillées ; herbier (D3) en pile ; règles (D4) en feuille.
+  - **Progrès** (D5) : résumé, grille des tables, chemins ; détail d'une table (D6) en pile.
+- **Séance** (C1–C10) : plein écran ; question en haut, panneau de réponse en bas avec un **pavé unique** ; Miffy
+  accoudée au bord du panneau (§6.7) ; pause confirmée (C10).
+- **Célébration** (D1) → « Voir mon jardin ».
+- **Accès** (B1–B5) : connexion, prénom, hors-ligne, récupération, bannière de mise à jour.
+- **Espace parent** (E1–E9), derrière le code : enfants, réglages, compte ; profil d'un enfant ; « À l'école » ;
+  « Ce qui coince » ; ajout d'un enfant ; rappels et préférences ; « Qui peut entrer » (admins) ; retrait d'un enfant.
 
-- **Espace enfant** (par défaut), barre d'onglets à 3 entrées :
-  - **Aujourd'hui** : un seul bouton principal en bas (« Arroser mon jardin » / « Reprendre » / « Séance bonus »),
-    semaine fleurie compacte, accès aux autres séances par feuille.
-  - **Jardin** : jardin plein écran défilable, herbier en pile, règles en feuille d'aide.
-  - **Progrès** : résumé + liste des tables et parcours, détail en pile.
-  - Avatar en haut à gauche → feuille de changement de profil.
-- **Séance** : présentation plein écran (modale), sortie confirmée, progression lisible, clavier unifié en bas.
-- **Espace parent** (derrière un code parent) : famille et profils, ce que l'enfant apprend à l'école, rappels,
-  heure du rappel par enfant, **vue des difficultés** (§5.5 bis), langue, son, apparence (clair / sombre / système),
-  installation, état de la sync, liste d'accès (admins), déconnexion.
+Ce que le redesign déplace ou retire volontairement par rapport à l'existant :
 
-### 6.3 Écrans à concevoir (lot design)
+| Existant                                      | Redesign                                                                                  |
+| --------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| Langue et son sur l'accueil                   | Espace parent → Réglages                                                                  |
+| Carte rappel 18 h sur l'accueil               | Espace parent → profil de l'enfant (la permission push se demande sur l'appareil utilisé) |
+| Carte « nouveaux chemins »                    | Une feuille unique à l'ouverture des chemins, puis les chips de la feuille A5             |
+| Carte installation                            | Bannière une fois après la première séance + ligne « Installer » dans l'espace parent     |
+| Lien « gérer qui peut entrer »                | Espace parent → Compte (admins seulement)                                                 |
+| Statut de sync sur l'accueil                  | Espace parent → Synchronisation                                                           |
+| Pastille « n en progrès » en séance           | Retirée (la barre de progression suffit)                                                  |
+| 11·12 et ÷ dans l'onglet Progrès              | Chips « Bonus » de la feuille A5 ; l'onglet Progrès n'affiche que l'état                  |
+| Rideau de fleurs à chaque changement d'onglet | Conservé uniquement pour séance → célébration → jardin                                    |
+| Prévisualisation `?blooms=N`                  | Outil de dev uniquement                                                                   |
 
-Chaque écran est livré en clair et sombre, 320 / 390 / 430 pt de large, avec états vide, chargement, hors-ligne et erreur :
-connexion, prénom, hors-ligne sans session ; Aujourd'hui (1re visite, retour, arrosage fait, séance en cours) ;
-feuille « autres séances » ; séance (chaque type d'exercice, retour juste, retour encourageant, indice) ; célébration ;
-jardin, herbier, aide ; progrès et détails ; changement de profil ; espace parent (famille, profil, parcours, rappels,
-préférences, liste d'accès) ; mise à jour disponible ; écran de récupération.
+### 6.3 Maquettes : état et reste à faire
+
+Livrées (42 écrans, 390 × 844, clair, et 6 en sombre) : boards R1 à R5. Restent à dessiner avant ou pendant le lot 3,
+en réutilisant les composants existants :
+
+- séance : soustraction à trou, numération, presque-dizaines, soustraction posée, fraction à construire, égalité de
+  fractions et « coche toutes les égales », droite graduée en lecture, opération de fractions avec histoire ;
+- feuille « nouveaux chemins » ; écran « Mes chemins » (détail des compétences et niveaux) ;
+- espace parent : choix du personnage, sélecteur « en ce moment à l'école », sélecteur d'heure de rappel, taille du
+  texte, définir le code parent (première fois), code oublié ;
+- états : vide, chargement, erreur réseau de chaque écran ; largeurs 320 et 430 pt ; versions sombres restantes.
 
 ### 6.4 Code parent
 
-Code à 4 chiffres défini au premier accès à l'espace parent, vérifié côté serveur (haché Argon2id) et mis en cache
-localement (durée limitée) pour fonctionner hors-ligne. Récupération par reconnexion Google.
+- 4 chiffres, défini en ligne au premier appui sur le cadenas, haché Argon2id côté serveur.
+- **Hors-ligne** : après une vérification en ligne réussie, le client stocke un hachage local PBKDF2 (WebCrypto,
+  100 000 itérations, sel fourni par le serveur) du code ; la vérification hors-ligne se fait contre ce hachage. Le
+  serveur reste la référence ; changer le code invalide le cache à la prochaine sync.
+- Anti-force brute : 5 échecs → verrou 15 min (serveur et local). Réinitialisation : reconnexion Google (ID token frais)
+  puis nouveau code.
+- Une fois ouvert, l'espace parent reste déverrouillé 5 min ou jusqu'au retour à l'espace enfant.
 
 ### 6.5 Système de composants (`packages/ui`)
 
-Base shadcn/ui copiée dans le dépôt, puis adaptée. Tokens CSS (variables) consommés par Tailwind v4 :
-couleurs sémantiques (`--bg`, `--surface`, `--label`, `--secondary-label`, `--tint`, `--success`, `--warning`,
-`--destructive`, palette jardin), rayons, ombres, échelle typographique, durées et courbes d'animation.
+Tokens (noms identiques au board R0, en clair et sombre) : `bg`, `surface`, `surface-2`, `label`, `label-2`,
+`label-3`, `separator`, `tint`, `tint-soft`, `on-tint`, `leaf`, `leaf-soft`, `sun`, `sun-soft`, `sky`, `sky-soft`,
+`danger`, `danger-soft`, `soil`, `glass`, `scrim` ; rayons 16 / 22 / 28 / 44 ; échelle typographique 13 / 15 / 17 /
+20 / 24 / 28 / 34 / 64 ; police Nunito.
 
-Composants :
+| Catégorie   | Composants                                                                                                                                                                                        |
+| ----------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Structure   | `AppShell`, `StatusBarInset`, `TabBar` (flottante), `NavigationBar` (grand titre), `Sheet` (Vaul), `AlertDialog`, `Toast`/`Banner`                                                                |
+| Actions     | `Button` (primary, tinted, gray, destructive ; 3 tailles), `IconButton`, `SegmentedControl`, `Switch`, `Chip`                                                                                     |
+| Données     | `List`/`ListRow` (inset grouped), `Card`, `ProgressRing`, `ProgressBar`, `WeekStrip`, `Badge`, `Avatar`, `EmptyState`                                                                             |
+| Saisie      | `TextField`, `Picker`, `TimePicker`, `PinPad`                                                                                                                                                     |
+| Exercices   | `AnswerTiles`, `NumberPad` (entier, fraction, colonne), `ColumnOperation`, `FractionText`, `FractionBed`, `FractionPot`, `NumberLine` + coccinelle, `HintPanel`, `CharacterDock` + `SpeechBubble` |
+| Jardin      | `GardenScene`, `PlantIllustration` (9 plantes × 3 états + pot vide), `Caretaker`, `FlowerCurtain`                                                                                                 |
+| Personnages | `CharacterIllustration` (9 scènes × 6 personnages, Miffy par défaut et en repli, préchargement)                                                                                                   |
 
-| Catégorie   | Composants                                                                                                                                                                       |
-| ----------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Structure   | `AppShell`, `TabBar`, `NavigationBar` (grand titre qui se réduit), `Sheet` (Vaul, détentes moyenne/grande), `Dialog`/`AlertDialog`, `Toast` (Sonner)                             |
-| Actions     | `Button` (filled, tinted, gray, plain ; tailles small/medium/large), `IconButton`, `SegmentedControl`, `Toggle`/`Switch`, `Menu`                                                 |
-| Données     | `List`/`ListRow` (style « inset grouped »), `Card` (avec parcimonie), `ProgressRing`, `ProgressBar`, `Badge`, `Avatar`, `EmptyState`                                             |
-| Saisie      | `TextField`, `Picker`, `Checkbox`, `RadioGroup`, `Stepper`                                                                                                                       |
-| Exercices   | `AnswerTiles`, `NumberPad` (unique : entier, fraction, colonne), `ColumnOperation`, `FractionText`, `FractionBed`, `FractionPot`, `NumberLine` + curseur coccinelle, `HintPanel` |
-| Jardin      | `GardenScene`, `PlantIllustration`, `Caretaker` (sprites), `FlowerCurtain`                                                                                                       |
-| Personnages | `CharacterIllustration` (9 scènes × 6 personnages, Miffy par défaut et en repli, préchargement ; usage familial privé)                                                           |
-
-Règles : chaque composant documenté (Storybook ou Ladle) avec ses états, testé en accessibilité (axe), sans
-dépendance à la logique métier. Haptique : `navigator.vibrate` quand disponible ; sur iOS Safari, pas d'API
-publique fiable — on n'en dépend jamais pour transmettre une information.
+Règles : chaque composant documenté dans Ladle avec ses états, testé avec axe, sans dépendance à la logique métier.
 
 ### 6.6 Internationalisation et accessibilité
 
-- Catalogues fr (défaut), en, zh-Hans typés par clés ; ICU pour pluriels ; retrait des ~40 clés mortes.
-- Énoncés parlés pour chaque exercice (lecteurs d'écran), descriptions riches du jardin et des barres de progrès.
-- Navigation clavier complète (iPad + clavier), focus visibles, rôles ARIA des tuiles, du curseur et du pavé.
+- Catalogues fr (défaut), en, zh-Hans typés par clés ; pluriels ICU ; retrait des ~40 clés mortes.
+- Énoncés parlés pour chaque exercice, descriptions riches du jardin et des barres.
+- Navigation clavier complète (iPad), focus visibles, rôles ARIA des tuiles, du curseur et du pavé.
+
+### 6.7 Mouvement
+
+- **Miffy en séance** (`CharacterDock`) : en attente, tête et pattes dépassent du panneau, respiration de 2 px sur
+  3 s ; bonne réponse : elle se hisse d'un ressort (≈ 0,5 s, léger dépassement), bras levés, bulle « Oui ! n ♡ » ;
+  erreur : la tête sort calmement, main au menton, bulle « Hmm… c'était n », puis l'indice s'affiche sous elle.
+- **Jardin** : le jardinier se déplace entre les plantes toutes les 3 s, toujours derrière la rangée de pots dont
+  l'espacement reste régulier ; la plante arrosée « boit ».
+- **Transitions** : push/pop pour les piles, feuille pour les choix, rideau de fleurs pour séance → célébration → jardin.
+- `prefers-reduced-motion` : fondus simples, jardinier immobile en pose d'arrosage, pas de confettis.
 
 ---
 
@@ -451,77 +541,92 @@ publique fiable — on n'en dépend jamais pour transmettre une information.
 
 ### 7.1 Commandes
 
-`pnpm check` exécute : `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, build WASM, codegen à jour,
-Prettier, ESLint, typecheck, Vitest, Playwright (mobile WebKit + Chromium), build. `pnpm doctor` (React Doctor)
-reste exigé pour chaque PR web.
+`pnpm check` : `cargo fmt --check`, `cargo clippy -D warnings`, `cargo test`, build WASM + contrôle de taille
+(< 300 Ko gzip), test de contrat des schémas (§2.4), Prettier, ESLint, typecheck, Vitest, Playwright (WebKit mobile +
+Chromium), build. `pnpm doctor` reste exigé pour chaque PR web.
 
 ### 7.2 Tests
 
-- **Vecteurs dorés** : `tools/golden` rejoue l'ancien moteur TS sur des milliers de graines et d'historiques et
-  produit des fixtures JSON ; `lt-domain` doit les reproduire bit à bit (sessions, distracteurs, snapshots, jardin).
-- Propriétés (proptest) : invariants du board 11 (rejouer = no-op, réduction déterministe, une séance ne rend pas un
-  fait fluide, une erreur n'augmente jamais la stabilité).
-- Intégration SQLite sur base temporaire (migrations, concurrence d'écriture, transactions) ; test de l'import
-  Mongo sur un jeu de données anonymisé (Mongo en conteneur de test uniquement) ; tests HTTP axum ; tests de contrat
-  client Effect ↔ serveur Rust.
-- E2E Playwright sur viewport iPhone : connexion mockée, séance complète de chaque type d'exercice, hors-ligne puis
-  sync, changement de profil, espace parent, mise à jour du SW.
-- Régression visuelle des écrans clés (captures Playwright comparées).
+- **Vecteurs dorés** : première tâche du lot 1, **avant tout changement** de `packages/domain` : le moteur TS actuel
+  est copié tel quel dans `tools/golden/legacy-domain` et un générateur produit des fixtures JSON (sessions,
+  distracteurs, exercices, snapshots, ledger, récompenses, insights) pour des milliers de graines et d'historiques,
+  y compris des historiques désordonnés. `lt-domain` doit les reproduire bit à bit.
+- Propriétés (proptest) : rejouer = no-op ; réduction déterministe ; une séance ne rend jamais un fait fluide ; une
+  erreur n'augmente jamais la stabilité ; projection incrémentale = recalcul complet.
+- Serveur : SQLite temporaire (migrations, concurrence, cascade) ; import Mongo sur un jeu anonymisé (Mongo en
+  conteneur de test seulement) ; tests HTTP axum ; **suite de tests actuelle d'`apps/web` rejouée contre
+  l'adaptateur v1** ; tests de contrat client Effect ↔ serveur.
+- E2E Playwright (iPhone) : connexion mockée, chaque type d'exercice, hors-ligne puis sync, changement de profil,
+  code parent, mise à jour du SW. Régression visuelle des écrans clés.
 
 ### 7.3 Déploiement
 
 Modèle « release immuable systemd », identique à Love Letters, Loup-Garou et Raclettefin ; plus de conteneur.
 
-- Artefact : binaire Rust statique (`x86_64-unknown-linux-musl` ou glibc Debian 13), PWA embarquée, archive
-  `little-tables-<sha>.tar.zst` + somme SHA-256, publiée comme artefact de release GitHub.
-- Sur le VPS : `/opt/little-tables/releases/<sha>/`, lien atomique `/opt/little-tables/current`, état dans
-  `/var/lib/little-tables/` (base SQLite + sauvegardes), secrets dans `/etc/little-tables/little-tables.env`
-  (inchangé).
-- Unité `little-tables.service` durcie : utilisateur dédié, `DynamicUser` ou compte système, `ProtectSystem=strict`,
-  `ReadWritePaths=/var/lib/little-tables`, `NoNewPrivileges`, `PrivateTmp`, `MemoryMax=256M`, écoute sur
-  `127.0.0.1:32140` (Caddy inchangé).
-- Pipeline : `verify` → `release` (artefact) → `deploy` via la clé SSH à commande forcée, qui n'autorise plus que
-  `deploy <sha>`, `status` et `public-health`. Le script de déploiement : vérifie la somme, sauvegarde SQLite
-  (`.backup`), applique les migrations, bascule le lien, redémarre, contrôle `/health/ready` + révision, et revient
-  à la release précédente (lien + sauvegarde si une migration a échoué) en cas d'échec.
-- Les Quadlets `little-tables.container` et `little-tables-mongo.container`, le volume Mongo et l'image GHCR sont
-  retirés après la période de conservation de §5.6.
-- Smoke test conservé et étendu (`/` → `/sign-in`, 401 sur les API protégées, `no-store` sur `/sign-in`, `/api/v1`
-  adapté), lancé sur le binaire de release dans la CI.
+- Artefact : binaire statique `x86_64-unknown-linux-musl` (SQLite embarqué, PWA embarquée), archive
+  `little-tables-<sha>.tar.zst` + SHA-256, publiée en artefact de release GitHub.
+- VPS : `/opt/little-tables/releases/<sha>/`, lien atomique `/opt/little-tables/current`, état dans
+  `/var/lib/little-tables/` (base + sauvegardes), secrets dans `/etc/little-tables/little-tables.env`.
+- `little-tables.service` : utilisateur système dédié `little-tables` (pas de `DynamicUser`, pour que le timer de
+  sauvegarde partage le même compte), `ProtectSystem=strict`, `StateDirectory=little-tables`, `NoNewPrivileges`,
+  `PrivateTmp`, `MemoryMax=256M`, écoute `127.0.0.1:32140` (Caddy inchangé). `little-tables-backup.timer` quotidien.
+- Pipeline : `verify` → `release` → `deploy` par la clé SSH à commande forcée (`deploy <sha>`, `status`,
+  `public-health`). Script de déploiement : vérifie la somme, **arrête le service**, `.backup`, applique les migrations
+  avec le nouveau binaire (`little-tables admin migrate`), bascule le lien, démarre, contrôle `/health/ready` + révision.
+  En cas d'échec : arrêt, restauration de la sauvegarde, lien précédent, redémarrage. Indisponibilité de quelques
+  secondes, acceptable pour un usage familial.
+- Quadlets, volume Mongo et image GHCR retirés après la période de conservation (§5.7).
+- Smoke test en CI sur le binaire de release : `/` → `/sign-in`, 401 sur les API protégées, `no-store` sur `/sign-in`,
+  contrat v1 et v2.
 
 ---
 
 ## 8. Plan de livraison
 
-| Lot | Contenu                                                                                                                                   | Sortie                                 |
-| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 0   | Specs validées, inventaire Pencil, direction de design                                                                                    | Ce document + fichier Pencil           |
-| 1   | `lt-domain` + vecteurs dorés + WASM ; design system (tokens, composants de base) ; maquettes HIG des écrans clés                          | Parité moteur prouvée                  |
-| 2   | Serveur Rust + SQLite (auth, profils, sync, bootstrap incrémental, push), import Mongo vérifié, déploiement systemd, `/api/v1` compatible | Bascule serveur sans changer le client |
-| 3   | Nouvelle PWA (espace enfant + séance + jardin + progrès)                                                                                  | Bêta famille                           |
-| 4   | Espace parent, code parent, vue des difficultés, heure de rappel par enfant, migration IndexedDB, déconnexion                             | Parité complète + nouveautés           |
-| 5   | Retrait de `/api/v1`, de l'ancien code et des clés historiques                                                                            | Fin de la réécriture                   |
+| Lot | Contenu                                                                                                                                                       | Sortie                                  |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------- |
+| 0   | Specs v0.2, inventaire Pencil, maquettes R0–R5                                                                                                                | **Fait**                                |
+| 1   | Vecteurs dorés ; `lt-domain` + WASM ; `packages/ui` (tokens, composants de base, Ladle)                                                                       | Parité moteur prouvée                   |
+| 2   | Serveur Rust + SQLite, adaptateur v1, import Mongo vérifié, déploiement systemd, sauvegardes                                                                  | Bascule serveur, PWA actuelle inchangée |
+| 3   | Nouvelle PWA : espace enfant, séance, célébration, jardin, progrès, migration IndexedDB, déconnexion, espace parent **minimal** (enfants, école, préférences) | Bêta famille                            |
+| 4   | Code parent, vue des difficultés, heure de rappel par enfant, écrans restants (§6.3), mode sombre complet, taille du texte                                    | Parité complète + nouveautés            |
+| 5   | Retrait de `/api/v1`, de l'ancien code web/serveur, des clés historiques ; décision `algorithmVersion 2`                                                      | Fin de la réécriture                    |
 
 ### 8.1 Risques
 
-- Divergence du moteur → vecteurs dorés obligatoires avant toute bascule.
-- Perte d'événements en migration locale → copie puis suppression après sync confirmée.
-- Taille du WASM → objectif < 300 Ko gzip, chargé en parallèle du bundle, mis en précache.
-- Haptique iOS limitée → jamais porteuse d'information.
-- Migration Mongo → SQLite → comparaison automatique des bootstraps par profil, Mongo conservé 30 jours.
+- Divergence du moteur → vecteurs dorés générés avant toute modification, bit-exact exigé.
+- Perte d'événements locaux → migration IndexedDB livrée avec la première PWA (lot 3), suppression après sync.
+- Taille du WASM → pas de base de fuseaux dans le WASM, budget 300 Ko gzip contrôlé en CI.
+- Migration Mongo → SQLite → comparaison automatique des bootstraps, Mongo conservé 30 jours.
+- Projection incrémentale → égalité avec le recalcul complet prouvée par proptest.
 
-### 8.2 Décisions
+### 8.2 Décisions prises
 
-| Sujet            | Décision (5 octobre 2026)                                                      |
-| ---------------- | ------------------------------------------------------------------------------ |
-| Espace parent    | Code à 4 chiffres (§6.4)                                                       |
-| Personnages      | Miffy conservé par défaut ; l'app reste à usage familial privé (liste blanche) |
-| Périmètre ajouté | Heure de rappel réglable par enfant, vue parent des difficultés, mode sombre   |
-| Hors périmètre   | Sign in with Apple                                                             |
-| Stockage         | SQLite (§5.6) ; MongoDB migré puis retiré                                      |
-| Déploiement      | Release immuable systemd (§7.3) ; Quadlets et image GHCR retirés               |
+| Sujet              | Décision (5 octobre 2026)                                                            |
+| ------------------ | ------------------------------------------------------------------------------------ |
+| Stockage           | SQLite ; MongoDB migré puis retiré                                                   |
+| Déploiement        | Release immuable systemd, utilisateur système dédié ; Quadlets et image GHCR retirés |
+| Espace parent      | Code à 4 chiffres, cache hors-ligne PBKDF2, reset par reconnexion Google             |
+| Personnages        | Miffy par défaut ; usage familial privé (liste blanche)                              |
+| Périmètre ajouté   | Heure de rappel par enfant, vue des difficultés, mode sombre, taille du texte        |
+| Hors périmètre     | Sign in with Apple ; déconnexion globale                                             |
+| Contrat API        | Schémas Effect manuels vérifiés contre le JSON Schema Rust (pas de générateur)       |
+| CSRF               | En-tête obligatoire + contrôle d'origine (pas de double-submit)                      |
+| Séquence dupliquée | Rejetée (`duplicate_sequence`) ; contrainte unique en base                           |
 
-Pourquoi SQLite plutôt que MongoDB ou PostgreSQL : volume et concurrence d'un usage familial très faibles, aucun
-service supplémentaire à faire tourner ni à surveiller, sauvegarde `.backup` déjà pratiquée sur le VPS, typage fort
-avec `sqlx`, et alignement sur le modèle de la majorité des services de l'hôte. PostgreSQL resterait le choix en
-cas de diffusion large ; le passage serait localisé dans `lt-store`.
+### 8.3 Pourquoi SQLite
+
+Volume et concurrence d'un usage familial très faibles, aucun service à opérer ni à surveiller, sauvegarde `.backup`
+déjà pratiquée sur le VPS, typage fort avec `sqlx`, alignement sur la majorité des services de l'hôte. PostgreSQL
+resterait le choix d'une diffusion large ; le changement serait localisé dans `lt-store`.
+
+### 8.4 Points ouverts (valeur par défaut si non tranché)
+
+1. **`algorithmVersion 2`** (≤ 2 nouveaux éléments par séance) : décision reportée au lot 5, une fois la parité
+   prouvée. Défaut : on reste en v1.
+2. **Contrainte `duplicate_sequence`** : si l'import Mongo révèle beaucoup de doublons historiques, on gardera
+   l'index non unique et la validation uniquement à l'ingestion. Défaut : contrainte unique.
+3. **Durée de déverrouillage de l'espace parent** : défaut 5 min.
+4. **Rappel pour un enfant qui n'a jamais fait de séance** : défaut, pas de rappel tant qu'aucune séance n'est terminée
+   (comportement actuel : rappel dès l'abonnement). À confirmer.
+5. **Personnages des autres enfants** : les 5 autres personnages existants restent proposés ; aucun nouveau. Défaut : oui.
