@@ -13,3 +13,4 @@ __pycache__/
 assets/references/
 assets/generated/drafts/
 /target/
+/packages/engine/wasm/

@@ -158,6 +158,12 @@ importers:
         specifier: ^3.21.4
         version: 3.21.4
 
+  packages/engine:
+    dependencies:
+      effect:
+        specifier: ^3.21.4
+        version: 3.21.4
+
   packages/local-store:
     dependencies:
       '@little-tables/domain':

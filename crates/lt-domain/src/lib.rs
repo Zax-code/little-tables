@@ -5,6 +5,7 @@
 //! same crate runs natively on the server and as WebAssembly in the browser, and reproduces the
 //! previous TypeScript engine bit for bit (see `tests/golden.rs`).
 
+pub mod api;
 pub mod day_key;
 pub mod engine;
 pub mod exercises;

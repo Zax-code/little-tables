@@ -1,0 +1,24 @@
+{
+  "name": "@little-tables/engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Effect facade of the Rust learning engine compiled to WebAssembly.",
+  "exports": {
+    ".": {
+      "types": "./src/index.ts",
+      "default": "./dist/index.js"
+    },
+    "./wasm/*": "./wasm/*"
+  },
+  "scripts": {
+    "build:wasm": "bash ../../tools/build-wasm.sh",
+    "build": "pnpm build:wasm && tsc -p tsconfig.build.json",
+    "pretest": "pnpm build:wasm",
+    "test": "vitest run",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "effect": "^3.21.4"
+  }
+}

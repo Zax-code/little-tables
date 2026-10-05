@@ -428,7 +428,8 @@ const runScenario = (scenario: Scenario) => {
 
       const events: AttemptEvent[] = []
       while (session.currentIndex < session.questions.length) {
-        const question = session.questions[session.currentIndex] as PracticeQuestion
+        const question = session.questions[session.currentIndex]
+        if (question === undefined) throw new Error('The session has no current question')
         const correct = random() < scenario.accuracy
         const { response, selected } = responseFor(question, correct, random)
         clock += 1_200 + Math.floor(random() * 6_000)
@@ -467,7 +468,8 @@ const runScenario = (scenario: Scenario) => {
       }
 
       snapshot = LearningEngine.reduce({ attempts: events, snapshot, timeZone: scenario.timeZone })
-      const last = events.at(-1) as AttemptEvent
+      const last = events.at(-1)
+      if (last === undefined) throw new Error('A completed session has answers')
       completions.push({ learningDayKey: last.learningDayKey ?? '', sessionKind: session.kind })
       steps.push({
         attempts: events.map(({ eventId }) => eventId),
