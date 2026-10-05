@@ -110,6 +110,55 @@ const masterySnapshot = (
   ),
 })
 
+const LEGACY_F1_QUESTION: Ce2Question = {
+  choices: [
+    {
+      answer: { choiceIds: ['shape-0'], type: 'selection' },
+      id: 'shape-0',
+      label: 'partition-0',
+    },
+    {
+      answer: { choiceIds: ['shape-1'], type: 'selection' },
+      id: 'shape-1',
+      label: 'partition-1',
+    },
+    {
+      answer: { choiceIds: ['shape-2'], type: 'selection' },
+      id: 'shape-2',
+      label: 'partition-2',
+    },
+  ],
+  contentVersion: 'ce2-2026-v1',
+  family: 'fraction',
+  generationSeed: 5,
+  id: 'ce2-f1-p1-5',
+  inputConstraints: {
+    denominatorMax: null,
+    explicitValidation: true,
+    maxDigits: null,
+    maximumSelections: 3,
+    minimumSelections: 1,
+    numeratorMax: null,
+  },
+  module: 'fractions',
+  noveltyKey: 'F1:shape-2:disk',
+  operands: [{ denominator: 4, numerator: 1 }],
+  partitions: [
+    { id: 'shape-0', segmentWeights: [2, 4, 3, 3] },
+    { id: 'shape-1', segmentWeights: [1, 5, 2, 4] },
+    { id: 'shape-2', segmentWeights: [3, 3, 3, 3] },
+  ],
+  prompt: 'ce2.F1.equal-parts',
+  representation: 'disk',
+  requiredDenominator: null,
+  responseMode: 'choice',
+  schemaVersion: 'ce2-question/v1',
+  skill: 'F1',
+  solution: { choiceIds: ['shape-2'], type: 'selection' },
+  task: 'equal-parts',
+  tier: 1,
+}
+
 describe('Ce2Engine question generation', () => {
   it('generates every specified skill deterministically with a valid stable identity', () => {
     for (const skill of ALL_SKILLS) {
@@ -137,6 +186,35 @@ describe('Ce2Engine question generation', () => {
       status: 'incorrect',
     })
     expect(Ce2Engine.validateQuestion({ ...question, id: 'ce2-a1-p2-4' })).toBe(false)
+  })
+
+  it('still validates an exact F1 question persisted by the legacy generator', () => {
+    expect(Ce2Engine.validateQuestion(LEGACY_F1_QUESTION)).toBe(true)
+  })
+
+  it('strictly rejects tampering with a persisted legacy F1 question', () => {
+    const changedSolution: Ce2Question = {
+      ...LEGACY_F1_QUESTION,
+      solution: { choiceIds: ['shape-1'], type: 'selection' },
+    }
+    const changedGeometry: Ce2Question = {
+      ...LEGACY_F1_QUESTION,
+      partitions: LEGACY_F1_QUESTION.partitions.map((partition, index) =>
+        index === 0 ? { ...partition, segmentWeights: [3, 3, 3, 3] } : partition,
+      ),
+    }
+    const changedNovelty: Ce2Question = {
+      ...LEGACY_F1_QUESTION,
+      noveltyKey: 'F1:4:shape-2:disk',
+    }
+
+    for (const tampered of [changedSolution, changedGeometry, changedNovelty]) {
+      expect(Ce2Engine.validateQuestion(tampered)).toBe(false)
+      expect(Ce2Engine.evaluate({ answer: tampered.solution, question: tampered })).toMatchObject({
+        reason: 'invalid-question',
+        status: 'incorrect',
+      })
+    }
   })
 
   it('keeps generated integer calculations in the first-delivery bounds', () => {
@@ -263,22 +341,86 @@ describe('Ce2Engine question generation', () => {
     }
   })
 
-  it('encodes equal-part geometry instead of relying on option labels', () => {
-    const question = Ce2Engine.generateQuestion({ seed: 5, skill: 'F1', tier: 1 })
-    if (question.family !== 'fraction' || question.solution.type !== 'selection') {
-      throw new Error('Expected an equal-parts question')
+  it('keeps varied F1 partitions positive, comparable, and uniquely correct in every palier', () => {
+    const expectedPartCounts = {
+      1: [2, 3, 4],
+      2: [2, 3, 4, 5, 6],
+      3: [4, 6, 8, 10],
+      4: [5, 6, 7, 8, 9, 10, 11, 12],
+    } as const
+
+    for (const tier of [1, 2, 3, 4] as const) {
+      const observedPartCounts = new Set<number>()
+      for (let seed = 0; seed < 120; seed += 1) {
+        const question = Ce2Engine.generateQuestion({ seed, skill: 'F1', tier })
+        if (question.family !== 'fraction' || question.solution.type !== 'selection') {
+          throw new Error('Expected an equal-parts question')
+        }
+        const operand = question.operands[0]
+        if (operand === undefined) throw new Error('Expected an F1 unit fraction')
+        const partCount = operand.denominator
+        observedPartCounts.add(partCount)
+        const equalPartitions = question.partitions.filter(({ segmentWeights }) =>
+          segmentWeights.every((weight) => weight === segmentWeights[0]),
+        )
+
+        expect(expectedPartCounts[tier]).toContain(partCount)
+        expect(
+          question.partitions.every(({ segmentWeights }) => segmentWeights.length === partCount),
+        ).toBe(true)
+        expect(
+          question.partitions.every(({ segmentWeights }) =>
+            segmentWeights.every((weight) => weight > 0),
+          ),
+        ).toBe(true)
+        expect(equalPartitions).toHaveLength(1)
+        expect(question.solution.choiceIds).toEqual([equalPartitions[0]?.id])
+        expect(
+          new Set(
+            question.partitions.map(({ segmentWeights }) =>
+              segmentWeights.reduce((total, weight) => total + weight, 0),
+            ),
+          ).size,
+        ).toBe(1)
+        expect(question.noveltyKey).toContain(`F1:${partCount}:`)
+      }
+
+      expect([...observedPartCounts].sort((left, right) => left - right)).toEqual(
+        expectedPartCounts[tier],
+      )
     }
-    const equalPartitions = question.partitions.filter(({ segmentWeights }) =>
-      segmentWeights.every((weight) => weight === segmentWeights[0]),
+  })
+
+  it('varies the number of parts in F1 palier 1 questions and sessions', () => {
+    const partCount = (question: Ce2Question): number => {
+      if (question.family !== 'fraction' || question.skill !== 'F1') {
+        throw new Error('Expected an F1 fraction question')
+      }
+      const operand = question.operands[0]
+      if (operand === undefined) throw new Error('Expected an F1 unit fraction')
+      return operand.denominator
+    }
+    const generatedPartCounts = new Set(
+      Array.from({ length: 24 }, (_, seed) =>
+        partCount(Ce2Engine.generateQuestion({ seed, skill: 'F1', tier: 1 })),
+      ),
     )
 
-    expect(equalPartitions).toHaveLength(1)
-    expect(question.solution.choiceIds).toEqual([equalPartitions[0]?.id])
-    expect(
-      new Set(
-        question.partitions.map(({ segmentWeights }) => segmentWeights.reduce((a, b) => a + b, 0)),
-      ).size,
-    ).toBe(1)
+    expect(generatedPartCounts.size).toBeGreaterThan(1)
+
+    for (const questionCount of [5, 8]) {
+      const session = Ce2Engine.createSession({
+        kind: 'extra-practice',
+        module: 'fractions',
+        now: new Date('2026-10-04T12:00:00.000Z'),
+        questionCount,
+        seed: 42,
+        skill: 'F1',
+        snapshot: Ce2Engine.emptySnapshot(),
+      })
+
+      expect(new Set(session.questions.map(partCount)).size).toBeGreaterThan(1)
+    }
   })
 
   it('provides recognition and production variants within the same palier', () => {

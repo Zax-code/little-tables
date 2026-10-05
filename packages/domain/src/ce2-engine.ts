@@ -649,6 +649,9 @@ const generateFraction = (
   const random = makeRandom(seed)
   const representation = representationFor(skill, seed, 'bar')
   if (skill === 'F1') {
+    // The first LCG sample clusters for adjacent small seeds; advance once so short sessions vary.
+    random()
+    const denominator = denominatorForTier(tier, random)
     const correctId = `shape-${Math.abs(seed) % 3}`
     const shapeChoices = [0, 1, 2].map((index) => ({
       answer: { choiceIds: [`shape-${index}`], type: 'selection' as const },
@@ -658,7 +661,7 @@ const generateFraction = (
     return {
       ...questionBase({
         choices: shapeChoices,
-        noveltyKey: `F1:${correctId}:${representation}`,
+        noveltyKey: `F1:${denominator}:${correctId}:${representation}`,
         prompt: 'ce2.F1.equal-parts',
         representation,
         responseMode: Math.abs(seed) % 3 === 0 ? 'multi-select' : 'choice',
@@ -667,15 +670,15 @@ const generateFraction = (
         tier,
       }),
       family: 'fraction',
-      operands: [{ denominator: 4, numerator: 1 }],
+      operands: [{ denominator, numerator: 1 }],
       partitions: [0, 1, 2].map((index) => ({
         id: `shape-${index}`,
         segmentWeights:
           `shape-${index}` === correctId
-            ? [3, 3, 3, 3]
+            ? Array.from({ length: denominator }, () => 3)
             : index % 2 === 0
-              ? [2, 4, 3, 3]
-              : [1, 5, 2, 4],
+              ? [2, 4, ...Array.from({ length: denominator - 2 }, () => 3)]
+              : [1, 5, ...Array.from({ length: denominator - 2 }, () => 3)],
       })),
       solution: { choiceIds: [correctId], type: 'selection' },
       task: 'equal-parts',
@@ -978,6 +981,41 @@ const generateQuestion = ({ seed, skill, tier }: GenerateCe2QuestionInput): Ce2Q
   throw new RangeError(`Unsupported CE2 skill: ${skill}`)
 }
 
+const generateLegacyF1Question = (tier: Ce2Tier, seed: number): Ce2Question => {
+  const representation = representationFor('F1', seed, 'bar')
+  const correctId = `shape-${Math.abs(seed) % 3}`
+  const shapeChoices = [0, 1, 2].map((index) => ({
+    answer: { choiceIds: [`shape-${index}`], type: 'selection' as const },
+    id: `shape-${index}`,
+    label: `partition-${index}`,
+  }))
+  return {
+    ...questionBase({
+      choices: shapeChoices,
+      noveltyKey: `F1:${correctId}:${representation}`,
+      prompt: 'ce2.F1.equal-parts',
+      representation,
+      responseMode: Math.abs(seed) % 3 === 0 ? 'multi-select' : 'choice',
+      seed,
+      skill: 'F1',
+      tier,
+    }),
+    family: 'fraction',
+    operands: [{ denominator: 4, numerator: 1 }],
+    partitions: [0, 1, 2].map((index) => ({
+      id: `shape-${index}`,
+      segmentWeights:
+        `shape-${index}` === correctId
+          ? [3, 3, 3, 3]
+          : index % 2 === 0
+            ? [2, 4, 3, 3]
+            : [1, 5, 2, 4],
+    })),
+    solution: { choiceIds: [correctId], type: 'selection' },
+    task: 'equal-parts',
+  }
+}
+
 const stableValue = (value: unknown): string => {
   if (Array.isArray(value)) return `[${value.map(stableValue).join(',')}]`
   if (value !== null && typeof value === 'object') {
@@ -1004,16 +1042,10 @@ const validateQuestion = (question: Ce2Question): boolean => {
     const tier = Number(encodedTier) as Ce2Tier
     const seed = Number(encodedSeed)
     if (!Number.isSafeInteger(seed)) return false
-    return (
-      stableValue(question) ===
-      stableValue(
-        generateQuestion({
-          seed,
-          skill: skill as Ce2Skill,
-          tier,
-        }),
-      )
-    )
+    const expected = stableValue(generateQuestion({ seed, skill: skill as Ce2Skill, tier }))
+    const received = stableValue(question)
+    if (received === expected) return true
+    return skill === 'F1' && received === stableValue(generateLegacyF1Question(tier, seed))
   } catch {
     return false
   }

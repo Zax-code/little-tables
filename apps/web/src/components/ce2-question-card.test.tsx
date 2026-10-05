@@ -7,6 +7,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ce2ColumnSteps } from './ce2-column-steps.js'
 import { Ce2QuestionCard, type Ce2QuestionFeedback } from './ce2-question-card.js'
+import type { Locale } from '../i18n-catalog.js'
 
 const common = {
   choices: [],
@@ -63,14 +64,18 @@ describe('Ce2QuestionCard', () => {
     vi.clearAllMocks()
   })
 
-  function renderCard(question: Ce2Question, feedback?: Ce2QuestionFeedback) {
+  function renderCard(
+    question: Ce2Question,
+    feedback?: Ce2QuestionFeedback,
+    locale: Locale = 'fr',
+  ) {
     function Harness() {
       const [draft, setDraft] = useState(() => freshDraft(question.id))
       return (
         <Ce2QuestionCard
           draft={draft}
           {...(feedback === undefined ? {} : { feedback })}
-          locale="fr"
+          locale={locale}
           onDraftChange={setDraft}
           onHelp={onHelp}
           onSubmit={onSubmit}
@@ -161,6 +166,34 @@ describe('Ce2QuestionCard', () => {
     expect(container.querySelector('.ce2-choice')?.getAttribute('aria-label')).toBe(
       'Forme A, largeurs des parts 1, 1, 1, 1',
     )
+  })
+
+  it.each([
+    ['fr', 3, 'Quelle forme est partagée en 3 parts égales ?'],
+    ['en', 3, 'Which shape is divided into 3 equal parts?'],
+    ['zh-Hans', 3, '哪个图形被平均分成 3 份？'],
+    ['fr', 6, 'Quelle forme est partagée en 6 parts égales ?'],
+  ] as const)('asks for the actual F1 part count in %s (%i parts)', (locale, count, prompt) => {
+    const question = {
+      ...common,
+      choices: [
+        { answer: { choiceIds: ['equal'], type: 'selection' }, id: 'equal', label: 'equal' },
+      ],
+      family: 'fraction',
+      id: `equal-parts-${count}`,
+      operands: [{ denominator: count, numerator: 1 }],
+      partitions: [{ id: 'equal', segmentWeights: Array.from({ length: count }, () => 1) }],
+      prompt: 'ce2.F1.equal-parts',
+      representation: 'bar',
+      responseMode: 'choice',
+      skill: 'F1',
+      solution: { choiceIds: ['equal'], type: 'selection' },
+      task: 'equal-parts',
+    } as const satisfies Ce2Question
+    renderCard(question, undefined, locale)
+
+    expect(container.querySelector('.ce2-card__prompt')?.textContent).toBe(prompt)
+    expect(container.querySelector('.ce2-partition-choice')?.children).toHaveLength(count)
   })
 
   it('shows the F2 quantity as a model without printing its fraction outside the choices', () => {

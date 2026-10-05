@@ -5,7 +5,7 @@ Les activités couvrent N1, A1–A5, S1–S5, P1–P2 et F1–F9, sur quatre pal
 
 ## Vérifications automatisées
 
-`corepack pnpm check` passe : formatage, lint, typage, 368 tests TypeScript,
+Validation initiale (`200017c`) : `corepack pnpm check` passe avec formatage, lint, typage, 368 tests TypeScript,
 2 tests du pipeline d’images et compilation de production. Les tests Mongo tournent
 dans un conteneur. `corepack pnpm smoke:docker` passe également, y compris le contrôle
 d’authentification de l’image de production.
@@ -67,6 +67,28 @@ Le record IndexedDB `state/ce2` et l’historique des séances survivent aux éc
 ancien client sur `state/current`. Au retour du nouveau client, la séance CE2 conservée
 reste prioritaire. Les essais classiques restent dans `attempt_events`, les essais CE2
 dans `ce2_attempt_events`, avec la même logique de jardin et de rappels.
+
+## Correctif des parts égales F1
+
+Le générateur et la consigne fixaient toutes les questions à quatre parts. Le nombre
+varie maintenant selon le palier (2, 3 et 4 au premier), et les trois langues reprennent
+ce nombre. Le test de régression a reproduit le défaut avant correction. Les séances
+réelles de cinq et huit questions, les quatre paliers, l’unité commune aux formes et
+l’unique bonne réponse sont testés. Un contrôle supplémentaire de 1 000 séances n’a
+trouvé aucune séance répétant un seul nombre de parts.
+
+Les anciennes questions à quatre parts restent valides par reconstruction exacte du
+générateur historique ; les questions altérées restent refusées. Les séances déjà
+enregistrées gardent leurs questions ; la variété s’applique aux nouvelles séances.
+
+Sur localhost, une nouvelle séance a proposé trois puis quatre parts, et la première
+réponse a été validée. [Capture à trois parts](./docs/ce2-qa/equal-parts-320.jpg).
+
+Vérification du correctif : formatage, lint, typage, 365 tests TypeScript hors Mongo,
+2 tests d’images et build réussis ; React Doctor reste à 91/100, avec les deux mêmes
+avertissements. `corepack pnpm check` a été lancé, mais les dix tests Mongo ont été
+bloqués par le daemon Docker local qui ne répondait plus, jusqu’au timeout du démarrage
+du conteneur. Leur vérification reste à confirmer dans la CI.
 
 ## Limites de vérification
 

@@ -1583,6 +1583,8 @@ function helpForZeroBridge(locale: Locale): string {
 
 function promptFor(question: Ce2Question, locale: Locale): string {
   if (!question.prompt.startsWith('ce2.')) return question.prompt
+  const equalPartCount =
+    question.family === 'fraction' ? question.operands[0]?.denominator : undefined
   const prompts: Record<Locale, Partial<Record<Ce2Question['skill'], string>>> = {
     en: {
       A1: 'Calculate.',
@@ -1590,7 +1592,7 @@ function promptFor(question: Ce2Question, locale: Locale): string {
       A3: 'Calculate.',
       A4: 'Calculate.',
       A5: 'Set out the addition and calculate.',
-      F1: 'Which shape is divided into four equal parts?',
+      F1: `Which shape is divided into ${equalPartCount} equal parts?`,
       F2: question.requiredDenominator
         ? `Write the amount in ${question.requiredDenominator} equal parts.`
         : 'Read or show the fraction.',
@@ -1616,7 +1618,7 @@ function promptFor(question: Ce2Question, locale: Locale): string {
       A3: 'Calcule.',
       A4: 'Calcule.',
       A5: 'Pose l’addition puis calcule.',
-      F1: 'Quelle forme est partagée en quatre parts égales ?',
+      F1: `Quelle forme est partagée en ${equalPartCount} parts égales ?`,
       F2: question.requiredDenominator
         ? `Écris la quantité en ${question.requiredDenominator} parts égales.`
         : 'Lis ou représente la fraction.',
@@ -1642,7 +1644,7 @@ function promptFor(question: Ce2Question, locale: Locale): string {
       A3: '计算。',
       A4: '计算。',
       A5: '列竖式并计算。',
-      F1: '哪个图形被平均分成四份？',
+      F1: `哪个图形被平均分成 ${equalPartCount} 份？`,
       F2: question.requiredDenominator
         ? `请用 ${question.requiredDenominator} 个等份表示这个数量。`
         : '读出或表示这个分数。',
