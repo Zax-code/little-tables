@@ -61,8 +61,8 @@ La réécriture conserve toutes les fonctionnalités existantes. Les référence
 └───────────────────────────────────┬──────────────────────────────────────┘
                                     │ HTTPS JSON /api/v2 (cookie de session)
 ┌───────────────────────────────────▼──────────────────────────────────────┐
-│ Serveur Rust (axum + tokio), binaire unique avec la PWA embarquée         │
-│   ├─ lt-domain (natif)   ├─ lt-api (handlers + types serde/schemars)      │
+│ Serveur Rust (axum + tokio), un binaire ; release = binaire + build web   │
+│   ├─ lt-domain (natif)   ├─ lt-server (routes, config, import, CLI)       │
 │   ├─ lt-store (SQLite)   ├─ lt-auth (Google ID token, session, CSRF, PIN) │
 │   ├─ lt-push (Web Push VAPID, worker de rappels)                          │
 │   └─ adaptateur /api/v1 (transition, retiré au lot 5)                     │
@@ -79,11 +79,11 @@ Workspace pnpm + workspace Cargo dans le même dépôt.
 crates/
   lt-domain/        moteur pédagogique pur (sans I/O, sans horloge, sans aléa implicite)
   lt-domain-wasm/   bindings wasm-bindgen (JSON in / JSON out)
-  lt-api/           types HTTP (serde + schemars) + export JSON Schema
+  lt-api/           types HTTP v2 (serde + schemars) + export JSON Schema (lot 3)
   lt-auth/          vérification Google, session HMAC, CSRF, code parent
-  lt-store/         SQLite (sqlx), migrations, import Mongo
+  lt-store/         SQLite (sqlx), migrations, projection des snapshots
   lt-push/          Web Push, worker de rappels
-  lt-server/        binaire axum, config, wiring, statiques embarqués, commandes admin
+  lt-server/        binaire axum, config, adaptateur v1, PWA servie, import Mongo vérifié, commandes admin
 apps/
   web/              PWA React
 packages/
@@ -300,9 +300,14 @@ première version de la nouvelle PWA (lot 3)**, sinon les événements non synch
 | `APP_REVISION`, `RUST_LOG`              | Révision affichée par `/health/ready` ; niveau de logs                                                   |
 | `AUTH_MODE=disabled`                    | **Nouveau.** Identité de développement sans Google ; refusé si `NODE_ENV`-équivalent `LT_ENV=production` |
 
-Retirées : `MONGODB_URI`, `MONGODB_DATABASE`, `WEB_DIST_PATH` (PWA embarquée via `rust-embed`),
+`WEB_DIST_PATH` est conservée : la release contient le build web à côté du binaire (`web/`), ce qui permet au lot 3
+de remplacer la PWA sans recompiler le serveur. Retirées : `MONGODB_URI`, `MONGODB_DATABASE`,
 `LITTLE_TABLES_UNSAFE_EPHEMERAL` (remplacée par `LT_ENV=smoke`). En production, toute variable obligatoire manquante
-empêche le démarrage.
+empêche le démarrage. Les commandes `little-tables admin …` n'ont besoin que de `DATABASE_PATH`.
+
+Sans Google (`AUTH_MODE=disabled` ou secrets absents hors production), le serveur agit comme une famille de
+développement créée au démarrage (premier enfant `lou`) ; contrairement à l'ancien serveur, les profils demandés
+doivent lui appartenir, puisque la base impose les clés étrangères.
 
 ### 5.2 Authentification et sécurité des requêtes
 
@@ -347,14 +352,18 @@ synchronisées ; l'heure de rappel l'est (champ du profil).
 **Adaptateur `/api/v1`** (lots 2 → 5) : le serveur Rust sert aussi le contrat v1 actuel à l'identique (mêmes chemins,
 même en-tête `x-little-tables-profile-id`, même JSON de bootstrap), pour que la PWA actuelle fonctionne sans
 changement pendant la transition. Il est validé en rejouant la suite de tests existante d'`apps/web` contre le serveur
-Rust (§7.2).
+Rust (§7.2). En pratique, les tests HTTP de l'ancien serveur (`apps/server/src/http/*.test.ts`) sont portés en Rust
+(`crates/lt-server/tests/v1.rs`) ; les tests d'`apps/web` simulent le réseau et ne peuvent pas viser un vrai serveur.
+
+**Calendrier** : le lot 2 livre l'adaptateur v1 seul ; l'API v2 est construite au lot 3 avec son unique client, la
+nouvelle PWA, pour en fixer les formes sur des besoins réels.
 
 ### 5.4 Ingestion et bootstrap
 
 - Validation par `lt-domain::validate_attempt` (raisons inchangées : `duplicate_in_batch`, `invalid_answer`,
   `inconsistent_attempt`). Insertion `ON CONFLICT(event_id) DO NOTHING` dans une transaction par lot ; les conflits
   sont renvoyés en `duplicates`.
-- **Durcissement** : contrainte unique `(profile_id, session_id, sequence)`. Un second événement pour le même rang
+- **Durcissement** : unicité de `(profile_id, session_id, sequence)`, vérifiée à l'ingestion. Un second événement pour le même rang
   d'une même séance (cas : séance reprise sur deux appareils) est rejeté avec la raison `duplicate_sequence`. C'est un
   comportement nouveau, documenté dans les notes de version.
 - **Projection incrémentale** `learning_snapshots` : chaque profil garde son snapshot et un filigrane
@@ -396,16 +405,16 @@ Réservé à l'espace parent ; jamais de score ni de comparaison entre enfants.
 Réglages : `journal_mode=WAL`, `synchronous=NORMAL`, `foreign_keys=ON`, `busy_timeout=5000` ; une connexion
 d'écriture, un pool de lecture.
 
-| Table                | Colonnes principales                                                                                                                                                    | Contraintes / index                                                                           |
-| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
-| `families`           | `google_subject` PK, `onboarding_complete`, `created_at`, `updated_at`                                                                                                  |                                                                                               |
-| `profiles`           | `id` PK (UUID, ou `lou` pour le profil historique), `family_subject` FK, `name`, `avatar_id`, `learning_paths` JSON, `reminder_minute` NULL, `created_at`, `updated_at` | index `family_subject`                                                                        |
-| `attempt_events`     | `event_id` PK, `profile_id` FK, `session_id`, `sequence`, `answered_at`, `learning_day_key`, `fact_key`, `payload` JSON, `received_at`                                  | index `(profile_id, answered_at, sequence)` ; **unique `(profile_id, session_id, sequence)`** |
-| `learning_snapshots` | `profile_id` PK, `algorithm_version`, `snapshot` JSON, `last_answered_at`, `last_sequence`, `updated_at`                                                                |                                                                                               |
-| `garden_collections` | `profile_id` PK, `awarded_flower_ids` JSON, `flower_order` JSON, `bloom_count`, `rewarded_day_keys` JSON, `introduction_seen`, `catalog_version`                        |                                                                                               |
-| `allowed_emails`     | `email` PK, `status`, `session_version`, `added_at`, `added_by`, `removed_at`, `removed_by`                                                                             |                                                                                               |
-| `push_subscriptions` | `endpoint` PK, `profile_id` FK, `keys_auth`, `keys_p256dh`, `expiration_time`, `locale`, `timezone`, `last_sent_day_key`, `updated_at`                                  | index `profile_id`                                                                            |
-| `parent_locks`       | `family_subject` PK, `pin_hash` (Argon2id), `pin_salt`, `failed_attempts`, `locked_until`, `updated_at`                                                                 |                                                                                               |
+| Table                | Colonnes principales                                                                                                                                                    | Contraintes / index                                                                                     |
+| -------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| `families`           | `google_subject` PK, `onboarding_complete`, `created_at`, `updated_at`                                                                                                  |                                                                                                         |
+| `profiles`           | `id` PK (UUID, ou `lou` pour le profil historique), `family_subject` FK, `name`, `avatar_id`, `learning_paths` JSON, `reminder_minute` NULL, `created_at`, `updated_at` | index `family_subject`                                                                                  |
+| `attempt_events`     | `event_id` PK, `profile_id` FK, `session_id`, `sequence`, `answered_at`, `learning_day_key`, `fact_key`, `payload` JSON, `received_at`                                  | index `(profile_id, answered_at, sequence)` ; `(profile_id, session_id, sequence)` unique à l'ingestion |
+| `learning_snapshots` | `profile_id` PK, `algorithm_version`, `snapshot` JSON, `last_answered_at`, `last_sequence`, `updated_at`                                                                |                                                                                                         |
+| `garden_collections` | `profile_id` PK, `awarded_flower_ids` JSON, `flower_order` JSON, `bloom_count`, `rewarded_day_keys` JSON, `introduction_seen`, `catalog_version`                        |                                                                                                         |
+| `allowed_emails`     | `email` PK, `status`, `session_version`, `added_at`, `added_by`, `removed_at`, `removed_by`                                                                             |                                                                                                         |
+| `push_subscriptions` | `endpoint` PK, `profile_id` FK, `keys_auth`, `keys_p256dh`, `expiration_time`, `locale`, `timezone`, `last_sent_day_key`, `updated_at`                                  | index `profile_id`                                                                                      |
+| `parent_locks`       | `family_subject` PK, `pin_hash` (Argon2id), `pin_salt`, `failed_attempts`, `locked_until`, `updated_at`                                                                 |                                                                                                         |
 
 Toutes les clés étrangères vers `profiles` sont `ON DELETE CASCADE` : retirer un enfant supprime ses événements,
 son snapshot, son jardin et ses abonnements (le dialogue dit « définitif », le serveur fait pareil). Règles reprises
@@ -415,12 +424,14 @@ des fleurs = préfixe historique puis mélange.
 **Migration depuis MongoDB** (une seule fois, lot 2) :
 
 1. `mongodump` de la production + copie hors VPS.
-2. `little-tables admin import-mongo --uri … --database little_tables` : applique les migrations paresseuses actuelles
-   (document historique → famille v2, avatars) et écrit dans SQLite en une transaction. Les événements qui violeraient
-   la contrainte `(profile_id, session_id, sequence)` sont importés **sans** la contrainte (ajoutée après, en ignorant
-   les doublons historiques listés dans le rapport d'import).
-3. Vérifications : comptages par collection ; pour chaque profil, bootstrap JSON de l'ancien serveur = bootstrap JSON
-   de l'adaptateur v1 Rust. Échec = pas de bascule.
+2. `apps/server/src/tools/export-for-rust.ts`, livré dans l'image Node actuelle, lit MongoDB **sans écrire** et produit
+   un export JSON : familles (avatars normalisés), événements, jardins, accès, abonnements, et pour chaque profil le
+   bootstrap calculé par le code inchangé de l'ancien serveur sur des copies en mémoire (les jardins manquants y sont
+   créés comme au prochain bootstrap et exportés ainsi). Un document de profil d'avant les familles bloque l'export.
+3. `little-tables admin import export.json` charge une base vide, refuse les enregistrements d'enfants retirés sauf
+   `--allow-orphans`, puis recalcule chaque bootstrap et exige l'égalité avec celui de l'ancien serveur (nombres comparés
+   par valeur). Échec = pas de bascule. La règle `(profile_id, session_id, sequence)` est appliquée à l'ingestion, pas
+   en contrainte SQL : les doublons historiques s'importent tels quels.
 4. Bascule courte (les outbox des appareils absorbent la fenêtre) ; Mongo arrêté mais conservé 30 jours ; retrait
    du conteneur, du volume et des Quadlets après accord explicite.
 
@@ -565,15 +576,17 @@ Chromium), build. `pnpm doctor` reste exigé pour chaque PR web.
 
 Modèle « release immuable systemd », identique à Love Letters, Loup-Garou et Raclettefin ; plus de conteneur.
 
-- Artefact : binaire statique `x86_64-unknown-linux-musl` (SQLite embarqué, PWA embarquée), archive
-  `little-tables-<sha>.tar.zst` + SHA-256, publiée en artefact de release GitHub.
+- Artefact : binaire `x86_64-unknown-linux-gnu` (glibc : `aws-lc`, utilisé par rustls, ne vise pas musl simplement ;
+  construit sur Ubuntu 24.04, glibc plus ancienne que celle de Debian 13) avec SQLite embarqué, plus le build web dans
+  `web/` ; archive `little-tables-<sha>.tar.gz` + SHA-256, publiée en artefact de CI (30 jours).
 - VPS : `/opt/little-tables/releases/<sha>/`, lien atomique `/opt/little-tables/current`, état dans
   `/var/lib/little-tables/` (base + sauvegardes), secrets dans `/etc/little-tables/little-tables.env`.
 - `little-tables.service` : utilisateur système dédié `little-tables` (pas de `DynamicUser`, pour que le timer de
   sauvegarde partage le même compte), `ProtectSystem=strict`, `StateDirectory=little-tables`, `NoNewPrivileges`,
   `PrivateTmp`, `MemoryMax=256M`, écoute `127.0.0.1:32140` (Caddy inchangé). `little-tables-backup.timer` quotidien.
-- Pipeline : `verify` → `release` → `deploy` par la clé SSH à commande forcée (`deploy <sha>`, `status`,
-  `public-health`). Script de déploiement : vérifie la somme, **arrête le service**, `.backup`, applique les migrations
+- Pipeline : `verify` (qui construit et teste aussi l'archive) → `deploy` par la clé SSH à commande forcée
+  (`deploy-release <sha> <sha256>`, archive sur l'entrée standard ; `status`, `public-health`). Bascule unique :
+  `deploy/RUST_CUTOVER_RUNBOOK.md`. Script de déploiement : vérifie la somme, **arrête le service**, `.backup`, applique les migrations
   avec le nouveau binaire (`little-tables admin migrate`), bascule le lien, démarre, contrôle `/health/ready` + révision.
   En cas d'échec : arrêt, restauration de la sauvegarde, lien précédent, redémarrage. Indisponibilité de quelques
   secondes, acceptable pour un usage familial.
