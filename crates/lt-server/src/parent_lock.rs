@@ -12,8 +12,8 @@ use lt_store::ParentLock;
 use serde::Deserialize;
 use serde_json::{Value, json};
 
+use crate::http::{json_response, ok};
 use crate::state::{AppState, now};
-use crate::v1::{json_response, ok};
 use crate::v2::{Failure, Reply, body, fail, family};
 
 /// PBKDF2 settings for the device's offline copy of the code.

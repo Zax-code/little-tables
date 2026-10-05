@@ -1,4 +1,4 @@
-//! Attempt ingestion: decoding of the v1 wire format and the server-side consistency rules.
+//! Attempt ingestion: decoding of the wire format and the server-side consistency rules.
 
 use lt_domain::engine::{correct_answer, fact_key, validate_exercise_attempt};
 use lt_domain::model::{
@@ -54,19 +54,6 @@ struct WireAttempt {
     session_kind: Option<SessionKind>,
 }
 
-#[derive(Deserialize)]
-#[serde(rename_all = "camelCase")]
-struct WireSync {
-    attempts: Vec<Value>,
-    profile_id: String,
-}
-
-/// A v1 sync request: the profile and its decoded events.
-pub struct SyncRequest {
-    pub attempts: Vec<AttemptEvent>,
-    pub profile_id: String,
-}
-
 /// Parses an instant the way `new Date(text)` reads what clients send: ISO 8601, or a bare date
 /// (midnight UTC).
 pub fn parse_instant(text: &str) -> Option<Millis> {
@@ -87,25 +74,14 @@ fn is_day_key_shaped(key: &str) -> bool {
         })
 }
 
-/// How a request writes instants: v1 as ISO strings, v2 as Unix milliseconds.
-#[derive(Clone, Copy, Debug, Eq, PartialEq)]
-pub enum Instants {
-    Iso,
-    Millis,
-}
-
-fn decode_attempt(value: Value) -> Result<AttemptEvent, String> {
-    decode_attempt_with(value, Instants::Iso)
-}
-
-/// Decodes one event and applies the schema rules of the wire format.
-pub fn decode_attempt_with(value: Value, instants: Instants) -> Result<AttemptEvent, String> {
+/// Decodes one event and applies the schema rules of the wire format (instants in Unix ms).
+pub fn decode_attempt(value: Value) -> Result<AttemptEvent, String> {
     let wire: WireAttempt = serde_json::from_value(value).map_err(|error| error.to_string())?;
-    let answered_at = match instants {
-        Instants::Iso => wire.answered_at.as_str().and_then(parse_instant),
-        Instants::Millis => wire.answered_at.as_i64().filter(|millis| *millis > 0),
-    }
-    .ok_or("answeredAt is not a date")?;
+    let answered_at = wire
+        .answered_at
+        .as_i64()
+        .filter(|millis| *millis > 0)
+        .ok_or("answeredAt is not a date")?;
     let whole = |value: f64| value >= 0.0 && value.fract() == 0.0 && value.is_finite();
     if wire.event_id.is_empty() || wire.fact_key.is_empty() || wire.session_id.is_empty() {
         return Err("identifiers must not be empty".to_owned());
@@ -166,26 +142,6 @@ pub fn decode_attempt_with(value: Value, instants: Instants) -> Result<AttemptEv
         sequence: wire.sequence,
         session_id: wire.session_id,
         session_kind: wire.session_kind,
-    })
-}
-
-/// Decodes a v1 sync body. Any malformed event fails the whole request.
-pub fn decode_v1_sync(body: &[u8]) -> Result<SyncRequest, String> {
-    let wire: WireSync = serde_json::from_slice(body).map_err(|error| error.to_string())?;
-    if wire.profile_id.is_empty() {
-        return Err("profileId must not be empty".to_owned());
-    }
-    if wire.attempts.len() > 100 {
-        return Err("at most 100 attempts per request".to_owned());
-    }
-    let attempts = wire
-        .attempts
-        .into_iter()
-        .map(decode_attempt)
-        .collect::<Result<_, _>>()?;
-    Ok(SyncRequest {
-        attempts,
-        profile_id: wire.profile_id,
     })
 }
 
@@ -294,7 +250,7 @@ mod tests {
 
     fn wire(overrides: Value) -> Value {
         let mut attempt = json!({
-            "answerMode": "choice", "answeredAt": "2026-01-05T17:30:00.000Z", "choices": [12, 7, 9, 14],
+            "answerMode": "choice", "answeredAt": 1_767_634_200_000_i64, "choices": [12, 7, 9, 14],
             "correct": true, "eventId": "e1", "factKey": "3:4", "latencyMs": 2100, "left": 3,
             "questionCount": 10, "right": 4, "selected": 12, "sequence": 0, "sessionId": "s1",
         });
@@ -309,12 +265,13 @@ mod tests {
     }
 
     #[test]
-    fn decodes_the_v1_wire_format() {
+    fn decodes_the_wire_format() {
         let attempt = decode(json!({})).unwrap();
         assert_eq!(attempt.answered_at, 1_767_634_200_000);
         assert_eq!(attempt.operation, Some(QuestionOperation::Multiply));
         assert_eq!(rejection_reason(&attempt), None);
-        assert!(decode(json!({"answeredAt": "yesterday"})).is_err());
+        assert!(decode(json!({"answeredAt": "2026-01-05T17:30:00.000Z"})).is_err());
+        assert!(decode(json!({"answeredAt": 0})).is_err());
         assert!(decode(json!({"latencyMs": 1.5})).is_err());
         assert!(decode(json!({"questionCount": 0})).is_err());
         assert!(decode(json!({"learningDayKey": "2026-1-5"})).is_err());
@@ -389,15 +346,5 @@ mod tests {
             parse_instant("2026-01-05T18:30:00+01:00"),
             Some(1_767_634_200_000)
         );
-    }
-
-    #[test]
-    fn limits_batches() {
-        let attempts: Vec<Value> = (0..101).map(|_| wire(json!({}))).collect();
-        let body = serde_json::to_vec(&json!({"attempts": attempts, "profileId": "lou"})).unwrap();
-        assert!(decode_v1_sync(&body).is_err());
-        let body = serde_json::to_vec(&json!({"attempts": [wire(json!({}))], "profileId": "lou"}))
-            .unwrap();
-        assert_eq!(decode_v1_sync(&body).unwrap().attempts.len(), 1);
     }
 }

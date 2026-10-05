@@ -1,12 +1,12 @@
 # Switching production to the Rust server
 
-Lot 2 of the rewrite replaces the Node server and MongoDB with one Rust binary and one SQLite
-file. The current web app keeps working unchanged: the Rust server serves the same `/api/v1`
-contract. This runbook moves production once; it needs an approved maintenance window and must
-not touch Caddy, other workloads or the Mongo volume.
+The rewrite replaces the Node server, MongoDB and the previous web app with one Rust binary, one
+SQLite file and the new app. This runbook moves production once; it needs an approved maintenance
+window and must not touch other workloads or the Mongo volume. Pre-production
+(`preprod/PREPROD_RUNBOOK.md`) rehearses the same export and import beside production.
 
-Until it is done, CI keeps deploying the Node image. Every CI run also builds and smoke-tests the
-Rust release (`little-tables-<commit>` artifact) without deploying it.
+Until it is done, deploying on merge stays paused (repository variable `DEPLOY_ON_MERGE`). Every
+CI run builds and smoke-tests the release (`little-tables-<commit>` artifact).
 
 ## What changes
 
@@ -17,15 +17,24 @@ Rust release (`little-tables-<commit>` artifact) without deploying it.
 | MongoDB volume `little-tables-mongo-data`           | `/var/lib/little-tables/little-tables.db` (SQLite, WAL)           |
 | `deploy <image>` through the restricted key         | `deploy-release <sha> <sha256>` with the archive on stdin         |
 | No database backups of its own                      | Pre-deploy backup + nightly timer, 14 days                        |
+| Previous web app on `/api/v1`                       | New app on `/api/v2` (`/api/v1` answers 404)                      |
 
-The app keeps `127.0.0.1:32140`, so Caddy is unchanged. Sessions keep their format: families
-stay signed in.
+The app keeps `127.0.0.1:32140`. Sessions keep their format: families stay signed in. Installed
+copies of the previous app check for a new service worker whenever they open and offer their
+update banner (its recovery screen does the same when `/api/v1` refuses them); tapping it opens
+the new app, which copies each child's local data, unsent answers included, and deletes the old
+copy only after they reached the server.
 
 ## 0. Before the window
 
-- The commit to deploy is merged on `main`, its CI is green and its Node image is deployed (that
-  image contains the exporter, `dist/tools/export-for-rust.js`).
-- Download its `little-tables-<sha>` artifact (archive and `.sha256`) from the CI run.
+- The commit to deploy is merged on `main` and its CI is green. Download its
+  `little-tables-<sha>` artifact (archive and `.sha256`) from the CI run.
+- The exporter (`dist/tools/export-for-rust.js`) belongs to the previous Node server, removed from
+  `main` with lot 5. Use the image built from commit `9881ecc7aa9263d4e63ab90cc77db6d1dcf3dd86`,
+  already loaded on the VPS as `localhost/little-tables-exporter:9881ecc7…` for pre-production; if
+  it is gone, rebuild it from that commit
+  (`docker buildx build --platform linux/amd64 -t localhost/little-tables-exporter:<commit> --load .`)
+  and `docker save | ssh leaetzak 'sudo podman load'`.
 - Prepare the new variables for `/etc/little-tables/little-tables.env` (without printing the
   file): `ADMIN_EMAILS` (the owner's Google email) and `PUBLIC_ORIGIN=https://math.leaetzak.love`.
   `SESSION_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_ALLOWED_EMAILS` and the VAPID keys stay as they
@@ -52,11 +61,11 @@ sudo sh -c "podman exec -i little-tables-mongo mongorestore --archive --gzip --d
 
 ## 3. Export
 
-The exporter only reads MongoDB. Run it from the current image, against the running Mongo:
+The exporter only reads MongoDB. Run it against the running Mongo:
 
 ```sh
 sudo sh -c "podman run --rm --network host --env-file /etc/little-tables/little-tables.env \
-  --entrypoint node <current image> dist/tools/export-for-rust.js \
+  --entrypoint node localhost/little-tables-exporter:9881ecc7aa9263d4e63ab90cc77db6d1dcf3dd86 dist/tools/export-for-rust.js \
   >/var/backups/little-tables/export-$timestamp.json"
 ```
 
@@ -95,10 +104,14 @@ service (`sudo systemctl start little-tables.service`) and investigate.
    `/usr/local/sbin/deploy-little-tables-release` and the updated
    `deploy/little-tables-deploy-ssh` forced command, all root-owned. Allow the deploy user to run
    `/usr/local/sbin/deploy-little-tables-release` through sudo, exactly like the image deployer.
-4. Add `ADMIN_EMAILS` and `PUBLIC_ORIGIN` to the environment file, then
+4. Install `deploy/math.leaetzak.love.Caddyfile` in `/etc/caddy/conf.d/` (its CSP lets the new
+   app run its WebAssembly engine), `sudo caddy validate --config /etc/caddy/Caddyfile`, and keep
+   the reload for step 5.
+5. Add `ADMIN_EMAILS` and `PUBLIC_ORIGIN` to the environment file, then
    `sudo ln -sfn /opt/little-tables/releases/<sha> /opt/little-tables/current`.
-5. `sudo systemd-analyze verify little-tables.service`, then
-   `sudo systemctl daemon-reload && sudo systemctl enable --now little-tables.service little-tables-backup.timer`.
+6. `sudo systemd-analyze verify little-tables.service`, then
+   `sudo systemctl daemon-reload && sudo systemctl enable --now little-tables.service little-tables-backup.timer`
+   and `sudo systemctl reload caddy`.
 
 ## 6. Verify
 
@@ -110,31 +123,14 @@ service (`sudo systemctl start little-tables.service`) and investigate.
 - The next morning: a backup in `/var/lib/little-tables/backups`; in the evening, reminders sent
   (the journal logs how many).
 
-Then merge the pipeline change that deploys releases (`deploy-release`) instead of images.
-
-## Family beta of the new app (lot 3)
-
-Each release carries both apps: `web-v1/` (the previous one, served after the switch) and `web/`
-(the new one). Once the switch is stable, serve the new app by changing one line of the unit:
-
-```sh
-sudo systemctl edit little-tables.service   # Environment=WEB_DIST_PATH=/opt/little-tables/current/web
-sudo systemctl restart little-tables.service
-```
-
-The new app runs its engine as WebAssembly: before switching, add `'wasm-unsafe-eval'` to
-`script-src` in the `math.leaetzak.love` Caddy fragment (as in
-`preprod/math-preprod.leaetzak.love.Caddyfile`), validate and reload Caddy.
-
-On first opening, the new app copies each child's previous local data (events not yet sent
-included) and deletes the old copy only after it reached the server. Going back is the same edit
-with `web-v1`; both apps read the same server data.
+Then set the repository variable `DEPLOY_ON_MERGE` to `true`: merges deploy releases again
+(`deploy-release`).
 
 ## Rollback
 
-Before the pipeline change, rolling back is: stop `little-tables.service`, disable the native
-units, restore `little-tables.container` into `/etc/containers/systemd/`, `daemon-reload`, start
-the Quadlet service. MongoDB was frozen at step 2, so answers synced to the Rust server since
+Before deploying on merge resumes, rolling back is: stop `little-tables.service`, disable the
+native units, restore `little-tables.container` into `/etc/containers/systemd/` and the previous
+Caddy fragment, `daemon-reload`, start the Quadlet service and reload Caddy. MongoDB was frozen at step 2, so answers synced to the Rust server since
 then are not in MongoDB: devices keep only unsynced answers. Decide before rolling back after
 real use.
 

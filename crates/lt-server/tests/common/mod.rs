@@ -144,12 +144,28 @@ impl Server {
         self.send(Method::GET, path, headers, None).await
     }
 
+    /// A request as the app sends it: marked, same-origin, with the session cookie if any.
+    pub async fn app(
+        &self,
+        method: Method,
+        path: &str,
+        cookie: &str,
+        body: Option<Value>,
+    ) -> Reply {
+        let headers = [
+            ("x-little-tables", "1"),
+            ("sec-fetch-site", "same-origin"),
+            ("cookie", cookie),
+        ];
+        self.send(method, path, &headers, body).await
+    }
+
     pub async fn sign_in(&self, credential: &str) -> String {
         let reply = self
-            .send(
+            .app(
                 Method::POST,
-                "/api/v1/auth/google",
-                &[],
+                "/api/v2/auth/google",
+                "",
                 Some(json!({ "credential": credential })),
             )
             .await;

@@ -20,14 +20,14 @@ use serde::{Deserialize, Deserializer};
 use serde_json::{Value, json};
 
 use crate::bootstrap::{collection_json, profile_state};
-use crate::ingestion::{Instants, decode_attempt_with, ingest};
+use crate::http::{
+    DEFAULT_AVATAR, SELECTABLE_AVATARS, error, family_for_identity, is_valid_name, json_response,
+    ok, truncated_name, with_session,
+};
+use crate::ingestion::{decode_attempt, ingest};
 use crate::limits::client_ip;
 use crate::parent_lock;
 use crate::state::{AppState, cookie, now};
-use crate::v1::{
-    DEFAULT_AVATAR, SELECTABLE_AVATARS, error, family_for_identity, is_valid_name, json_response,
-    legacy_profile_id, ok, truncated_name, with_session,
-};
 
 /// The earliest and latest reminder times, and their step, in minutes after midnight.
 const REMINDER_RANGE: std::ops::RangeInclusive<i64> = 7 * 60..=21 * 60;
@@ -90,12 +90,10 @@ async fn owner(
     profile_id: &str,
 ) -> Result<SessionClaims, Failure> {
     let identity = caller(state, headers).await?;
-    match state
-        .profile_for(&identity, headers, Some(profile_id))
-        .await?
-    {
-        Some(_) => Ok(identity),
-        None => Err(fail(StatusCode::FORBIDDEN, "profile_forbidden")),
+    if state.owns_profile(&identity, profile_id).await? {
+        Ok(identity)
+    } else {
+        Err(fail(StatusCode::FORBIDDEN, "profile_forbidden"))
     }
 }
 
@@ -257,7 +255,7 @@ async fn google_sign_in(
         .ensure_family(
             &identity.subject,
             &fallback_name,
-            legacy_profile_id(&state, &identity.email, "lou"),
+            None,
             DEFAULT_AVATAR,
             now(),
         )
@@ -621,7 +619,7 @@ async fn attempts(
     let events = batch
         .attempts
         .into_iter()
-        .map(|attempt| decode_attempt_with(attempt, Instants::Millis))
+        .map(decode_attempt)
         .collect::<Result<Vec<_>, _>>()
         .map_err(invalid)?;
     let result = ingest(&state.store, &profile_id, events, now()).await?;

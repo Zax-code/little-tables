@@ -126,8 +126,6 @@ const routeTree = root.addChildren([
 export const router = createRouter({ defaultPreload: 'intent', routeTree, scrollRestoration: true })
 
 declare module '@tanstack/react-router' {
-  // Module augmentation needs an interface.
-  // eslint-disable-next-line @typescript-eslint/consistent-type-definitions
   interface Register {
     router: typeof router
   }

@@ -12,7 +12,7 @@ from PIL import Image
 
 ROOT = Path(__file__).resolve().parents[2]
 ASSET_ROOT = ROOT / "assets/generated/characters"
-PUBLIC_ROOT = ROOT / "apps/web/public/characters"
+PUBLIC_ROOT = ROOT / "apps/app/public/characters"
 
 CHARACTERS = {
     "malo-bear": ("Malo", "bear", "cream short-sleeve T-shirt and brick-red neckerchief"),

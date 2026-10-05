@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Builds the learning engine for the browser into packages/domain/wasm and enforces its size budget.
+# Builds the learning engine for the browser into packages/engine/wasm and enforces its size budget.
 set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"

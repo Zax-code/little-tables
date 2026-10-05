@@ -11,7 +11,7 @@ export default tseslint.config(
       '**/wasm/**',
       'packages/ui/build/**',
       '**/.ladle/config.mjs',
-      'apps/web/public/generated/**',
+      'assets/legacy-public/**',
       'eslint.config.mjs',
       'target/**',
       // A frozen copy of the previous engine, kept byte for byte as the golden reference.
@@ -45,7 +45,8 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/web/src/router.tsx'],
+    // The router registration is a module augmentation, which needs an interface.
+    files: ['apps/app/src/routes.tsx'],
     rules: { '@typescript-eslint/consistent-type-definitions': 'off' },
   },
 )
