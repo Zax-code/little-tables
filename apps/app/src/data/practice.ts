@@ -23,7 +23,9 @@ export const policies = {
     focusTable: table,
     questionCount: 8,
   }),
+  /** At most two new items per watering (version 2, `docs/rewrite/TECHNICAL_SPEC.md` §3.4). */
   daily: (paths: LearningPathSettings): PracticePolicy => ({
+    algorithmVersion: '2',
     curriculum: { paths },
     kind: 'daily-watering',
   }),

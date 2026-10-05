@@ -816,11 +816,54 @@ fn fill_focus<'a>(
     selection
 }
 
+/// At most this many items a learner has never seen enter one daily watering (version 2).
+const MAX_NEW_ITEMS: usize = 2;
+
+/// The distinct items in `selection` the learner has never seen.
+fn new_items(selection: &[&Candidate]) -> usize {
+    dedupe_first(
+        selection
+            .iter()
+            .copied()
+            .filter(|candidate| !candidate.seen())
+            .collect(),
+    )
+    .len()
+}
+
+/// Keeps the seen items and the first `limit` distinct new ones, with their repetitions.
+fn cap_new_items(selection: Vec<&Candidate>, limit: usize) -> Vec<&Candidate> {
+    let mut kept: Vec<&str> = Vec::new();
+    selection
+        .into_iter()
+        .filter(|candidate| {
+            if candidate.seen() || kept.contains(&candidate.key()) {
+                return true;
+            }
+            if kept.len() < limit {
+                kept.push(candidate.key());
+                return true;
+            }
+            false
+        })
+        .collect()
+}
+
 fn select_daily_watering_facts<'a>(
     pool: &[&'a Candidate],
     initial_selection: Vec<&'a Candidate>,
     budget_override: Option<f64>,
+    cap_new: bool,
 ) -> Vec<&'a Candidate> {
+    // Version 2: a focus counts in the two new items; a learner with nothing to review yet still
+    // gets the five-question introduction.
+    let introduction = !pool.iter().any(|candidate| candidate.seen());
+    let cap_new = cap_new && !introduction;
+    let initial_selection = if cap_new {
+        cap_new_items(initial_selection, MAX_NEW_ITEMS)
+    } else {
+        initial_selection
+    };
     let priority: Vec<&Candidate> = pool
         .iter()
         .copied()
@@ -870,7 +913,19 @@ fn select_daily_watering_facts<'a>(
         .copied()
         .filter(|candidate| !candidate.seen())
         .collect();
-    add_until_full(unseen.iter().take(2).copied().collect(), &mut selected);
+    let allowance = if cap_new {
+        MAX_NEW_ITEMS.saturating_sub(new_items(&selected))
+    } else {
+        2
+    };
+    add_until_full(
+        unseen.iter().take(allowance).copied().collect(),
+        &mut selected,
+    );
+    if cap_new {
+        // Version 2: a shorter watering rather than a third new item.
+        return selected;
+    }
     // A brand-new learner has no review pool yet. Fill the five-question introduction, then
     // future waterings cap new material at two facts while reviews are available.
     add_until_full(unseen, &mut selected);
@@ -1055,6 +1110,7 @@ pub fn create_session(
                 &limit_families(&limit_columns(&all, 2), None),
                 Vec::new(),
                 None,
+                policy.caps_new_items(),
             ),
             Some(family) => {
                 // A skill the parent put forward takes about half of the watering; reviews fill
@@ -1076,6 +1132,7 @@ pub fn create_session(
                     ),
                     focused,
                     Some(budget),
+                    policy.caps_new_items(),
                 )
             }
         };
@@ -1172,6 +1229,7 @@ pub fn create_session(
         .collect();
 
     PracticeSession {
+        algorithm_version: policy.algorithm_version.clone(),
         created_at: now,
         current_question_started_at: now,
         current_index: 0,
@@ -1257,7 +1315,7 @@ pub fn answer(
         sequence: session.current_index,
         session_id: session.id.clone(),
         session_kind: Some(session.kind),
-        algorithm_version: None,
+        algorithm_version: session.algorithm_version.clone(),
     };
     let mut questions = session.questions.clone();
     if !correct && index + 1 < questions.len() {
