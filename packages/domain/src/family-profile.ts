@@ -1,5 +1,7 @@
 import { Schema } from 'effect'
 
+import { LearningPathSettingsSchema } from './exercises.js'
+
 export const ChildAvatarIdSchema = Schema.Literal(
   'sprout',
   'malo-bear',
@@ -32,6 +34,8 @@ export type ChildProfileName = typeof ChildProfileNameSchema.Type
 export const ChildProfileSchema = Schema.Struct({
   avatarId: ChildAvatarIdSchema,
   id: Schema.NonEmptyString,
+  /** How additions, big numbers and fractions join practice. Absent means automatic. */
+  learningPaths: Schema.optional(LearningPathSettingsSchema),
   name: ChildProfileNameSchema,
 })
 export type ChildProfile = typeof ChildProfileSchema.Type

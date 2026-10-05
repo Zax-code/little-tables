@@ -3,6 +3,7 @@ import {
   ChildProfileNameSchema,
   type ChildProfile,
   type ChildProfileName,
+  type LearningPathSettings,
   type SelectableChildAvatarId,
 } from '@little-tables/domain'
 import { Context, Data, type Effect } from 'effect'
@@ -26,6 +27,7 @@ export class ProfileRepositoryError extends Data.TaggedError('ProfileRepositoryE
     | 'find-family'
     | 'remove-child'
     | 'update-child'
+    | 'update-learning-paths'
 }> {}
 
 export type ProfileRepositoryService = Readonly<{
@@ -55,6 +57,11 @@ export type ProfileRepositoryService = Readonly<{
     googleSubject: string,
     profileId: string,
     input: Readonly<{ avatarId: SelectableChildAvatarId; name: ChildProfileName }>,
+  ) => Effect.Effect<ChildProfile | null, ProfileRepositoryError>
+  updateLearningPaths: (
+    googleSubject: string,
+    profileId: string,
+    learningPaths: LearningPathSettings,
   ) => Effect.Effect<ChildProfile | null, ProfileRepositoryError>
 }>
 

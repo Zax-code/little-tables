@@ -1,6 +1,8 @@
 import type { GardenPlantId } from '@little-tables/domain'
 import { Schema } from 'effect'
 
+import { pathsEnglish, pathsFrench, pathsSimplifiedChinese } from './i18n-paths-catalog.js'
+
 export const supportedLocales = ['en', 'fr', 'zh-Hans'] as const
 export const LocaleSchema = Schema.Literal(...supportedLocales)
 export type Locale = typeof LocaleSchema.Type
@@ -79,7 +81,7 @@ const english = {
   'celebration.rewardGrowing':
     'Watering progress for {plant}: {current} of {total}. {remaining} more to fill its growth goal.',
   'celebration.rewardGrowingMastery':
-    'Watering progress for {plant}: {current} of {total}, with {remainingBlooms} more to fill its growth goal. It also needs {required} multiplication facts answered without hints; {remainingFacts} to go.',
+    'Watering progress for {plant}: {current} of {total}, with {remainingBlooms} more to fill its growth goal. It also needs {required} facts answered without hints; {remainingFacts} to go.',
   'celebration.rewardMature':
     '{plant} is fully grown and has joined your collection. Next discovery: {nextPlant}.',
   'celebration.rewardMatureFinal':
@@ -173,9 +175,9 @@ const english = {
   'garden.howCollection': 'The current flower blooms after three waterings.',
   'garden.howRest': 'Days off never remove a plant or reset its progress.',
   'garden.masteryAhead':
-    'This plant also needs {required} multiplication facts answered without hints. {remaining} to go.',
+    'This plant also needs {required} facts answered without hints. {remaining} to go.',
   'garden.masteryBlocked':
-    'This plant’s 3 waterings are complete. Answer {remaining} more multiplication facts without hints to help it bloom. Its watering progress is safe.',
+    'This plant’s 3 waterings are complete. Answer {remaining} more facts without hints to help it bloom. Its watering progress is safe.',
   'garden.allBlooming': 'every little plant is blooming',
   'garden.plotAria':
     'Little garden after {blooms}: {mature}, {growing}, {locked}{sparkle}. {caretaker}',
@@ -383,6 +385,7 @@ const english = {
   'week.heading': 'your week in bloom',
   'week.manyToGo': '{count} more little visits for a blooming week',
   'week.oneToGo': 'one more little visit for a blooming week',
+  ...pathsEnglish,
 } as const
 
 export type TranslationKey = keyof typeof english
@@ -462,7 +465,7 @@ const french: Record<TranslationKey, string> = {
   'celebration.rewardGrowing':
     'Arrosages pour {plant} : {current} sur {total}. Encore {remaining} pour remplir son objectif de croissance.',
   'celebration.rewardGrowingMastery':
-    'Arrosages pour {plant} : {current} sur {total}, encore {remainingBlooms} pour remplir son objectif de croissance. Il faut aussi réussir {required} multiplications sans aide ; il en reste {remainingFacts}.',
+    'Arrosages pour {plant} : {current} sur {total}, encore {remainingBlooms} pour remplir son objectif de croissance. Il faut aussi réussir {required} calculs sans aide ; il en reste {remainingFacts}.',
   'celebration.rewardMature':
     '{plant} vient d’éclore et rejoint ta collection pour de bon. Prochaine découverte : {nextPlant}.',
   'celebration.rewardMatureFinal':
@@ -560,9 +563,9 @@ const french: Record<TranslationKey, string> = {
   'garden.howCollection': 'La fleur en cours s’épanouit au bout de trois arrosages.',
   'garden.howRest': 'Une pause n’efface rien : tes fleurs et tes progrès restent bien au chaud.',
   'garden.masteryAhead':
-    'Cette plante demande aussi {required} multiplications réussies sans aide. Il en reste {remaining}.',
+    'Cette plante demande aussi {required} calculs réussis sans aide. Il en reste {remaining}.',
   'garden.masteryBlocked':
-    'Les 3 arrosages de cette plante sont faits. Réussis encore {remaining} multiplications sans aide pour l’aider à éclore. Ses progrès sont bien gardés.',
+    'Les 3 arrosages de cette plante sont faits. Réussis encore {remaining} calculs sans aide pour l’aider à éclore. Ses progrès sont bien gardés.',
   'garden.allBlooming': 'chaque petite plante est en fleurs',
   'garden.plotAria':
     'Petit jardin après {blooms} : {mature}, {growing}, {locked}{sparkle}. {caretaker}',
@@ -771,6 +774,7 @@ const french: Record<TranslationKey, string> = {
   'week.heading': 'ta semaine fleurie',
   'week.manyToGo': 'encore {count} petits passages pour une jolie semaine fleurie',
   'week.oneToGo': 'encore un petit passage pour une jolie semaine fleurie',
+  ...pathsFrench,
 }
 
 const simplifiedChinese: Record<TranslationKey, string> = {
@@ -846,7 +850,7 @@ const simplifiedChinese: Record<TranslationKey, string> = {
   'celebration.rewardGrowing':
     '{plant}的浇水进度是 {current}/{total}。再浇 {remaining} 次水，就能达到生长目标。',
   'celebration.rewardGrowingMastery':
-    '{plant}的浇水进度是 {current}/{total}，再浇 {remainingBlooms} 次水就能达到生长目标。它还需要你不看提示，自己答对 {required} 道乘法题，目前还差 {remainingFacts} 道。',
+    '{plant}的浇水进度是 {current}/{total}，再浇 {remainingBlooms} 次水就能达到生长目标。它还需要你不看提示，自己答对 {required} 道题，目前还差 {remainingFacts} 道。',
   'celebration.rewardMature':
     '{plant}已经长成，收进你的花园图鉴啦。下一株等你发现的是{nextPlant}。',
   'celebration.rewardMatureFinal': '{plant}已经长成，收进你的花园图鉴啦。整座花园都开花了。',
@@ -938,9 +942,9 @@ const simplifiedChinese: Record<TranslationKey, string> = {
   'garden.howCollection': '浇满三次，眼前的植物就会开花。',
   'garden.howRest': '休息几天也没关系，植物和进度都不会消失。',
   'garden.masteryAhead':
-    '想让这株植物开花，还要不看提示，自己答对 {required} 道乘法题。目前还差 {remaining} 道。',
+    '想让这株植物开花，还要不看提示，自己答对 {required} 道题。目前还差 {remaining} 道。',
   'garden.masteryBlocked':
-    '已经浇满 3 次水啦。再不看提示，自己答对 {remaining} 道乘法题，它就会开花。浇水进度会好好保留。',
+    '已经浇满 3 次水啦。再不看提示，自己答对 {remaining} 道题，它就会开花。浇水进度会好好保留。',
   'garden.allBlooming': '每株小植物都开花啦',
   'garden.plotAria':
     '完成 {blooms} 后的小花园：{mature}，{growing}，{locked}{sparkle}。{caretaker}',
@@ -1143,6 +1147,7 @@ const simplifiedChinese: Record<TranslationKey, string> = {
   'week.heading': '本周花开',
   'week.manyToGo': '再来 {count} 次，这周的花就开啦',
   'week.oneToGo': '再来一次，这周的花就开啦',
+  ...pathsSimplifiedChinese,
 }
 
 const translations: Readonly<Record<Locale, Readonly<Record<TranslationKey, string>>>> = {

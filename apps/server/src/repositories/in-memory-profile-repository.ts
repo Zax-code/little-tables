@@ -93,6 +93,20 @@ const layer = () => {
         })
         return profile
       }),
+    updateLearningPaths: (googleSubject, profileId, learningPaths) =>
+      Effect.sync(() => {
+        const account = accounts.get(googleSubject)
+        const existing = account?.profiles.find(({ id }) => id === profileId)
+        if (account === undefined || existing === undefined) return null
+        const profile = { ...existing, learningPaths }
+        accounts.set(googleSubject, {
+          ...account,
+          profiles: account.profiles.map((candidate) =>
+            candidate.id === profileId ? profile : candidate,
+          ),
+        })
+        return profile
+      }),
   }
   return Layer.succeed(ProfileRepository, service)
 }

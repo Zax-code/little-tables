@@ -32,7 +32,7 @@ describe('daily reminders', () => {
 
   it('uses warm reminder copy in every supported app language', () => {
     expect(reminderCopy('fr').body).toBe('Une petite séance fera pousser ton jardin ♡')
-    expect(reminderCopy('en').body).toBe('A tiny tables win will make your garden grow ♡')
+    expect(reminderCopy('en').body).toBe('A tiny win will make your garden grow ♡')
     expect(reminderCopy('zh-Hans').body).toBe('来做一个小小练习，让你的花园继续长大吧 ♡')
   })
 })

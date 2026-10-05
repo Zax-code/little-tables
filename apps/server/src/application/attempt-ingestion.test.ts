@@ -129,3 +129,66 @@ describe('AttemptIngestion', () => {
     ])
   })
 })
+
+describe('AttemptIngestion for learning paths', () => {
+  const pathAttempt: AttemptEvent = {
+    answerMode: 'keypad',
+    answeredAt: new Date('2026-10-05T16:00:00.000Z'),
+    choices: [],
+    correct: true,
+    eventId: 'column-attempt',
+    exercise: {
+      kind: 'column',
+      operation: 'subtract',
+      skill: 'column-subtraction',
+      terms: [503, 128],
+    },
+    factKey: 'column:sub:zero',
+    latencyMs: 41_000,
+    learningDayKey: '2026-10-05',
+    left: 0,
+    questionCount: 6,
+    response: { type: 'integer', value: 375 },
+    right: 0,
+    selected: 375,
+    sequence: 2,
+    sessionId: 'session-paths',
+  }
+
+  it('accepts a consistent written subtraction', async () => {
+    const result = await Effect.runPromise(
+      AttemptIngestion.ingest({ attempts: [pathAttempt], profileId: 'lou' }).pipe(
+        Effect.provide(InMemoryAttemptRepository.layer()),
+      ),
+    )
+    expect(result).toEqual({ accepted: ['column-attempt'], duplicates: [], rejected: [] })
+  })
+
+  it('rejects a fraction answer whose correctness was misreported', async () => {
+    const fraction: AttemptEvent = {
+      ...pathAttempt,
+      answerMode: 'keypad',
+      eventId: 'fraction-attempt',
+      exercise: {
+        choices: [],
+        kind: 'fraction-operation',
+        left: { denominator: 2, numerator: 1 },
+        operation: 'add',
+        right: { denominator: 4, numerator: 1 },
+        skill: 'fraction-operation',
+        story: false,
+      },
+      factKey: 'frac:add:multiple-d',
+      response: { denominator: 6, numerator: 2, type: 'fraction', whole: 0 },
+      selected: 0,
+    }
+    const result = await Effect.runPromise(
+      AttemptIngestion.ingest({ attempts: [fraction], profileId: 'lou' }).pipe(
+        Effect.provide(InMemoryAttemptRepository.layer()),
+      ),
+    )
+    expect(result.rejected).toEqual([
+      { eventId: 'fraction-attempt', reason: 'inconsistent_attempt' },
+    ])
+  })
+})

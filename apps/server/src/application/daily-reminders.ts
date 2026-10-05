@@ -9,7 +9,7 @@ import {
 } from '../repositories/attempt-repository.js'
 
 const reminderCopies = {
-  en: { body: 'A tiny tables win will make your garden grow ♡', title: 'little tables.' },
+  en: { body: 'A tiny win will make your garden grow ♡', title: 'little tables.' },
   fr: { body: 'Une petite séance fera pousser ton jardin ♡', title: 'little tables.' },
   'zh-Hans': { body: '来做一个小小练习，让你的花园继续长大吧 ♡', title: 'little tables.' },
 } as const satisfies Readonly<Record<ReminderLocale, Readonly<{ body: string; title: string }>>>

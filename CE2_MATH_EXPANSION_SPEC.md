@@ -95,10 +95,10 @@ apprend à l’école » :
   depuis Famille ou depuis « choisis un petit chemin » ;
 - **choisir la méthode de soustraction posée** de l’école (§4.5).
 
-Le parent peut revenir au mode automatique à tout moment. Un sentier fermé à la main ne se rouvre pas
-tout seul.
+Le parent peut revenir au mode automatique à tout moment. Pour fermer un sentier, il passe en mode
+« seulement ce que je coche » : rien ne s’ouvre alors tout seul.
 
-Le réglage est stocké dans le document profil (`profiles`, schemaVersion 3) et synchronisé. Avant
+Le réglage est stocké dans le document profil (`profiles`, champ facultatif) et synchronisé. Avant
 l’ouverture automatique, un profil existant ne voit aucun changement.
 
 ### 3.2 Ouverture progressive à l’intérieur d’un sentier
@@ -291,8 +291,7 @@ Elle correspond au travail de période 3 sur la **bande-unité**.
 - **Cas** : les trois cas du programme. Même dénominateur, même numérateur, ou un dénominateur
   multiple de l’autre (`7/12 ☐ 5/6`). Les égalités sont incluses.
 - **Preuve** : comme l’interface reste un choix (une chance sur trois au hasard), F4 devient « bien
-  ancré » sur **6 réussites réparties sur au moins 3 jours**, et non pas après deux rappels comme
-  ailleurs.
+  ancré » après **5 jours différents de réussite**, et non pas après deux rappels comme ailleurs.
 - **Clé** : `frac:compare:same-d`, `same-n`, `multiple-d`.
 - **Aide** : les deux fractions sur deux bandes de même longueur, alignées.
 
@@ -519,23 +518,24 @@ type PracticeAnswer =
   - `attempt-ingestion.ts` valide chaque `kind` : il vérifie les bornes, **recalcule la bonne
     réponse depuis les paramètres** et vérifie `correct` ;
   - les bornes actuelles (1..144, 1..12) ne s’appliquent qu’aux multiplications et divisions.
-- **Profil** : `schemaVersion` 3 ajoute :
+- **Profil** : chaque enfant du document famille (toujours `schemaVersion` 2) reçoit un champ
+  facultatif :
 
   ```ts
-  learningPaths: {
+  learningPaths?: {
     mode: 'automatic' | 'manual'
-    enabledSkills: ReadonlyArray<SkillId> // utilisé en mode manuel
-    closedPaths: ReadonlyArray<PathId> // sentiers fermés à la main
+    enabledSkills: ReadonlyArray<SkillId> // ouverts tout de suite, dans les deux modes
     focusSkill: SkillId | null // « en ce moment à l’école »
     subtractionMethod: 'compensation' | 'decomposition'
   }
   ```
 
-  Le repository Mongo migre en lecture : une v2 donne `{ mode: 'automatic', enabledSkills: [],
-closedPaths: [], focusSkill: null, subtractionMethod: 'compensation' }`.
+  Un profil sans ce champ suit les réglages par défaut (`automatic`, rien de coché, compensation).
+  Aucune migration n’est nécessaire. Le réglage s’enregistre avec
+  `PUT /api/v1/family/profiles/learning-paths`.
 
 - **Ouverture automatique** : c’est une fonction pure du domaine,
-  `deriveOpenPaths(snapshot, learningPaths)`, et non un état stocké. Le serveur et le client arrivent
+  `deriveOpenSkills(facts, learningPaths, tablesAcquired)`, et non un état stocké. Le serveur et le client arrivent
   donc au même résultat en rejouant les événements.
 - **Pavé numérique** : la limite passe de 3 à 5 chiffres (10 000), y compris dans `fact-rescue`.
 

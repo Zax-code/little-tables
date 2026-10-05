@@ -3762,3 +3762,818 @@ p {
     transform: none;
   }
 }
+
+/* Learning paths: additions, big numbers and fractions ------------------------------------- */
+
+.question-stage.exercise-stage {
+  align-items: stretch;
+  text-align: center;
+}
+.exercise-equation {
+  align-self: center;
+  margin: clamp(18px, 5dvh, 44px) 0 26px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.18em;
+  font-size: clamp(3rem, 15vw, 5.2rem);
+  line-height: 1;
+  font-weight: 550;
+  letter-spacing: -0.04em;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.exercise-equation.is-medium {
+  font-size: clamp(2.5rem, 12vw, 4.2rem);
+}
+.exercise-equation.is-long {
+  font-size: clamp(1.9rem, 9.2vw, 3.2rem);
+}
+.equation-operator,
+.equation-equals {
+  color: var(--ink-muted);
+}
+.exercise-equation-words {
+  flex-direction: column;
+  gap: 10px;
+}
+.equation-caption {
+  font-size: 1.15rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  color: var(--ink-muted);
+}
+.blank-box {
+  display: inline-grid;
+  place-items: center;
+  min-width: 1.25em;
+  height: 1.12em;
+  padding: 0 0.12em;
+  border: 3px dashed var(--action-primary);
+  border-radius: 0.22em;
+  background: var(--surface-soft);
+  color: var(--action-primary-deep);
+}
+.blank-box.is-filled {
+  border-style: solid;
+  border-color: var(--accent-green);
+  background: var(--surface-success);
+  color: var(--ink-primary);
+}
+.fraction-text {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.18em;
+  vertical-align: middle;
+  letter-spacing: 0;
+}
+.fraction-stack {
+  display: inline-grid;
+  justify-items: center;
+  line-height: 1;
+}
+.fraction-bar {
+  width: 100%;
+  min-width: 1.1em;
+  height: 0.08em;
+  min-height: 3px;
+  margin: 0.08em 0;
+  border-radius: 999px;
+  background: currentcolor;
+}
+.fraction-whole {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.15em;
+}
+.fraction-plus {
+  font-size: 0.7em;
+  color: var(--ink-muted);
+}
+.fraction-equation {
+  gap: 0.32em;
+  font-size: clamp(2.5rem, 12.5vw, 4.2rem);
+}
+.fraction-equation .fraction-stack .blank-box {
+  height: 1.05em;
+}
+.exercise-question {
+  margin: clamp(10px, 3dvh, 26px) 0 14px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35em;
+  font-size: 1.3rem;
+  font-weight: 650;
+}
+.exercise-question .fraction-text {
+  font-size: 1.55rem;
+}
+.answer-tile-fraction {
+  font-size: 2.1rem;
+}
+.compare-grid {
+  grid-template-columns: repeat(3, 1fr);
+}
+.compare-grid .answer-tile {
+  min-height: 98px;
+  font-size: 3rem;
+}
+.compare-grid + .recall-note {
+  margin-top: 14px;
+  font-size: 0.85rem;
+}
+.story-card .garden-bed {
+  margin: 4px 0 10px;
+}
+.blank-box .fraction-text {
+  font-size: 0.55em;
+}
+.exercise-confirm {
+  width: 100%;
+  margin-top: 4px;
+}
+.story-card {
+  margin: clamp(10px, 4dvh, 30px) 0 18px;
+  padding: 16px 18px;
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-soft);
+  font-size: 1.15rem;
+  line-height: 1.4;
+}
+.story-card p {
+  margin: 0 0 8px;
+}
+
+/* Flower beds, pots and the ladybug ruler */
+.garden-bed {
+  width: 100%;
+  margin-bottom: 18px;
+  padding: 8px;
+  display: grid;
+  gap: 5px;
+  border-radius: 22px;
+  background: var(--garden-soil);
+  box-shadow:
+    inset 0 -6px 0 rgb(0 0 0 / 12%),
+    0 8px 0 rgb(128 99 77 / 18%);
+}
+.bed-part {
+  min-height: 72px;
+  display: grid;
+  place-items: end center;
+  padding: 0;
+  border: 0;
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--garden-soil) 76%, white);
+  color: inherit;
+}
+.bed-part.is-planted {
+  background: var(--garden-leaf-soft);
+}
+.bed-flower {
+  display: grid;
+  place-items: end center;
+  width: 100%;
+}
+.flower-glyph {
+  width: min(42px, 84%);
+  height: auto;
+}
+.garden-bed-compact {
+  margin: 0;
+  padding: 4px;
+  gap: 3px;
+  border-radius: 12px;
+  box-shadow: none;
+}
+.garden-bed-compact .bed-part {
+  min-height: 34px;
+  border-radius: 7px;
+}
+.garden-bed-compact .bed-part {
+  place-items: center;
+}
+.garden-bed-compact .flower-glyph {
+  width: min(26px, 86%);
+}
+.planting-bed .bed-part {
+  min-height: 84px;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.planting-bed .bed-part:focus-visible,
+.fraction-ruler.is-interactive:focus-visible,
+.column-cell:focus-visible,
+.column-carry:focus-visible,
+.fraction-slot:focus-visible {
+  outline: 3px solid var(--accent-blue);
+  outline-offset: 3px;
+}
+.planting-bed.is-correct {
+  box-shadow: 0 0 0 4px var(--accent-green);
+}
+.planting-bed.is-try-again {
+  box-shadow: 0 0 0 4px var(--action-primary-deep);
+}
+.bed-seed {
+  align-self: center;
+  font-size: 1.8rem;
+  line-height: 1;
+  color: rgb(255 255 255 / 60%);
+}
+.planting-count {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+  color: var(--ink-muted);
+}
+.garden-pot {
+  display: block;
+  width: min(56vw, 220px);
+  margin: 0 auto 18px;
+  filter: drop-shadow(0 8px 0 rgb(207 115 127 / 22%));
+}
+.fraction-ruler {
+  width: 100%;
+  margin: 10px 0 18px;
+  touch-action: none;
+  user-select: none;
+}
+.fraction-ruler-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+.nowrap {
+  white-space: nowrap;
+}
+.ruler-unit-label,
+.ruler-reveal-label {
+  font-family: inherit;
+  font-size: 17px;
+  font-weight: 750;
+  fill: var(--ink-primary);
+}
+.ruler-reveal-label {
+  fill: var(--nav-garden-ink);
+  font-weight: 850;
+}
+.fraction-ruler.is-interactive {
+  border-radius: 18px;
+  cursor: pointer;
+}
+.placing-ruler {
+  width: 100%;
+  display: grid;
+  gap: 10px;
+}
+.ruler-controls {
+  display: grid;
+  grid-template-columns: 64px 1fr 64px;
+  align-items: center;
+  gap: 10px;
+}
+.ruler-step {
+  min-height: 58px;
+  border: 1px solid var(--line-soft);
+  border-radius: 18px;
+  background: var(--surface-soft);
+  box-shadow: 0 4px 0 var(--shadow-control-edge);
+  font-size: 1.25rem;
+  color: var(--nav-home-ink);
+}
+.ruler-confirm {
+  margin: 0;
+}
+
+/* Written calculations */
+.column-operation {
+  width: 100%;
+  margin-top: clamp(2px, 2dvh, 16px);
+  display: grid;
+  gap: 12px;
+}
+.column-grid {
+  width: 100%;
+  max-width: 340px;
+  margin: 0 auto;
+  display: grid;
+  justify-content: center;
+  column-gap: 6px;
+  row-gap: 4px;
+  font-size: clamp(2rem, 10vw, 2.6rem);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.column-place {
+  font-size: 0.78rem;
+  font-weight: 750;
+  text-align: center;
+  color: var(--ink-muted);
+}
+.column-carry {
+  justify-self: center;
+  width: 44px;
+  height: 36px;
+  border: 2px dashed var(--line-soft);
+  border-radius: 999px;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: 800;
+  color: var(--action-primary-deep);
+}
+.column-carry.is-on {
+  border-style: solid;
+  border-color: var(--action-primary);
+  background: var(--surface-soft);
+}
+.column-carry-spacer {
+  height: 36px;
+}
+.column-sign {
+  display: grid;
+  place-items: center;
+  color: var(--ink-muted);
+}
+.column-digit {
+  position: relative;
+  min-height: 1.25em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.digit-ten {
+  align-self: flex-start;
+  margin-right: 0.04em;
+  font-size: 0.5em;
+  font-weight: 800;
+  color: var(--action-primary-deep);
+}
+.digit-plus-one {
+  align-self: flex-end;
+  margin-left: 0.06em;
+  font-size: 0.42em;
+  font-weight: 800;
+  color: var(--action-primary-deep);
+}
+.digit-struck {
+  color: var(--ink-muted);
+  text-decoration: line-through;
+  text-decoration-color: var(--action-primary-deep);
+  text-decoration-thickness: 3px;
+}
+.digit-broken-value {
+  position: absolute;
+  top: -0.3em;
+  right: 0;
+  font-size: 0.45em;
+  font-weight: 800;
+  color: var(--action-primary-deep);
+}
+.column-bar {
+  height: 4px;
+  margin: 2px 0 6px;
+  border-radius: 999px;
+  background: var(--ink-primary);
+}
+.column-cell {
+  min-height: 62px;
+  border: 2px solid var(--line-soft);
+  border-radius: 16px;
+  background: white;
+  box-shadow: 0 4px 0 var(--shadow-control-edge);
+  font: inherit;
+  color: var(--ink-primary);
+}
+.column-cell.is-active {
+  border-color: var(--action-primary);
+  box-shadow:
+    0 0 0 3px var(--surface-soft),
+    0 4px 0 var(--shadow-action-edge);
+}
+.column-cell.is-correct {
+  border-color: var(--accent-green);
+  background: var(--surface-success);
+}
+.column-cell.is-wrong {
+  border-color: var(--action-primary-deep);
+  background: var(--surface-try-again);
+}
+.column-cell:disabled {
+  color: var(--ink-primary);
+}
+.column-wrong-note {
+  margin: 0;
+  font-weight: 650;
+  color: var(--ink-muted);
+}
+.column-operation .keypad-grid button,
+.fraction-keypad .keypad-grid button {
+  min-height: 52px;
+}
+
+/* Fraction keypad and multiple choice */
+.fraction-entry {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+}
+.fraction-slots {
+  position: relative;
+  display: grid;
+  gap: 14px;
+}
+.fraction-slot {
+  width: 96px;
+  height: 62px;
+  border: 2px solid var(--line-soft);
+  border-radius: 18px;
+  background: white;
+  font: inherit;
+  font-size: 2.3rem;
+  font-weight: 700;
+  color: var(--ink-primary);
+}
+.fraction-slot.is-active {
+  border-color: var(--action-primary);
+  box-shadow: 0 0 0 4px var(--surface-soft);
+}
+.fraction-slot-bar {
+  position: absolute;
+  top: 50%;
+  left: -8px;
+  right: -8px;
+  height: 4px;
+  margin-top: -2px;
+  border-radius: 999px;
+  background: var(--ink-primary);
+  pointer-events: none;
+}
+.whole-chips {
+  display: grid;
+  gap: 6px;
+}
+.whole-chip {
+  min-width: 56px;
+  min-height: 44px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: var(--surface-soft);
+  font-size: 1.05rem;
+  font-weight: 750;
+}
+.whole-chip[aria-checked='true'] {
+  border-color: var(--action-primary-deep);
+  background: var(--action-primary);
+  color: var(--ink-on-action);
+}
+.multi-pick {
+  width: 100%;
+  display: grid;
+  gap: 14px;
+}
+.multi-pick-grid .answer-tile {
+  position: relative;
+  min-height: 98px;
+}
+.answer-tile.is-picked {
+  border-color: var(--action-primary-deep);
+  background: white;
+  box-shadow:
+    inset 0 0 0 3px var(--action-primary),
+    0 7px 0 rgb(217 159 173 / 14%);
+}
+.pick-check {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  opacity: 0;
+  color: var(--action-primary-deep);
+}
+.is-picked .pick-check {
+  opacity: 1;
+}
+
+/* Hints */
+.exercise-hint .hint-revisit {
+  color: var(--ink-muted);
+}
+.ten-frames {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ten-frame {
+  display: grid;
+  grid-template-columns: repeat(5, 14px);
+  gap: 3px;
+  padding: 4px;
+  border: 1px solid var(--line-soft);
+  border-radius: 7px;
+  background: white;
+}
+.ten-frame i {
+  width: 14px;
+  height: 14px;
+  border: 1px solid var(--line-neutral);
+  border-radius: 50%;
+}
+.ten-frame i.is-first {
+  border-color: var(--action-primary-deep);
+  background: var(--action-primary);
+}
+.ten-frame i.is-second {
+  border-color: var(--garden-bloom-violet);
+  background: var(--garden-bloom-lavender);
+}
+.base-ten {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 3px;
+}
+.base-ten i {
+  display: block;
+  border-radius: 2px;
+}
+.block-thousand {
+  width: 24px;
+  height: 24px;
+  background: var(--garden-bloom-gold);
+  box-shadow: 3px -3px 0 color-mix(in srgb, var(--garden-bloom-gold) 70%, black);
+}
+.block-hundred {
+  width: 20px;
+  height: 20px;
+  background: var(--garden-bloom-peach);
+}
+.block-ten {
+  width: 5px;
+  height: 20px;
+  background: var(--garden-leaf-light);
+}
+.block-one {
+  width: 5px;
+  height: 5px;
+  background: var(--accent-blue);
+}
+.hint-blocks-pair {
+  display: grid;
+  gap: 6px;
+}
+.hop-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+  font-weight: 750;
+}
+.hop-row span {
+  padding: 4px 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  background: white;
+}
+.hop-row span.is-result {
+  border-color: var(--accent-green);
+  background: var(--surface-success);
+}
+.hop-row i {
+  font-size: 0.8rem;
+  font-style: normal;
+  color: var(--action-primary-deep);
+}
+.hint-bed {
+  margin: 0;
+  display: grid;
+  gap: 4px;
+}
+.hint-bed figcaption {
+  font-size: 0.78rem;
+}
+
+/* Home, stats and family */
+.new-paths-card {
+  position: relative;
+  margin-top: 16px;
+  padding: 16px 18px;
+  display: grid;
+  gap: 6px;
+  border: 1px solid var(--line-soft);
+  border-radius: 24px;
+  background: linear-gradient(135deg, var(--surface-card), var(--surface-soft));
+  box-shadow: var(--shadow-soft);
+}
+.new-paths-card p {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.9rem;
+}
+.new-paths-symbols {
+  display: flex;
+  gap: 6px;
+}
+.new-paths-symbols span,
+.path-symbol {
+  display: inline-grid;
+  place-items: center;
+  min-width: 34px;
+  height: 26px;
+  padding: 0 7px;
+  border-radius: 999px;
+  background: var(--surface-soft);
+  color: var(--nav-home-ink);
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+.new-paths-close {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 44px;
+  height: 44px;
+  border: 0;
+  background: transparent;
+  font-size: 1.6rem;
+  color: var(--ink-muted);
+}
+.new-paths-action {
+  justify-self: start;
+  min-height: 44px;
+  margin-top: 4px;
+  padding: 0 18px;
+  border: 0;
+  border-radius: 999px;
+  background: var(--action-primary);
+  color: var(--ink-on-action);
+  font-weight: 750;
+}
+.path-picker {
+  display: grid;
+  gap: 12px;
+  padding: 4px 2px;
+}
+.path-picker section {
+  display: grid;
+  gap: 7px;
+}
+.path-picker strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.8rem;
+}
+.path-picker div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+.path-picker button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: white;
+  box-shadow: 0 3px 0 var(--shadow-control-edge);
+  font-weight: 700;
+}
+.path-progress {
+  margin-top: 16px;
+  display: grid;
+  gap: 10px;
+}
+.path-progress > header {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
+  text-align: left;
+}
+.path-progress h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.path-progress > header p {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+.skill-card.is-locked {
+  opacity: 0.74;
+}
+.skill-lock {
+  color: var(--ink-muted);
+}
+.family-member {
+  display: grid;
+  gap: 10px;
+}
+.paths-settings {
+  padding: 4px 16px;
+  border: 1px solid var(--line-soft);
+  border-radius: 22px;
+  background: var(--surface-card);
+}
+.paths-settings summary {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  font-weight: 750;
+  cursor: pointer;
+}
+.paths-settings form {
+  padding-bottom: 16px;
+  display: grid;
+  gap: 16px;
+}
+.paths-settings fieldset {
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+  border: 0;
+}
+.paths-settings legend {
+  margin-bottom: 6px;
+  font-weight: 750;
+}
+.settings-choices label {
+  padding: 10px 12px;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: 10px;
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: white;
+}
+.settings-choices label:has(input:checked) {
+  border-color: var(--action-primary);
+  background: var(--surface-soft);
+}
+.settings-choices input,
+.settings-check input {
+  width: 22px;
+  height: 22px;
+  margin: 2px 0 0;
+  accent-color: var(--action-primary-deep);
+}
+.settings-choices span {
+  display: grid;
+  gap: 2px;
+}
+.settings-choices small,
+.settings-focus small,
+.paths-settings-intro {
+  margin: 0;
+  font-size: 0.8rem;
+  color: var(--ink-muted);
+}
+.settings-path {
+  margin-bottom: 8px;
+  display: grid;
+  gap: 2px;
+}
+.settings-path strong {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.settings-check {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.settings-focus {
+  display: grid;
+  gap: 6px;
+}
+.settings-focus label {
+  font-weight: 750;
+}
+.settings-focus select {
+  min-height: 48px;
+  padding: 0 12px;
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: white;
+  font: inherit;
+}
+.paths-settings .family-save-button {
+  min-height: 52px;
+  padding: 0 20px;
+  border-radius: 999px;
+  box-shadow: 0 4px 0 var(--shadow-action-edge);
+  font: inherit;
+  font-weight: 750;
+}

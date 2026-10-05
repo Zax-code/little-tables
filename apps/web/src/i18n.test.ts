@@ -55,7 +55,7 @@ describe('internationalization', () => {
       '花园每天只前进一步，第二天才能再浇水。当天多练会让乘法更熟练，但不会多一次浇水。',
     )
     expect(translate('zh-Hans', 'garden.masteryBlocked', { remaining: 4 })).toBe(
-      '已经浇满 3 次水啦。再不看提示，自己答对 4 道乘法题，它就会开花。浇水进度会好好保留。',
+      '已经浇满 3 次水啦。再不看提示，自己答对 4 道题，它就会开花。浇水进度会好好保留。',
     )
     expect(translate('zh-Hans', 'watering.dueMany', { count: 6, minutes: 2 })).toBe(
       '6 道小题 · 大约 2 分钟',
