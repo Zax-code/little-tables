@@ -17,8 +17,8 @@
   },
   "dependencies": {
     "@little-tables/domain": "workspace:*",
-    "dexie": "^4.4.4",
-    "effect": "^3.21.4"
+    "dexie": "^4.4.5",
+    "effect": "^3.22.1"
   },
   "devDependencies": {
     "fake-indexeddb": "^6.2.5"
