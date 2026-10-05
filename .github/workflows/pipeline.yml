@@ -58,15 +58,23 @@ jobs:
 
       - name: Install WebAssembly tools
         env:
+          BINARYEN_VERSION: 133
           WASM_BINDGEN_VERSION: 0.2.129
         run: |
           archive="wasm-bindgen-${WASM_BINDGEN_VERSION}-x86_64-unknown-linux-musl"
           curl -fsSLO "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/${WASM_BINDGEN_VERSION}/${archive}.tar.gz"
           curl -fsSLO "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/${WASM_BINDGEN_VERSION}/${archive}.tar.gz.sha256sum"
-          sha256sum --check "${archive}.tar.gz.sha256sum"
+          # The published checksum file names the archive by its release path; check the hash alone.
+          expected=$(cut -d ' ' -f 1 "${archive}.tar.gz.sha256sum")
+          printf '%s  %s\n' "$expected" "${archive}.tar.gz" | sha256sum --check
           tar -xzf "${archive}.tar.gz"
           sudo install -m 0755 "${archive}/wasm-bindgen" /usr/local/bin/wasm-bindgen
-          sudo apt-get install -y --no-install-recommends binaryen
+          binaryen="binaryen-version_${BINARYEN_VERSION}"
+          curl -fsSLO "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/${binaryen}-x86_64-linux.tar.gz"
+          curl -fsSLO "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/${binaryen}-x86_64-linux.tar.gz.sha256"
+          sha256sum --check "${binaryen}-x86_64-linux.tar.gz.sha256"
+          tar -xzf "${binaryen}-x86_64-linux.tar.gz"
+          sudo install -m 0755 "${binaryen}/bin/wasm-opt" /usr/local/bin/wasm-opt
 
       - name: Run checks and build
         run: pnpm check
