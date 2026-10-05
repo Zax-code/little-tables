@@ -4,3 +4,7 @@ coverage
 pnpm-lock.yaml
 assets/generated
 apps/web/public/generated
+target
+packages/engine/wasm
+packages/ui/build
+design/exports

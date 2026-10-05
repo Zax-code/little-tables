@@ -21,7 +21,7 @@ jobs:
   verify:
     name: Verify
     runs-on: ubuntu-24.04
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -39,6 +39,44 @@ jobs:
 
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
+
+      - name: Set up Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+          rustup default stable
+
+      - name: Cache Cargo
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/registry/index
+            ~/.cargo/registry/cache
+            ~/.cargo/git/db
+            target
+          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
+          restore-keys: cargo-${{ runner.os }}-
+
+      - name: Install WebAssembly tools
+        # Downloads stay outside the checkout, where formatting and linting would see them.
+        working-directory: ${{ runner.temp }}
+        env:
+          BINARYEN_VERSION: 133
+          WASM_BINDGEN_VERSION: 0.2.129
+        run: |
+          archive="wasm-bindgen-${WASM_BINDGEN_VERSION}-x86_64-unknown-linux-musl"
+          curl -fsSLO "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/${WASM_BINDGEN_VERSION}/${archive}.tar.gz"
+          curl -fsSLO "https://github.com/wasm-bindgen/wasm-bindgen/releases/download/${WASM_BINDGEN_VERSION}/${archive}.tar.gz.sha256sum"
+          # The published checksum file names the archive by its release path; check the hash alone.
+          expected=$(cut -d ' ' -f 1 "${archive}.tar.gz.sha256sum")
+          printf '%s  %s\n' "$expected" "${archive}.tar.gz" | sha256sum --check
+          tar -xzf "${archive}.tar.gz"
+          sudo install -m 0755 "${archive}/wasm-bindgen" /usr/local/bin/wasm-bindgen
+          binaryen="binaryen-version_${BINARYEN_VERSION}"
+          curl -fsSLO "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/${binaryen}-x86_64-linux.tar.gz"
+          curl -fsSLO "https://github.com/WebAssembly/binaryen/releases/download/version_${BINARYEN_VERSION}/${binaryen}-x86_64-linux.tar.gz.sha256"
+          sha256sum --check "${binaryen}-x86_64-linux.tar.gz.sha256"
+          tar -xzf "${binaryen}-x86_64-linux.tar.gz"
+          sudo install -m 0755 "${binaryen}/bin/wasm-opt" /usr/local/bin/wasm-opt
 
       - name: Run checks and build
         run: pnpm check
@@ -92,7 +130,11 @@ jobs:
 
   deploy:
     name: Deploy production
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    # Paused while the rewrite runs in pre-production: merges build and publish but do not deploy.
+    # Set the repository variable DEPLOY_ON_MERGE to `true` to deploy again.
+    if: >-
+      github.ref == 'refs/heads/main' && github.event_name != 'pull_request' &&
+      vars.DEPLOY_ON_MERGE == 'true'
     needs: publish
     runs-on: ubuntu-24.04
     timeout-minutes: 10

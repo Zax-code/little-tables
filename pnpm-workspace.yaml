@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - tools/golden
 
 # Keep pnpm 11's release-age policy enabled for every version except this merged Dependabot set.
 minimumReleaseAgeExclude:
@@ -21,8 +22,10 @@ minimumReleaseAgeExclude:
 
 allowBuilds:
   '@parcel/watcher': true
+  '@swc/core': true
   cpu-features: true
   esbuild: true
   msgpackr-extract: true
+  msw: false
   protobufjs: true
   ssh2: true

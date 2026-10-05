@@ -5,7 +5,18 @@ import tseslint from 'typescript-eslint'
 
 export default tseslint.config(
   {
-    ignores: ['**/dist/**', '**/coverage/**', 'apps/web/public/generated/**', 'eslint.config.mjs'],
+    ignores: [
+      '**/dist/**',
+      '**/coverage/**',
+      '**/wasm/**',
+      'packages/ui/build/**',
+      '**/.ladle/config.mjs',
+      'apps/web/public/generated/**',
+      'eslint.config.mjs',
+      'target/**',
+      // A frozen copy of the previous engine, kept byte for byte as the golden reference.
+      'tools/golden/legacy-domain/**',
+    ],
   },
   eslint.configs.recommended,
   ...tseslint.configs.strictTypeChecked,

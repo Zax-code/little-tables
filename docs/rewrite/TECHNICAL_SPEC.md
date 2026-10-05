@@ -89,11 +89,12 @@ apps/
 packages/
   ui/               système de composants + tokens
   api-contract/     schémas Effect de l'API et du domaine (écrits à la main, vérifiés contre lt-api, §2.4)
-  domain/           façade Effect autour de lt-domain.wasm
+  engine/           façade Effect autour de lt-domain.wasm (l'ancien packages/domain disparaît au lot 5)
   local-store/      Dexie + schémas Effect
   i18n/             catalogues fr / en / zh-Hans typés
 tools/
   golden/           moteur TS actuel gelé + générateur de vecteurs de test (§7.2)
+  build-wasm.sh     compilation du moteur pour le navigateur, budget de taille contrôlé
 deploy/             unité systemd, timer de sauvegarde, Caddy, script de release
 ```
 
@@ -121,7 +122,7 @@ deploy/             unité systemd, timer de sauvegarde, Caddy, script de releas
 3. Un test CI produit le JSON Schema de chaque schéma Effect (`JSONSchema.make`) et le compare, après normalisation,
    à celui exporté par Rust. Toute divergence fait échouer la CI. On évite ainsi d'écrire et de maintenir un
    générateur de code.
-4. Le WASM reçoit et renvoie du JSON (`serde-wasm-bindgen`) ; la façade `packages/domain` décode ses sorties avec les
+4. Le WASM reçoit et renvoie du JSON (`serde-wasm-bindgen`) ; la façade `packages/engine` décode ses sorties avec les
    mêmes schémas. Les dates traversent la frontière en millisecondes UTC, les clés de jour en chaînes `YYYY-MM-DD`.
 5. Tests de contrat : le client Effect rejoue chaque endpoint contre le serveur Rust lancé en CI.
 
