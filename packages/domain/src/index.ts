@@ -1,3 +1,5 @@
 export * from './character.js'
+export * from './ce2-engine.js'
+export * from './ce2-schemas.js'
 export * from './family-profile.js'
 export * from './learning-engine.js'

@@ -1,6 +1,6 @@
 import 'fake-indexeddb/auto'
 
-import { LearningEngine } from '@little-tables/domain'
+import { CE2_CONTENT_VERSION, Ce2Engine, LearningEngine } from '@little-tables/domain'
 import Dexie from 'dexie'
 import { afterEach, describe, expect, it } from 'vitest'
 
@@ -210,12 +210,16 @@ describe('IndexedDbPracticeStore', () => {
     })
     const replacement = { ...learnedSnapshot, processedEventIds: ['from-server'] }
     await store.replaceSnapshot(replacement)
+    const replacementWithPending = {
+      ...replacement,
+      processedEventIds: ['from-server', 'attempt-before-sync'],
+    }
 
     expect(await store.load()).toMatchObject({
       activeSession: null,
       completedSessions: 1,
       lastCompletion: completion,
-      snapshot: replacement,
+      snapshot: replacementWithPending,
     })
     store.close()
   })
@@ -372,6 +376,43 @@ describe('IndexedDbPracticeStore', () => {
       lastCompletion: null,
       snapshot,
     })
+    store.close()
+  })
+
+  it('abandons a legacy session without discarding its committed attempts or awarding a bloom', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const store = new IndexedDbPracticeStore(databaseName)
+    const initial = LearningEngine.emptySnapshot()
+    const session = LearningEngine.createSession({
+      now: new Date('2026-07-12T12:00:00.000Z'),
+      policy: { kind: 'daily-watering' },
+      seed: 71,
+      snapshot: initial,
+    })
+    const question = session.questions[0]
+    if (question === undefined) throw new Error('Expected a legacy question')
+    const answered = LearningEngine.answer({
+      answeredAt: new Date('2026-07-12T12:00:01.000Z'),
+      eventId: 'legacy-before-abandon',
+      selected: LearningEngine.correctAnswer(question),
+      session,
+    })
+    const snapshot = LearningEngine.reduce({ attempts: [answered.event], snapshot: initial })
+    await store.startSession(session, initial)
+    await store.commitAnswer({ attempt: answered.event, session: answered.session, snapshot })
+
+    await expect(store.abandonSession(session.id)).resolves.toBe(true)
+    expect(await store.load()).toMatchObject({
+      activeSession: null,
+      completedSessions: 0,
+      gardenBloomCount: 0,
+      rewardedDayKeys: [],
+      snapshot,
+    })
+    expect((await store.pendingBatch(10)).attempts.map(({ eventId }) => eventId)).toEqual([
+      'legacy-before-abandon',
+    ])
     store.close()
   })
 
@@ -540,5 +581,378 @@ describe('IndexedDbPracticeStore', () => {
       lastCompletion: corruptCompletion,
     })
     inspector.close()
+  })
+
+  it('migrates a legacy database without losing its state or outbox', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const snapshot = LearningEngine.emptySnapshot()
+    const legacySession = LearningEngine.createSession({
+      now: new Date('2026-07-20T12:00:00.000Z'),
+      policy: { questionCount: 1 },
+      seed: 44,
+      snapshot,
+    })
+    const question = legacySession.questions[0]
+    if (question === undefined) throw new Error('Expected a legacy question')
+    const answered = LearningEngine.answer({
+      answeredAt: new Date('2026-07-20T12:00:01.000Z'),
+      eventId: 'legacy-outbox-event',
+      selected: LearningEngine.correctAnswer(question),
+      session: legacySession,
+    })
+    const injector = new Dexie(databaseName)
+    injector.version(1).stores({
+      attempts: '&eventId, sessionId, factKey, answeredAt',
+      outbox: '&attemptId, createdAt',
+      state: '&id',
+    })
+    await injector.table('attempts').put(answered.event)
+    await injector
+      .table('outbox')
+      .put({ attemptId: answered.event.eventId, createdAt: answered.event.answeredAt })
+    await injector.table('state').put({
+      activeSession: answered.session,
+      completedSessions: 2,
+      id: 'current',
+      snapshot,
+    })
+    injector.close()
+
+    const migrated = new IndexedDbPracticeStore(databaseName)
+    const loaded = await migrated.load()
+    expect(loaded).toMatchObject({
+      activeSession: { id: legacySession.id },
+      ce2ActiveSession: null,
+      ce2ContentVersion: null,
+      completedSessions: 2,
+    })
+    expect((await migrated.pendingBatch(10)).attempts.map(({ eventId }) => eventId)).toEqual([
+      'legacy-outbox-event',
+    ])
+    migrated.close()
+  })
+
+  it('persists CE2 drafts and abandon history without awarding a bloom', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const store = new IndexedDbPracticeStore(databaseName)
+    const snapshot = Ce2Engine.emptySnapshot()
+    const session = Ce2Engine.createSession({
+      kind: 'discovery',
+      module: 'arithmetic',
+      now: new Date('2026-07-21T12:00:00.000Z'),
+      seed: 81,
+      skill: 'A5',
+      snapshot,
+    })
+    await store.startCe2Session(session, snapshot)
+    if (session.draft === null) throw new Error('Expected a CE2 draft')
+    const draft = {
+      ...session.draft,
+      activeElapsedMs: 4_200,
+      answer: null,
+      helpOpened: true,
+      resultRevealed: true,
+      updatedAt: new Date('2026-07-21T12:00:05.000Z'),
+    }
+    await expect(store.saveCe2Draft(session.id, draft)).resolves.toBe(true)
+    store.close()
+
+    const reopened = new IndexedDbPracticeStore(databaseName)
+    expect((await reopened.load()).ce2ActiveSession?.draft).toMatchObject({
+      activeElapsedMs: 4_200,
+      helpOpened: true,
+      resultRevealed: true,
+    })
+    await expect(reopened.abandonCe2Session(session.id)).resolves.toBe(true)
+    expect(await reopened.load()).toMatchObject({
+      ce2ActiveSession: null,
+      gardenBloomCount: 0,
+      rewardedDayKeys: [],
+    })
+    expect(await reopened.ce2SessionHistory()).toEqual([
+      expect.objectContaining({ id: session.id, status: 'abandoned' }),
+    ])
+    reopened.close()
+  })
+
+  it('commits CE2 attempts and preference updates idempotently and keeps them over bootstrap', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const store = new IndexedDbPracticeStore(databaseName)
+    const snapshot = Ce2Engine.emptySnapshot()
+    const session = Ce2Engine.createSession({
+      kind: 'extra-practice',
+      module: 'fractions',
+      now: new Date('2026-07-22T12:00:00.000Z'),
+      seed: 12,
+      skill: 'F2',
+      snapshot,
+    })
+    await store.startCe2Session(session, snapshot)
+    const question = session.questions[0]
+    if (question === undefined) throw new Error('Expected a CE2 question')
+    const result = Ce2Engine.answer({
+      answer: question.solution,
+      answeredAt: new Date('2026-07-22T12:00:02.000Z'),
+      assistance: {
+        guided: false,
+        helpOpened: false,
+        representationHints: 0,
+        resultRevealed: false,
+        switchedToFree: false,
+      },
+      eventId: 'ce2-attempt-once',
+      session,
+    })
+    const learned = Ce2Engine.reduce({ attempts: [result.attempt], snapshot })
+    await store.commitCe2Answer({
+      attempt: result.attempt,
+      session: result.session,
+      snapshot: learned,
+    })
+    await store.commitCe2Answer({
+      attempt: result.attempt,
+      session: result.session,
+      snapshot: learned,
+    })
+    await store.updateCe2Preferences({
+      enabledModules: ['fractions'],
+      eventId: 'ce2-pref-once',
+      lastDailyFamily: 'fractions',
+      schemaVersion: 'ce2-preference-update/v1',
+      updatedAt: new Date('2026-07-22T12:00:03.000Z'),
+    })
+    const batch = await store.pendingCe2Batch(10)
+    expect(batch.attempts.map(({ eventId }) => eventId)).toEqual(['ce2-attempt-once'])
+    expect(batch.preferenceUpdates.map(({ eventId }) => eventId)).toEqual(['ce2-pref-once'])
+
+    await store.replaceCe2State({
+      ce2ContentVersion: CE2_CONTENT_VERSION,
+      ce2Preferences: {
+        enabledModules: ['arithmetic'],
+        lastDailyFamily: 'arithmetic',
+        schemaVersion: 'ce2-preferences/v1',
+        updatedAt: new Date('2026-07-22T11:00:00.000Z'),
+      },
+      ce2Snapshot: Ce2Engine.emptySnapshot(),
+    })
+    const loaded = await store.load()
+    expect(loaded.ce2Snapshot.processedEventIds).toContain('ce2-attempt-once')
+    expect(loaded.ce2Preferences.enabledModules).toEqual(['arithmetic', 'fractions'])
+    expect(loaded.ce2Preferences.lastDailyFamily).toBe('fractions')
+    expect(loaded.ce2ContentVersion).toBe(CE2_CONTENT_VERSION)
+    store.close()
+  })
+
+  it('serializes legacy snapshot and garden writes with a concurrent CE2 commit', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const first = new IndexedDbPracticeStore(databaseName)
+    const second = new IndexedDbPracticeStore(databaseName)
+    const initial = Ce2Engine.activateModule(Ce2Engine.emptySnapshot(), 'arithmetic')
+    const session = Ce2Engine.createSession({
+      kind: 'extra-practice',
+      module: 'arithmetic',
+      now: new Date('2026-07-24T12:00:00.000Z'),
+      seed: 244,
+      skill: 'A1',
+      snapshot: initial,
+    })
+    await first.startCe2Session(session, initial)
+    const question = session.questions[0]
+    if (question === undefined) throw new Error('Expected a CE2 question')
+    const result = Ce2Engine.answer({
+      answer: question.solution,
+      answeredAt: new Date('2026-07-24T12:00:02.000Z'),
+      assistance: {
+        guided: false,
+        helpOpened: false,
+        representationHints: 0,
+        resultRevealed: false,
+        switchedToFree: false,
+      },
+      eventId: 'ce2-interleaved-attempt',
+      session,
+    })
+    const learned = Ce2Engine.reduce({ attempts: [result.attempt], snapshot: initial })
+
+    await Promise.all([
+      first.replaceSnapshot(LearningEngine.emptySnapshot(), {
+        completedSessions: 3,
+        practiceDayKeys: ['2026-07-23'],
+      }),
+      second.commitCe2Answer({
+        attempt: result.attempt,
+        session: result.session,
+        snapshot: learned,
+      }),
+    ])
+    const nextDraft = result.session.draft
+    if (nextDraft === null) throw new Error('Expected the next CE2 draft')
+    const editedDraft = {
+      ...nextDraft,
+      activeElapsedMs: 5_500,
+      helpOpened: true,
+      updatedAt: new Date('2026-07-24T12:00:03.000Z'),
+    }
+    await Promise.all([
+      first.markGardenIntroductionSeen(),
+      second.saveCe2Draft(session.id, editedDraft),
+    ])
+
+    const loaded = await first.load()
+    expect(loaded.ce2ActiveSession).toMatchObject({
+      currentIndex: 1,
+      draft: { activeElapsedMs: 5_500, helpOpened: true },
+      id: session.id,
+    })
+    expect(loaded.ce2Snapshot).toEqual(learned)
+    expect(loaded.gardenCollection.introductionSeen).toBe(true)
+    expect((await first.pendingCe2Batch(10)).attempts.map(({ eventId }) => eventId)).toEqual([
+      'ce2-interleaved-attempt',
+    ])
+    first.close()
+    second.close()
+  })
+
+  it('rehydrates exact CE2 state after an old client replaces state/current', async () => {
+    const databaseName = `practice-${crypto.randomUUID()}`
+    databases.push(databaseName)
+    const store = new IndexedDbPracticeStore(databaseName)
+    const initial = Ce2Engine.activateModule(Ce2Engine.emptySnapshot(), 'fractions')
+    await store.replaceCe2State({
+      ce2ContentVersion: CE2_CONTENT_VERSION,
+      ce2Preferences: {
+        enabledModules: ['fractions'],
+        lastDailyFamily: 'fractions',
+        schemaVersion: 'ce2-preferences/v1',
+        updatedAt: new Date('2026-07-25T12:00:00.000Z'),
+      },
+      ce2Snapshot: initial,
+    })
+    const session = Ce2Engine.createSession({
+      kind: 'extra-practice',
+      module: 'fractions',
+      now: new Date('2026-07-25T12:01:00.000Z'),
+      seed: 255,
+      skill: 'F2',
+      snapshot: initial,
+    })
+    await store.startCe2Session(session, initial)
+    const question = session.questions[0]
+    if (question === undefined) throw new Error('Expected a CE2 question')
+    const result = Ce2Engine.answer({
+      answer: question.solution,
+      answeredAt: new Date('2026-07-25T12:01:02.000Z'),
+      assistance: {
+        guided: false,
+        helpOpened: true,
+        representationHints: 1,
+        resultRevealed: false,
+        switchedToFree: false,
+      },
+      eventId: 'ce2-before-old-client',
+      session,
+    })
+    const learned = Ce2Engine.reduce({ attempts: [result.attempt], snapshot: initial })
+    await store.commitCe2Answer({
+      attempt: result.attempt,
+      session: result.session,
+      snapshot: learned,
+    })
+    const nextDraft = result.session.draft
+    if (nextDraft === null) throw new Error('Expected a persisted next draft')
+    const exactDraft = {
+      ...nextDraft,
+      activeElapsedMs: 9_001,
+      helpOpened: true,
+      selectedPartIds: ['part-1'],
+      updatedAt: new Date('2026-07-25T12:01:04.000Z'),
+    }
+    await store.saveCe2Draft(session.id, exactDraft)
+    await store.updateCe2Preferences({
+      enabledModules: ['fractions', 'arithmetic'],
+      eventId: 'preference-before-old-client',
+      lastDailyFamily: 'arithmetic',
+      schemaVersion: 'ce2-preference-update/v1',
+      updatedAt: new Date('2026-07-25T12:01:05.000Z'),
+    })
+    store.close()
+
+    const oldClient = new Dexie(databaseName)
+    oldClient.version(2).stores({
+      attempts: '&eventId, sessionId, factKey, answeredAt',
+      ce2Attempts: '&eventId, sessionId, answeredAt',
+      ce2Outbox: '&eventId, kind, createdAt',
+      ce2PreferenceUpdates: '&eventId, updatedAt',
+      ce2Sessions: '&id, status, updatedAt',
+      outbox: '&attemptId, createdAt',
+      state: '&id',
+    })
+    const legacySession = LearningEngine.createSession({
+      now: new Date('2026-07-25T13:00:00.000Z'),
+      policy: { questionCount: 1 },
+      seed: 256,
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    await oldClient.table('state').put({
+      activeSession: legacySession,
+      completedSessions: 0,
+      id: 'current',
+      sessionStartSnapshot: LearningEngine.emptySnapshot(),
+      snapshot: LearningEngine.emptySnapshot(),
+    })
+    oldClient.close()
+
+    const restored = new IndexedDbPracticeStore(databaseName)
+    const loaded = await restored.load()
+    expect(loaded.activeSession).toBeNull()
+    expect(loaded.ce2ActiveSession).toEqual({ ...result.session, draft: exactDraft })
+    expect(loaded.ce2Snapshot).toEqual(learned)
+    expect(loaded.ce2Preferences).toEqual({
+      enabledModules: ['fractions', 'arithmetic'],
+      lastDailyFamily: 'arithmetic',
+      schemaVersion: 'ce2-preferences/v1',
+      updatedAt: new Date('2026-07-25T12:01:05.000Z'),
+    })
+    expect(loaded.ce2ContentVersion).toBe(CE2_CONTENT_VERSION)
+    const pending = await restored.pendingCe2Batch(10)
+    expect(pending.attempts.map(({ eventId }) => eventId)).toEqual(['ce2-before-old-client'])
+    expect(pending.preferenceUpdates.map(({ eventId }) => eventId)).toEqual([
+      'preference-before-old-client',
+    ])
+    expect(await restored.ce2SessionHistory()).toContainEqual(
+      expect.objectContaining({ id: session.id, status: 'active' }),
+    )
+    restored.close()
+  })
+
+  it('keeps CE2 preferences isolated in each profile database', async () => {
+    const firstName = `practice-${crypto.randomUUID()}`
+    const secondName = `practice-${crypto.randomUUID()}`
+    databases.push(firstName, secondName)
+    const first = new IndexedDbPracticeStore(firstName)
+    const second = new IndexedDbPracticeStore(secondName)
+    await first.updateCe2Preferences({
+      enabledModules: ['arithmetic'],
+      eventId: 'first-profile-preference',
+      lastDailyFamily: 'arithmetic',
+      schemaVersion: 'ce2-preference-update/v1',
+      updatedAt: new Date('2026-07-23T12:00:00.000Z'),
+    })
+    await second.updateCe2Preferences({
+      enabledModules: ['fractions'],
+      eventId: 'second-profile-preference',
+      lastDailyFamily: 'fractions',
+      schemaVersion: 'ce2-preference-update/v1',
+      updatedAt: new Date('2026-07-23T12:00:01.000Z'),
+    })
+
+    expect((await first.load()).ce2Preferences.enabledModules).toEqual(['arithmetic'])
+    expect((await second.load()).ce2Preferences.enabledModules).toEqual(['fractions'])
+    first.close()
+    second.close()
   })
 })

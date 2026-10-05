@@ -19,4 +19,12 @@ describe('PwaManager', () => {
     expect(markup).toContain('mettre à jour')
     expect(markup).not.toContain('aria-label="Fermer"')
   })
+
+  it('keeps the update waiting until a saved practice session has finished', () => {
+    const markup = renderToStaticMarkup(<PwaManager practiceActive />)
+
+    expect(markup).toContain('disabled=""')
+    expect(markup).toContain('Termine ta séance')
+    expect(markup).not.toContain('>mettre à jour<')
+  })
 })

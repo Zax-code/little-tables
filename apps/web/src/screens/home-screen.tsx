@@ -1,4 +1,4 @@
-import { LearningEngine } from '@little-tables/domain'
+import { Ce2Engine, LearningEngine } from '@little-tables/domain'
 import { useQuery } from '@tanstack/react-query'
 import { m } from 'motion/react'
 import { useState } from 'react'
@@ -19,6 +19,8 @@ import { setSoundEnabled, soundEnabled } from '../sound.js'
 import { useI18n } from '../i18n.js'
 import { deriveWeekProgressSegments } from '../week-progress.js'
 import { useFamilyProfile } from '../use-family-profile.js'
+import { ActivityPicker } from '../components/activity-picker.js'
+import { nextDailyFamily } from '../daily-activity.js'
 
 export function HomeScreen() {
   const { t } = useI18n()
@@ -37,6 +39,7 @@ export function HomeScreen() {
     staleTime: Infinity,
   })
   const data = bootstrap.data
+  const activeSession = data?.activeSession ?? data?.ce2ActiveSession ?? null
   const launcher = usePracticeLauncher(data)
   const [showModes, setShowModes] = useState(false)
   const [sound, setSound] = useState(soundEnabled)
@@ -54,30 +57,41 @@ export function HomeScreen() {
   const todayKey = LearningEngine.learningDayKey({ at: today, timeZone })
   const dailyView = deriveDailyPracticeView({
     activeSession:
-      data?.activeSession === null || data?.activeSession === undefined
+      activeSession === null
         ? null
         : {
-            currentIndex: data.activeSession.currentIndex,
-            kind: data.activeSession.kind,
-            questionCount: data.activeSession.questions.length,
+            currentIndex: activeSession.currentIndex,
+            kind: activeSession.kind === 'daily-watering' ? 'daily-watering' : 'extra-practice',
+            questionCount: activeSession.questions.length,
           },
     practiceDayKeys: data?.practiceDayKeys ?? [],
     rewardedDayKeys: data?.rewardedDayKeys ?? [],
     todayKey,
   })
+  const dailyFamily = data === undefined ? 'tables' : nextDailyFamily(data.ce2Preferences)
+  const ce2Daily = dailyFamily !== 'tables' && data?.ce2ContentVersion != null
   const dailyQuestionCount =
-    data?.activeSession?.kind === 'daily-watering'
-      ? data.activeSession.questions.length
-      : LearningEngine.createSession({
-          now: today,
-          policy: { kind: 'daily-watering' },
-          seed: 0,
-          snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
-          timeZone,
-        }).questions.length
-  const wateringMinutes = Math.max(1, Math.ceil(dailyQuestionCount / 5))
+    activeSession?.kind === 'daily-watering'
+      ? activeSession.questions.length
+      : ce2Daily
+        ? Ce2Engine.createSession({
+            kind: 'daily-watering',
+            module: dailyFamily,
+            now: today,
+            seed: 0,
+            snapshot: { ...data.ce2Snapshot, enabledModules: data.ce2Preferences.enabledModules },
+            timeZone,
+          }).questions.length
+        : LearningEngine.createSession({
+            now: today,
+            policy: { kind: 'daily-watering' },
+            seed: 0,
+            snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
+            timeZone,
+          }).questions.length
+  const wateringMinutes = ce2Daily ? 3 : Math.max(1, Math.ceil(dailyQuestionCount / 5))
   const primaryAction = async () => {
-    if (data?.activeSession !== null && data?.activeSession !== undefined) {
+    if (activeSession !== null) {
       await launcher.resume()
       return
     }
@@ -87,13 +101,14 @@ export function HomeScreen() {
     }
     await launcher.startDaily()
   }
-  const primaryCopy = data?.activeSession
-    ? data.activeSession.kind === 'daily-watering'
-      ? t('watering.resume')
-      : t('home.resume')
-    : dailyView.dailyWateringDone
-      ? t('watering.extra')
-      : t('watering.start')
+  const primaryCopy =
+    activeSession !== null
+      ? activeSession.kind === 'daily-watering'
+        ? t('watering.resume')
+        : t('home.resume')
+      : dailyView.dailyWateringDone
+        ? t('watering.extra')
+        : t('watering.start')
   const welcomeHeading =
     dailyView.comeback === 'none'
       ? firstVisit
@@ -166,11 +181,11 @@ export function HomeScreen() {
           </m.button>
           <button
             className="mode-link"
-            disabled={data?.activeSession !== null && data?.activeSession !== undefined}
+            disabled={activeSession !== null}
             onClick={() => setShowModes((visible) => !visible)}
             type="button"
           >
-            {showModes ? t('home.hideModes') : t('home.mode')}
+            {showModes ? t('home.hideModes') : t('ce2.activities')}
           </button>
           {showModes ? (
             <div className="mode-sheet">
@@ -192,6 +207,11 @@ export function HomeScreen() {
                   ))}
                 </div>
               </div>
+              <ActivityPicker
+                available={data?.ce2ContentVersion != null}
+                busy={activeSession !== null}
+                onStart={(module, skill) => void launcher.startCe2(module, skill)}
+              />
             </div>
           ) : null}
         </div>
@@ -255,10 +275,17 @@ export function HomeScreen() {
           <p>
             {dailyView.dailyWateringDone
               ? t('watering.done')
-              : t(dailyQuestionCount === 1 ? 'watering.dueOne' : 'watering.dueMany', {
-                  count: dailyQuestionCount,
-                  minutes: wateringMinutes,
-                })}
+              : t(
+                  ce2Daily
+                    ? 'ce2.dailyEstimate'
+                    : dailyQuestionCount === 1
+                      ? 'watering.dueOne'
+                      : 'watering.dueMany',
+                  {
+                    count: dailyQuestionCount,
+                    minutes: wateringMinutes,
+                  },
+                )}
           </p>
           <small>
             {t(dailyView.dailyWateringDone ? 'watering.rewardEarned' : 'watering.rewardReady')}

@@ -1,9 +1,10 @@
-import { LearningEngine } from '@little-tables/domain'
+import { Ce2Engine, LearningEngine } from '@little-tables/domain'
 
 import { TableProgressCard } from '../components/table-progress-card.js'
 import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { usePracticeLauncher } from '../hooks/use-practice-launcher.js'
 import { useI18n } from '../i18n.js'
+import { SkillProgressSection } from '../components/skill-progress-section.js'
 
 export function StatsScreen() {
   const { t } = useI18n()
@@ -15,9 +16,10 @@ export function StatsScreen() {
     snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
   })
   const { divisionFacts, facts, packs, tables } = progress
+  const hasSession = data?.activeSession != null || data?.ce2ActiveSession != null
 
   const chooseTable = (table: number) => {
-    if (data?.activeSession !== null && data?.activeSession !== undefined) {
+    if (hasSession) {
       void launcher.resume()
       return
     }
@@ -26,7 +28,7 @@ export function StatsScreen() {
   }
 
   const chooseDivision = () => {
-    if (data?.activeSession !== null && data?.activeSession !== undefined) {
+    if (hasSession) {
       void launcher.resume()
       return
     }
@@ -140,6 +142,17 @@ export function StatsScreen() {
           )}
         </div>
       </section>
+
+      {(['arithmetic', 'fractions'] as const).map((module) => (
+        <SkillProgressSection
+          available={data?.ce2ContentVersion != null}
+          busy={hasSession}
+          key={module}
+          module={module}
+          onChoose={(chosen, skill) => void launcher.startCe2(chosen, skill)}
+          snapshot={data?.ce2Snapshot ?? Ce2Engine.emptySnapshot()}
+        />
+      ))}
 
       <div className="progress-note">
         <span aria-hidden="true">✿</span>

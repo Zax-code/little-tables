@@ -1,8 +1,13 @@
 # little tables
 
-An iPhone-first, offline-first multiplication practice PWA with Google-gated access.
+An iPhone-first, offline-first mathematics practice PWA with Google-gated access:
+multiplication tables, inverse division, and French CE2 activities for fractions,
+addition, and subtraction with three-digit numbers.
 
 The approved product and architecture specification is in [TECHNICAL_PLAN.md](./TECHNICAL_PLAN.md).
+
+The CE2 curriculum, interaction, and compatibility specification is in
+[CE2_MATH_EXPANSION_SPEC.md](./CE2_MATH_EXPANSION_SPEC.md).
 
 ## Development
 

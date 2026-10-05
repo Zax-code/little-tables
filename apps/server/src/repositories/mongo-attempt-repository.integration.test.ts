@@ -1,10 +1,11 @@
 import { MongoDBContainer, type StartedMongoDBContainer } from '@testcontainers/mongodb'
-import type { AttemptEvent } from '@little-tables/domain'
+import { Ce2Engine, type AttemptEvent } from '@little-tables/domain'
 import { Effect } from 'effect'
 import { MongoClient } from 'mongodb'
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 
 import { AttemptIngestion } from '../application/attempt-ingestion.js'
+import { Ce2AttemptIngestion } from '../application/ce2-attempt-ingestion.js'
 import { AllowedEmailRepository } from './allowed-email-repository.js'
 import { AttemptRepository } from './attempt-repository.js'
 import { GardenCollectionRepository } from './garden-collection-repository.js'
@@ -61,6 +62,57 @@ describe('MongoAttemptRepository', () => {
     expect(result.first.accepted).toEqual(['mongo-attempt-1'])
     expect(result.second.duplicates).toEqual(['mongo-attempt-1'])
     expect(result.stored).toEqual([attempt])
+  }, 30_000)
+
+  it('keeps CE2 events out of the legacy collection for rollback compatibility', async () => {
+    const uri = `${container?.getConnectionString() ?? 'mongodb://unavailable'}?directConnection=true`
+    const snapshot = Ce2Engine.emptySnapshot()
+    const session = Ce2Engine.createSession({
+      kind: 'extra-practice',
+      module: 'arithmetic',
+      now: new Date('2026-10-04T12:00:00.000Z'),
+      seed: 208,
+      skill: 'A1',
+      snapshot,
+    })
+    const question = session.questions[0]
+    if (question === undefined) throw new Error('Expected a CE2 question')
+    const attempt = Ce2Engine.answer({
+      answer: question.solution,
+      answeredAt: new Date('2026-10-04T12:00:01.000Z'),
+      assistance: {
+        guided: false,
+        helpOpened: false,
+        representationHints: 0,
+        resultRevealed: false,
+        switchedToFree: false,
+      },
+      eventId: 'mongo-ce2-rollback-safe',
+      session,
+    }).attempt
+    await Effect.runPromise(
+      Ce2AttemptIngestion.ingest({
+        attempts: [attempt],
+        preferenceUpdates: [],
+        profileId: 'rollback-profile',
+      }).pipe(Effect.provide(MongoAttemptRepository.layer(uri, 'integration'))),
+    )
+
+    const client = new MongoClient(uri)
+    await client.connect()
+    const database = client.db('integration')
+    const [legacyDocument, ce2Document] = await Promise.all([
+      database
+        .collection<{ _id: string; profileId: string }>('attempt_events')
+        .findOne({ _id: attempt.eventId }),
+      database
+        .collection<{ _id: string; profileId: string }>('ce2_attempt_events')
+        .findOne({ _id: attempt.eventId }),
+    ])
+    await client.close()
+
+    expect(legacyDocument).toBeNull()
+    expect(ce2Document).toMatchObject({ profileId: 'rollback-profile' })
   }, 30_000)
 
   it('does not remove another profile push subscription', async () => {

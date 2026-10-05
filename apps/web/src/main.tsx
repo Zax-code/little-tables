@@ -6,7 +6,7 @@ import { domAnimation, LazyMotion, MotionConfig } from 'motion/react'
 
 import { router } from './router.js'
 import { AuthGate } from './components/auth-gate.js'
-import { PwaManager } from './components/pwa-manager.js'
+import { ProfilePwaManager } from './components/profile-pwa-manager.js'
 import { SyncManager } from './components/sync-manager.js'
 import { I18nProvider } from './i18n.js'
 import { decodeStartupImages } from './preload-images.js'
@@ -14,6 +14,7 @@ import { FamilyProfileProvider } from './family-profile-provider.js'
 import { SelectedCharacterProvider } from './selected-character-provider.js'
 import { useSelectedCharacter } from './use-selected-character.js'
 import './styles.css'
+import './activity-navigation.css'
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -76,9 +77,9 @@ void renderCharacterAudit().then((auditRendered) => {
       <StrictMode>
         <QueryClientProvider client={queryClient}>
           <I18nProvider>
-            <PwaManager />
             <AuthGate>
               <FamilyProfileProvider>
+                <ProfilePwaManager />
                 <SelectedCharacterProvider>
                   <LazyMotion features={domAnimation} strict>
                     <MotionConfig reducedMotion="user">

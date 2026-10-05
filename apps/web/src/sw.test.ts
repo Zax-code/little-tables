@@ -1,13 +1,20 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-const { cacheFirstSpy, registerRouteSpy } = vi.hoisted(() => ({
+const { appShellSpy, cacheFirstSpy, registerRouteSpy } = vi.hoisted(() => ({
+  appShellSpy: vi.fn(() => () => Promise.resolve(new Response('app shell'))),
   cacheFirstSpy: vi.fn(),
   registerRouteSpy: vi.fn(),
 }))
 
 vi.mock('workbox-core', () => ({ clientsClaim: vi.fn() }))
-vi.mock('workbox-precaching', () => ({ precacheAndRoute: vi.fn() }))
-vi.mock('workbox-routing', () => ({ registerRoute: registerRouteSpy }))
+vi.mock('workbox-precaching', () => ({
+  createHandlerBoundToURL: appShellSpy,
+  precacheAndRoute: vi.fn(),
+}))
+vi.mock('workbox-routing', async (importOriginal) => ({
+  ...(await importOriginal<typeof import('workbox-routing')>()),
+  registerRoute: registerRouteSpy,
+}))
 vi.mock('workbox-strategies', () => ({
   CacheFirst: cacheFirstSpy,
 }))
@@ -17,6 +24,38 @@ describe('service worker updates', () => {
     vi.resetModules()
     vi.clearAllMocks()
     vi.unstubAllGlobals()
+  })
+
+  it('serves the cached app shell for deep links while leaving API requests untouched', async () => {
+    vi.stubGlobal('self', {
+      __WB_MANIFEST: [],
+      addEventListener: vi.fn(),
+      location: { origin: 'https://little-tables.test' },
+    })
+    await import('./sw.js')
+    const { NavigationRoute } = await import('workbox-routing')
+    const route = registerRouteSpy.mock.calls.flatMap(([candidate]) =>
+      candidate instanceof NavigationRoute ? [candidate] : [],
+    )[0]
+    if (route === undefined) throw new Error('Missing app navigation route')
+    class NavigationEvent extends Event {
+      waitUntil() {
+        // Route matching schedules no background work.
+      }
+    }
+    const matches = (path: string, navigate: boolean) => {
+      const url = new URL(path, 'https://little-tables.test')
+      const request = new Request(url)
+      if (navigate) Object.defineProperty(request, 'mode', { value: 'navigate' })
+      return Boolean(
+        route.match({ event: new NavigationEvent('fetch'), request, sameOrigin: true, url }),
+      )
+    }
+    expect(appShellSpy).toHaveBeenCalledWith('/index.html')
+    expect(matches('/practice', true)).toBe(true)
+    expect(matches('/stats?profile=child', true)).toBe(true)
+    expect(matches('/api/v2/bootstrap', true)).toBe(false)
+    expect(matches('/api/v2/bootstrap', false)).toBe(false)
   })
 
   it('activates the waiting worker when Workbox requests an update', async () => {

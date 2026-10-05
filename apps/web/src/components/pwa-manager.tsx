@@ -4,7 +4,9 @@ import { useEffect, useState } from 'react'
 import { startServiceWorkerUpdateChecks } from '../service-worker-updates.js'
 import { useI18n } from '../i18n.js'
 
-export function PwaManager() {
+export function PwaManager({
+  practiceActive = false,
+}: Readonly<{ practiceActive?: boolean }> = {}) {
   const { t } = useI18n()
   const [registration, setRegistration] = useState<ServiceWorkerRegistration | null>(null)
   const {
@@ -28,8 +30,14 @@ export function PwaManager() {
     <aside aria-live="polite" className="pwa-toast" role="status">
       <span>{needRefresh ? t('pwa.refreshReady') : t('pwa.offlineReady')}</span>
       {needRefresh ? (
-        <button onClick={() => void updateServiceWorker(true)} type="button">
-          {t('pwa.update')}
+        <button
+          disabled={practiceActive}
+          onClick={() => {
+            if (!practiceActive) void updateServiceWorker(true)
+          }}
+          type="button"
+        >
+          {t(practiceActive ? 'ce2.updateLater' : 'pwa.update')}
         </button>
       ) : (
         <button onClick={() => setOfflineReady(false)} type="button">
