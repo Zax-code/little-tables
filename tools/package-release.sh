@@ -4,8 +4,7 @@
 #   tools/package-release.sh <commit> [output directory]
 #
 # Writes little-tables-<commit>.tar.gz and its .sha256 next to it. The archive holds, under
-# little-tables-<commit>/, the binary, the new app in web/ and the previous app in web-v1/:
-# WEB_DIST_PATH chooses which one is served.
+# little-tables-<commit>/, the binary and the web app in web/.
 set -euo pipefail
 
 readonly revision=${1:?usage: tools/package-release.sh <commit> [output directory]}
@@ -14,12 +13,10 @@ if [[ ! $revision =~ ^[0-9a-f]{40}$ ]]; then
   echo 'the commit must be a full 40-character hash' >&2
   exit 2
 fi
-for app in apps/app apps/web; do
-  if [[ ! -f $app/dist/index.html ]]; then
-    echo "build $app first (corepack pnpm build)" >&2
-    exit 2
-  fi
-done
+if [[ ! -f apps/app/dist/index.html ]]; then
+  echo 'build the web app first (corepack pnpm build)' >&2
+  exit 2
+fi
 
 APP_REVISION=$revision cargo build --release --locked -p lt-server
 
@@ -29,7 +26,6 @@ readonly release=$staging/little-tables-$revision
 mkdir -p "$release"
 install -m 0755 target/release/little-tables "$release/little-tables"
 cp -R apps/app/dist "$release/web"
-cp -R apps/web/dist "$release/web-v1"
 
 mkdir -p "$output"
 readonly archive=little-tables-$revision.tar.gz

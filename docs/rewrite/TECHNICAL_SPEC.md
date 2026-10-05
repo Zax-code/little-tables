@@ -65,7 +65,6 @@ La réécriture conserve toutes les fonctionnalités existantes. Les référence
 │   ├─ lt-domain (natif)   ├─ lt-server (routes, config, import, CLI)       │
 │   ├─ lt-store (SQLite)   ├─ lt-auth (Google ID token, session, CSRF, PIN) │
 │   ├─ lt-push (Web Push VAPID, worker de rappels)                          │
-│   └─ adaptateur /api/v1 (transition, retiré au lot 5)                     │
 └───────────────────────────────────┬──────────────────────────────────────┘
                                     │
                 SQLite (WAL) · /var/lib/little-tables/little-tables.db
@@ -82,19 +81,17 @@ crates/
   lt-auth/          vérification Google, session HMAC, CSRF, code parent
   lt-store/         SQLite (sqlx), migrations, projection des snapshots
   lt-push/          Web Push, worker de rappels
-  lt-server/        binaire axum, config, adaptateur v1, PWA servie, import Mongo vérifié, commandes admin
+  lt-server/        binaire axum, config, API v2, PWA servie, import Mongo vérifié, commandes admin
 apps/
-  web/              PWA React
+  app/              PWA React (écrans, données hors-ligne Dexie, sync, i18n fr / en / zh-Hans, service worker)
 packages/
   ui/               système de composants + tokens
   api-contract/     schémas Effect et client de l'API v2 (écrits à la main, vérifiés contre le serveur, §2.4)
-  engine/           façade Effect autour de lt-domain.wasm (l'ancien packages/domain disparaît au lot 5)
-  local-store/      Dexie + schémas Effect
-  i18n/             catalogues fr / en / zh-Hans typés
+  engine/           façade Effect autour de lt-domain.wasm
 tools/
   golden/           moteur TS actuel gelé + générateur de vecteurs de test (§7.2)
   build-wasm.sh     compilation du moteur pour le navigateur, budget de taille contrôlé
-deploy/             unité systemd, timer de sauvegarde, Caddy, script de release
+deploy/             unité systemd, timer de sauvegarde, Caddy, script de release, préproduction (preprod/)
 ```
 
 ### 2.3 Choix structurants
@@ -361,7 +358,10 @@ Rust (§7.2). En pratique, les tests HTTP de l'ancien serveur (`apps/server/src/
 (`crates/lt-server/tests/v1.rs`) ; les tests d'`apps/web` simulent le réseau et ne peuvent pas viser un vrai serveur.
 
 **Calendrier** : le lot 2 livre l'adaptateur v1 seul ; l'API v2 est construite au lot 3 avec son unique client, la
-nouvelle PWA, pour en fixer les formes sur des besoins réels.
+nouvelle PWA, pour en fixer les formes sur des besoins réels. **Lot 5 (fait)** : l'adaptateur v1 est retiré ; ses
+tests qui protégeaient autre chose que les formes v1 (service de la PWA, sessions, révocation, frontière entre familles)
+sont portés en v2 (`crates/lt-server/tests/api.rs`). Tout chemin `/api/*` inconnu répond 404 JSON, si bien qu'une
+ancienne PWA en cache échoue proprement et propose sa mise à jour.
 
 ### 5.4 Ingestion et bootstrap
 
@@ -598,7 +598,8 @@ Modèle « release immuable systemd », identique à Love Letters, Loup-Garou et
   secondes, acceptable pour un usage familial.
 - Quadlets, volume Mongo et image GHCR retirés après la période de conservation (§5.7).
 - Smoke test en CI sur le binaire de release : `/` → `/sign-in`, 401 sur les API protégées, `no-store` sur `/sign-in`,
-  contrat v1 et v2.
+  contrat v2, 404 sur `/api/v1`.
+- Déploiement à la fusion suspendu pendant la préproduction (variable de dépôt `DEPLOY_ON_MERGE`).
 
 ---
 
@@ -611,7 +612,7 @@ Modèle « release immuable systemd », identique à Love Letters, Loup-Garou et
 | 2   | Serveur Rust + SQLite, adaptateur v1, import Mongo vérifié, déploiement systemd, sauvegardes                                                                  | Bascule serveur, PWA actuelle inchangée |
 | 3   | Nouvelle PWA : espace enfant, séance, célébration, jardin, progrès, migration IndexedDB, déconnexion, espace parent **minimal** (enfants, école, préférences) | Bêta famille                            |
 | 4   | Code parent, vue des difficultés, heure de rappel par enfant, écrans restants (§6.3), mode sombre complet, taille du texte                                    | Parité complète + nouveautés            |
-| 5   | Retrait de `/api/v1`, de l'ancien code web/serveur, des clés historiques ; décision `algorithmVersion 2`                                                      | Fin de la réécriture                    |
+| 5   | Retrait de `/api/v1`, de l'ancien code web/serveur, des clés historiques ; décision `algorithmVersion 2`                                                      | **Fait**, sauf l'import Mongo (§8.5)    |
 
 ### 8.1 Risques
 
@@ -651,3 +652,21 @@ Tranchés le 5 octobre 2026 :
 3. Espace parent déverrouillé 5 min.
 4. Rappel quotidien envoyé seulement après une première séance terminée (nouveau comportement, voir §5.5).
 5. Personnages : les 6 existants, aucun nouveau.
+
+### 8.5 Fin de la réécriture (lot 5)
+
+Retirés : l'adaptateur `/api/v1`, l'ancienne PWA (`apps/web`), l'ancien serveur Node (`apps/server`),
+`packages/domain`, `packages/local-store`, l'image Docker et sa publication GHCR. Les illustrations sources de
+l'ancienne PWA vont dans `assets/legacy-public/` (hors du site livré). Le moteur TypeScript gelé reste dans
+`tools/golden/` comme référence des vecteurs dorés.
+
+Gardés volontairement, jusqu'à la bascule de la production puis la conservation de 30 jours :
+
+- `little-tables admin import` et le bootstrap au format de l'ancien serveur qu'il compare ;
+- l'exportateur, dans l'image construite depuis le commit `9881ecc` (chargée sur le VPS) ;
+- les Quadlets, le déployeur d'image et `validate:quadlets`, qui décrivent la production actuelle et son retour
+  arrière.
+
+Les clés historiques **côté appareil** (bases `little-tables-v1` / `v2`, clés `localStorage`) restent lues par la
+migration de la nouvelle PWA : un appareil qui n'a pas encore ouvert la nouvelle version perdrait sinon ses réponses
+non envoyées. Leur retrait est une décision à prendre quand plus aucun appareil ne les porte.

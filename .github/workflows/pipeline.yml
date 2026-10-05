@@ -14,7 +14,6 @@ permissions:
   contents: read
 
 env:
-  IMAGE_NAME: ghcr.io/zax-code/little-tables
   PNPM_VERSION: 11.2.2
 
 jobs:
@@ -81,11 +80,7 @@ jobs:
       - name: Run checks and build
         run: pnpm check
 
-      - name: Smoke-test production image
-        run: pnpm smoke:docker
-
-      # The Rust server release (lot 2 of the rewrite). Built and tested on every change; it is
-      # deployed only after the switch over described in deploy/RUST_CUTOVER_RUNBOOK.md.
+      # One archive per commit: the Rust server and the web app, as production runs them.
       - name: Package server release
         id: release
         run: |
@@ -93,9 +88,7 @@ jobs:
           echo "archive=$archive" >>"$GITHUB_OUTPUT"
 
       - name: Smoke-test server release
-        run: |
-          tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
-          WEB=web PORT=4319 tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
+        run: tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
 
       - name: Upload server release
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
@@ -105,67 +98,29 @@ jobs:
           if-no-files-found: error
           retention-days: 30
 
-  publish:
-    name: Publish image
-    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
-    needs: verify
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
-    permissions:
-      contents: read
-      packages: write
-    outputs:
-      image: ${{ steps.image.outputs.reference }}
-    steps:
-      - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
-
-      - name: Set up Buildx
-        uses: docker/setup-buildx-action@37fe631027851001ddb9b187196cc803df7f5f0e # v4.3.0
-
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Select immutable image reference
-        id: image
-        run: echo "reference=${IMAGE_NAME}:${GITHUB_SHA}" >>"$GITHUB_OUTPUT"
-
-      - name: Build and publish image
-        uses: docker/build-push-action@53b7df96c91f9c12dcc8a07bcb9ccacbed38856a # v7.3.0
-        with:
-          context: .
-          push: true
-          build-args: APP_REVISION=${{ github.sha }}
-          tags: |
-            ${{ steps.image.outputs.reference }}
-            ${{ env.IMAGE_NAME }}:latest
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-          labels: |
-            org.opencontainers.image.revision=${{ github.sha }}
-            org.opencontainers.image.source=${{ github.server_url }}/${{ github.repository }}
-
   deploy:
     name: Deploy production
-    # Paused while the rewrite runs in pre-production: merges build and publish but do not deploy.
-    # Set the repository variable DEPLOY_ON_MERGE to `true` to deploy again.
+    # Paused while the rewrite runs in pre-production: merges are verified but not deployed.
+    # Set the repository variable DEPLOY_ON_MERGE to `true` to deploy again, once production runs
+    # the Rust server (deploy/RUST_CUTOVER_RUNBOOK.md).
     if: >-
       github.ref == 'refs/heads/main' && github.event_name != 'pull_request' &&
       vars.DEPLOY_ON_MERGE == 'true'
-    needs: publish
+    needs: verify
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
       contents: read
-      packages: read
     environment:
       name: production
       url: https://math.leaetzak.love
     steps:
+      - name: Download server release
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: little-tables-${{ github.sha }}
+          path: release
+
       - name: Configure restricted deployment key
         env:
           DEPLOY_KEY: ${{ secrets.VPS_DEPLOY_KEY }}
@@ -176,15 +131,14 @@ jobs:
           printf '%s\n' "$KNOWN_HOSTS" >~/.ssh/known_hosts
           chmod 600 ~/.ssh/little-tables-deploy ~/.ssh/known_hosts
 
-      - name: Authenticate VPS to GHCR
-        env:
-          GHCR_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          printf '%s' "$GHCR_TOKEN" | ssh -i ~/.ssh/little-tables-deploy -p "${{ vars.VPS_PORT }}" "${{ vars.VPS_USER }}@${{ vars.VPS_HOST }}" "registry-login ${{ github.actor }}"
-
+      # The VPS checks the archive against its checksum, backs up, migrates, switches and
+      # health-checks, rolling back on failure (deploy/deploy-little-tables-release.sh).
       - name: Deploy with health-check rollback
         run: |
-          ssh -i ~/.ssh/little-tables-deploy -p "${{ vars.VPS_PORT }}" "${{ vars.VPS_USER }}@${{ vars.VPS_HOST }}" "deploy ${{ needs.publish.outputs.image }}"
+          archive="little-tables-${GITHUB_SHA}.tar.gz"
+          (cd release && sha256sum --check "$archive.sha256")
+          checksum=$(cut -d ' ' -f 1 "release/$archive.sha256")
+          ssh -i ~/.ssh/little-tables-deploy -p "${{ vars.VPS_PORT }}" "${{ vars.VPS_USER }}@${{ vars.VPS_HOST }}" "deploy-release ${GITHUB_SHA} ${checksum}" <"release/$archive"
 
       - name: Verify public deployment
         run: |

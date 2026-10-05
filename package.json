@@ -11,18 +11,18 @@
     "build": "pnpm -r --if-present build",
     "check": "pnpm format:check && pnpm lint && pnpm typecheck && pnpm check:rust && pnpm test && pnpm validate:quadlets && pnpm build",
     "check:rust": "cargo fmt --all --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace",
-    "dev": "pnpm --filter @little-tables/web dev",
-    "dev:server": "pnpm --filter @little-tables/server dev",
-    "doctor": "react-doctor apps/web --yes",
+    "dev": "pnpm --filter @little-tables/app dev",
+    "dev:server": "AUTH_MODE=disabled cargo run -p lt-server -- serve",
+    "doctor": "react-doctor apps/app --yes",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "pnpm --filter @little-tables/engine build:wasm && eslint .",
-    "smoke:docker": "sh tools/smoke-docker.sh",
     "test": "pnpm -r --if-present test && pnpm test:assets && pnpm test:deployment",
     "test:assets": "python3 -m unittest discover -s tools/asset-pipeline -p 'test_*.py'",
     "test:deployment": "python3 -m unittest discover -s tools/deployment -p 'test_*.py'",
     "typecheck": "pnpm -r --if-present typecheck",
-    "validate:quadlets": "bash tools/validate-quadlets.sh"
+    "validate:quadlets": "bash tools/validate-quadlets.sh",
+    "smoke:release": "bash tools/smoke-release.sh"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

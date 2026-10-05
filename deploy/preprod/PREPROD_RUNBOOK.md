@@ -20,9 +20,11 @@ steps 2 to 4 on an empty database.
 - In Google Cloud Console, the OAuth client used by production lists
   `https://math-preprod.leaetzak.love` among its authorized JavaScript origins. Without it, Google
   sign-in fails on pre-production.
-- The `little-tables-<sha>` release artifact of the commit to run (CI, any branch), and an image
-  of the same branch for the exporter (`docker buildx build --platform linux/amd64`, then
-  `docker save | ssh leaetzak 'sudo podman load'`), since the production image has no exporter.
+- The `little-tables-<sha>` release artifact of the commit to run (CI, any branch).
+- The exporter image built from commit `9881ecc7aa9263d4e63ab90cc77db6d1dcf3dd86` (the previous
+  Node server, removed from `main` since), loaded on the VPS as
+  `localhost/little-tables-exporter:9881ecc7aa9263d4e63ab90cc77db6d1dcf3dd86`; see
+  `../RUST_CUTOVER_RUNBOOK.md` §0 to rebuild it.
 
 ## 1. Install (once)
 
@@ -45,7 +47,7 @@ production file), `ADMIN_EMAILS`, `PUBLIC_ORIGIN=https://math-preprod.leaetzak.l
 ```sh
 timestamp=$(date -u +%Y%m%dT%H%M%SZ)
 sudo sh -c "podman run --rm --network host --env-file /etc/little-tables/little-tables.env \
-  --entrypoint node localhost/little-tables-exporter:<sha> dist/tools/export-for-rust.js \
+  --entrypoint node localhost/little-tables-exporter:9881ecc7aa9263d4e63ab90cc77db6d1dcf3dd86 dist/tools/export-for-rust.js \
   >/var/backups/little-tables-preprod/export-$timestamp.json"
 ```
 

@@ -165,7 +165,7 @@ impl Config {
                     .and_then(|binary| binary.parent().map(|directory| directory.join("web")));
                 match beside_binary {
                     Some(path) if deployed || path.is_dir() => path,
-                    _ => PathBuf::from("apps/web/dist"),
+                    _ => PathBuf::from("apps/app/dist"),
                 }
             });
         let host = lookup("HOST")

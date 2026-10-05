@@ -16,8 +16,7 @@ Environment=LT_ENV=production
 Environment=HOST=127.0.0.1
 Environment=PORT=32140
 Environment=DATABASE_PATH=/var/lib/little-tables/little-tables.db
-# The previous app until the family beta of the new one (`web`), see RUST_CUTOVER_RUNBOOK.md.
-Environment=WEB_DIST_PATH=/opt/little-tables/current/web-v1
+Environment=WEB_DIST_PATH=/opt/little-tables/current/web
 ExecStart=/opt/little-tables/current/little-tables serve
 Restart=on-failure
 RestartSec=2

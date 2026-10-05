@@ -3,7 +3,7 @@ dist
 coverage
 pnpm-lock.yaml
 assets/generated
-apps/web/public/generated
+assets/legacy-public/generated
 target
 packages/engine/wasm
 packages/ui/build
