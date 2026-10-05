@@ -267,7 +267,7 @@ Démarrage refusé en production si une variable obligatoire manque (mode éphé
 ### 5.2 Authentification
 
 - Connexion Google : vérification de l'ID token (JWKS Google mis en cache, audience = client ID, `email_verified`).
-- Sign in with Apple : prévu dans l'architecture (lot 3), même modèle d'identité.
+- Sign in with Apple : hors périmètre de la réécriture ; le modèle d'identité (sujet + fournisseur) le permettra plus tard.
 - Allowlist : admins (`ADMIN_EMAILS`) → bloqués en base → env → base. Retirer un email incrémente `sessionVersion`.
 - Session : cookie `little-tables-session` HttpOnly, Secure, SameSite=Lax, 30 jours, HMAC-SHA256, renouvelé à la sync.
   Format conservé pour ne pas déconnecter les utilisateurs au déploiement.
@@ -312,7 +312,19 @@ couche d'adaptation, puis est retiré.
 - Worker tokio toutes les 60 s, non réentrant ; envoi si heure locale ≥ 18 h, jour ≠ dernier envoi, et aucune
   réponse ce jour-là ; TTL 6 h ; 404/410 → suppression.
 - Crate `web-push` (VAPID) ; textes localisés fr / en / zh-Hans.
-- **Nouveau** : heure du rappel réglable par le parent (par défaut 18 h).
+- **Nouveau** : heure du rappel réglable **par enfant** dans l'espace parent (par défaut 18 h, pas de 15 min,
+  plage 7 h – 21 h) ; stockée sur l'abonnement et sur le profil ; `GET /notifications/config` renvoie l'heure du profil.
+
+### 5.5 bis Vue parent des difficultés
+
+Endpoint `GET /profiles/{id}/insights?range=7d|30d` calculé par `lt-domain` à partir des événements :
+
+- faits et compétences qui posent problème (taux d'erreur, rechutes `lapseCount`, faits lents), avec les erreurs
+  typiques (réponse donnée vs attendue) ;
+- régularité (jours pratiqués, semaines fleuries) et temps passé (somme des latences plafonnées par question) ;
+- progression des états de maîtrise sur la période (nouveaux familiers / fluides).
+
+Affichée uniquement dans l'espace parent ; jamais de score ni de comparaison entre enfants.
 
 ### 5.6 MongoDB
 
@@ -355,7 +367,8 @@ Le redesign repart de zéro. Proposition de départ, à valider sur le canvas :
   - Avatar en haut à gauche → feuille de changement de profil.
 - **Séance** : présentation plein écran (modale), sortie confirmée, progression lisible, clavier unifié en bas.
 - **Espace parent** (derrière un code parent) : famille et profils, ce que l'enfant apprend à l'école, rappels,
-  langue, son, installation, état de la sync, liste d'accès (admins), déconnexion.
+  heure du rappel par enfant, **vue des difficultés** (§5.5 bis), langue, son, apparence (clair / sombre / système),
+  installation, état de la sync, liste d'accès (admins), déconnexion.
 
 ### 6.3 Écrans à concevoir (lot design)
 
@@ -386,7 +399,7 @@ Composants :
 | Saisie      | `TextField`, `Picker`, `Checkbox`, `RadioGroup`, `Stepper`                                                                                                                       |
 | Exercices   | `AnswerTiles`, `NumberPad` (unique : entier, fraction, colonne), `ColumnOperation`, `FractionText`, `FractionBed`, `FractionPot`, `NumberLine` + curseur coccinelle, `HintPanel` |
 | Jardin      | `GardenScene`, `PlantIllustration`, `Caretaker` (sprites), `FlowerCurtain`                                                                                                       |
-| Personnages | `CharacterIllustration` (9 scènes × 6 personnages, repli Miffy, préchargement)                                                                                                   |
+| Personnages | `CharacterIllustration` (9 scènes × 6 personnages, Miffy par défaut et en repli, préchargement ; usage familial privé)                                                           |
 
 Règles : chaque composant documenté (Storybook ou Ladle) avec ses états, testé en accessibilité (axe), sans
 dépendance à la logique métier. Haptique : `navigator.vibrate` quand disponible ; sur iOS Safari, pas d'API
@@ -437,7 +450,7 @@ reste exigé pour chaque PR web.
 | 1   | `lt-domain` + vecteurs dorés + WASM ; design system (tokens, composants de base) ; maquettes HIG des écrans clés | Parité moteur prouvée                  |
 | 2   | Serveur Rust (auth, profils, sync, bootstrap incrémental, push) derrière `/api/v1` compatible                    | Bascule serveur sans changer le client |
 | 3   | Nouvelle PWA (espace enfant + séance + jardin + progrès)                                                         | Bêta famille                           |
-| 4   | Espace parent, code parent, migration IndexedDB, Sign in with Apple, déconnexion                                 | Parité complète + nouveautés           |
+| 4   | Espace parent, code parent, vue des difficultés, heure de rappel par enfant, migration IndexedDB, déconnexion    | Parité complète + nouveautés           |
 | 5   | Retrait de `/api/v1`, de l'ancien code et des clés historiques                                                   | Fin de la réécriture                   |
 
 ### 8.1 Risques
@@ -447,10 +460,16 @@ reste exigé pour chaque PR web.
 - Taille du WASM → objectif < 300 Ko gzip, chargé en parallèle du bundle, mis en précache.
 - Haptique iOS limitée → jamais porteuse d'information.
 
-### 8.2 Questions ouvertes
+### 8.2 Décisions
 
-1. Conserver MongoDB ou passer à PostgreSQL (le modèle événementiel s'y prête bien) ?
-2. Le code parent est-il souhaité, ou suffit-il d'un appui long / d'une question parentale ?
-3. Faut-il garder Miffy (licence) comme personnage par défaut dans une version plus largement distribuée ?
-4. Sign in with Apple dès le lot 3 ou plus tard ?
-5. L'heure du rappel doit-elle devenir réglable par profil ?
+| Sujet            | Décision (5 octobre 2026)                                                      |
+| ---------------- | ------------------------------------------------------------------------------ |
+| Espace parent    | Code à 4 chiffres (§6.4)                                                       |
+| Personnages      | Miffy conservé par défaut ; l'app reste à usage familial privé (liste blanche) |
+| Périmètre ajouté | Heure de rappel réglable par enfant, vue parent des difficultés, mode sombre   |
+| Hors périmètre   | Sign in with Apple                                                             |
+
+### 8.3 Questions ouvertes
+
+1. Base de données et mode de déploiement : MongoDB en Quadlet (actuel), PostgreSQL ou SQLite (voir l'analyse en
+   réponse à la revue des specs).
