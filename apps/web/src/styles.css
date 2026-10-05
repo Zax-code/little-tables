@@ -4364,6 +4364,14 @@ p {
 .hint-bed figcaption {
   font-size: 0.78rem;
 }
+/* The feedback tray styles every span as a muted caption; figures inside hints opt out. */
+.feedback-tray .exercise-hint span {
+  margin-top: 0;
+}
+.feedback-tray .garden-bed .bed-part,
+.feedback-tray .garden-bed .bed-flower {
+  display: grid;
+}
 
 /* Home, stats and family */
 .new-paths-card {
