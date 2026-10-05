@@ -57,6 +57,8 @@ jobs:
           restore-keys: cargo-${{ runner.os }}-
 
       - name: Install WebAssembly tools
+        # Downloads stay outside the checkout, where formatting and linting would see them.
+        working-directory: ${{ runner.temp }}
         env:
           BINARYEN_VERSION: 133
           WASM_BINDGEN_VERSION: 0.2.129
