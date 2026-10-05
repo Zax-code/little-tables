@@ -122,6 +122,10 @@ sudo systemctl edit little-tables.service   # Environment=WEB_DIST_PATH=/opt/lit
 sudo systemctl restart little-tables.service
 ```
 
+The new app runs its engine as WebAssembly: before switching, add `'wasm-unsafe-eval'` to
+`script-src` in the `math.leaetzak.love` Caddy fragment (as in
+`preprod/math-preprod.leaetzak.love.Caddyfile`), validate and reload Caddy.
+
 On first opening, the new app copies each child's previous local data (events not yet sent
 included) and deletes the old copy only after it reached the server. Going back is the same edit
 with `web-v1`; both apps read the same server data.
