@@ -152,6 +152,18 @@ importers:
         specifier: ^7.4.1
         version: 7.4.1
 
+  packages/api-contract:
+    dependencies:
+      '@effect/platform':
+        specifier: ^0.96.2
+        version: 0.96.2(effect@3.21.4)
+      '@little-tables/engine':
+        specifier: workspace:*
+        version: link:../engine
+      effect:
+        specifier: ^3.21.4
+        version: 3.21.4
+
   packages/domain:
     dependencies:
       effect:

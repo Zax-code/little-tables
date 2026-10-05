@@ -1,0 +1,235 @@
+{
+  "addEmail": {
+    "created": true,
+    "email": "friend@example.com"
+  },
+  "attempts": {
+    "accepted": [
+      "a1",
+      "a2"
+    ],
+    "duplicates": [],
+    "rejected": [
+      {
+        "eventId": "a3",
+        "reason": "duplicate_sequence"
+      }
+    ]
+  },
+  "authStatus": {
+    "authenticated": true,
+    "authenticationRequired": true,
+    "email": "parent@example.com",
+    "googleClientId": "client.apps.googleusercontent.com",
+    "isAdmin": false,
+    "onboardingRequired": true,
+    "sessionExpiresAt": 1793825259194
+  },
+  "authStatusSignedOut": {
+    "authenticated": false,
+    "authenticationRequired": true,
+    "email": null,
+    "googleClientId": "client.apps.googleusercontent.com",
+    "isAdmin": false,
+    "onboardingRequired": false,
+    "sessionExpiresAt": null
+  },
+  "bootstrap": {
+    "completedSessions": 1,
+    "gardenBloomCount": 1,
+    "gardenCollection": {
+      "awardedFlowerIds": [],
+      "bloomsPerFlower": 3,
+      "catalogVersion": "1",
+      "flowerOrder": [
+        "rose-lotus",
+        "blue-wisteria",
+        "blushing-peony",
+        "sunset-zinnia",
+        "ruby-bleeding-heart",
+        "twilight-lupine",
+        "ivory-magnolia",
+        "plum-snapdragon",
+        "velvet-foxglove"
+      ],
+      "introductionSeen": false
+    },
+    "practiceDayKeys": [
+      "2026-07-25"
+    ],
+    "profile": {
+      "avatarId": "fenna-fox",
+      "id": "8ebfe911-c106-4903-ab65-d3ab2d9ccd76",
+      "learningPaths": {
+        "enabledSkills": [],
+        "focusSkill": null,
+        "mode": "automatic",
+        "subtractionMethod": "compensation"
+      },
+      "name": "Léa",
+      "reminderMinute": 1080
+    },
+    "rewardedDayKeys": [
+      "2026-07-25"
+    ],
+    "rewards": [],
+    "snapshot": {
+      "algorithmVersion": "1",
+      "facts": {
+        "7:8": {
+          "correctCount": 1,
+          "correctStreak": 1,
+          "difficulty": 0.48,
+          "dueAt": 1785086400000,
+          "lastReviewedAt": 1785000004000,
+          "lastReviewedDayKey": "2026-07-25",
+          "lapseCount": 0,
+          "latencyMs": 1500.0,
+          "recallDayKeys": [
+            "2026-07-25"
+          ],
+          "successfulDayKeys": [
+            "2026-07-25"
+          ],
+          "stabilityDays": 1.0,
+          "state": "learning"
+        }
+      },
+      "processedEventIds": [
+        "a1",
+        "a2"
+      ]
+    }
+  },
+  "createProfile": {
+    "profile": {
+      "avatarId": "malo-bear",
+      "id": "fb3ad522-495f-455f-8230-44b33be12693",
+      "learningPaths": {
+        "enabledSkills": [],
+        "focusSkill": null,
+        "mode": "automatic",
+        "subtractionMethod": "compensation"
+      },
+      "name": "Tom",
+      "reminderMinute": 1080
+    }
+  },
+  "introductionSeen": {
+    "introductionSeen": true
+  },
+  "listEmails": {
+    "emails": [
+      {
+        "admin": false,
+        "email": "friend@example.com"
+      },
+      {
+        "admin": true,
+        "email": "owner@example.com"
+      },
+      {
+        "admin": false,
+        "email": "parent@example.com"
+      }
+    ]
+  },
+  "listProfiles": {
+    "profiles": [
+      {
+        "avatarId": "fenna-fox",
+        "id": "8ebfe911-c106-4903-ab65-d3ab2d9ccd76",
+        "learningPaths": {
+          "enabledSkills": [],
+          "focusSkill": null,
+          "mode": "automatic",
+          "subtractionMethod": "compensation"
+        },
+        "name": "Léa",
+        "reminderMinute": 1080
+      },
+      {
+        "avatarId": "malo-bear",
+        "id": "fb3ad522-495f-455f-8230-44b33be12693",
+        "learningPaths": {
+          "enabledSkills": [
+            "column-subtraction"
+          ],
+          "focusSkill": null,
+          "mode": "manual",
+          "subtractionMethod": "decomposition"
+        },
+        "name": "Tommy",
+        "reminderMinute": null
+      }
+    ]
+  },
+  "logout": {
+    "status": "signed-out"
+  },
+  "onboarding": {
+    "profile": {
+      "avatarId": "fenna-fox",
+      "id": "8ebfe911-c106-4903-ab65-d3ab2d9ccd76",
+      "learningPaths": {
+        "enabledSkills": [],
+        "focusSkill": null,
+        "mode": "automatic",
+        "subtractionMethod": "compensation"
+      },
+      "name": "Léa",
+      "reminderMinute": 1080
+    }
+  },
+  "refresh": {
+    "sessionExpiresAt": 1793825259206,
+    "status": "renewed"
+  },
+  "removeEmail": {
+    "email": "friend@example.com",
+    "removed": true
+  },
+  "removeProfile": {
+    "removedProfileId": "fb3ad522-495f-455f-8230-44b33be12693"
+  },
+  "signIn": {
+    "onboardingRequired": true,
+    "status": "authenticated"
+  },
+  "subscribe": {
+    "status": "subscribed"
+  },
+  "unsubscribe": {
+    "status": "unsubscribed"
+  },
+  "updateLearningPaths": {
+    "profile": {
+      "avatarId": "malo-bear",
+      "id": "fb3ad522-495f-455f-8230-44b33be12693",
+      "learningPaths": {
+        "enabledSkills": [
+          "column-subtraction"
+        ],
+        "focusSkill": null,
+        "mode": "manual",
+        "subtractionMethod": "decomposition"
+      },
+      "name": "Tommy",
+      "reminderMinute": null
+    }
+  },
+  "updateProfile": {
+    "profile": {
+      "avatarId": "malo-bear",
+      "id": "fb3ad522-495f-455f-8230-44b33be12693",
+      "learningPaths": {
+        "enabledSkills": [],
+        "focusSkill": null,
+        "mode": "automatic",
+        "subtractionMethod": "compensation"
+      },
+      "name": "Tommy",
+      "reminderMinute": null
+    }
+  }
+}

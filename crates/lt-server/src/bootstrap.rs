@@ -5,12 +5,12 @@
 //! question; blooms come from daily waterings, merged with the stored garden, which only grows.
 
 use lt_domain::garden::{
-    GARDEN_BLOOMS_PER_FLOWER, GardenInput, GardenPlantStage, LedgerTotals, SessionCompletionDay,
-    derive_garden_progress, derive_garden_reward_ledger, derive_rewards, garden_flower_ids,
-    merge_garden_reward_ledgers,
+    GARDEN_BLOOMS_PER_FLOWER, GardenInput, GardenPlantStage, GardenReward, LedgerTotals,
+    SessionCompletionDay, derive_garden_progress, derive_garden_reward_ledger, derive_rewards,
+    garden_flower_ids, merge_garden_reward_ledgers,
 };
 use lt_domain::model::{LearningSnapshot, Millis};
-use lt_store::{Store, personalized_flower_order};
+use lt_store::{GardenRecord, Store, personalized_flower_order};
 use serde_json::{Value, json};
 
 /// An instant as JavaScript's `Date.prototype.toISOString` writes it.
@@ -38,12 +38,23 @@ pub fn v1_snapshot(snapshot: &LearningSnapshot) -> Value {
     value
 }
 
-pub async fn v1_bootstrap(
+/// Everything a profile's screens are derived from.
+pub struct ProfileState {
+    pub collection: GardenRecord,
+    pub completed_sessions: usize,
+    pub garden_bloom_count: i64,
+    pub practice_day_keys: Vec<String>,
+    pub rewarded_day_keys: Vec<String>,
+    pub rewards: Vec<GardenReward>,
+    pub snapshot: LearningSnapshot,
+}
+
+/// Computes the profile's state, creating and reconciling its garden on the way.
+pub async fn profile_state(
     store: &Store,
     profile_id: &str,
-    display_name: &str,
     now: Millis,
-) -> lt_store::Result<Value> {
+) -> lt_store::Result<ProfileState> {
     let snapshot = store.snapshot(profile_id, now).await?;
     let attempts = store.attempt_summaries(profile_id).await?;
 
@@ -117,22 +128,45 @@ pub async fn v1_bootstrap(
         flower_order: Some(&collection.flower_order),
         snapshot: &snapshot,
     });
+    Ok(ProfileState {
+        collection,
+        completed_sessions: completed_sessions.len(),
+        garden_bloom_count: rewards.garden_bloom_count,
+        practice_day_keys,
+        rewarded_day_keys: rewards.rewarded_day_keys,
+        rewards: garden_rewards,
+        snapshot,
+    })
+}
+
+/// The garden collection as both API versions write it.
+pub fn collection_json(collection: &GardenRecord) -> Value {
+    json!({
+        "awardedFlowerIds": collection.awarded_flower_ids,
+        "bloomsPerFlower": GARDEN_BLOOMS_PER_FLOWER,
+        "catalogVersion": collection.catalog_version,
+        "flowerOrder": collection.flower_order,
+        "introductionSeen": collection.introduction_seen,
+    })
+}
+
+pub async fn v1_bootstrap(
+    store: &Store,
+    profile_id: &str,
+    display_name: &str,
+    now: Millis,
+) -> lt_store::Result<Value> {
+    let state = profile_state(store, profile_id, now).await?;
     Ok(json!({
-        "algorithmVersion": snapshot.algorithm_version,
+        "algorithmVersion": state.snapshot.algorithm_version,
         "profile": { "displayName": display_name, "id": profile_id },
-        "completedSessions": completed_sessions.len(),
-        "gardenBloomCount": rewards.garden_bloom_count,
-        "gardenCollection": {
-            "awardedFlowerIds": collection.awarded_flower_ids,
-            "bloomsPerFlower": GARDEN_BLOOMS_PER_FLOWER,
-            "catalogVersion": collection.catalog_version,
-            "flowerOrder": collection.flower_order,
-            "introductionSeen": collection.introduction_seen,
-        },
-        "practiceDayKeys": practice_day_keys,
-        "rewardedDayKeys": rewards.rewarded_day_keys,
-        "rewards": garden_rewards,
-        "snapshot": v1_snapshot(&snapshot),
+        "completedSessions": state.completed_sessions,
+        "gardenBloomCount": state.garden_bloom_count,
+        "gardenCollection": collection_json(&state.collection),
+        "practiceDayKeys": state.practice_day_keys,
+        "rewardedDayKeys": state.rewarded_day_keys,
+        "rewards": state.rewards,
+        "snapshot": v1_snapshot(&state.snapshot),
     }))
 }
 
