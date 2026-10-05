@@ -1,7 +1,7 @@
 /** Changing the parent code from the settings: the current code, then the new one twice. */
 import { ApiError } from '@little-tables/api-contract'
 import { PinPad, Sheet, toast, type PadKey } from '@little-tables/ui'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
 import { useI18n } from '../i18n/i18n.js'
@@ -24,7 +24,8 @@ export function ChangeCodeSheet({
   const [stage, setStage] = useState<Stage>(start)
   const [digits, setDigits] = useState('')
   const [message, setMessage] = useState<string | null>(null)
-  const [busy, setBusy] = useState(false)
+  // Only the handlers read it: a save in flight ignores further keys.
+  const busy = useRef(false)
 
   const close = (next: boolean) => {
     if (!next) {
@@ -55,7 +56,7 @@ export function ChangeCodeSheet({
   }
 
   const onKey = (key: PadKey) => {
-    if (busy || key === 'submit') return
+    if (busy.current || key === 'submit') return
     if (key === 'erase') {
       setDigits((current) => current.slice(0, -1))
       return
@@ -74,8 +75,10 @@ export function ChangeCodeSheet({
       setMessage(t('lock.mismatch'))
       setStage({ current: stage.current, kind: 'new' })
     } else {
-      setBusy(true)
-      void save(stage.current, next).finally(() => setBusy(false))
+      busy.current = true
+      void save(stage.current, next).finally(() => {
+        busy.current = false
+      })
     }
   }
 

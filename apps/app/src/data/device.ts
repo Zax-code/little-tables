@@ -117,6 +117,12 @@ export const createDevice = (storage: Storage | null = defaultStorage()) => ({
   setProfiles: (profiles: ReadonlyArray<ChildProfile>) =>
     write(keys.profilesCache, JSON.stringify(profiles), storage),
 
+  /** Whether this child already saw the new paths open, here or in the previous app. */
+  sawNewPaths: (profileId: string) =>
+    (readJson(Schema.Array(Schema.String), keys.seenCards, storage) ?? []).includes(
+      `new-paths:${profileId}`,
+    ) || read(`little-tables:new-paths-seen:${profileId}`, storage) === '1',
+
   seenCards: (): ReadonlyArray<string> =>
     readJson(Schema.Array(Schema.String), keys.seenCards, storage) ?? [],
   markCardSeen: (card: string) => {

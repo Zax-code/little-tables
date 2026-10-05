@@ -4,7 +4,7 @@
  * signing in with Google again.
  */
 import { ApiError } from '@little-tables/api-contract'
-import { Button, NavigationBar, PinPad, Screen, type PadKey } from '@little-tables/ui'
+import { Button, PinPad, Screen, type PadKey } from '@little-tables/ui'
 import { useNavigate } from '@tanstack/react-router'
 import { LockKeyhole } from 'lucide-react'
 import {
@@ -63,7 +63,8 @@ function CodeScreen() {
     const until = code.lockedUntil()
     return until === null ? null : lockMessage(until)
   })
-  const [busy, setBusy] = useState(false)
+  // Only the handlers read it: a submission in flight ignores further keys.
+  const busy = useRef(false)
   const showLock = (lockedUntil: number) => setMessage(lockMessage(lockedUntil))
 
   useEffect(() => {
@@ -86,15 +87,11 @@ function CodeScreen() {
     }
   }, [api, code])
 
-  const enterSpace = () => {
-    parentSpace.open()
-  }
-
   const submitEntered = async (pin: string) => {
     try {
       const device = await api((client) => client.verifyParentLock(pin))
       await code.remember(pin, device.pinSalt, device.pinHashParams.iterations)
-      enterSpace()
+      parentSpace.open()
     } catch (failure) {
       if (failure instanceof ApiError && failure.code === 'wrong_pin') {
         setMessage(count('lock.wrong', failure.remainingAttempts ?? 0))
@@ -104,7 +101,7 @@ function CodeScreen() {
         showLock(until)
       } else if (isOffline(failure)) {
         const checked = await code.checkOffline(pin)
-        if (checked.kind === 'right') enterSpace()
+        if (checked.kind === 'right') parentSpace.open()
         else if (checked.kind === 'wrong')
           setMessage(count('lock.wrong', checked.remainingAttempts))
         else if (checked.kind === 'locked') showLock(checked.lockedUntil)
@@ -128,7 +125,7 @@ function CodeScreen() {
     try {
       const device = await api((client) => client.setParentLock(pin))
       await code.remember(pin, device.pinSalt, device.pinHashParams.iterations)
-      enterSpace()
+      parentSpace.open()
     } catch {
       setMessage(t('lock.unavailable'))
       setStep({ kind: 'choose', first: null })
@@ -136,7 +133,7 @@ function CodeScreen() {
   }
 
   const onKey = (key: PadKey) => {
-    if (busy || code.lockedUntil() !== null) return
+    if (busy.current || code.lockedUntil() !== null) return
     if (key === 'erase') {
       setDigits((current) => current.slice(0, -1))
       return
@@ -149,8 +146,10 @@ function CodeScreen() {
       return
     }
     setDigits('')
-    setBusy(true)
-    const done = () => setBusy(false)
+    busy.current = true
+    const done = () => {
+      busy.current = false
+    }
     if (step.kind === 'choose') void submitChosen(step.first, next).finally(done)
     else void submitEntered(next).finally(done)
   }
@@ -166,17 +165,14 @@ function CodeScreen() {
   return (
     <Screen
       top={
-        <NavigationBar
-          action={
-            <Button onClick={leave} size="sm" variant="plain">
-              {t('common.close')}
-            </Button>
-          }
-          title=""
-        />
+        <div className="flex min-h-11 justify-end px-5 pt-2">
+          <Button onClick={leave} size="sm" variant="plain">
+            {t('common.close')}
+          </Button>
+        </div>
       }
     >
-      <div className="flex flex-1 flex-col items-center gap-6 pb-6 text-center">
+      <div className="flex flex-1 flex-col items-center justify-center gap-4 pb-4 text-center">
         <LockKeyhole aria-hidden className="size-9 text-tint" />
         <h1 className="text-title-2 font-extrabold">{title}</h1>
         {step.kind === 'checking' ? null : step.kind === 'unavailable' ? (
@@ -193,7 +189,7 @@ function CodeScreen() {
           />
         ) : (
           <>
-            <p aria-live="polite" className="min-h-12 text-subhead font-semibold text-label-2">
+            <p aria-live="polite" className="min-h-10 text-subhead font-semibold text-label-2">
               {message ?? (step.kind === 'choose' ? t('lock.chooseCopy') : '')}
             </p>
             <PinPad

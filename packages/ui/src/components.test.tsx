@@ -306,7 +306,7 @@ describe('TimePicker', () => {
     expect(
       screen
         .getAllByRole('option')
-        .filter((option) => !option.textContent?.endsWith('h'))
+        .filter((option) => !option.textContent.endsWith('h'))
         .map(({ textContent }) => textContent),
     ).toEqual(['00'])
     await user.selectOptions(hour, '7')

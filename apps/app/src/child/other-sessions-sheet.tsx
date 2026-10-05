@@ -10,14 +10,9 @@ import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
 import { weakerBonusTable } from './bonus-table.js'
 import { useLaunch } from './launch.js'
+import { pathStyle } from './path-style.js'
 
 const tables = [2, 3, 4, 5, 6, 7, 8, 9, 10] as const
-
-const pathStyle = {
-  additions: { mark: '+ −', tile: 'bg-tint' },
-  'big-numbers': { mark: '1 000', tile: 'bg-sky' },
-  fractions: { mark: '¾', tile: 'bg-leaf' },
-} as const
 
 type OtherSessionsSheetProps = Readonly<{
   onOpenChange: (open: boolean) => void

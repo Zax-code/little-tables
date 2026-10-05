@@ -102,7 +102,10 @@ export function PinPad({
     'erase',
   ]
   return (
-    <div className={cn('flex flex-col items-center gap-8', className)}>
+    // Short phones (SE, landscape) get smaller keys so the whole pad fits without scrolling.
+    <div
+      className={cn('flex flex-col items-center gap-8 [@media(max-height:700px)]:gap-5', className)}
+    >
       <div aria-label={progressLabel} className="flex gap-5" role="status">
         {Array.from({ length }, (_, index) => (
           <span
@@ -114,7 +117,7 @@ export function PinPad({
           />
         ))}
       </div>
-      <div className="grid grid-cols-3 gap-x-6 gap-y-4">
+      <div className="grid grid-cols-3 gap-x-6 gap-y-4 [@media(max-height:700px)]:gap-y-2.5">
         {keys.map((key, index) =>
           key === null ? (
             <span key={index} />
@@ -122,7 +125,7 @@ export function PinPad({
             <button
               aria-label={key === 'erase' ? eraseLabel : key}
               className={cn(
-                'flex size-19.5 items-center justify-center rounded-full text-[1.875rem] font-bold transition-transform active:scale-95',
+                'flex size-19.5 items-center justify-center rounded-full text-[1.875rem] font-bold transition-transform active:scale-95 [@media(max-height:700px)]:size-16',
                 key === 'erase' ? 'text-label-2' : 'bg-surface text-label',
               )}
               key={key}
