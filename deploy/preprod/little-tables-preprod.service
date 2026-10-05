@@ -1,0 +1,59 @@
+# Installed as /etc/systemd/system/little-tables-preprod.service: the pre-production copy that runs
+# beside production on math-preprod.leaetzak.love (deploy/preprod/PREPROD_RUNBOOK.md). Releases live
+# in /opt/little-tables-preprod/releases/<commit>; `current` points at the active one.
+[Unit]
+Description=little tables (pre-production)
+Documentation=https://github.com/Zax-code/little-tables
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=exec
+User=little-tables-preprod
+Group=little-tables-preprod
+EnvironmentFile=/etc/little-tables-preprod/little-tables.env
+Environment=LT_ENV=production
+Environment=HOST=127.0.0.1
+Environment=PORT=32141
+Environment=DATABASE_PATH=/var/lib/little-tables-preprod/little-tables.db
+# The new app.
+Environment=WEB_DIST_PATH=/opt/little-tables-preprod/current/web
+ExecStart=/opt/little-tables-preprod/current/little-tables serve
+Restart=on-failure
+RestartSec=2
+TimeoutStopSec=20
+
+StateDirectory=little-tables-preprod
+StateDirectoryMode=0750
+UMask=0027
+MemoryMax=256M
+TasksMax=64
+
+NoNewPrivileges=true
+CapabilityBoundingSet=
+AmbientCapabilities=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectClock=true
+ProtectHostname=true
+ProtectKernelLogs=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+ProtectProc=invisible
+ProcSubset=pid
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+RestrictRealtime=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+RemoveIPC=true
+SystemCallArchitectures=native
+SystemCallFilter=@system-service
+SystemCallFilter=~@privileged
+
+[Install]
+WantedBy=multi-user.target

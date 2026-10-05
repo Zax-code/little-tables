@@ -1,0 +1,44 @@
+# Pre-production beside math.leaetzak.love (deploy/preprod/PREPROD_RUNBOOK.md): same rules, its own
+# loopback port, and kept out of search engines.
+math-preprod.leaetzak.love {
+	import common_security
+
+	header {
+		Cross-Origin-Opener-Policy "same-origin-allow-popups"
+		Permissions-Policy "camera=(), microphone=(), geolocation=()"
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Robots-Tag "noindex, nofollow"
+		Content-Security-Policy "default-src 'self'; script-src 'self' 'wasm-unsafe-eval' https://accounts.google.com/gsi/client; style-src 'self' https://accounts.google.com/gsi/style; font-src 'self'; img-src 'self' data:; connect-src 'self' https://accounts.google.com/gsi/; frame-src https://accounts.google.com/gsi/; worker-src 'self'; manifest-src 'self'; base-uri 'self'; frame-ancestors 'self'"
+	}
+
+	handle /assets/* {
+		header Cache-Control "public, max-age=31536000, immutable"
+		reverse_proxy 127.0.0.1:32141 {
+			import strip_cache_header
+		}
+	}
+
+	handle /sw.js {
+		header Cache-Control "no-cache, no-store, must-revalidate"
+		reverse_proxy 127.0.0.1:32141 {
+			import strip_cache_header
+		}
+	}
+
+	handle /manifest.webmanifest {
+		header Cache-Control "no-cache"
+		reverse_proxy 127.0.0.1:32141 {
+			import strip_cache_header
+		}
+	}
+
+	handle {
+		reverse_proxy 127.0.0.1:32141 {
+			health_uri /health/ready
+			health_interval 15s
+			fail_duration 30s
+			lb_try_duration 5s
+			import strip_security_headers
+		}
+	}
+}
