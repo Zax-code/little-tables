@@ -1,6 +1,7 @@
 packages:
   - apps/*
   - packages/*
+  - tools/golden
 
 # Keep pnpm 11's release-age policy enabled for every version except this merged Dependabot set.
 minimumReleaseAgeExclude:

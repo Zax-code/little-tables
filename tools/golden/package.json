@@ -1,0 +1,16 @@
+{
+  "name": "@little-tables/golden",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Frozen TypeScript learning engine and the generator of the Rust engine's golden vectors.",
+  "scripts": {
+    "generate": "tsx src/generate.ts"
+  },
+  "dependencies": {
+    "effect": "^3.21.4"
+  },
+  "devDependencies": {
+    "tsx": "^4.23.1"
+  }
+}
