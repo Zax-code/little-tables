@@ -5,6 +5,7 @@ export type {
   AnswerOutcome,
   AttemptEvent,
   Exercise,
+  ExerciseDescription,
   FactMastery,
   GardenProgress,
   GardenReward,

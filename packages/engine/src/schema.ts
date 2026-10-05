@@ -135,6 +135,17 @@ export const Exercise = Schema.Union(
 )
 export type Exercise = typeof Exercise.Type
 
+/** What an exercise screen needs besides its prompt (`describeExercise`). */
+export const ExerciseDescription = Schema.Struct({
+  columnResult: Schema.optional(Int),
+  equalOptions: Schema.optional(Schema.Array(Int)),
+  expected: PracticeAnswer,
+  operationResult: Schema.optional(Fraction),
+  production: Schema.Boolean,
+  tickIndex: Schema.optional(Int),
+})
+export type ExerciseDescription = typeof ExerciseDescription.Type
+
 export const MasteryState = Schema.Literal('unseen', 'learning', 'familiar', 'fluent')
 export type MasteryState = typeof MasteryState.Type
 

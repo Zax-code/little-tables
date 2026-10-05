@@ -111,6 +111,7 @@ export type EngineApi = Readonly<{
   >
   deriveRewards: Operation<GardenInput, ReadonlyArray<S.GardenReward>>
   deriveSessionInsight: Operation<ReduceInput, S.SessionInsight>
+  describeExercise: Operation<S.Exercise, S.ExerciseDescription>
   emptySnapshot: S.LearningSnapshot
   expectedAnswer: Operation<S.Exercise, S.PracticeAnswer>
   isExerciseAnswerCorrect: Operation<
@@ -148,6 +149,7 @@ export const makeEngine = (module: EngineModule): EngineApi => {
     deriveRescueStrategies: operation('deriveRescueStrategies', Schema.Array(S.RescueStrategy)),
     deriveRewards: operation('deriveRewards', Schema.Array(S.GardenReward)),
     deriveSessionInsight: operation('deriveSessionInsight', S.SessionInsight),
+    describeExercise: operation('describeExercise', S.ExerciseDescription),
     emptySnapshot: { algorithmVersion: '1', facts: {}, processedEventIds: [] },
     expectedAnswer: operation('expectedAnswer', S.PracticeAnswer),
     isExerciseAnswerCorrect: operation('isExerciseAnswerCorrect', Schema.Boolean),
