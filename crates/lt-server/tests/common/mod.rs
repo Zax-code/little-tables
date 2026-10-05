@@ -10,7 +10,7 @@ use axum::http::{HeaderMap, Method, Request, StatusCode, header};
 use http_body_util::BodyExt;
 use lt_auth::GoogleIdentity;
 use lt_server::config::{AuthConfig, Config};
-use lt_server::state::{AppState, BoxFuture, CredentialVerifier};
+use lt_server::state::{AppState, BoxFuture, CredentialVerifier, now};
 use lt_store::Store;
 use serde_json::{Value, json};
 use tower::ServiceExt;
@@ -40,6 +40,7 @@ pub fn identity(
         GoogleIdentity {
             display_name: name.to_owned(),
             email: email.to_owned(),
+            issued_at: Some(now()),
             subject: subject.to_owned(),
         },
     )

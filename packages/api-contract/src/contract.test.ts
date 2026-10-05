@@ -99,4 +99,35 @@ describe('ApiClient', () => {
       'https://push.example/a?b',
     )
   })
+
+  it('keeps what a refused parent code tells', async () => {
+    const wrong = await Effect.runPromise(
+      Effect.flatMap(ApiClient, (client) => client.verifyParentLock('0000')).pipe(
+        Effect.flip,
+        Effect.provide(clientAnswering(403, recorded.wrongPin)),
+      ),
+    )
+    expect(wrong).toMatchObject({ code: 'wrong_pin', remainingAttempts: 1, status: 403 })
+    const locked = await Effect.runPromise(
+      Effect.flatMap(ApiClient, (client) => client.verifyParentLock('0000')).pipe(
+        Effect.flip,
+        Effect.provide(clientAnswering(423, recorded.lockedPin)),
+      ),
+    )
+    expect(locked).toMatchObject({ code: 'parent_lock_locked', status: 423 })
+    expect(locked).toHaveProperty('lockedUntil', expect.any(Number))
+  })
+
+  it('asks for insights over a range ending on the app’s today', async () => {
+    const seen: Request[] = []
+    const insights = await Effect.runPromise(
+      Effect.flatMap(ApiClient, (client) => client.insights('lou', '30d', '2026-07-27')).pipe(
+        Effect.provide(clientAnswering(200, recorded.insights, seen)),
+      ),
+    )
+    expect(insights.struggles[0]?.factKey).toBe('7:8')
+    const url = new URL(seen[0]?.url ?? '')
+    expect(url.pathname).toBe('/api/v2/profiles/lou/insights')
+    expect(Object.fromEntries(url.searchParams)).toEqual({ range: '30d', today: '2026-07-27' })
+  })
 })

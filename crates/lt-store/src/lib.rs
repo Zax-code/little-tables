@@ -7,6 +7,7 @@
 mod attempts;
 mod families;
 mod garden;
+mod parent_lock;
 mod reminders;
 
 use std::path::Path;
@@ -17,9 +18,10 @@ use sqlx::sqlite::{SqliteConnectOptions, SqliteJournalMode, SqlitePoolOptions, S
 use sqlx::{Sqlite, SqlitePool, Transaction};
 use tokio::sync::Mutex;
 
-pub use attempts::{AttemptSummary, InsertResult};
+pub use attempts::{AttemptSummary, InsertResult, day_key_of};
 pub use families::{ChildProfile, Family, RemoveChildResult};
 pub use garden::{GardenRecord, personalized_flower_order};
+pub use parent_lock::ParentLock;
 pub use reminders::{AllowedEmail, EmailStatus, PushSubscription};
 
 #[derive(Debug, thiserror::Error)]

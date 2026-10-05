@@ -105,12 +105,20 @@ async fn serves_the_new_app_contract() {
     let server = server(
         true,
         &["parent@example.com"],
-        vec![identity(
-            "parent",
-            "Google Lou",
-            "parent@example.com",
-            "family-subject",
-        )],
+        vec![
+            identity(
+                "parent",
+                "Google Lou",
+                "parent@example.com",
+                "family-subject",
+            ),
+            identity(
+                "stranger",
+                "Google Zoé",
+                "stranger@example.com",
+                "other-subject",
+            ),
+        ],
     )
     .await;
     let mut client = Client::new(&server);
@@ -158,6 +166,7 @@ async fn serves_the_new_app_contract() {
         )
         .await;
     assert_eq!(again.status, StatusCode::CONFLICT);
+    parent_code(&mut client).await;
 
     let created = client
         .record(
@@ -236,6 +245,55 @@ async fn serves_the_new_app_contract() {
             None,
         )
         .await;
+
+    // Three wrong answers in a second session make 7×8 something to work on.
+    let wrong: Vec<Value> = (0..3)
+        .map(|sequence| {
+            let mut event = attempt(
+                &format!("w{sequence}"),
+                "s2",
+                sequence,
+                1_785_000_100_000 + sequence * 5_000,
+            );
+            event["correct"] = json!(false);
+            event["selected"] = json!(54);
+            event["questionCount"] = json!(3);
+            event
+        })
+        .collect();
+    client
+        .call(
+            Method::POST,
+            &format!("/api/v2/profiles/{lea}/attempts"),
+            Some(json!({ "attempts": wrong })),
+        )
+        .await;
+    let insights = client
+        .record(
+            "insights",
+            Method::GET,
+            &format!("/api/v2/profiles/{lea}/insights?range=7d&today=2026-07-27"),
+            None,
+        )
+        .await;
+    assert_eq!(insights["fromDayKey"], "2026-07-21");
+    assert_eq!(insights["answers"], 5);
+    assert_eq!(insights["struggles"][0]["factKey"], "7:8");
+    assert_eq!(
+        insights["struggles"][0]["commonWrongAnswer"],
+        json!({ "type": "integer", "value": 54 })
+    );
+    assert_eq!(insights["regularity"]["practicedDays"], 1);
+    for query in ["range=1y", "range=7d&today=27-07-2026"] {
+        let refused = client
+            .call(
+                Method::GET,
+                &format!("/api/v2/profiles/{lea}/insights?{query}"),
+                None,
+            )
+            .await;
+        assert_eq!(refused.status, StatusCode::BAD_REQUEST, "{query}");
+    }
     assert_eq!(bootstrap["completedSessions"], 1);
     assert_eq!(bootstrap["gardenBloomCount"], 1);
     assert_eq!(bootstrap["profile"]["name"], "Léa");
@@ -390,6 +448,113 @@ async fn serves_the_new_app_contract() {
 
     client.recorded.extend(admin.recorded);
     check_contract(&client.recorded);
+}
+
+/// The parent code: set, checked, locked after five wrong attempts, reset by signing in again.
+async fn parent_code(client: &mut Client<'_>) {
+    let path = "/api/v2/family/parent-lock";
+    let unset = client
+        .record("parentLockUnset", Method::GET, path, None)
+        .await;
+    assert_eq!(unset["configured"], false);
+    let verify_unset = client
+        .call(
+            Method::POST,
+            "/api/v2/family/parent-lock/verify",
+            Some(json!({ "pin": "2468" })),
+        )
+        .await;
+    assert_eq!(verify_unset.status, StatusCode::NOT_FOUND);
+    let invalid = client
+        .call(Method::PUT, path, Some(json!({ "pin": "24a8" })))
+        .await;
+    assert_eq!(invalid.status, StatusCode::BAD_REQUEST);
+
+    let set = client
+        .record(
+            "setParentLock",
+            Method::PUT,
+            path,
+            Some(json!({ "pin": "2468" })),
+        )
+        .await;
+    assert_eq!(set["pinHashParams"]["iterations"], 100_000);
+    let salt = set["pinSalt"].as_str().unwrap().to_owned();
+    let replaced = client
+        .call(Method::PUT, path, Some(json!({ "pin": "1357" })))
+        .await;
+    assert_eq!(replaced.status, StatusCode::FORBIDDEN);
+    assert_eq!(replaced.body["remainingAttempts"], 4);
+
+    let verified = client
+        .record(
+            "verifyParentLock",
+            Method::POST,
+            "/api/v2/family/parent-lock/verify",
+            Some(json!({ "pin": "2468" })),
+        )
+        .await;
+    assert_eq!(verified["pinSalt"], salt.as_str());
+    let status = client
+        .record("parentLockStatus", Method::GET, path, None)
+        .await;
+    assert_eq!(
+        status,
+        json!({ "configured": true, "lockedUntil": null, "pinSalt": salt })
+    );
+
+    // The right code above forgot the earlier wrong one: five more lock the code.
+    for remaining in (1..=4).rev() {
+        let wrong = client
+            .call(
+                Method::POST,
+                "/api/v2/family/parent-lock/verify",
+                Some(json!({ "pin": "0000" })),
+            )
+            .await;
+        assert_eq!(wrong.status, StatusCode::FORBIDDEN);
+        assert_eq!(wrong.body["remainingAttempts"], remaining);
+        client.recorded.insert("wrongPin".to_owned(), wrong.body);
+    }
+    let locked = client
+        .call(
+            Method::POST,
+            "/api/v2/family/parent-lock/verify",
+            Some(json!({ "pin": "0000" })),
+        )
+        .await;
+    assert_eq!(locked.status, StatusCode::LOCKED);
+    assert!(locked.body["lockedUntil"].is_number());
+    client.recorded.insert("lockedPin".to_owned(), locked.body);
+    let still_locked = client
+        .call(
+            Method::POST,
+            "/api/v2/family/parent-lock/verify",
+            Some(json!({ "pin": "2468" })),
+        )
+        .await;
+    assert_eq!(still_locked.status, StatusCode::LOCKED);
+    let status = client.call(Method::GET, path, None).await;
+    assert!(status.body["lockedUntil"].is_number());
+
+    for credential in [json!({}), json!({ "credential": "stranger" })] {
+        let refused = client.call(Method::DELETE, path, Some(credential)).await;
+        assert_eq!(refused.status, StatusCode::FORBIDDEN);
+    }
+    let reset = client
+        .record(
+            "resetParentLock",
+            Method::DELETE,
+            path,
+            Some(json!({ "credential": "parent" })),
+        )
+        .await;
+    assert_eq!(reset["configured"], false);
+    let chosen = client
+        .call(Method::PUT, path, Some(json!({ "pin": "1357" })))
+        .await;
+    assert_eq!(chosen.status, StatusCode::OK);
+    assert_ne!(chosen.body["pinSalt"], salt.as_str());
 }
 
 fn with_iso_date() -> Value {

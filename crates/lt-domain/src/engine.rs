@@ -122,7 +122,7 @@ fn correct_answer_for(
 }
 
 /// Recall slower than this marks a fact as weak. Generated exercises are never timed.
-fn latency_limit_ms(key: &str) -> Option<f64> {
+pub(crate) fn latency_limit_ms(key: &str) -> Option<f64> {
     if is_multiplication_key(key) || key.starts_with("divide:") {
         Some(3_000.0)
     } else if key.starts_with("add:") || key.starts_with("sub:") {

@@ -8,6 +8,7 @@ pub mod config;
 pub mod import;
 pub mod ingestion;
 pub mod limits;
+pub mod parent_lock;
 pub mod state;
 pub mod v1;
 pub mod v2;

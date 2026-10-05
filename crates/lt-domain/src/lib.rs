@@ -10,6 +10,7 @@ pub mod day_key;
 pub mod engine;
 pub mod exercises;
 pub mod garden;
+pub mod insights;
 pub mod model;
 pub mod paths;
 pub mod rhythm;
