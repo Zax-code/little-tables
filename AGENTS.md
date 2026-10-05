@@ -42,7 +42,7 @@ Vitest is used throughout, with Fast Check for domain properties and Testcontain
 
 ## Commit & Pull Request Guidelines
 
-History follows Conventional Commit-style subjects such as `feat:`, `fix:`, and `build:`. Keep commits scoped and imperative. Pull requests should explain user impact, list verification performed, link relevant issues, and include screenshots for visible PWA changes. All CI checks must pass before merge. Merging to `main` deploys production automatically.
+History follows Conventional Commit-style subjects such as `feat:`, `fix:`, and `build:`. Keep commits scoped and imperative. Pull requests should explain user impact, list verification performed, link relevant issues, and include screenshots for visible PWA changes. All CI checks must pass before merge. Merging to `main` deploys production only when the repository variable `DEPLOY_ON_MERGE` is `true`; it is paused during the rewrite.
 
 When finishing any feature or fix, always commit and push the completed work on a branch and open a pull request. Do not stop with uncommitted local changes.
 
