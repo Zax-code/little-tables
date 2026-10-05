@@ -14,11 +14,17 @@ case "$command" in
     [[ $image =~ ^ghcr\.io/zax-code/little-tables:[0-9a-f]{40}$ ]] || exit 2
     exec sudo /usr/local/sbin/deploy-little-tables "$image"
     ;;
+  deploy-release\ *)
+    # deploy-release <commit> <sha256>, with the release archive on standard input.
+    read -r _ revision checksum extra <<<"$command"
+    [[ $revision =~ ^[0-9a-f]{40}$ && $checksum =~ ^[0-9a-f]{64}$ && -z ${extra:-} ]] || exit 2
+    exec sudo /usr/local/sbin/deploy-little-tables-release "$revision" "$checksum"
+    ;;
   status)
     exec sudo /usr/bin/systemctl status little-tables.service --no-pager
     ;;
   public-health)
-    for attempt in {1..20}; do
+    for _ in {1..20}; do
       if curl --user-agent 'Mozilla/5.0 little-tables-deployment' --fail --silent --show-error --max-time 5 https://math.leaetzak.love/health/ready; then
         exit 0
       fi

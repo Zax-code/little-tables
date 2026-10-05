@@ -1,0 +1,24 @@
+[package]
+name = "lt-store"
+description = "SQLite storage of little tables: families, attempts, learning projections, gardens, access and reminders."
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+lt-domain = { path = "../lt-domain" }
+rand.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true

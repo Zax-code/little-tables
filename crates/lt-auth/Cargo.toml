@@ -1,0 +1,27 @@
+[package]
+name = "lt-auth"
+description = "little tables authentication: signed sessions, Google ID tokens, access list rules and the parent code."
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+argon2.workspace = true
+base64.workspace = true
+hmac.workspace = true
+jsonwebtoken.workspace = true
+rand.workspace = true
+reqwest.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+sha2.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+
+[dev-dependencies]
+rsa = { version = "0.9", features = ["pem"] }
+
+[lints]
+workspace = true

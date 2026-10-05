@@ -21,7 +21,7 @@ jobs:
   verify:
     name: Verify
     runs-on: ubuntu-24.04
-    timeout-minutes: 30
+    timeout-minutes: 45
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -83,6 +83,25 @@ jobs:
 
       - name: Smoke-test production image
         run: pnpm smoke:docker
+
+      # The Rust server release (lot 2 of the rewrite). Built and tested on every change; it is
+      # deployed only after the switch over described in deploy/RUST_CUTOVER_RUNBOOK.md.
+      - name: Package server release
+        id: release
+        run: |
+          archive=$(tools/package-release.sh "$GITHUB_SHA" target/release-archive | tail -n 1)
+          echo "archive=$archive" >>"$GITHUB_OUTPUT"
+
+      - name: Smoke-test server release
+        run: tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
+
+      - name: Upload server release
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: little-tables-${{ github.sha }}
+          path: target/release-archive/
+          if-no-files-found: error
+          retention-days: 30
 
   publish:
     name: Publish image
