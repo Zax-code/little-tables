@@ -4,6 +4,9 @@ An iPhone-first, offline-first multiplication practice PWA with Google-gated acc
 
 The approved product and architecture specification is in [TECHNICAL_PLAN.md](./TECHNICAL_PLAN.md).
 
+The proposed CE2 extension for fractions, addition, and subtraction is in
+[CE2_MATH_EXPANSION_SPEC.md](./CE2_MATH_EXPANSION_SPEC.md).
+
 ## Development
 
 ```sh
