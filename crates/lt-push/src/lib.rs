@@ -23,7 +23,10 @@ pub struct LocalClock {
 }
 
 fn zone(timezone: &str) -> Tz {
-    timezone.parse().unwrap_or(Tz::UTC)
+    timezone
+        .parse()
+        .or_else(|_| Tz::from_str_insensitive(timezone))
+        .unwrap_or(Tz::UTC)
 }
 
 pub fn local_clock(now: i64, timezone: &str) -> LocalClock {

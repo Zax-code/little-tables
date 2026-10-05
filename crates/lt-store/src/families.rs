@@ -305,6 +305,45 @@ impl Store {
     }
 
     /// Removes a child and, through cascading keys, all of its data.
+    /// Imports a family exactly as the previous server stored it, keeping profile ids and order.
+    /// Used once when moving from MongoDB.
+    pub async fn import_family(&self, family: &Family, created_at: Millis) -> Result<()> {
+        let (_guard, mut transaction) = self.write().await?;
+        sqlx::query(
+            "INSERT INTO families (google_subject, onboarding_complete, created_at, updated_at) VALUES (?, ?, ?, ?)",
+        )
+        .bind(&family.google_subject)
+        .bind(family.onboarding_complete)
+        .bind(created_at)
+        .bind(created_at)
+        .execute(&mut *transaction)
+        .await?;
+        for (position, profile) in family.profiles.iter().enumerate() {
+            let learning_paths = profile
+                .learning_paths
+                .as_ref()
+                .map(serde_json::to_string)
+                .transpose()
+                .map_err(corrupt)?;
+            sqlx::query(
+                "INSERT INTO profiles (id, family_subject, position, name, avatar_id, learning_paths, created_at, updated_at)
+                 VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            )
+            .bind(&profile.id)
+            .bind(&family.google_subject)
+            .bind(position as i64)
+            .bind(&profile.name)
+            .bind(&profile.avatar_id)
+            .bind(learning_paths)
+            .bind(created_at)
+            .bind(created_at)
+            .execute(&mut *transaction)
+            .await?;
+        }
+        transaction.commit().await?;
+        Ok(())
+    }
+
     pub async fn remove_child(
         &self,
         google_subject: &str,

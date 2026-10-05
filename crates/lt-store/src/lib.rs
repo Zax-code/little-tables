@@ -77,6 +77,16 @@ impl Store {
         Ok(())
     }
 
+    /// Whether the database holds no family and no access record yet.
+    pub async fn is_empty(&self) -> Result<bool> {
+        let used: i64 = sqlx::query_scalar(
+            "SELECT EXISTS (SELECT 1 FROM families) OR EXISTS (SELECT 1 FROM allowed_emails)",
+        )
+        .fetch_one(&self.pool)
+        .await?;
+        Ok(used == 0)
+    }
+
     /// Writes a consistent copy of the database to `destination` (`VACUUM INTO`).
     pub async fn backup(&self, destination: &Path) -> Result<()> {
         sqlx::query("VACUUM INTO ?")
