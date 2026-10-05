@@ -6,8 +6,9 @@ import { flushPendingAttemptsForProfiles } from '../family-profile-sync.js'
 import { scheduleInitialSync } from '../initial-sync.js'
 import { localBootstrapQueryKey, practiceStoreFor } from '../store.js'
 import { SyncAuthenticationError, flushAllPendingAttempts } from '../sync.js'
+import { flushAllPendingCe2Attempts } from '../sync-ce2.js'
 import { syncStatusQueryKey, type SyncStatus } from '../sync-status.js'
-import { decodeServerBootstrap } from '../bootstrap-client.js'
+import { decodeServerBootstrap, fetchServerBootstrap } from '../bootstrap-client.js'
 import { useFamilyProfile } from '../use-family-profile.js'
 
 export function SyncManager() {
@@ -21,6 +22,11 @@ export function SyncManager() {
           profileId,
           store: practiceStoreFor(profileId),
         })
+        const store = practiceStoreFor(profileId)
+        const state = await store.load()
+        if (state.ce2ContentVersion !== null) {
+          await flushAllPendingCe2Attempts({ profileId, store })
+        }
       })
     },
     onError: (error) => {
@@ -42,9 +48,7 @@ export function SyncManager() {
           void (async () => {
             const [local, response] = await Promise.all([
               practiceStore.load(),
-              fetch('/api/v1/bootstrap', {
-                headers: { 'x-little-tables-profile-id': activeProfile.id },
-              }),
+              fetchServerBootstrap(activeProfile.id),
             ])
             if (response.status === 401) {
               await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })
@@ -77,6 +81,17 @@ export function SyncManager() {
               practiceDayKeys: server.practiceDayKeys,
               rewardedDayKeys: server.rewardedDayKeys,
             })
+            if (
+              server.ce2ContentVersion !== null &&
+              server.ce2Preferences !== null &&
+              server.ce2Snapshot !== null
+            ) {
+              await practiceStore.replaceCe2State({
+                ce2ContentVersion: server.ce2ContentVersion,
+                ce2Preferences: server.ce2Preferences,
+                ce2Snapshot: server.ce2Snapshot,
+              })
+            }
             const refresh = await fetch('/api/v1/session/refresh', { method: 'POST' })
             if (refresh.status === 401) {
               await queryClient.invalidateQueries({ queryKey: authStatusQueryKey })

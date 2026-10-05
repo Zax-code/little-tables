@@ -46,13 +46,16 @@ export function CelebrationScreen() {
     featuredPlant === null ? gardenPlantVisuals['rose-lotus'] : gardenPlantVisuals[featuredPlant.id]
   const rewardCopy = celebrationRewardCopy(progress, locale)
   const insightCopy =
-    completion.learningInsight === null
-      ? t('insight.persisted')
-      : sessionInsightCopy(completion.learningInsight, locale)
+    completion.ce2Module !== undefined
+      ? t(completion.ce2Module === 'arithmetic' ? 'ce2.arithmeticWin' : 'ce2.fractionsWin')
+      : completion.learningInsight === null
+        ? t('insight.persisted')
+        : sessionInsightCopy(completion.learningInsight, locale)
   const perfectSession = completion.correctAnswers === completion.totalAnswers
-  const heading = completion.finalCorrect
-    ? t('celebration.headingAnswer', { answer: completion.finalAnswer })
-    : t('celebration.heading')
+  const heading =
+    completion.finalCorrect && completion.ce2Module === undefined
+      ? t('celebration.headingAnswer', { answer: completion.finalAnswer })
+      : t('celebration.heading')
 
   return (
     <Screen footer={false}>
@@ -100,7 +103,11 @@ export function CelebrationScreen() {
           ) : completion.sessionKind === 'extra-practice' ? (
             <div className="reward-summary reward-summary--extra-practice">
               <strong>{t('celebration.complete')}</strong>
-              <p className="reward-explanation">{celebrationExtraPracticeCopy(locale)}</p>
+              <p className="reward-explanation">
+                {completion.ce2Module === undefined
+                  ? celebrationExtraPracticeCopy(locale)
+                  : t('ce2.extraWin')}
+              </p>
             </div>
           ) : null}
           <div className="celebration-actions">

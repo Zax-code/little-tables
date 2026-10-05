@@ -1,6 +1,7 @@
 # Little Tables — fractions, additions et soustractions CE2
 
-Statut : proposition de spécification à discuter avant implémentation.
+Statut : spécification de référence pour l’extension CE2 implémentée. Voir
+[CE2_VALIDATION.md](./CE2_VALIDATION.md) pour les vérifications et leurs limites.
 
 Date : 4 octobre 2026.
 
@@ -12,7 +13,7 @@ Permettre à un enfant de travailler les additions et soustractions avec des nom
 
 La promesse reste : ouvrir l’application, pratiquer un peu, faire grandir son jardin et repartir avec une réussite. Les nouvelles notions doivent apporter leurs propres supports pédagogiques, tout en conservant le personnage choisi, les profils familiaux et les récompenses existantes.
 
-Ce document spécifie le produit et les critères de réalisation. Il ne modifie pas encore le fonctionnement de l’application. Les choix proposés ci-dessous sont des décisions produit ; les exigences officielles sont résumées séparément.
+Ce document spécifie le produit et les critères de réalisation de l’extension. Les choix ci-dessous sont des décisions produit ; les exigences officielles sont résumées séparément.
 
 ## 2. Référence officielle et limites de couverture
 

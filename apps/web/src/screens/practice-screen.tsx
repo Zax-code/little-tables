@@ -14,6 +14,7 @@ import { localBootstrapQueryKey, practiceStoreFor } from '../store.js'
 import { playSuccessSound, prepareSuccessSound } from '../sound.js'
 import { useI18n } from '../i18n.js'
 import { useFamilyProfile } from '../use-family-profile.js'
+import { Ce2PracticeScreen } from './ce2-practice-screen.js'
 
 type Feedback = Readonly<{
   correct: boolean
@@ -22,6 +23,14 @@ type Feedback = Readonly<{
 }>
 
 export function PracticeScreen() {
+  const { data } = useLocalBootstrap()
+  if (data?.ce2ActiveSession != null) {
+    return <Ce2PracticeScreen session={data.ce2ActiveSession} />
+  }
+  return <LegacyPracticeScreen />
+}
+
+function LegacyPracticeScreen() {
   const { t } = useI18n()
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
@@ -32,6 +41,7 @@ export function PracticeScreen() {
   const [feedback, setFeedback] = useState<Feedback | null>(null)
   const [keypadValue, setKeypadValue] = useState('')
   const [showExplanation, setShowExplanation] = useState(false)
+  const [showLeave, setShowLeave] = useState(false)
   const answering = useRef(false)
   const finishing = useRef(false)
   const data = bootstrap.data
@@ -142,6 +152,13 @@ export function PracticeScreen() {
     setShowExplanation(false)
   }
 
+  const leave = async (abandon: boolean) => {
+    if (answering.current && feedback === null) return
+    if (abandon) await practiceStore.abandonSession(session.id)
+    await queryClient.invalidateQueries({ queryKey: bootstrapQueryKey })
+    await navigate({ to: '/' })
+  }
+
   return (
     <Screen footer={false}>
       <section className="practice-screen">
@@ -149,7 +166,7 @@ export function PracticeScreen() {
           <button
             aria-label={t('practice.leave')}
             className="icon-button"
-            onClick={() => void navigate({ to: '/' })}
+            onClick={() => setShowLeave(true)}
             type="button"
           >
             ×
@@ -162,6 +179,23 @@ export function PracticeScreen() {
           </span>
         </div>
         <ProgressDots current={session.currentIndex} total={session.questions.length} />
+
+        {showLeave ? (
+          <div className="feedback-tray" role="group" aria-label={t('practice.leave')}>
+            <p>{t('ce2.leaveCopy')}</p>
+            <div className="practice-leave-actions">
+              <button className="primary-button" onClick={() => setShowLeave(false)} type="button">
+                {t('ce2.keep')}
+              </button>
+              <button className="next-button" onClick={() => void leave(false)} type="button">
+                {t('ce2.pause')}
+              </button>
+              <button className="next-button" onClick={() => void leave(true)} type="button">
+                {t('ce2.leave')}
+              </button>
+            </div>
+          </div>
+        ) : null}
 
         <AnimatePresence mode="wait">
           <m.div

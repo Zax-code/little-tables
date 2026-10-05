@@ -1,4 +1,9 @@
-import type { AttemptEvent } from '@little-tables/domain'
+import type {
+  AttemptEvent,
+  Ce2Attempt,
+  Ce2PreferenceUpdate,
+  Ce2Preferences,
+} from '@little-tables/domain'
 import { Context, Data, Schema, type Effect } from 'effect'
 
 export class AttemptRepositoryError extends Data.TaggedError('AttemptRepositoryError')<{
@@ -6,10 +11,14 @@ export class AttemptRepositoryError extends Data.TaggedError('AttemptRepositoryE
   operation:
     | 'health'
     | 'insert'
+    | 'insert-ce2'
     | 'list'
+    | 'list-ce2'
     | 'list-push-subscriptions'
     | 'mark-push-subscription-sent'
     | 'remove-push-subscription'
+    | 'load-ce2-preferences'
+    | 'merge-ce2-preferences'
     | 'upsert-push-subscription'
 }> {}
 
@@ -41,6 +50,16 @@ export type AttemptRepositoryService = Readonly<{
     attempts: ReadonlyArray<AttemptEvent>,
   ) => Effect.Effect<AttemptInsertResult, AttemptRepositoryError>
   list: (profileId: string) => Effect.Effect<ReadonlyArray<AttemptEvent>, AttemptRepositoryError>
+  insertCe2?: (
+    profileId: string,
+    attempts: ReadonlyArray<Ce2Attempt>,
+  ) => Effect.Effect<AttemptInsertResult, AttemptRepositoryError>
+  listCe2?: (profileId: string) => Effect.Effect<ReadonlyArray<Ce2Attempt>, AttemptRepositoryError>
+  loadCe2Preferences?: (profileId: string) => Effect.Effect<Ce2Preferences, AttemptRepositoryError>
+  mergeCe2Preferences?: (
+    profileId: string,
+    updates: ReadonlyArray<Ce2PreferenceUpdate>,
+  ) => Effect.Effect<AttemptInsertResult, AttemptRepositoryError>
   listPushSubscriptions: () => Effect.Effect<
     ReadonlyArray<PushSubscriptionRecord>,
     AttemptRepositoryError

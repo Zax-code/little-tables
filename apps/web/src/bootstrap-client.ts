@@ -1,5 +1,10 @@
 import {
+  CE2_CONTENT_VERSION,
+  Ce2PreferencesWireSchema,
+  Ce2SnapshotWireSchema,
   LearningEngine,
+  type Ce2Preferences,
+  type Ce2Snapshot,
   type GardenCollectionSnapshot,
   type GardenPlantId,
   type LearningSnapshot,
@@ -45,6 +50,9 @@ const GardenCollectionSnapshotSchema = Schema.Struct({
 })
 
 const ServerBootstrapSchema = Schema.Struct({
+  ce2ContentVersion: Schema.optional(Schema.Literal(CE2_CONTENT_VERSION)),
+  ce2Preferences: Schema.optional(Ce2PreferencesWireSchema),
+  ce2Snapshot: Schema.optional(Ce2SnapshotWireSchema),
   completedSessions: Schema.optional(Schema.NonNegativeInt),
   gardenBloomCount: Schema.optional(Schema.NonNegativeInt),
   gardenCollection: Schema.optional(GardenCollectionSnapshotSchema),
@@ -54,6 +62,9 @@ const ServerBootstrapSchema = Schema.Struct({
 })
 
 export type ServerBootstrap = Readonly<{
+  ce2ContentVersion: typeof CE2_CONTENT_VERSION | null
+  ce2Preferences: Ce2Preferences | null
+  ce2Snapshot: Ce2Snapshot | null
   completedSessions: number
   gardenBloomCount: number
   gardenCollection: GardenCollectionSnapshot
@@ -87,6 +98,9 @@ export async function decodeServerBootstrap(value: unknown): Promise<ServerBoots
   }
 
   return {
+    ce2ContentVersion: decoded.ce2ContentVersion ?? null,
+    ce2Preferences: decoded.ce2Preferences ?? null,
+    ce2Snapshot: decoded.ce2Snapshot ?? null,
     completedSessions: decoded.completedSessions ?? 0,
     gardenBloomCount: gardenRewards.gardenBloomCount,
     gardenCollection,
@@ -94,4 +108,16 @@ export async function decodeServerBootstrap(value: unknown): Promise<ServerBoots
     rewardedDayKeys: gardenRewards.rewardedDayKeys,
     snapshot: decoded.snapshot,
   }
+}
+
+export async function fetchServerBootstrap(
+  profileId: string,
+  fetcher: typeof fetch = fetch,
+): Promise<Response> {
+  const options = { headers: { 'x-little-tables-profile-id': profileId } }
+  const response = await fetcher('/api/v2/bootstrap', options)
+  if (response.status === 404 || response.status === 405) {
+    return fetcher('/api/v1/bootstrap', options)
+  }
+  return response
 }

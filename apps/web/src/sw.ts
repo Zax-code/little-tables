@@ -1,8 +1,8 @@
 /// <reference lib="webworker" />
 
 import { clientsClaim } from 'workbox-core'
-import { precacheAndRoute } from 'workbox-precaching'
-import { registerRoute } from 'workbox-routing'
+import { createHandlerBoundToURL, precacheAndRoute } from 'workbox-precaching'
+import { NavigationRoute, registerRoute } from 'workbox-routing'
 import { CacheFirst } from 'workbox-strategies'
 
 import type { Locale } from './i18n-catalog.js'
@@ -38,6 +38,11 @@ const readLocale = async (): Promise<Locale> => {
 
 clientsClaim()
 precacheAndRoute(self.__WB_MANIFEST)
+registerRoute(
+  new NavigationRoute(createHandlerBoundToURL('/index.html'), {
+    denylist: [/^\/api(?:\/|$)/],
+  }),
+)
 
 self.addEventListener('activate', (event) => {
   event.waitUntil(

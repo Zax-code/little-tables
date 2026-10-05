@@ -61,7 +61,11 @@ const sendDueReminders = async (repository: AttemptRepositoryService, now: Date)
     if (!reminderIsDue(subscription, now)) continue
     const { dayKey } = localReminderClock(now, subscription.timezone)
     const attempts = await Effect.runPromise(repository.list(subscription.profileId))
-    if (practicedOnLocalDay(attempts, dayKey, subscription.timezone)) {
+    const ce2Attempts =
+      repository.listCe2 === undefined
+        ? []
+        : await Effect.runPromise(repository.listCe2(subscription.profileId))
+    if (practicedOnLocalDay([...attempts, ...ce2Attempts], dayKey, subscription.timezone)) {
       await Effect.runPromise(repository.markPushSubscriptionSent(subscription.endpoint, dayKey))
       continue
     }
