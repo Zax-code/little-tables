@@ -190,6 +190,8 @@ export const PracticeQuestion = Schema.Struct({
 export type PracticeQuestion = typeof PracticeQuestion.Type
 
 export const PracticeSession = Schema.Struct({
+  /** The composition rules the session was made with; absent is version 1. */
+  algorithmVersion: Schema.optional(Schema.String),
   createdAt: Millis,
   currentQuestionStartedAt: Millis,
   currentIndex: Int,
@@ -234,6 +236,8 @@ export const CurriculumPolicy = Schema.Struct({
 export type CurriculumPolicy = typeof CurriculumPolicy.Type
 
 export const PracticePolicy = Schema.Struct({
+  /** `'2'` caps a daily watering at two new items; absent, sessions follow version 1. */
+  algorithmVersion: Schema.optional(Schema.Literal('1', '2')),
   curriculum: Schema.optional(CurriculumPolicy),
   focusSkill: Schema.optional(SkillId),
   focusTable: Schema.optional(Int),

@@ -69,6 +69,7 @@ describe('practice on the device', () => {
         const session = yield* startSession(profileId, policies.daily(defaultPaths))
         if (session === null) throw new Error('no questions')
         yield* answerAll(profileId, session)
+        const events = yield* store.sessionEvents(profileId, session.id)
         const pendingBefore = yield* store.pendingCount(profileId)
         const completion = yield* completeSession(profileId)
         const again = yield* completeSession(profileId)
@@ -77,10 +78,15 @@ describe('practice on the device', () => {
         if (bonus === null) throw new Error('no questions')
         yield* answerAll(profileId, bonus)
         const bonusCompletion = yield* completeSession(profileId)
-        return { again, bonusCompletion, completion, pendingBefore, session, state }
+        return { again, bonusCompletion, completion, events, pendingBefore, session, state }
       }),
     )
     expect(outcome.pendingBefore).toBe(outcome.session.questions.length)
+    // The daily watering follows version 2 of the composition rules, and its answers say so.
+    expect(outcome.session.algorithmVersion).toBe('2')
+    expect(outcome.events.map(({ algorithmVersion }) => algorithmVersion)).toEqual(
+      outcome.session.questions.map(() => '2'),
+    )
     expect(outcome.completion).toMatchObject({
       bloomNumber: 1,
       correctAnswers: outcome.session.questions.length,

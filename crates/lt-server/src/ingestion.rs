@@ -27,6 +27,8 @@ pub struct SyncResult {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct WireAttempt {
+    #[serde(default)]
+    algorithm_version: Option<String>,
     answer_mode: AnswerMode,
     answered_at: Value,
     choices: Vec<i64>,
@@ -142,7 +144,10 @@ pub fn decode_attempt_with(value: Value, instants: Instants) -> Result<AttemptEv
         (Some(exercise), Some(response))
     });
     Ok(AttemptEvent {
-        algorithm_version: None,
+        // The rules that composed the session; anything unknown is not kept.
+        algorithm_version: wire
+            .algorithm_version
+            .filter(|version| version == "1" || version == lt_domain::model::ALGORITHM_VERSION_2),
         answer_mode: wire.answer_mode,
         answered_at,
         choices: wire.choices,
@@ -315,6 +320,19 @@ mod tests {
         assert!(decode(json!({"learningDayKey": "2026-1-5"})).is_err());
         assert!(decode(json!({"left": 0})).is_err());
         assert!(decode(json!({"eventId": ""})).is_err());
+    }
+
+    #[test]
+    fn keeps_the_version_of_known_composition_rules() {
+        let version = |value: Value| {
+            decode(json!({ "algorithmVersion": value }))
+                .unwrap()
+                .algorithm_version
+        };
+        assert_eq!(version(json!("2")).as_deref(), Some("2"));
+        assert_eq!(version(json!("1")).as_deref(), Some("1"));
+        assert_eq!(version(json!("9")), None);
+        assert_eq!(decode(json!({})).unwrap().algorithm_version, None);
     }
 
     #[test]

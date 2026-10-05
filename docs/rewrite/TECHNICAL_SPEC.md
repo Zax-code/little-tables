@@ -165,9 +165,14 @@ quelques changements assumés.
   d'interaction ; focus école ≈ moitié des points.
 - Séances alternatives : 5 rapides ; focus table (8) ; 11·12 (8) ; division (6) ; compétence (8, ou 9 pour une colonne).
 - RNG : LCG `state = state × 1664525 + 1013904223 (mod 2³²)`, Fisher-Yates depuis la fin. **Bit-exact** (§7.2).
-- La limite « ≤ 2 nouveaux éléments par séance » de la spec CE2 n'est pas tenue par le code actuel. Le lot 1 reproduit
-  le comportement actuel (`algorithmVersion: "1"`). La correction est une décision séparée, après parité, livrée
-  comme `algorithmVersion: "2"` avec ses propres vecteurs (§8.4).
+- La limite « ≤ 2 nouveaux éléments par séance » de la spec CE2 n'était pas tenue par l'ancien code : l'arrosage
+  complétait avec d'autres nouveautés quand les révisions ne remplissaient pas le budget, et un focus parent en
+  ajoutait au-delà de deux. Le lot 1 reproduit ce comportement bit à bit (`algorithmVersion: "1"`, vecteurs dorés).
+  **Version 2** (décidée le 5 octobre 2026, utilisée par la nouvelle PWA) : l'arrosage du jour ajoute au plus 2
+  éléments jamais vus, focus et sentiers compris ; si les révisions ne remplissent pas le budget, la séance est plus
+  courte. Exception : un enfant sans rien à réviser garde l'introduction de 5 questions. La politique porte
+  `algorithmVersion: "2"`, la séance aussi, et chaque événement l'enregistre (le serveur le conserve). Le calcul
+  de maîtrise ne change pas : le snapshot reste en version 1.
 
 ### 3.5 Jardin et récompenses
 
@@ -640,7 +645,7 @@ resterait le choix d'une diffusion large ; le changement serait localisé dans `
 
 Tranchés le 5 octobre 2026 :
 
-1. `algorithmVersion 2` : décision au lot 5, on reste en v1 d'ici là.
+1. `algorithmVersion 2` : adoptée (§3.4), plafond de 2 nouveautés par arrosage dans la nouvelle PWA.
 2. Contrainte `duplicate_sequence` : confirmée en principe ; revue au moment de l'import Mongo selon le nombre de
    doublons historiques.
 3. Espace parent déverrouillé 5 min.

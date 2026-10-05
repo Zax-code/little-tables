@@ -7,6 +7,7 @@ import type { LearningPathSettings } from '@little-tables/engine/schema'
 import { Effect } from 'effect'
 import { useMemo } from 'react'
 
+import { policies } from '../data/practice.js'
 import type { ProfileState } from '../data/schema.js'
 import type { AppRuntime } from '../runtime.js'
 import { useApp } from './app-context.js'
@@ -83,7 +84,7 @@ export function useDailyQuestionCount(
     return derive(runtime, (engine) =>
       engine.createSession({
         now,
-        policy: { curriculum: { paths }, kind: 'daily-watering' },
+        policy: policies.daily(paths),
         seed: 0,
         snapshot: state.snapshot,
         timeZone: deviceTimeZone(),

@@ -387,6 +387,9 @@ pub enum SessionKind {
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PracticeSession {
+    /// The composition rules the session was made with; `None` is version 1.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub algorithm_version: Option<String>,
     pub created_at: Millis,
     pub current_question_started_at: Millis,
     pub current_index: i64,
@@ -451,6 +454,10 @@ pub struct CurriculumPolicy {
 #[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct PracticePolicy {
+    /// `"2"` caps a daily watering at two new items (`docs/rewrite/TECHNICAL_SPEC.md` §3.4);
+    /// absent, sessions are composed exactly as version 1 composed them.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub algorithm_version: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub curriculum: Option<CurriculumPolicy>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
@@ -463,8 +470,16 @@ pub struct PracticePolicy {
     pub question_count: Option<i64>,
 }
 
+/// The version whose daily watering adds at most two new items.
+pub const ALGORITHM_VERSION_2: &str = "2";
+
 impl PracticePolicy {
     pub fn is_daily(&self) -> bool {
         self.kind == Some(SessionKind::DailyWatering)
+    }
+
+    /// Whether new items are capped at two per daily watering.
+    pub fn caps_new_items(&self) -> bool {
+        self.algorithm_version.as_deref() == Some(ALGORITHM_VERSION_2)
     }
 }
