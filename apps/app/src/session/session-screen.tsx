@@ -18,14 +18,15 @@ import { ArrowRight, Pause } from 'lucide-react'
 import { Effect } from 'effect'
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
-import { useApp, useProfileState, useSetProfileState } from '../app/app-context.js'
+import { useApp } from '../app/app-context.js'
+import { useProfileState, useSetProfileState } from '../app/profile-state.js'
 import { useSync } from '../app/sync-manager.js'
 import { characterNames, characterOf, sceneOf } from '../characters/characters.js'
 import { LocalStore } from '../data/local-store.js'
 import { answerQuestion, completeSession, continueSession } from '../data/practice.js'
 import type { ProfileState } from '../data/schema.js'
 import { useI18n } from '../i18n/i18n.js'
-import { firstWrongColumn } from './column.js'
+import { firstWrongColumn } from './column-entry.js'
 import { exerciseStatement, expectedAnswerText, formatAnswer, isEquivalentForm } from './format.js'
 import { ExerciseHint, FactRescue } from './hints.js'
 import { QuestionView, type Response, type Settled } from './question-view.js'
@@ -35,8 +36,17 @@ export function SessionScreen() {
   const state = useProfileState()
   const navigate = useNavigate()
   const session = state.data?.activeSession ?? null
+  const shown = useRef<string | null>(null)
   useEffect(() => {
-    if (state.data !== undefined && session === null) void navigate({ replace: true, to: '/' })
+    if (state.data === undefined) return
+    if (session !== null) {
+      shown.current = session.id
+      return
+    }
+    // The session just finished: its celebration follows, whatever finished it first.
+    const finished =
+      shown.current !== null && state.data.lastCompletion?.sessionId === shown.current
+    void navigate({ replace: true, to: finished ? '/celebration' : '/' })
   }, [navigate, session, state.data])
   if (state.data === undefined || session === null) return <div className="h-dvh bg-bg" />
   return <Session initial={session} state={state.data} />

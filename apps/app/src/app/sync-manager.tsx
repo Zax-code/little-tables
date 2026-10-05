@@ -19,7 +19,8 @@ import {
 
 import { LocalStore } from '../data/local-store.js'
 import { synchronize } from '../data/sync.js'
-import { profileStateKey, useApp } from './app-context.js'
+import { useApp } from './app-context.js'
+import { profileStateKey } from './profile-state.js'
 
 export type SyncState = Readonly<{ kind: 'error' | 'idle' | 'syncing'; pending: number }>
 
@@ -87,9 +88,11 @@ export function SyncManager({ children }: Readonly<{ children: ReactNode }>) {
       return
     }
     const { profiles, result } = outcome.right
-    for (const gone of result.gone) {
-      await runtime.runPromise(Effect.flatMap(LocalStore, (store) => store.remove(gone)))
-    }
+    await Promise.all(
+      result.gone.map((gone) =>
+        runtime.runPromise(Effect.flatMap(LocalStore, (store) => store.remove(gone))),
+      ),
+    )
     setProfiles(profiles)
     const grant = device.authGrant()
     if (grant !== null && result.sessionExpiresAt !== null) {

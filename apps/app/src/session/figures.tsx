@@ -1,16 +1,9 @@
 /** Fractions drawn in the garden: a flower bed in equal parts, a bed to plant, a round pot. */
 import { cn } from '@little-tables/ui'
-import { motion, useReducedMotion } from 'motion/react'
+import { m, useReducedMotion } from 'motion/react'
 
 import { useI18n } from '../i18n/i18n.js'
-
-/** Columns of a bed, so that every part stays a finger wide on a phone. */
-export const bedColumns = (denominator: number) =>
-  denominator > 6 && denominator % 2 === 0 ? denominator / 2 : denominator
-
-/** The first `numerator` of `denominator` parts are in flower. */
-export const filledParts = (denominator: number, numerator: number) =>
-  Array.from({ length: denominator }, (_, index) => index < numerator)
+import { bedColumns } from './fraction-figures.js'
 
 type FlowerTone = 'gold' | 'lavender' | 'pink'
 
@@ -89,14 +82,14 @@ export function GardenBed({
           key={index}
         >
           {filled[index] ? (
-            <motion.span
+            <m.span
               animate={{ scale: 1, y: 0 }}
               className="flex h-full items-center"
               initial={reduced ? false : { scale: 0.4, y: 6 }}
               transition={{ delay: reduced ? 0 : index * 0.03, stiffness: 320, type: 'spring' }}
             >
               <FlowerGlyph tone={tone ?? 'pink'} />
-            </motion.span>
+            </m.span>
           ) : null}
         </span>
       ))}
@@ -150,14 +143,14 @@ export function PlantingBed({
             type="button"
           >
             {on ? (
-              <motion.span
+              <m.span
                 animate={{ scale: 1, y: 0 }}
                 className="flex h-full items-center"
                 initial={reduced ? false : { scale: 0.3, y: 10 }}
                 transition={{ stiffness: 380, type: 'spring' }}
               >
                 <FlowerGlyph />
-              </motion.span>
+              </m.span>
             ) : (
               <span aria-hidden className="text-title-2 text-label-3">
                 ·

@@ -130,14 +130,6 @@ export const continueSession = (profileId: string, now = Date.now()) =>
     })),
   )
 
-/** Leaves the active session; it can be started again from the beginning later. */
-export const abandonSession = (profileId: string) =>
-  Effect.flatMap(LocalStore, (store) =>
-    store.update(profileId, (state) => ({
-      state: { ...state, activeSession: null, sessionStartSnapshot: null },
-    })),
-  )
-
 /**
  * Closes the active session once every question is answered: counts it, awards the day's bloom
  * for a daily watering and keeps a summary for the celebration. Finishing twice is harmless.

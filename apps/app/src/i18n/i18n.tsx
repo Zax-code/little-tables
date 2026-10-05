@@ -6,39 +6,7 @@
 import { createContext, use, useMemo, type ReactNode } from 'react'
 
 import type { Language } from '../data/schema.js'
-import { messages } from './messages.js'
-
-export type MessageKey = keyof typeof messages.en
-export type MessageValues = Readonly<Record<string, number | string>>
-
-const locales: Readonly<Record<Language, string>> = { en: 'en', fr: 'fr', 'zh-Hans': 'zh-Hans' }
-
-export const interpolate = (template: string, values: MessageValues = {}) =>
-  template.replace(/\{(\w+)\}/g, (match, name: string) =>
-    name in values ? String(values[name]) : match,
-  )
-
-export const createTranslator = (language: Language) => {
-  const catalog = messages[language]
-  const numbers = new Intl.NumberFormat(locales[language])
-  return {
-    language,
-    /** A message, with `{name}` placeholders replaced. */
-    t: (key: MessageKey, values?: MessageValues) => interpolate(catalog[key], values),
-    /** Picks the `.one` or `.other` form of a counted message. */
-    count: (key: string, count: number, values: MessageValues = {}) => {
-      const form = new Intl.PluralRules(locales[language]).select(count) === 'one' ? 'one' : 'other'
-      const template =
-        (catalog as Readonly<Record<string, string>>)[`${key}.${form}`] ??
-        (catalog as Readonly<Record<string, string>>)[`${key}.other`] ??
-        key
-      return interpolate(template, { count: numbers.format(count), ...values })
-    },
-    number: (value: number) => numbers.format(value),
-  }
-}
-
-export type Translator = ReturnType<typeof createTranslator>
+import { createTranslator, type Translator } from './translator.js'
 
 const I18nContext = createContext<Translator>(createTranslator('fr'))
 

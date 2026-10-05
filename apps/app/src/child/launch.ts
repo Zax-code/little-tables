@@ -3,7 +3,8 @@ import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { useCallback, useState } from 'react'
 
-import { profileStateKey, useApp } from '../app/app-context.js'
+import { useApp } from '../app/app-context.js'
+import { profileStateKey } from '../app/profile-state.js'
 import { startSession } from '../data/practice.js'
 
 /** Starts a session for the active child and opens it. */

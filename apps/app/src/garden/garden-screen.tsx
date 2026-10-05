@@ -5,13 +5,15 @@ import { useNavigate } from '@tanstack/react-router'
 import { BookOpen, Bug, Droplets, Flower2, Heart, HelpCircle, Sparkles } from 'lucide-react'
 import { useRef, useState } from 'react'
 
-import { profileStateKey, useApp, useProfileState } from '../app/app-context.js'
+import { useApp } from '../app/app-context.js'
+import { profileStateKey, useProfileState } from '../app/profile-state.js'
 import { todayKey, useGarden } from '../app/derived.js'
 import { characterOf } from '../characters/characters.js'
 import { ChildTabBar } from '../child/chrome.js'
 import { LocalStore } from '../data/local-store.js'
 import type { ProfileState } from '../data/schema.js'
-import { useI18n, type MessageKey } from '../i18n/i18n.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { MessageKey } from '../i18n/translator.js'
 import { Effect } from 'effect'
 import { GardenScene } from './garden-scene.js'
 
@@ -55,7 +57,7 @@ function Garden({ state }: Readonly<{ state: ProfileState }>) {
       garden.chapters.findIndex((chapter) => chapter.stage === 'growing'),
     ),
   )
-  const [rules, setRules] = useState(!state.gardenCollection.introductionSeen)
+  const [rules, setRules] = useState(() => !state.gardenCollection.introductionSeen)
   const plant = garden.nextStep?.plant ?? garden.featuredPlant
 
   const opened = useRef(false)

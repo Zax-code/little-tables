@@ -4,12 +4,13 @@
  */
 import type { GardenProgress } from '@little-tables/engine/schema'
 import { cn } from '@little-tables/ui'
-import { motion, useReducedMotion } from 'motion/react'
+import { m, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 
 import { characterNames, type CharacterId } from '../characters/characters.js'
 import { Sprite } from '../characters/sprite.js'
-import { useI18n, type MessageKey } from '../i18n/i18n.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { MessageKey } from '../i18n/translator.js'
 import { Plant } from './plant.js'
 
 type Chapter = GardenProgress['chapters'][number]
@@ -30,9 +31,9 @@ type GardenSceneProps = Readonly<{
 export function GardenScene({ chapter, character, index, total }: GardenSceneProps) {
   const { t } = useI18n()
   const reduced = useReducedMotion() === true
-  const watered = chapter.plants
-    .map((plant, position) => ({ plant, position }))
-    .filter(({ plant }) => plant.stage !== 'locked')
+  const watered = chapter.plants.flatMap((plant, position) =>
+    plant.stage === 'locked' ? [] : [{ position }],
+  )
   const stops = watered.length === 0 ? [{ position: 1 }] : watered
   const [stop, setStop] = useState(0)
   const [walking, setWalking] = useState(false)
@@ -69,18 +70,22 @@ export function GardenScene({ chapter, character, index, total }: GardenScenePro
       </figcaption>
       <div aria-hidden className="absolute inset-x-0 bottom-0 h-[24%] bg-soil" />
       {locked ? null : (
-        <motion.div
-          animate={{ left: `${potCentres[target] ?? 50}%` }}
-          className="absolute bottom-[16%] z-10 w-[46%] -translate-x-[62%]"
+        // The track spans the scene, so moving it by a percentage of its width moves the
+        // character by the same share of the scene, with a transform rather than a layout change.
+        <m.div
+          animate={{ x: `${potCentres[target] ?? 50}%` }}
+          className="absolute inset-x-0 bottom-[16%] z-10"
           initial={false}
           transition={reduced ? { duration: 0 } : { duration: WALK_MS / 1000, ease: 'easeInOut' }}
         >
-          <Sprite
-            character={character}
-            label={t('garden.caretaker', { character: characterNames[character] })}
-            motion={walking ? 'walk' : 'water'}
-          />
-        </motion.div>
+          <div className="w-[46%] -translate-x-[62%]">
+            <Sprite
+              character={character}
+              label={t('garden.caretaker', { character: characterNames[character] })}
+              motion={walking ? 'walk' : 'water'}
+            />
+          </div>
+        </m.div>
       )}
       <ol className="absolute inset-x-0 bottom-[8%] z-20 grid grid-cols-3">
         {chapter.plants.map((plant, position) => (

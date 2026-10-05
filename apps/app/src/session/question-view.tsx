@@ -14,17 +14,13 @@ import { Sprout } from 'lucide-react'
 import { useState, type ReactNode } from 'react'
 
 import { useI18n } from '../i18n/i18n.js'
-import { ColumnGrid, useColumnEntry } from './column.js'
-import { filledParts, GardenBed, GardenPot, PlantingBed } from './figures.js'
+import { ColumnGrid } from './column.js'
+import { useColumnEntry } from './column-entry.js'
+import { GardenBed, GardenPot, PlantingBed } from './figures.js'
+import { filledParts } from './fraction-figures.js'
 import { formatFraction, formatNumber, fractionInWords, spokenPrompt } from './format.js'
-import {
-  ChoiceTiles,
-  ComparisonTiles,
-  DigitsPad,
-  FractionPad,
-  MultiPick,
-  useTypedNumber,
-} from './pads.js'
+import { ChoiceTiles, ComparisonTiles, DigitsPad, FractionPad, MultiPick } from './pads.js'
+import { useTypedNumber } from './typed-number.js'
 import { RulerControls, RulerDrawing, RulerSlider } from './ruler.js'
 
 export type Response = Readonly<{ response: PracticeAnswer }> | Readonly<{ selected: number }>

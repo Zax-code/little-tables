@@ -1,0 +1,175 @@
+/**
+ * The whole app in a browser-like environment: the real engine (WebAssembly), IndexedDB (fake)
+ * and an in-memory server. A family names its first child, waters the garden, answers every
+ * question and sees its garden; the answers reach the server.
+ */
+import {
+  ApiClient,
+  type ApiClientService,
+  type Bootstrap,
+  type ChildProfile,
+} from '@little-tables/api-contract'
+import type { AttemptEvent } from '@little-tables/engine/schema'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+import { Effect, Layer } from 'effect'
+import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+
+import { createDevice } from './data/device.js'
+import { emptyState, LocalStore } from './data/local-store.js'
+import { App } from './root.js'
+import { createRuntime } from './runtime.js'
+import { testEngine } from './test/engine.js'
+
+const defaultPaths = {
+  enabledSkills: [],
+  focusSkill: null,
+  mode: 'automatic',
+  subtractionMethod: 'compensation',
+} as const
+
+/** A server keeping one family in memory. */
+const memoryServer = () => {
+  let onboarded = false
+  let child: ChildProfile = {
+    avatarId: 'sprout',
+    id: 'first-child',
+    learningPaths: defaultPaths,
+    name: 'google',
+    reminderMinute: 1080,
+  }
+  const received: AttemptEvent[] = []
+  const bootstrap = (profileId: string): Bootstrap => ({
+    completedSessions: 0,
+    gardenBloomCount: 0,
+    gardenCollection: emptyState().gardenCollection,
+    practiceDayKeys: [],
+    profile: { ...child, id: profileId },
+    rewardedDayKeys: [],
+    rewards: [],
+    snapshot: { algorithmVersion: '1', facts: {}, processedEventIds: [] },
+  })
+  const service = {
+    allowedEmails: () => Effect.succeed({ emails: [] }),
+    authStatus: () =>
+      Effect.succeed({
+        authenticated: true,
+        authenticationRequired: true,
+        email: 'parent@example.com',
+        googleClientId: 'client',
+        isAdmin: false,
+        onboardingRequired: !onboarded,
+        sessionExpiresAt: Date.now() + 86_400_000,
+      }),
+    bootstrap: (profileId: string) => Effect.succeed(bootstrap(profileId)),
+    introductionSeen: () => Effect.succeed({ introductionSeen: true as const }),
+    logout: () => Effect.succeed({ status: 'signed-out' as const }),
+    onboarding: (input: { name: string }) =>
+      Effect.sync(() => {
+        onboarded = true
+        child = { ...child, name: input.name }
+        return { profile: child }
+      }),
+    profiles: () => Effect.sync(() => ({ profiles: [child] })),
+    refresh: () =>
+      Effect.succeed({ sessionExpiresAt: Date.now() + 86_400_000, status: 'renewed' as const }),
+    sync: (_profileId: string, attempts: ReadonlyArray<AttemptEvent>) =>
+      Effect.sync(() => {
+        received.push(...attempts)
+        return { accepted: attempts.map(({ eventId }) => eventId), duplicates: [], rejected: [] }
+      }),
+  } as unknown as ApiClientService
+  return { layer: Layer.succeed(ApiClient, service), received }
+}
+
+const memoryStorage = () => {
+  const values = new Map<string, string>()
+  return {
+    getItem: (key: string) => values.get(key) ?? null,
+    removeItem: (key: string) => void values.delete(key),
+    setItem: (key: string, value: string) => void values.set(key, value),
+  }
+}
+
+beforeAll(() => {
+  // happy-dom has no media queries for motion preferences.
+  window.matchMedia = ((query: string) => ({
+    addEventListener: () => undefined,
+    addListener: () => undefined,
+    matches: query.includes('reduce'),
+    media: query,
+    removeEventListener: () => undefined,
+    removeListener: () => undefined,
+  })) as unknown as typeof window.matchMedia
+})
+
+afterEach(cleanup)
+
+describe('the new app', () => {
+  it('opens, names the first child, waters the garden and syncs the answers', async () => {
+    window.history.replaceState(null, '', '/')
+    const server = memoryServer()
+    const runtime = createRuntime(Layer.mergeAll(server.layer, testEngine, LocalStore.layer))
+    const user = userEvent.setup()
+    render(
+      <QueryClientProvider
+        client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}
+      >
+        <App device={createDevice(memoryStorage())} runtime={runtime} />
+      </QueryClientProvider>,
+    )
+
+    await user.type(await screen.findByRole('textbox', { name: 'Prénom' }), 'Léa')
+    await user.click(screen.getByRole('button', { name: 'Ouvrir mon jardin' }))
+    expect(await screen.findByRole('heading', { name: 'Coucou Léa ♡' })).toBeInTheDocument()
+
+    await user.click(screen.getByRole('button', { name: 'Arroser mon jardin' }))
+    for (let index = 0; index < 20; index += 1) {
+      const next = screen.queryByRole('button', { name: 'Suivant' })
+      if (next !== null) {
+        await user.click(next)
+        continue
+      }
+      // Screens other than Today load on first visit: the next question or the celebration.
+      const spoken = await waitFor(
+        () =>
+          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.getByText(/^\d+ (fois|divisé par) \d+$/),
+        { timeout: 5000 },
+      )
+      if (spoken.textContent === 'Voir mon jardin') break
+      const [left, word, right] = spoken.textContent.split(' ')
+      const answer = word === 'fois' ? Number(left) * Number(right) : Number(left) / Number(right)
+      const tile = screen.queryByRole('button', { name: String(answer) })
+      if (tile !== null) {
+        await user.click(tile)
+      } else {
+        for (const digit of String(answer))
+          await user.click(screen.getByRole('button', { name: digit }))
+        await user.click(screen.getByRole('button', { name: 'Valider' }))
+      }
+      await screen.findByRole('button', { name: 'Suivant' })
+    }
+
+    expect(
+      await screen.findByRole('heading', { name: /^Oui ! \d+ ♡$/ }, { timeout: 5000 }),
+    ).toBeInTheDocument()
+    expect(screen.getByText('+1 arrosage')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { name: 'Voir mon jardin' }))
+    // The first visit explains how the garden grows before showing it.
+    const rules = await screen.findByRole(
+      'dialog',
+      { name: 'Comment ça pousse' },
+      { timeout: 5000 },
+    )
+    await user.click(screen.getByRole('button', { name: 'J’ai compris' }))
+    // happy-dom never ends the sheet's closing animation; its state is enough here.
+    await waitFor(() => expect(rules).toHaveAttribute('data-state', 'closed'))
+    expect(screen.getByRole('heading', { hidden: true, name: 'Mon jardin' })).toBeInTheDocument()
+
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await waitFor(() => expect(server.received.length).toBeGreaterThanOrEqual(5))
+    await runtime.dispose()
+  }, 30_000)
+})

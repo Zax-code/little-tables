@@ -102,18 +102,18 @@ export const synchronize = (
   Effect.gen(function* () {
     const api = yield* ApiClient
     const store = yield* LocalStore
-    const gone: string[] = []
+    const gone = new Set<string>()
     for (const profileId of input.profileIds) {
       yield* flushOutbox(profileId).pipe(
-        Effect.catchTag('ProfileGone', () => Effect.sync(() => void gone.push(profileId))),
+        Effect.catchTag('ProfileGone', () => Effect.sync(() => void gone.add(profileId))),
       )
     }
     let pending = 0
     for (const profileId of input.profileIds) {
-      if (!gone.includes(profileId)) pending += yield* store.pendingCount(profileId)
+      if (!gone.has(profileId)) pending += yield* store.pendingCount(profileId)
     }
     let merged = false
-    if (pending === 0 && !gone.includes(input.activeProfileId)) {
+    if (pending === 0 && !gone.has(input.activeProfileId)) {
       const server = yield* api
         .bootstrap(input.activeProfileId)
         .pipe(Effect.catchTag('ApiError', classify(input.activeProfileId)))
@@ -135,5 +135,9 @@ export const synchronize = (
           failure.status === 401 ? Effect.fail(new SignedOut()) : Effect.fail(failure),
         ),
       )
-    return { gone, merged, sessionExpiresAt: refreshed.sessionExpiresAt } satisfies SyncOutcome
+    return {
+      gone: [...gone],
+      merged,
+      sessionExpiresAt: refreshed.sessionExpiresAt,
+    } satisfies SyncOutcome
   })

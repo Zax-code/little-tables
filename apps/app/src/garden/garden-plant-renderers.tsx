@@ -74,24 +74,25 @@ function TwilightLupineGrowing({ petalColor }: FlowerRenderProps) {
   )
 }
 
+const lupineFlorets = [
+  [70, 34, 7, 9, 0],
+  [61, 48, 8, 10, -22],
+  [79, 48, 8, 10, 22],
+  [55, 64, 9, 11, -28],
+  [70, 63, 9, 11, 0],
+  [85, 64, 9, 11, 28],
+  [52, 82, 9, 11, -32],
+  [67, 81, 9, 11, -8],
+  [83, 82, 9, 11, 20],
+  [58, 99, 10, 11, -22],
+  [77, 100, 10, 11, 18],
+] as const
+
 function TwilightLupineMature({ petalColor }: FlowerRenderProps) {
-  const florets = [
-    [70, 34, 7, 9, 0],
-    [61, 48, 8, 10, -22],
-    [79, 48, 8, 10, 22],
-    [55, 64, 9, 11, -28],
-    [70, 63, 9, 11, 0],
-    [85, 64, 9, 11, 28],
-    [52, 82, 9, 11, -32],
-    [67, 81, 9, 11, -8],
-    [83, 82, 9, 11, 20],
-    [58, 99, 10, 11, -22],
-    [77, 100, 10, 11, 18],
-  ] as const
   return (
     <FlowerGroup kind="twilight-lupine">
       <g fill={petalColor} stroke={ink} strokeWidth="2.5" transform="scale(.8)">
-        {florets.map(([cx, cy, rx, ry, rotate]) => (
+        {lupineFlorets.map(([cx, cy, rx, ry, rotate]) => (
           <ellipse
             cx={cx}
             cy={cy}
@@ -435,17 +436,5 @@ export function GardenGrowingBud({ kind, ...colors }: GardenFlowerProps) {
     <g className="garden-plot__bud">
       <GrowingBud {...colors} />
     </g>
-  )
-}
-
-export function GardenRewardFlower({ kind, ...colors }: GardenFlowerProps) {
-  return (
-    <svg aria-hidden="true" className="reward-flower" viewBox="0 0 112 146">
-      <path
-        className="reward-stem"
-        d="M56 138V76M55 112C43 101 34 103 33 106C36 116 43 122 55 123M57 110C68 97 79 99 81 102C78 115 69 120 57 121"
-      />
-      <GardenMatureHead kind={kind} {...colors} />
-    </svg>
   )
 }

@@ -1,46 +1,24 @@
 /** D1: the end of a session — the answer, the watering earned and one thing that went well. */
-import type { GardenProgress, SessionInsight } from '@little-tables/engine/schema'
+import type { GardenProgress } from '@little-tables/engine/schema'
 import { Badge, Button, ProgressBar } from '@little-tables/ui'
 import { useNavigate } from '@tanstack/react-router'
 import { Droplets, Sparkles, Sprout } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
-import { useEffect } from 'react'
+import { m, useReducedMotion } from 'motion/react'
+import { useEffect, useState } from 'react'
 
-import { useApp, useProfileState } from '../app/app-context.js'
+import { useApp } from '../app/app-context.js'
+import { useProfileState } from '../app/profile-state.js'
 import { useGarden } from '../app/derived.js'
 import { characterNames, characterOf } from '../characters/characters.js'
 import { Sprite } from '../characters/sprite.js'
 import type { ProfileState, SessionCompletion } from '../data/schema.js'
 import { Plant } from '../garden/plant.js'
-import { useI18n, type MessageKey, type Translator } from '../i18n/i18n.js'
-import { formatAnswer, formatNumber, levelLabel } from '../session/format.js'
-
-/** A fact as the child writes it: 7 × 8, 56 ÷ 7, or the name of a skill level. */
-export const displayFact = (factKey: string, translator: Translator) => {
-  const division = /^divide:(\d+):(\d+)$/.exec(factKey)
-  if (division !== null) return `${division[1]} ÷ ${division[2]}`
-  const multiplication = /^(\d+):(\d+)$/.exec(factKey)
-  return multiplication === null
-    ? levelLabel(factKey, translator.language)
-    : `${multiplication[1]} × ${multiplication[2]}`
-}
-
-export const insightCopy = (insight: NonNullable<SessionInsight>, translator: Translator) => {
-  switch (insight.kind) {
-    case 'facts-became-fluent':
-      return translator.count('insight.rooted', insight.count)
-    case 'facts-became-familiar':
-      return translator.count('insight.familiar', insight.count)
-    case 'keypad-recalls':
-      return translator.count('insight.recalled', insight.count)
-    case 'mistakes-recovered':
-      return translator.t('insight.recovered', {
-        fact: displayFact(insight.factKeys[0] ?? '', translator),
-      })
-    default:
-      return translator.t('insight.persisted')
-  }
-}
+import { InstallCard } from '../install.js'
+import { isInstalled } from '../install-prompt.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { MessageKey, Translator } from '../i18n/translator.js'
+import { formatAnswer, formatNumber } from '../session/format.js'
+import { insightCopy } from './insight.js'
 
 export function CelebrationScreen() {
   const state = useProfileState()
@@ -67,7 +45,7 @@ function Petals() {
   return (
     <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
       {petals.map((petal, index) => (
-        <motion.svg
+        <m.svg
           animate={reduced ? {} : { rotate: [0, 12, -8, 0], y: [0, -6, 4, 0] }}
           className="absolute size-6"
           key={index}
@@ -87,7 +65,7 @@ function Petals() {
             />
           ))}
           <circle cx="12" cy="12" fill="var(--garden-center-yellow)" r="3" />
-        </motion.svg>
+        </m.svg>
       ))}
     </div>
   )
@@ -112,7 +90,11 @@ function Celebration({
   completion,
   state,
 }: Readonly<{ completion: SessionCompletion; state: ProfileState }>) {
-  const { activeProfile } = useApp()
+  const { activeProfile, device } = useApp()
+  const [offerInstall, setOfferInstall] = useState(
+    () =>
+      state.completedSessions === 1 && !isInstalled() && !device.seenCards().includes('install'),
+  )
   const translator = useI18n()
   const { t } = translator
   const navigate = useNavigate()
@@ -180,6 +162,16 @@ function Celebration({
             </p>
           )}
         </section>
+        {offerInstall ? (
+          <div className="w-full max-w-md">
+            <InstallCard
+              onDismiss={() => {
+                device.markCardSeen('install')
+                setOfferInstall(false)
+              }}
+            />
+          </div>
+        ) : null}
       </main>
       <div className="relative px-4 pb-3 safe-bottom">
         <Button

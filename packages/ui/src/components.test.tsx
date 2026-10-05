@@ -223,6 +223,13 @@ describe('Switch', () => {
   })
 })
 
+describe('TextField', () => {
+  it('is named by its label alone, without the counter', () => {
+    render(<TextField counter="3/40" label="Prénom" onChange={() => undefined} value="Léa" />)
+    expect(screen.getByRole('textbox')).toHaveAccessibleName('Prénom')
+  })
+})
+
 describe('FractionText', () => {
   it('reads as the words it is given, or as digits', () => {
     render(<FractionText denominator={2} label="un et demi" numerator={1} whole={1} />)

@@ -1,5 +1,5 @@
 import { Delete } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { m, useReducedMotion } from 'motion/react'
 import type { ReactNode } from 'react'
 
 import { cn } from './cn.js'
@@ -298,7 +298,7 @@ export function CharacterDock({ bubble, className, label, pose, poses }: Charact
       style={{ minHeight: size.height }}
     >
       {bubble === undefined || bubble === null ? null : (
-        <motion.div
+        <m.div
           animate={{ opacity: 1, scale: 1 }}
           initial={reduced ? { opacity: 0 } : { opacity: 0, scale: 0.8 }}
           key={`bubble-${pose}`}
@@ -310,9 +310,9 @@ export function CharacterDock({ bubble, className, label, pose, poses }: Charact
           >
             {bubble}
           </SpeechBubble>
-        </motion.div>
+        </m.div>
       )}
-      <motion.img
+      <m.img
         alt={label}
         animate={
           reduced

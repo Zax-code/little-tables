@@ -13,9 +13,11 @@ import type {
 import { Button } from '@little-tables/ui'
 import { useState, type ReactNode, type SyntheticEvent } from 'react'
 
-import { useI18n, type MessageKey, type Translator } from '../i18n/i18n.js'
-import { columnSteps, digitAt, placeKeys } from './column.js'
-import { filledParts, GardenBed } from './figures.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { MessageKey, Translator } from '../i18n/translator.js'
+import { columnSteps, digitAt, placeKeys } from './column-entry.js'
+import { GardenBed } from './figures.js'
+import { filledParts } from './fraction-figures.js'
 import { formatFraction, formatNumber, fractionInWords, fractionUnitName } from './format.js'
 import { RulerDrawing } from './ruler.js'
 
@@ -225,12 +227,11 @@ const blockCounts = (value: number) => ({
   thousands: Math.floor(value / 1000),
 })
 
+const blocks = (count: number, className: string, prefix: string) =>
+  Array.from({ length: count }, (_, index) => <i className={className} key={`${prefix}${index}`} />)
+
 function BaseTenBlocks({ value }: Readonly<{ value: number }>) {
   const counts = blockCounts(value)
-  const blocks = (count: number, className: string, prefix: string) =>
-    Array.from({ length: count }, (_, index) => (
-      <i className={className} key={`${prefix}${index}`} />
-    ))
   return (
     <div aria-hidden className="flex flex-wrap items-end gap-1">
       {blocks(Math.min(counts.thousands, 10), 'size-7 rounded-sm bg-sun', 'm')}

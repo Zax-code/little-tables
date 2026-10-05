@@ -6,7 +6,7 @@
 import type { Exercise, ExerciseDescription, PracticeAnswer } from '@little-tables/engine/schema'
 
 import type { Language } from '../data/schema.js'
-import { createTranslator, type MessageKey, type MessageValues } from '../i18n/i18n.js'
+import { createTranslator, type MessageKey, type MessageValues } from '../i18n/translator.js'
 
 const translate = (locale: Language, key: MessageKey, values?: MessageValues) =>
   createTranslator(locale).t(key, values)
@@ -190,14 +190,6 @@ export const answerWords = (answer: PracticeAnswer, locale: Locale): string => {
   }
   return ''
 }
-
-/** Exercises with a tall answer area hide the idle character to keep the keypad in reach. */
-export const exerciseUsesFullHeight = (exercise: Exercise): boolean =>
-  exercise.kind === 'column' ||
-  exercise.kind === 'fraction-pick' ||
-  exercise.kind === 'fraction-line' ||
-  (exercise.kind === 'fraction-read' && exercise.mode === 'build') ||
-  ('choices' in exercise && exercise.choices.length === 0 && exercise.kind !== 'arithmetic')
 
 /** The expected answer as short text, for “yes! …” and “almost — it’s …”. */
 export const expectedAnswerText = (

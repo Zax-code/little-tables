@@ -22,7 +22,8 @@ import { Bell, School, Sprout } from 'lucide-react'
 import { Effect } from 'effect'
 import { useId, useState, type SyntheticEvent } from 'react'
 
-import { profileStateKey, useApp, useProfileState } from '../app/app-context.js'
+import { useApp } from '../app/app-context.js'
+import { profileStateKey, useProfileState } from '../app/profile-state.js'
 import { useLearningProgress } from '../app/derived.js'
 import {
   avatarImage,
@@ -34,7 +35,8 @@ import {
 } from '../characters/characters.js'
 import { LocalStore } from '../data/local-store.js'
 import { emptyState } from '../data/local-store.js'
-import { useI18n, type MessageKey } from '../i18n/i18n.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { MessageKey } from '../i18n/translator.js'
 import { failureCode, useApi } from './api.js'
 import {
   disableReminders,
@@ -115,7 +117,7 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
   const nameField = useId()
   const [choosing, setChoosing] = useState(false)
   const [renaming, setRenaming] = useState(false)
-  const [name, setName] = useState(child.name)
+  const [name, setName] = useState(() => child.name)
   const [removing, setRemoving] = useState(false)
   const [reminded, setReminded] = useState(() => remindedProfile())
   const [reminderBusy, setReminderBusy] = useState(false)
@@ -334,6 +336,8 @@ function SchoolSettings({ child }: Readonly<{ child: ChildProfile }>) {
     settings,
   )
 
+  const enabled = new Set(settings.enabledSkills)
+
   const persist = (next: LearningPathSettings) => {
     const previous = settings
     setSettings(next)
@@ -393,7 +397,7 @@ function SchoolSettings({ child }: Readonly<{ child: ChildProfile }>) {
             accessory={
               <Switch
                 aria-label={t(`skill.${skill}`)}
-                checked={settings.enabledSkills.includes(skill)}
+                checked={enabled.has(skill)}
                 onCheckedChange={() => toggle(skill)}
               />
             }

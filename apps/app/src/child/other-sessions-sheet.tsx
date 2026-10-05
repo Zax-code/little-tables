@@ -1,5 +1,4 @@
 /** A5: other sessions — five quick questions, one table, the learning paths and the bonuses. */
-import type { LearningSnapshot } from '@little-tables/engine/schema'
 import { Chip, IconTile, ListGroup, ListRow, Sheet } from '@little-tables/ui'
 import { Lock, Zap } from 'lucide-react'
 
@@ -7,19 +6,12 @@ import { useApp } from '../app/app-context.js'
 import { useLearningProgress } from '../app/derived.js'
 import type { ProfileState } from '../data/schema.js'
 import { policies } from '../data/practice.js'
-import { useI18n, type MessageKey } from '../i18n/i18n.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { MessageKey } from '../i18n/translator.js'
+import { weakerBonusTable } from './bonus-table.js'
 import { useLaunch } from './launch.js'
 
 const tables = [2, 3, 4, 5, 6, 7, 8, 9, 10] as const
-
-/** The bonus table to practise: the one with fewer facts already fluent. */
-export const weakerBonusTable = (snapshot: LearningSnapshot): 11 | 12 => {
-  const fluent = (table: number) =>
-    Object.entries(snapshot.facts).filter(
-      ([key, fact]) => fact.state === 'fluent' && key.split(':').includes(String(table)),
-    ).length
-  return fluent(11) <= fluent(12) ? 11 : 12
-}
 
 const pathStyle = {
   additions: { mark: '+ −', tile: 'bg-tint' },
@@ -102,18 +94,20 @@ export function OtherSessionsSheet({ onOpenChange, open, state }: OtherSessionsS
                 {pathStyle[path.id].mark}
               </span>
               <div className="flex flex-1 flex-wrap gap-2">
-                {path.skills
-                  .filter((skill) => skill.open)
-                  .map((skill) => (
-                    <Chip
-                      className="min-h-11 text-subhead"
-                      disabled={launch.pending}
-                      key={skill.id}
-                      onClick={() => start(policies.skill(paths, skill.id))}
-                    >
-                      {t(`skill.${skill.id}` as MessageKey)}
-                    </Chip>
-                  ))}
+                {path.skills.flatMap((skill) =>
+                  skill.open
+                    ? [
+                        <Chip
+                          className="min-h-11 text-subhead"
+                          disabled={launch.pending}
+                          key={skill.id}
+                          onClick={() => start(policies.skill(paths, skill.id))}
+                        >
+                          {t(`skill.${skill.id}` as MessageKey)}
+                        </Chip>,
+                      ]
+                    : [],
+                )}
               </div>
             </div>
           ))}

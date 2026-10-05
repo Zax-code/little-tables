@@ -3,10 +3,11 @@ import { cn, NavigationBar, Screen } from '@little-tables/ui'
 import { useNavigate } from '@tanstack/react-router'
 import { Lock } from 'lucide-react'
 
-import { useProfileState } from '../app/app-context.js'
+import { useProfileState } from '../app/profile-state.js'
 import { useGarden } from '../app/derived.js'
 import type { ProfileState } from '../data/schema.js'
-import { useI18n, type MessageKey } from '../i18n/i18n.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { MessageKey } from '../i18n/translator.js'
 import { Plant } from './plant.js'
 
 export function HerbariumScreen() {

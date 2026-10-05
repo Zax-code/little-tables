@@ -116,11 +116,13 @@ const make = () => {
         return target.transaction('rw', [target.events, target.outbox, target.state], async () => {
           const next = change(await readState(target))
           const state = decodeState(next.state)
-          for (const event of next.events ?? []) {
-            if ((await target.events.get(event.eventId)) !== undefined) continue
-            await target.events.put(event)
-            await target.outbox.put({ createdAt: Date.now(), eventId: event.eventId })
-          }
+          const events = next.events ?? []
+          const known = await target.events.bulkGet(events.map(({ eventId }) => eventId))
+          const added = events.filter((_, index) => known[index] === undefined)
+          await target.events.bulkPut(added)
+          await target.outbox.bulkPut(
+            added.map(({ eventId }) => ({ createdAt: Date.now(), eventId })),
+          )
           await target.state.put({ id: 'current', value: state })
           return state
         })

@@ -14,18 +14,16 @@ export const characterIds = [
 ] as const
 export type CharacterId = (typeof characterIds)[number]
 
-export const sceneIds = [
-  'connectProfile',
-  'home',
-  'practiceIdle',
-  'practiceCorrect',
-  'practiceEncourage',
-  'updateRecovery',
-  'celebration',
-  'gardenWalk',
-  'gardenWater',
-] as const
-export type SceneId = (typeof sceneIds)[number]
+export type SceneId =
+  | 'celebration'
+  | 'connectProfile'
+  | 'gardenWalk'
+  | 'gardenWater'
+  | 'home'
+  | 'practiceCorrect'
+  | 'practiceEncourage'
+  | 'practiceIdle'
+  | 'updateRecovery'
 
 export type Scene = Readonly<{ height: number; src: string; width: number }>
 
@@ -83,12 +81,3 @@ export const sceneOf = (character: CharacterId, scene: SceneId): Scene => ({
 
 export const avatarImage = (character: CharacterId) =>
   `/avatars/${character === 'miffy' ? 'miffy' : character}.png`
-
-/** Starts downloading images before the screen that shows them. */
-export const preloadImages = (sources: ReadonlyArray<string>) => {
-  for (const src of sources) {
-    const image = new Image()
-    image.decoding = 'async'
-    image.src = src
-  }
-}

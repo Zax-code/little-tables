@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { createTranslator, interpolate } from './i18n.js'
+import { createTranslator, interpolate } from './translator.js'
 import { groups, messages } from './messages.js'
 
 describe('catalogues', () => {

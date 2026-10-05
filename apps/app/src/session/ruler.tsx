@@ -1,7 +1,7 @@
 /** The fraction ruler and its ladybug (mockup C8), for reading or placing a fraction. */
 import { Button } from '@little-tables/ui'
 import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
-import { motion, useReducedMotion } from 'motion/react'
+import { m, useReducedMotion } from 'motion/react'
 import { useRef, type KeyboardEvent, type PointerEvent } from 'react'
 
 import { useI18n } from '../i18n/i18n.js'
@@ -16,7 +16,7 @@ const xFor = (index: number, steps: number) => PAD + (index / steps) * (WIDTH - 
 function Ladybug({ x }: Readonly<{ x: number }>) {
   const reduced = useReducedMotion() === true
   return (
-    <motion.g
+    <m.g
       animate={{ x }}
       initial={false}
       transition={reduced ? { duration: 0 } : { damping: 22, stiffness: 340, type: 'spring' }}
@@ -33,7 +33,7 @@ function Ladybug({ x }: Readonly<{ x: number }>) {
         <circle cx="-3" cy="22" fill="#fff" r="1.6" />
         <circle cx="3" cy="22" fill="#fff" r="1.6" />
       </g>
-    </motion.g>
+    </m.g>
   )
 }
 

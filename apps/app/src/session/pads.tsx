@@ -15,25 +15,6 @@ import { useState } from 'react'
 import { useI18n } from '../i18n/i18n.js'
 import { answerWords, formatNumber, fractionInWords } from './format.js'
 
-/** A typed whole number, at most `maxDigits` long. */
-export function useTypedNumber(maxDigits: number) {
-  const [value, setValue] = useState('')
-  return {
-    clear: () => setValue(''),
-    press: (key: Exclude<PadKey, 'submit'>) =>
-      setValue((current) =>
-        key === 'erase'
-          ? current.slice(0, -1)
-          : current.length >= maxDigits
-            ? current
-            : current === '0'
-              ? key
-              : `${current}${key}`,
-      ),
-    value,
-  }
-}
-
 type DigitsPadProps = Readonly<{
   canSubmit: boolean
   disabled: boolean
@@ -186,7 +167,7 @@ const sameAnswer = (first: PracticeAnswer, second: PracticeAnswer) =>
   JSON.stringify(first) === JSON.stringify(second)
 
 /** How an answer appears on a tile. */
-export function AnswerFace({ answer }: Readonly<{ answer: PracticeAnswer }>) {
+function AnswerFace({ answer }: Readonly<{ answer: PracticeAnswer }>) {
   const { language } = useI18n()
   if (answer.type === 'integer') return <>{formatNumber(answer.value, language)}</>
   if (answer.type === 'fraction') {
@@ -305,16 +286,18 @@ type MultiPickProps = Readonly<{
 export function MultiPick({ correct, onSubmit, options, settled }: MultiPickProps) {
   const { language, t } = useI18n()
   const [picked, setPicked] = useState<ReadonlyArray<number>>([])
+  const chosen = new Set(picked)
+  const right = new Set(correct)
   return (
     <div className="flex flex-col gap-2.5">
       <div className="grid grid-cols-2 gap-2.5">
         {options.map((option, index) => {
-          const on = picked.includes(index)
+          const on = chosen.has(index)
           const state = !settled
             ? on
               ? 'border-tint bg-tint-soft text-tint'
               : 'border-separator bg-surface text-label'
-            : correct.includes(index)
+            : right.has(index)
               ? 'border-leaf bg-leaf-soft text-leaf'
               : on
                 ? 'border-sun bg-sun-soft text-sun'

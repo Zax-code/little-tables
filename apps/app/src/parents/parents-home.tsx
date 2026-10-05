@@ -15,16 +15,20 @@ import {
 import { useQueries, useQuery, useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { Effect } from 'effect'
-import { Languages, LogOut, Palette, Plus, RefreshCw, Users, Volume2 } from 'lucide-react'
+import { Download, Languages, LogOut, Palette, Plus, RefreshCw, Users, Volume2 } from 'lucide-react'
 import { useId, useState, type SyntheticEvent } from 'react'
 
-import { profileStateKey, useApp } from '../app/app-context.js'
+import { useApp } from '../app/app-context.js'
+import { profileStateKey } from '../app/profile-state.js'
 import { todayKey } from '../app/derived.js'
 import { useSync } from '../app/sync-manager.js'
 import { avatarImage, characterOf } from '../characters/characters.js'
 import { LocalStore } from '../data/local-store.js'
 import type { Language, Preferences, ProfileState } from '../data/schema.js'
-import { useI18n, type Translator } from '../i18n/i18n.js'
+import { useI18n } from '../i18n/i18n.js'
+import type { Translator } from '../i18n/translator.js'
+import { InstallSteps } from '../install.js'
+import { useInstall } from '../install-prompt.js'
 import { failureCode, useApi } from './api.js'
 
 const languageNames: Readonly<Record<Language, string>> = {
@@ -35,17 +39,13 @@ const languageNames: Readonly<Record<Language, string>> = {
 
 /** When a child last practised, in the parent's words. */
 const childStatus = (state: ProfileState | undefined, translator: Translator) => {
-  const last = [...(state?.practiceDayKeys ?? [])].sort().at(-1)
+  const last = (state?.practiceDayKeys ?? []).toSorted().at(-1)
   if (last === undefined) return translator.t('parents.statusNew')
   const today = todayKey()
   if (last === today && state?.rewardedDayKeys.includes(today) === true)
     return translator.t('parents.statusToday')
   const days = Math.round((Date.parse(today) - Date.parse(last)) / 86_400_000)
-  const when = new Intl.RelativeTimeFormat(translator.language, { numeric: 'auto' }).format(
-    -days,
-    'day',
-  )
-  return translator.t('parents.statusWhen', { when })
+  return translator.t('parents.statusWhen', { when: translator.daysAgo(days) })
 }
 
 export function ParentsHomeScreen() {
@@ -56,6 +56,7 @@ export function ParentsHomeScreen() {
   const sync = useSync()
   const api = useApi()
   const [signingOut, setSigningOut] = useState(false)
+  const installation = useInstall()
   const states = useQueries({
     queries: family.profiles.map((profile) => ({
       queryFn: () =>
@@ -191,6 +192,17 @@ export function ParentsHomeScreen() {
           onClick={() => void sync.synchronize()}
           title={t('parents.sync')}
         />
+        {installation.supported ? (
+          <ListRow
+            leading={
+              <IconTile className="bg-sky">
+                <Download aria-hidden />
+              </IconTile>
+            }
+            onClick={installation.install}
+            title={t('install.row')}
+          />
+        ) : null}
         <ListRow
           destructive
           leading={
@@ -203,6 +215,7 @@ export function ParentsHomeScreen() {
         />
       </ListGroup>
 
+      <InstallSteps onOpenChange={installation.setExplaining} open={installation.explaining} />
       <Alert
         cancelLabel={t('common.cancel')}
         confirmLabel={t('parents.signOutConfirm')}

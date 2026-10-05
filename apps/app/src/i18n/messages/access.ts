@@ -1,6 +1,11 @@
 /** Opening, sign-in, first name, no connection, recovery (B1 to B4). */
 export const en = {
   'character.alt': '{character}',
+  'install.action': 'Install',
+  'install.copy': 'Open it in one tap from the home screen.',
+  'install.ios': 'Tap Share, then “Add to Home Screen”.',
+  'install.row': 'Install little tables',
+  'install.title': 'Keep little tables close ♡',
   'offline.copy':
     'The very first opening needs the Internet. After that, your garden works even without a connection.',
   'offline.retry': 'Try again',
@@ -32,6 +37,11 @@ type Messages = Record<keyof typeof en, string>
 
 export const fr: Messages = {
   'character.alt': '{character}',
+  'install.action': 'Installer',
+  'install.copy': 'Ouvre-la d’un geste depuis l’écran d’accueil.',
+  'install.ios': 'Touche Partager, puis « Sur l’écran d’accueil ».',
+  'install.row': 'Installer little tables',
+  'install.title': 'Garde little tables tout près ♡',
   'offline.copy':
     'La toute première ouverture a besoin d’Internet. Ensuite, ton jardin marche même sans réseau.',
   'offline.retry': 'Réessayer',
@@ -63,6 +73,11 @@ export const fr: Messages = {
 
 export const zh: Messages = {
   'character.alt': '{character}',
+  'install.action': '安装',
+  'install.copy': '从主屏幕一点就能打开。',
+  'install.ios': '点击“分享”，再选择“添加到主屏幕”。',
+  'install.row': '安装 little tables',
+  'install.title': '把 little tables 放在手边 ♡',
   'offline.copy': '第一次打开需要连接网络。之后即使没有网络，你的花园也能使用。',
   'offline.retry': '重试',
   'offline.title': '没有网络连接',
