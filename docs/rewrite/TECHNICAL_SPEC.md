@@ -373,6 +373,7 @@ Rust (§7.2).
 - Le fuseau reste par abonnement (celui de l'appareil) ; l'heure de rappel est **par profil** (`profiles.reminder_minute`,
   défaut 18 h 00, pas de 15 min, plage 7 h – 21 h, `null` = désactivé). Le worker fait la jointure ; rien n'est dupliqué
   sur l'abonnement.
+- Aucun rappel tant que le profil n'a terminé aucune séance (nouveau : aujourd'hui le rappel part dès l'abonnement).
 - Textes localisés fr / en / zh-Hans ; `tag` par jour.
 
 ### 5.6 Vue parent des difficultés
@@ -620,13 +621,13 @@ Volume et concurrence d'un usage familial très faibles, aucun service à opére
 déjà pratiquée sur le VPS, typage fort avec `sqlx`, alignement sur la majorité des services de l'hôte. PostgreSQL
 resterait le choix d'une diffusion large ; le changement serait localisé dans `lt-store`.
 
-### 8.4 Points ouverts (valeur par défaut si non tranché)
+### 8.4 Points ouverts
 
-1. **`algorithmVersion 2`** (≤ 2 nouveaux éléments par séance) : décision reportée au lot 5, une fois la parité
-   prouvée. Défaut : on reste en v1.
-2. **Contrainte `duplicate_sequence`** : si l'import Mongo révèle beaucoup de doublons historiques, on gardera
-   l'index non unique et la validation uniquement à l'ingestion. Défaut : contrainte unique.
-3. **Durée de déverrouillage de l'espace parent** : défaut 5 min.
-4. **Rappel pour un enfant qui n'a jamais fait de séance** : défaut, pas de rappel tant qu'aucune séance n'est terminée
-   (comportement actuel : rappel dès l'abonnement). À confirmer.
-5. **Personnages des autres enfants** : les 5 autres personnages existants restent proposés ; aucun nouveau. Défaut : oui.
+Tranchés le 5 octobre 2026 :
+
+1. `algorithmVersion 2` : décision au lot 5, on reste en v1 d'ici là.
+2. Contrainte `duplicate_sequence` : confirmée en principe ; revue au moment de l'import Mongo selon le nombre de
+   doublons historiques.
+3. Espace parent déverrouillé 5 min.
+4. Rappel quotidien envoyé seulement après une première séance terminée (nouveau comportement, voir §5.5).
+5. Personnages : les 6 existants, aucun nouveau.
