@@ -92,7 +92,7 @@ describe('garden screen', () => {
     const markup = renderToStaticMarkup(<GardenScreen />)
 
     expect(markup).toContain('Les 3 arrosages de cette plante sont faits.')
-    expect(markup).toContain('5 multiplications sans aide')
+    expect(markup).toContain('5 calculs sans aide')
     expect(markup).toContain('Ses progrès sont bien gardés.')
   })
 

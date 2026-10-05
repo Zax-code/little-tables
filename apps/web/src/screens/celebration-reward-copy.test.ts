@@ -54,10 +54,10 @@ describe('celebration reward copy', () => {
     })
 
     expect(celebrationRewardCopy(progress)).toBe(
-      'Les 3 arrosages de cette plante sont faits. Réussis encore 5 multiplications sans aide pour l’aider à éclore. Ses progrès sont bien gardés.',
+      'Les 3 arrosages de cette plante sont faits. Réussis encore 5 calculs sans aide pour l’aider à éclore. Ses progrès sont bien gardés.',
     )
     expect(celebrationRewardCopy(progress, 'zh-Hans')).toBe(
-      '已经浇满 3 次水啦。再不看提示，自己答对 5 道乘法题，它就会开花。浇水进度会好好保留。',
+      '已经浇满 3 次水啦。再不看提示，自己答对 5 道题，它就会开花。浇水进度会好好保留。',
     )
   })
 
@@ -73,7 +73,7 @@ describe('celebration reward copy', () => {
       })
 
       expect(celebrationRewardCopy(progress, 'en')).toBe(
-        `Watering progress for Velvet foxglove: ${current} of 3, with ${remainingBlooms} more to fill its growth goal. It also needs 5 multiplication facts answered without hints; 5 to go.`,
+        `Watering progress for Velvet foxglove: ${current} of 3, with ${remainingBlooms} more to fill its growth goal. It also needs 5 facts answered without hints; 5 to go.`,
       )
       expect(celebrationRewardCopy(progress, 'en')).not.toContain('3 flowers')
     },

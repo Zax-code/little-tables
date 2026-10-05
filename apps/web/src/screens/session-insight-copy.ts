@@ -1,12 +1,15 @@
 import type { SessionInsight } from '@little-tables/domain'
 
+import { levelLabel } from '../exercise-format.js'
 import { translate, type Locale } from '../i18n-catalog.js'
 
-const displayFact = (factKey: string): string => {
+const displayFact = (factKey: string, locale: Locale): string => {
   const division = /^divide:(\d+):(\d+)$/.exec(factKey)
   if (division !== null) return `${division[1]} ÷ ${division[2]}`
   const multiplication = /^(\d+):(\d+)$/.exec(factKey)
-  return multiplication === null ? factKey : `${multiplication[1]} × ${multiplication[2]}`
+  return multiplication === null
+    ? levelLabel(factKey, locale)
+    : `${multiplication[1]} × ${multiplication[2]}`
 }
 
 export function sessionInsightCopy(insight: SessionInsight, locale: Locale): string {
@@ -27,7 +30,7 @@ export function sessionInsightCopy(insight: SessionInsight, locale: Locale): str
   }
   if (insight.kind === 'mistakes-recovered') {
     return translate(locale, 'insight.recovered', {
-      fact: displayFact(insight.factKeys[0] ?? ''),
+      fact: displayFact(insight.factKeys[0] ?? '', locale),
     })
   }
   return translate(locale, 'insight.persisted')

@@ -9,6 +9,7 @@ import { useNavigate } from '@tanstack/react-router'
 import type { SyntheticEvent } from 'react'
 import { useEffect, useId, useRef, useState } from 'react'
 
+import { LearningPathSettingsForm } from '../components/learning-path-settings-form.js'
 import { ProfileAvatar } from '../components/profile-avatar.js'
 import { Screen } from '../components/screen.js'
 import {
@@ -302,25 +303,37 @@ export function FamilyScreen() {
         <div className="family-profile-list">
           <h2>{t('family.membersHeading')}</h2>
           {profiles.map((profile) => (
-            <ChildProfileEditor
-              canRemove={profiles.length > 1}
-              key={`${profile.id}:${profile.name}:${profile.avatarId}`}
-              onRemove={async () => {
-                await removeChildProfile(profile.id)
-                const remaining = profiles.filter(({ id }) => id !== profile.id)
-                setProfiles(remaining)
-                if (activeProfile.id === profile.id && remaining[0] !== undefined) {
-                  switchProfile(remaining[0].id)
+            <div className="family-member" key={profile.id}>
+              <ChildProfileEditor
+                canRemove={profiles.length > 1}
+                key={`${profile.id}:${profile.name}:${profile.avatarId}`}
+                onRemove={async () => {
+                  await removeChildProfile(profile.id)
+                  const remaining = profiles.filter(({ id }) => id !== profile.id)
+                  setProfiles(remaining)
+                  if (activeProfile.id === profile.id && remaining[0] !== undefined) {
+                    switchProfile(remaining[0].id)
+                  }
+                }}
+                onSave={async (input) => {
+                  const updated = await updateChildProfile(profile.id, input)
+                  setProfiles(
+                    profiles.map((candidate) =>
+                      candidate.id === updated.id ? updated : candidate,
+                    ),
+                  )
+                }}
+                profile={profile}
+              />
+              <LearningPathSettingsForm
+                onSaved={(saved) =>
+                  setProfiles(
+                    profiles.map((candidate) => (candidate.id === saved.id ? saved : candidate)),
+                  )
                 }
-              }}
-              onSave={async (input) => {
-                const updated = await updateChildProfile(profile.id, input)
-                setProfiles(
-                  profiles.map((candidate) => (candidate.id === updated.id ? updated : candidate)),
-                )
-              }}
-              profile={profile}
-            />
+                profile={profile}
+              />
+            </div>
           ))}
         </div>
       </section>

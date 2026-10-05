@@ -109,13 +109,40 @@ describe('family-profile HTTP interface', () => {
     )
     expect(retiredUpdate.status).toBe(400)
 
+    const learningPaths = {
+      enabledSkills: ['fraction-read'],
+      focusSkill: 'fraction-read',
+      mode: 'automatic',
+      subtractionMethod: 'decomposition',
+    }
+    const savedPaths = await handler(
+      new Request('http://little-tables.local/api/v1/family/profiles/learning-paths', {
+        body: JSON.stringify({ learningPaths, profileId: addedBody.profile.id }),
+        headers: { 'content-type': 'application/json', cookie },
+        method: 'PUT',
+      }),
+    )
+    expect(savedPaths.status).toBe(200)
+    await expect(savedPaths.json()).resolves.toMatchObject({ profile: { learningPaths } })
+    const invalidPaths = await handler(
+      new Request('http://little-tables.local/api/v1/family/profiles/learning-paths', {
+        body: JSON.stringify({
+          learningPaths: { ...learningPaths, focusSkill: 'algebra' },
+          profileId: addedBody.profile.id,
+        }),
+        headers: { 'content-type': 'application/json', cookie },
+        method: 'PUT',
+      }),
+    )
+    expect(invalidPaths.status).toBe(400)
+
     const renamed = await familyRequest(
       { avatarId: 'sprout', name: 'Mimi', profileId: addedBody.profile.id },
       'PUT',
     )
     expect(renamed.status).toBe(200)
     await expect(renamed.json()).resolves.toEqual({
-      profile: { avatarId: 'sprout', id: addedBody.profile.id, name: 'Mimi' },
+      profile: { avatarId: 'sprout', id: addedBody.profile.id, learningPaths, name: 'Mimi' },
     })
     const afterAvatarChange = await Schema.decodeUnknownPromise(FamilyResponseSchema)(
       await (await familyRequest()).json(),

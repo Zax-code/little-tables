@@ -19,6 +19,8 @@ import { setSoundEnabled, soundEnabled } from '../sound.js'
 import { useI18n } from '../i18n.js'
 import { deriveWeekProgressSegments } from '../week-progress.js'
 import { useFamilyProfile } from '../use-family-profile.js'
+import { learningPathsFor } from '../learning-path-settings.js'
+import { NewPathsCard, PathPicker } from '../components/learning-path-picker.js'
 
 export function HomeScreen() {
   const { t } = useI18n()
@@ -43,6 +45,11 @@ export function HomeScreen() {
   const [gardenIntroductionDismissed, setGardenIntroductionDismissed] = useState(false)
   const firstVisit = (data?.snapshot.processedEventIds.length ?? 0) === 0
   const displayName = activeProfile.name
+  const learningPaths = learningPathsFor(activeProfile)
+  const pathProgress = LearningEngine.deriveLearningProgress({
+    curriculum: { paths: learningPaths },
+    snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
+  })
   const garden = LearningEngine.deriveGardenProgress({
     awardedFlowerIds: data?.gardenCollection.awardedFlowerIds,
     completedSessions: data?.gardenBloomCount ?? 0,
@@ -70,7 +77,7 @@ export function HomeScreen() {
       ? data.activeSession.questions.length
       : LearningEngine.createSession({
           now: today,
-          policy: { kind: 'daily-watering' },
+          policy: { curriculum: { paths: learningPaths }, kind: 'daily-watering' },
           seed: 0,
           snapshot: data?.snapshot ?? LearningEngine.emptySnapshot(),
           timeZone,
@@ -155,6 +162,14 @@ export function HomeScreen() {
           {showGardenIntroduction ? (
             <GardenIntroductionCard onDismiss={dismissGardenIntroduction} />
           ) : null}
+          {showGardenIntroduction ? null : (
+            <NewPathsCard
+              automatic={learningPaths.mode === 'automatic'}
+              paths={pathProgress.paths}
+              profileId={activeProfile.id}
+              tablesAcquired={pathProgress.packs.bonus1112.unlocked}
+            />
+          )}
 
           <m.button
             className="primary-button"
@@ -192,6 +207,10 @@ export function HomeScreen() {
                   ))}
                 </div>
               </div>
+              <PathPicker
+                onChoose={(skill) => void launcher.startSkill(skill)}
+                paths={pathProgress.paths}
+              />
             </div>
           ) : null}
         </div>

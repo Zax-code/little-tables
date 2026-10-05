@@ -1,4 +1,4 @@
-import { LearningEngine, type PracticeQuestion } from '@little-tables/domain'
+import { LearningEngine, type PracticeAnswer, type PracticeQuestion } from '@little-tables/domain'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { AnimatePresence, m } from 'motion/react'
@@ -6,6 +6,17 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 
 import { PracticeCharacter } from '../components/practice-character.js'
 import { FactRescue } from '../components/fact-rescue.js'
+import { firstWrongColumn } from '../column-math.js'
+import { ExerciseHint } from '../components/exercise-hint.js'
+import { ExerciseStage } from '../components/exercise-stage.js'
+import {
+  exerciseUsesFullHeight,
+  expectedAnswerText,
+  exerciseStatement,
+  isEquivalentForm,
+  formatAnswer,
+} from '../exercise-format.js'
+import { learningPathsFor } from '../learning-path-settings.js'
 import { ProgressDots } from '../components/progress-dots.js'
 import { CorrectAnswerConfetti } from '../components/correct-answer-confetti.js'
 import { Screen } from '../components/screen.js'
@@ -18,11 +29,12 @@ import { useFamilyProfile } from '../use-family-profile.js'
 type Feedback = Readonly<{
   correct: boolean
   question: PracticeQuestion
+  response?: PracticeAnswer | undefined
   selected: number
 }>
 
 export function PracticeScreen() {
-  const { t } = useI18n()
+  const { locale, t } = useI18n()
   const bootstrap = useLocalBootstrap()
   const navigate = useNavigate()
   const queryClient = useQueryClient()
@@ -97,13 +109,13 @@ export function PracticeScreen() {
     )
   }
 
-  const choose = async (selected: number) => {
+  const choose = async (selected: number, response?: PracticeAnswer) => {
     if (feedback !== null || answering.current) return
     answering.current = true
     const result = LearningEngine.answer({
       answeredAt: new Date(),
       eventId: crypto.randomUUID(),
-      selected,
+      ...(response === undefined ? { selected } : { response }),
       session,
     })
     const snapshot = LearningEngine.reduce({ attempts: [result.event], snapshot: data.snapshot })
@@ -120,8 +132,42 @@ export function PracticeScreen() {
       activeSession: result.session,
       snapshot,
     })
-    setFeedback({ correct: result.correct, question: displayedQuestion, selected })
+    setFeedback({ correct: result.correct, question: displayedQuestion, response, selected })
   }
+  const respond = (response: PracticeAnswer) =>
+    void choose(response.type === 'integer' ? response.value : 0, response)
+  const exercise = displayedQuestion.exercise
+  const subtractionMethod = learningPathsFor(activeProfile).subtractionMethod
+  const outcome =
+    feedback?.response === undefined
+      ? null
+      : { correct: feedback.correct, response: feedback.response }
+  const wrongColumn =
+    exercise?.kind === 'column' &&
+    feedback !== null &&
+    !feedback.correct &&
+    feedback.response?.type === 'integer'
+      ? firstWrongColumn(
+          String(feedback.response.value).split('').reverse(),
+          LearningEngine.correctAnswer(displayedQuestion),
+        )
+      : null
+  const answerText =
+    exercise === undefined ? String(displayedAnswer ?? 0) : expectedAnswerText(exercise, locale)
+  const headline = feedback?.correct
+    ? exercise !== undefined &&
+      feedback.response !== undefined &&
+      isEquivalentForm(exercise, feedback.response)
+      ? t('practice.yesAlso', {
+          answer: answerText,
+          given: formatAnswer(feedback.response, locale),
+        })
+      : t('practice.yes', { answer: answerText })
+    : t('practice.almost', { answer: answerText })
+  const statement =
+    exercise === undefined
+      ? `${displayedQuestion.left} ${displayedQuestion.operation === 'divide' ? '÷' : '×'} ${displayedQuestion.right} = ${displayedAnswer ?? 0}`
+      : exerciseStatement(exercise, locale)
 
   const next = async () => {
     const latest = await practiceStore.load()
@@ -158,7 +204,8 @@ export function PracticeScreen() {
             {t('practice.growing', { count: session.currentIndex })}
           </span>
           <span className="question-count">
-            {session.currentIndex + 1}/{session.questions.length}
+            {Math.min(session.currentIndex + 1, session.questions.length)}/
+            {session.questions.length}
           </span>
         </div>
         <ProgressDots current={session.currentIndex} total={session.questions.length} />
@@ -169,35 +216,52 @@ export function PracticeScreen() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="question-stage"
+            className={`question-stage${exercise === undefined ? '' : ` exercise-stage exercise-${exercise.kind}`}`}
           >
-            <p className="sr-only">
-              {t(displayedQuestion.operation === 'divide' ? 'practice.divide' : 'practice.times', {
-                left: displayedQuestion.left,
-                right: displayedQuestion.right,
-              })}
-            </p>
-            <div
-              aria-hidden="true"
-              className={`equation${displayedQuestion.operation === 'divide' ? ' equation-division' : ''}`}
-            >
-              {displayedQuestion.left} {displayedQuestion.operation === 'divide' ? '÷' : '×'}{' '}
-              {displayedQuestion.right}
-            </div>
-
-            {displayedQuestion.answerMode === 'choice' ? (
-              <ChoiceGrid feedback={feedback} onChoose={choose} question={displayedQuestion} />
-            ) : (
-              <Keypad
-                feedback={feedback}
-                onChoose={choose}
-                question={displayedQuestion}
-                setValue={setKeypadValue}
-                value={keypadValue}
+            {exercise === undefined ? null : (
+              <ExerciseStage
+                exercise={exercise}
+                onAnswer={respond}
+                outcome={outcome}
+                subtractionMethod={subtractionMethod}
               />
             )}
+            {exercise !== undefined ? null : (
+              <>
+                <p className="sr-only">
+                  {t(
+                    displayedQuestion.operation === 'divide' ? 'practice.divide' : 'practice.times',
+                    {
+                      left: displayedQuestion.left,
+                      right: displayedQuestion.right,
+                    },
+                  )}
+                </p>
+                <div
+                  aria-hidden="true"
+                  className={`equation${displayedQuestion.operation === 'divide' ? ' equation-division' : ''}`}
+                >
+                  {displayedQuestion.left} {displayedQuestion.operation === 'divide' ? '÷' : '×'}{' '}
+                  {displayedQuestion.right}
+                </div>
 
-            {feedback === null ? <PracticeCharacter reaction="idle" /> : null}
+                {displayedQuestion.answerMode === 'choice' ? (
+                  <ChoiceGrid feedback={feedback} onChoose={choose} question={displayedQuestion} />
+                ) : (
+                  <Keypad
+                    feedback={feedback}
+                    onChoose={choose}
+                    question={displayedQuestion}
+                    setValue={setKeypadValue}
+                    value={keypadValue}
+                  />
+                )}
+              </>
+            )}
+
+            {feedback === null && (exercise === undefined || !exerciseUsesFullHeight(exercise)) ? (
+              <PracticeCharacter reaction="idle" />
+            ) : null}
           </m.div>
         </AnimatePresence>
 
@@ -213,19 +277,9 @@ export function PracticeScreen() {
               reaction={feedback.correct ? 'correct' : 'encourage'}
             />
             <div>
-              <strong>
-                {feedback.correct
-                  ? t('practice.yes', {
-                      answer: displayedAnswer ?? 0,
-                    })
-                  : t('practice.almost', {
-                      answer: displayedAnswer ?? 0,
-                    })}
-              </strong>
+              <strong>{headline}</strong>
               <span>
-                {feedback.correct
-                  ? t('practice.perfect')
-                  : `${displayedQuestion.left} ${displayedQuestion.operation === 'divide' ? '÷' : '×'} ${displayedQuestion.right} = ${displayedAnswer ?? 0}`}
+                {feedback.correct && exercise === undefined ? t('practice.perfect') : statement}
               </span>
             </div>
             {!feedback.correct && !showExplanation ? (
@@ -238,7 +292,15 @@ export function PracticeScreen() {
               </button>
             ) : null}
             {!feedback.correct && showExplanation ? (
-              <FactRescue question={displayedQuestion} strategies={rescueStrategies} />
+              exercise === undefined ? (
+                <FactRescue question={displayedQuestion} strategies={rescueStrategies} />
+              ) : (
+                <ExerciseHint
+                  exercise={exercise}
+                  method={subtractionMethod}
+                  wrongColumn={wrongColumn}
+                />
+              )
             ) : null}
             <button className="next-button" onClick={() => void next()} type="button">
               {t('practice.next')}

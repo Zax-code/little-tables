@@ -14,6 +14,12 @@ type IngestInput = Readonly<{
   profileId: string
 }>
 
+const validLearningDayKeyFor = ({ learningDayKey }: AttemptEvent): boolean => {
+  if (learningDayKey === undefined) return true
+  const parsed = new Date(`${learningDayKey}T00:00:00.000Z`)
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === learningDayKey
+}
+
 const ingest = ({ attempts, profileId }: IngestInput) =>
   Effect.gen(function* () {
     const repository = yield* AttemptRepository
@@ -22,6 +28,20 @@ const ingest = ({ attempts, profileId }: IngestInput) =>
     const valid: AttemptEvent[] = []
 
     for (const attempt of attempts) {
+      if (attempt.exercise !== undefined) {
+        if (seen.has(attempt.eventId)) {
+          rejected.push({ eventId: attempt.eventId, reason: 'duplicate_in_batch' })
+        } else if (
+          !validLearningDayKeyFor(attempt) ||
+          !LearningEngine.validateExerciseAttempt(attempt)
+        ) {
+          rejected.push({ eventId: attempt.eventId, reason: 'inconsistent_attempt' })
+        } else {
+          seen.add(attempt.eventId)
+          valid.push(attempt)
+        }
+        continue
+      }
       const operation = attempt.operation ?? 'multiply'
       const validOperands =
         operation === 'multiply'
@@ -40,14 +60,7 @@ const ingest = ({ attempts, profileId }: IngestInput) =>
             right: attempt.right,
           })
         : null
-      const parsedLearningDay =
-        attempt.learningDayKey === undefined
-          ? null
-          : new Date(`${attempt.learningDayKey}T00:00:00.000Z`)
-      const validLearningDayKey =
-        attempt.learningDayKey === undefined ||
-        (!Number.isNaN(parsedLearningDay?.getTime()) &&
-          parsedLearningDay?.toISOString().slice(0, 10) === attempt.learningDayKey)
+      const validLearningDayKey = validLearningDayKeyFor(attempt)
 
       if (seen.has(attempt.eventId)) {
         rejected.push({ eventId: attempt.eventId, reason: 'duplicate_in_batch' })

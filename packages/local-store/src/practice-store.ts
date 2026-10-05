@@ -1,6 +1,10 @@
 import {
+  ExerciseSchema,
+  expectedAnswer,
   LearningEngine,
+  PracticeAnswerSchema,
   type AttemptEvent,
+  type PracticeAnswer,
   type GardenCollectionSnapshot,
   type LearningSnapshot,
   type PracticeQuestion,
@@ -60,6 +64,8 @@ export type SessionCompletion = Readonly<{
   completedAt: Date
   correctAnswers: number
   finalAnswer: number
+  /** The expected answer of the last learning-path exercise, when it was not a fact. */
+  finalExpected?: PracticeAnswer | undefined
   finalCorrect: boolean
   gardenBloomEarned: boolean
   learningInsight: SessionInsight | null
@@ -87,6 +93,7 @@ const SessionCompletionSchema = Schema.Struct({
   correctAnswers: Schema.NonNegativeInt,
   finalAnswer: Schema.NonNegativeInt,
   finalCorrect: Schema.Boolean,
+  finalExpected: Schema.optional(PracticeAnswerSchema),
   gardenBloomEarned: Schema.optional(Schema.Boolean),
   learningInsight: Schema.optional(
     Schema.NullOr(
@@ -170,13 +177,16 @@ const AttemptEventSchema = Schema.Struct({
   choices: Schema.Array(Schema.Int),
   correct: Schema.Boolean,
   eventId: Schema.NonEmptyString,
+  exercise: Schema.optional(ExerciseSchema),
   factKey: Schema.NonEmptyString,
   latencyMs: Schema.NonNegativeInt,
   learningDayKey: Schema.optional(Schema.NonEmptyString),
-  left: Schema.Positive.pipe(Schema.int()),
+  // Learning-path exercises carry their operands in `exercise` and record zero here.
+  left: Schema.NonNegativeInt,
   operation: Schema.optional(Schema.Literal('multiply', 'divide')),
   questionCount: Schema.Positive.pipe(Schema.int()),
-  right: Schema.Positive.pipe(Schema.int()),
+  response: Schema.optional(PracticeAnswerSchema),
+  right: Schema.NonNegativeInt,
   selected: Schema.NonNegativeInt,
   sequence: Schema.NonNegativeInt,
   sessionId: Schema.NonEmptyString,
@@ -186,11 +196,12 @@ const AttemptEventSchema = Schema.Struct({
 const StoredPracticeQuestionSchema = Schema.Struct({
   answerMode: Schema.Literal('choice', 'keypad'),
   choices: Schema.Array(Schema.Int),
+  exercise: Schema.optional(ExerciseSchema),
   factKey: Schema.NonEmptyString,
   id: Schema.NonEmptyString,
-  left: Schema.Positive.pipe(Schema.int()),
+  left: Schema.NonNegativeInt,
   operation: Schema.optional(Schema.Literal('multiply', 'divide')),
-  right: Schema.Positive.pipe(Schema.int()),
+  right: Schema.NonNegativeInt,
 })
 
 const StoredPracticeSessionSchema = Schema.Struct({
@@ -435,6 +446,9 @@ export class IndexedDbPracticeStore {
           completedAt,
           correctAnswers: attempts.filter(({ correct }) => correct).length,
           finalAnswer: LearningEngine.correctAnswer(finalQuestion),
+          ...(finalQuestion.exercise === undefined
+            ? {}
+            : { finalExpected: expectedAnswer(finalQuestion.exercise) }),
           finalCorrect: finalAttempt.correct,
           gardenBloomEarned,
           learningInsight: LearningEngine.deriveSessionInsight({

@@ -1,3 +1,25 @@
+import {
+  expectedAnswer as expectedExerciseAnswer,
+  isExerciseAnswerCorrect,
+  isExerciseWellFormed,
+  isProductionExercise,
+  skillForKey,
+  type Exercise,
+  type LearningPathSettings,
+  type PracticeAnswer,
+  type SkillId,
+} from './exercises.js'
+import {
+  deriveOpenSkills,
+  derivePathProgress,
+  generateExercise,
+  interactionFamily,
+  skillDefinition,
+  skillWeight,
+  type InteractionFamily,
+  type PathProgress,
+} from './learning-paths.js'
+
 export type MasteryState = 'unseen' | 'learning' | 'familiar' | 'fluent'
 export type QuestionOperation = 'divide' | 'multiply'
 
@@ -25,6 +47,8 @@ export type LearningSnapshot = Readonly<{
 export type PracticeQuestion = Readonly<{
   answerMode: 'choice' | 'keypad'
   choices: ReadonlyArray<number>
+  /** Present for every learning-path exercise; absent for multiplication and division. */
+  exercise?: Exercise | undefined
   factKey: string
   id: string
   left: number
@@ -98,11 +122,13 @@ export type AttemptEvent = Readonly<{
   choices: ReadonlyArray<number>
   correct: boolean
   eventId: string
+  exercise?: Exercise | undefined
   factKey: string
   latencyMs: number
   learningDayKey?: string | undefined
   left: number
   operation?: QuestionOperation | undefined
+  response?: PracticeAnswer | undefined
   right: number
   questionCount: number
   selected: number
@@ -120,7 +146,10 @@ export type AnswerResult = Readonly<{
 type AnswerInput = Readonly<{
   answeredAt: Date
   eventId: string
-  selected: number
+  /** The learner's answer to a learning-path exercise. */
+  response?: PracticeAnswer
+  /** The learner's answer to a multiplication or division fact. */
+  selected?: number
   session: PracticeSession
 }>
 
@@ -128,11 +157,14 @@ export type CurriculumPack = 'bonus-11-12' | 'core' | 'inverse-division'
 
 export type CurriculumPolicy = Readonly<{
   packs?: ReadonlyArray<CurriculumPack>
+  /** The learner's path settings. Learning paths stay out of practice when omitted. */
+  paths?: LearningPathSettings
 }>
 
 export type PracticePolicy =
   | Readonly<{
       curriculum?: CurriculumPolicy
+      focusSkill?: SkillId
       focusTable?: number
       kind?: 'extra-practice'
       questionCount: number
@@ -384,6 +416,7 @@ export type LearningProgress = Readonly<{
   divisionFacts: FactProgressCounts
   facts: FactProgressCounts
   packs: CurriculumPackProgress
+  paths: ReadonlyArray<PathProgress>
   tables: ReadonlyArray<TableLearningProgress>
 }>
 
@@ -475,6 +508,7 @@ const canonicalFactKey = (left: number, right: number): string =>
   `${Math.min(left, right)}:${Math.max(left, right)}`
 
 type QuestionOperands = Readonly<{
+  exercise?: Exercise | undefined
   left: number
   operation?: QuestionOperation
   right: number
@@ -485,10 +519,25 @@ type CurriculumFact = Readonly<{
   left: number
   operation: QuestionOperation
   right: number
+  skill?: SkillId
+  skillIndex?: number
   tables: ReadonlyArray<number>
 }>
 
-const correctAnswer = ({ left, operation = 'multiply', right }: QuestionOperands): number => {
+/**
+ * The numeric answer to a fact or to an exercise whose answer is a whole number. Exercises
+ * answered with a fraction, a comparison, a graduation or a selection return 0.
+ */
+const correctAnswer = ({
+  exercise,
+  left,
+  operation = 'multiply',
+  right,
+}: QuestionOperands): number => {
+  if (exercise !== undefined) {
+    const expected = expectedExerciseAnswer(exercise)
+    return expected.type === 'integer' ? expected.value : 0
+  }
   if (operation === 'multiply') return left * right
   if (right === 0 || !Number.isInteger(left / right)) {
     throw new RangeError('Division questions require a non-zero divisor and an integer answer')
@@ -516,6 +565,19 @@ const divisionCurriculumFor = (snapshot: LearningSnapshot): ReadonlyArray<Curric
         tables: first === second ? [first] : [first, second],
       }))
     })
+
+/** Recall slower than this marks a fact as weak. Generated exercises are never timed. */
+const latencyLimitMs = (key: string): number | null => {
+  if (/^\d+:\d+$/.test(key) || key.startsWith('divide:')) return 3_000
+  // The CE2 target is fifteen addition facts in one minute, about four seconds each.
+  if (key.startsWith('add:') || key.startsWith('sub:')) return 4_000
+  return null
+}
+
+const isSlow = (key: string, latencyMs: number | null | undefined): boolean => {
+  const limit = latencyLimitMs(key)
+  return limit !== null && latencyMs !== null && latencyMs !== undefined && latencyMs > limit
+}
 
 const WEAK_FACT_DIFFICULTY = 0.53
 const CHOICE_RECALL_STABILITY_FACTOR = 1.5
@@ -691,12 +753,17 @@ const mergeGardenRewardLedgers = ({ ledgers }: MergeGardenRewardLedgersInput): G
   })
 
 const masteryState = (
+  key: string,
   correctCount: number,
   successfulDays: number,
   recallDays: number,
   current: MasteryState,
 ): MasteryState => {
-  if (correctCount >= 5 && successfulDays >= 3 && recallDays >= 2) return 'fluent'
+  // Comparing fractions is always answered with three tiles, so recall evidence never exists.
+  // Five separate successful days replace it.
+  if (key.startsWith('frac:compare:')) {
+    if (successfulDays >= 5) return 'fluent'
+  } else if (correctCount >= 5 && successfulDays >= 3 && recallDays >= 2) return 'fluent'
   if (correctCount >= 3 && successfulDays >= 2) return 'familiar'
   if (correctCount > 0 || current !== 'unseen') return 'learning'
   return 'unseen'
@@ -734,7 +801,13 @@ const updateMastery = (
         : current.stabilityDays
     : Math.max(0, current.stabilityDays * 0.35)
   const nextState = attempt.correct
-    ? masteryState(correctCount, successfulDayKeys.length, recallDayKeys.length, current.state)
+    ? masteryState(
+        attempt.factKey,
+        correctCount,
+        successfulDayKeys.length,
+        recallDayKeys.length,
+        current.state,
+      )
     : current.state === 'unseen'
       ? 'learning'
       : current.state === 'fluent'
@@ -829,6 +902,7 @@ const deriveLearningProgress = ({
   curriculum,
   snapshot,
 }: DeriveLearningProgressInput): LearningProgress => {
+  const pathSettings = curriculum?.paths
   const packs = curriculum?.packs ?? ['core']
   const packProgress = deriveCurriculumPackProgress(snapshot)
   const multiplicationFacts = [
@@ -863,6 +937,10 @@ const deriveLearningProgress = ({
     divisionFacts: countsForKeys(divisionFactKeys),
     facts: countsForKeys([...multiplicationFactKeys, ...divisionFactKeys]),
     packs: packProgress,
+    paths:
+      pathSettings === undefined
+        ? []
+        : derivePathProgress(snapshot.facts, pathSettings, packProgress.bonus1112.unlocked),
     tables: tables.map((table) => ({
       facts: countsForKeys(
         multiplicationFacts
@@ -949,7 +1027,7 @@ const deriveRescueStrategies = ({
   question,
   snapshot,
 }: DeriveRescueStrategiesInput): ReadonlyArray<RescueStrategy> => {
-  if (question.operation !== 'multiply') return []
+  if (question.exercise !== undefined || question.operation !== 'multiply') return []
 
   const total = correctAnswer(question)
   const strategies: RescueStrategy[] = [
@@ -1035,7 +1113,23 @@ const createSession = ({
     curriculumPacks.includes('inverse-division') && packProgress.inverseDivision.unlocked
       ? divisionCurriculumFor(snapshot)
       : []
-  const curriculum = [...multiplicationCurriculum, ...divisionCurriculum]
+  const pathSettings = policy.curriculum?.paths
+  const openSkills =
+    pathSettings === undefined
+      ? []
+      : deriveOpenSkills(snapshot.facts, pathSettings, packProgress.bonus1112.unlocked)
+  const pathCurriculum = openSkills.flatMap(({ id, keys }) =>
+    keys.map((key, skillIndex): CurriculumFact => ({
+      factKey: key,
+      left: 0,
+      operation: 'multiply',
+      right: 0,
+      skill: id,
+      skillIndex,
+      tables: [],
+    })),
+  )
+  const curriculum = [...multiplicationCurriculum, ...divisionCurriculum, ...pathCurriculum]
   const candidateFacts = curriculum
     .map((curriculumFact, curriculumIndex) => {
       const mastery = snapshot.facts[curriculumFact.factKey]
@@ -1050,17 +1144,19 @@ const createSession = ({
         (mastery.correctStreak === 0 ||
           (mastery.lapseCount > 0 && mastery.correctStreak === 1) ||
           mastery.difficulty >= WEAK_FACT_DIFFICULTY ||
-          (mastery.latencyMs !== null && mastery.latencyMs > 3_000))
+          isSlow(curriculumFact.factKey, mastery.latencyMs))
       const stateScore =
         mastery === undefined
-          ? Math.max(0, 120 - curriculumIndex)
+          ? curriculumFact.skillIndex === undefined
+            ? Math.max(0, 120 - curriculumIndex)
+            : Math.max(0, 125 - curriculumFact.skillIndex * 4)
           : mastery.state === 'learning'
             ? 260
             : mastery.state === 'familiar'
               ? 210
               : 40
       const dueScore = due ? 220 : 0
-      const latencyScore = mastery?.latencyMs !== null && (mastery?.latencyMs ?? 0) > 3_000 ? 35 : 0
+      const latencyScore = isSlow(curriculumFact.factKey, mastery?.latencyMs) ? 35 : 0
       const difficultyScore = (mastery?.difficulty ?? 0) * 40
       return {
         ...curriculumFact,
@@ -1121,29 +1217,86 @@ const createSession = ({
       .slice(0, Math.max(0, count - selected.length))
     return [...selected, ...fill]
   }
-  const selectDailyWateringFacts = (): ReadonlyArray<(typeof candidateFacts)[number]> => {
-    const priority = candidateFacts.filter(
-      ({ due, mastery, weak }) => mastery !== undefined && (due || weak),
+  type Candidate = (typeof candidateFacts)[number]
+  const familyOf = ({ factKey: candidateFactKey }: Candidate): InteractionFamily =>
+    interactionFamily(candidateFactKey)
+  const weightOf = ({ factKey: candidateFactKey }: Candidate): number =>
+    skillWeight(candidateFactKey)
+  const isDueOrWeak = ({ due, mastery, weak }: Candidate): boolean =>
+    mastery !== undefined && (due || weak)
+  // A long written calculation weighs three questions, so at most two fit in a session.
+  const limitColumns = (candidates: ReadonlyArray<Candidate>, limit: number) => {
+    let columns = 0
+    return candidates.filter((candidate) => {
+      if (familyOf(candidate) !== 'column') return true
+      columns += 1
+      return columns <= limit
+    })
+  }
+  // A session keeps at most two interaction families so the screen stays calm. The families
+  // that matter most today, due work first, are the ones kept.
+  const limitFamilies = (
+    candidates: ReadonlyArray<Candidate>,
+    required: InteractionFamily | null,
+  ): ReadonlyArray<Candidate> => {
+    const families: InteractionFamily[] = required === null ? [] : [required]
+    for (const candidate of [...candidates.filter(isDueOrWeak), ...candidates]) {
+      const family = familyOf(candidate)
+      if (!families.includes(family) && families.length < 2) families.push(family)
+    }
+    return candidates.filter((candidate) => families.includes(familyOf(candidate)))
+  }
+  const groupByFamily = (selection: ReadonlyArray<Candidate>): ReadonlyArray<Candidate> => {
+    const order = [...new Set(selection.map(familyOf))]
+    return order.flatMap((family) =>
+      selection.filter((candidate) => familyOf(candidate) === family),
     )
-    const questionCount = Math.min(8, Math.max(5, priority.length))
-    const selected = priority.slice(0, questionCount)
+  }
+  /** Repeats a focused skill's open levels, most urgent first, until the points are spent. */
+  const fillFocus = (
+    candidates: ReadonlyArray<Candidate>,
+    points: number,
+    maxQuestions: number,
+  ): ReadonlyArray<Candidate> => {
+    const selection: Candidate[] = []
+    let spent = 0
+    if (candidates.length === 0) return selection
+    for (let index = 0; spent < points && selection.length < maxQuestions; index += 1) {
+      const candidate = candidates[index % candidates.length]
+      if (candidate === undefined) break
+      selection.push(candidate)
+      spent += weightOf(candidate)
+    }
+    return selection
+  }
+  const selectDailyWateringFacts = (
+    pool: ReadonlyArray<Candidate>,
+    initialSelection: ReadonlyArray<Candidate>,
+    budgetOverride?: number,
+  ): ReadonlyArray<Candidate> => {
+    const priority = pool.filter(isDueOrWeak)
+    const budget = budgetOverride ?? Math.min(8, Math.max(5, priority.length))
+    const selected: Candidate[] = [...initialSelection]
     const selectedKeys = new Set(selected.map(({ factKey: selectedFactKey }) => selectedFactKey))
-    const addUntilFull = (candidates: ReadonlyArray<(typeof candidateFacts)[number]>): void => {
+    let points = selected.reduce((total, candidate) => total + weightOf(candidate), 0)
+    const addUntilFull = (candidates: ReadonlyArray<Candidate>): void => {
       for (const candidate of candidates) {
-        if (selected.length >= questionCount) return
+        if (points >= budget) return
         if (selectedKeys.has(candidate.factKey)) continue
+        // Weighted questions may overshoot by half a point rather than leave a gap.
+        if (points + weightOf(candidate) > budget + 0.5) continue
         selected.push(candidate)
         selectedKeys.add(candidate.factKey)
+        points += weightOf(candidate)
       }
     }
 
+    addUntilFull(priority)
     addUntilFull(
-      candidateFacts.filter(
-        ({ mastery, reviewedToday }) => mastery !== undefined && !reviewedToday,
-      ),
+      pool.filter(({ mastery, reviewedToday }) => mastery !== undefined && !reviewedToday),
     )
-    addUntilFull(candidateFacts.filter(({ mastery }) => mastery !== undefined))
-    const unseen = candidateFacts.filter(({ mastery }) => mastery === undefined)
+    addUntilFull(pool.filter(({ mastery }) => mastery !== undefined))
+    const unseen = pool.filter(({ mastery }) => mastery === undefined)
     addUntilFull(unseen.slice(0, 2))
     // A brand-new learner has no review pool yet. Fill the five-question introduction,
     // then future waterings cap new material at two facts while reviews are available.
@@ -1151,29 +1304,91 @@ const createSession = ({
 
     return selected
   }
+  const focusSkillId =
+    policy.kind === 'daily-watering' ? (pathSettings?.focusSkill ?? undefined) : policy.focusSkill
+  const focusCandidates =
+    focusSkillId === undefined ? [] : candidateFacts.filter(({ skill }) => skill === focusSkillId)
+  const focusFamily =
+    focusSkillId !== undefined && focusCandidates.length > 0
+      ? skillDefinition(focusSkillId).family
+      : null
   const questionCount = policy.kind === 'daily-watering' ? 0 : policy.questionCount
   const focusTable = policy.kind === 'daily-watering' ? undefined : policy.focusTable
   const focusCount = Math.max(0, questionCount - 2)
+  const unfocusedCandidates = candidateFacts.filter(({ skill }) => skill !== focusSkillId)
+  const selectDaily = (): ReadonlyArray<Candidate> => {
+    if (focusFamily === null) {
+      return selectDailyWateringFacts(limitFamilies(limitColumns(candidateFacts, 2), null), [])
+    }
+    // A skill the parent put forward takes about half of the watering; reviews fill the rest.
+    const budget = Math.min(8, Math.max(5, candidateFacts.filter(isDueOrWeak).length))
+    const focused = fillFocus(focusCandidates, budget / 2, focusFamily === 'column' ? 1 : 8)
+    return selectDailyWateringFacts(
+      limitFamilies(
+        limitColumns(unfocusedCandidates, focusFamily === 'column' ? 1 : 2),
+        focusFamily,
+      ),
+      focused,
+      budget,
+    )
+  }
   const selectedFacts =
     policy.kind === 'daily-watering'
-      ? selectDailyWateringFacts()
-      : focusTable === undefined
-        ? selectBalancedFacts(candidateFacts, questionCount)
-        : [
+      ? groupByFamily(selectDaily())
+      : focusFamily !== null
+        ? [
+            ...fillFocus(focusCandidates, focusCount, focusFamily === 'column' ? 3 : focusCount),
             ...selectBalancedFacts(
-              candidateFacts.filter(({ tables }) => tables.includes(focusTable)),
-              focusCount,
-            ),
-            ...selectBalancedFacts(
-              candidateFacts.filter(({ tables }) => !tables.includes(focusTable)),
+              limitColumns(unfocusedCandidates, 0),
               questionCount - focusCount,
             ),
           ]
+        : focusTable === undefined
+          ? groupByFamily(
+              selectBalancedFacts(
+                limitFamilies(limitColumns(candidateFacts, 2), null),
+                questionCount,
+              ),
+            )
+          : [
+              ...selectBalancedFacts(
+                candidateFacts.filter(({ tables }) => tables.includes(focusTable)),
+                focusCount,
+              ),
+              ...selectBalancedFacts(
+                candidateFacts.filter(({ tables }) => !tables.includes(focusTable)),
+                questionCount - focusCount,
+              ),
+            ]
   const questions = selectedFacts.map(
     (
-      { factKey: selectedFactKey, left: canonicalLeft, mastery, operation, right: canonicalRight },
+      {
+        factKey: selectedFactKey,
+        left: canonicalLeft,
+        mastery,
+        operation,
+        right: canonicalRight,
+        skill,
+      },
       index,
-    ) => {
+    ): PracticeQuestion => {
+      const id = `q-${seed}-${index + 1}`
+      if (skill !== undefined) {
+        const exercise = generateExercise(selectedFactKey, {
+          random,
+          recall: mastery?.state === 'familiar' || mastery?.state === 'fluent',
+        })
+        return {
+          answerMode: isProductionExercise(exercise) ? 'keypad' : 'choice',
+          choices: [],
+          exercise,
+          factKey: selectedFactKey,
+          id,
+          left: 0,
+          operation: 'multiply',
+          right: 0,
+        }
+      }
       const reverse =
         operation === 'multiply' && canonicalLeft !== canonicalRight && random() >= 0.5
       const left = reverse ? canonicalRight : canonicalLeft
@@ -1184,7 +1399,7 @@ const createSession = ({
         answerMode,
         choices: answerMode === 'choice' ? choicesFor({ left, operation, right }, random) : [],
         factKey: selectedFactKey,
-        id: `q-${seed}-${index + 1}`,
+        id,
         left,
         operation,
         right,
@@ -1204,12 +1419,26 @@ const createSession = ({
   }
 }
 
-const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): AnswerResult => {
+const answer = ({
+  answeredAt,
+  eventId,
+  response,
+  selected,
+  session,
+}: AnswerInput): AnswerResult => {
   const question = session.questions[session.currentIndex]
   if (question === undefined) throw new Error('The practice session is already complete')
 
-  const correct = selected === correctAnswer(question)
+  const exercise = question.exercise
+  if (exercise !== undefined && response === undefined) {
+    throw new Error('Learning-path exercises are answered with a response')
+  }
+  const correct =
+    exercise === undefined || response === undefined
+      ? selected === correctAnswer(question)
+      : isExerciseAnswerCorrect(exercise, response)
   const event: AttemptEvent = {
+    ...(exercise === undefined ? {} : { exercise, response }),
     answerMode: question.answerMode,
     answeredAt,
     choices: question.choices,
@@ -1222,7 +1451,8 @@ const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): Answer
     operation: question.operation,
     right: question.right,
     questionCount: session.questions.length,
-    selected,
+    selected:
+      exercise === undefined ? (selected ?? 0) : response?.type === 'integer' ? response.value : 0,
     sequence: session.currentIndex,
     sessionId: session.id,
     sessionKind: session.kind,
@@ -1250,6 +1480,42 @@ const answer = ({ answeredAt, eventId, selected, session }: AnswerInput): Answer
       questions,
     },
   }
+}
+
+const sameAnswer = (first: PracticeAnswer, second: PracticeAnswer): boolean =>
+  JSON.stringify(first) === JSON.stringify(second)
+
+/**
+ * Checks a learning-path attempt the way the server must: the exercise is well formed, belongs to
+ * the skill named by its key, and the recorded correctness matches a recomputed answer.
+ */
+const validateExerciseAttempt = (attempt: AttemptEvent): boolean => {
+  const { exercise, response } = attempt
+  if (exercise === undefined || response === undefined) return false
+  if (skillForKey(attempt.factKey) !== exercise.skill) return false
+  if (!isExerciseWellFormed(exercise)) return false
+  if (exercise.kind === 'arithmetic' && exercise.skill === 'addition-facts') {
+    const expectedKey = `add:${Math.min(exercise.left, exercise.right)}:${Math.max(exercise.left, exercise.right)}`
+    if (attempt.factKey !== expectedKey) return false
+  }
+  if (exercise.kind === 'arithmetic' && exercise.skill === 'subtraction-facts') {
+    if (attempt.factKey !== `sub:${exercise.left}:${exercise.right}`) return false
+  }
+  const production = isProductionExercise(exercise)
+  if ((attempt.answerMode === 'keypad') !== production) return false
+  if (attempt.choices.length !== 0) return false
+  if (
+    !production &&
+    'choices' in exercise &&
+    exercise.choices.length > 0 &&
+    !exercise.choices.some((choice) => sameAnswer(choice, response))
+  ) {
+    return false
+  }
+  return (
+    attempt.correct === isExerciseAnswerCorrect(exercise, response) &&
+    attempt.sequence < attempt.questionCount
+  )
 }
 
 const deriveRewards = ({
@@ -1413,6 +1679,7 @@ export const LearningEngine = {
   deriveSessionInsight,
   emptySnapshot,
   factKey,
+  validateExerciseAttempt,
   gardenBloomsPerFlower,
   gardenFlowerIds,
   learningDayKey,

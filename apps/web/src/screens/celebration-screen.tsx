@@ -13,6 +13,7 @@ import { useLocalBootstrap } from '../hooks/use-local-bootstrap.js'
 import { returnToGardenAfterPractice } from '../practice-session-launch.js'
 import { celebrationExtraPracticeCopy, celebrationRewardCopy } from './celebration-reward-copy.js'
 import { sessionInsightCopy } from './session-insight-copy.js'
+import { formatAnswer, formatNumber } from '../exercise-format.js'
 import { useI18n } from '../i18n.js'
 
 export function CelebrationScreen() {
@@ -50,9 +51,16 @@ export function CelebrationScreen() {
       ? t('insight.persisted')
       : sessionInsightCopy(completion.learningInsight, locale)
   const perfectSession = completion.correctAnswers === completion.totalAnswers
-  const heading = completion.finalCorrect
-    ? t('celebration.headingAnswer', { answer: completion.finalAnswer })
-    : t('celebration.heading')
+  const finalAnswer =
+    completion.finalExpected === undefined
+      ? formatNumber(completion.finalAnswer, locale)
+      : completion.finalExpected.type === 'integer' || completion.finalExpected.type === 'fraction'
+        ? formatAnswer(completion.finalExpected, locale)
+        : null
+  const heading =
+    completion.finalCorrect && finalAnswer !== null
+      ? t('celebration.headingAnswer', { answer: finalAnswer })
+      : t('celebration.heading')
 
   return (
     <Screen footer={false}>

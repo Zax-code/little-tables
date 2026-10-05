@@ -3,6 +3,7 @@ import {
   ChildProfileSchema,
   ChildProfileNameSchema,
   FamilyProfiles,
+  LearningPathSettingsSchema,
   type ChildAvatarId,
   type ChildProfileName,
 } from '@little-tables/domain'
@@ -21,6 +22,7 @@ const ChildDocumentSchema = Schema.Struct({
   avatarId: Schema.NonEmptyString,
   createdAt: Schema.ValidDateFromSelf,
   id: Schema.NonEmptyString,
+  learningPaths: Schema.optional(LearningPathSettingsSchema),
   name: ChildProfileNameSchema,
   updatedAt: Schema.ValidDateFromSelf,
 })
@@ -65,9 +67,10 @@ type ProfileStorageDocument = Document & {
 const accountFor = (document: FamilyDocument): FamilyAccount => ({
   googleSubject: document._id,
   onboardingComplete: document.onboardingComplete,
-  profiles: document.profiles.map(({ avatarId, id, name }) => ({
+  profiles: document.profiles.map(({ avatarId, id, learningPaths, name }) => ({
     avatarId: Schema.is(ChildAvatarIdSchema)(avatarId) ? avatarId : FamilyProfiles.defaultAvatarId,
     id,
+    ...(learningPaths === undefined ? {} : { learningPaths }),
     name,
   })),
 })
@@ -122,6 +125,11 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
       },
       catch: (cause) => new ProfileRepositoryError({ cause, operation: 'find-family' }),
     })
+
+  const findFamilyDocument = async (googleSubject: string): Promise<FamilyAccount | null> => {
+    const document = await collection.findOne({ _id: googleSubject, schemaVersion: 2 })
+    return document === null ? null : accountFor(await decodeFamily(document))
+  }
 
   return {
     addChild: (googleSubject, input) =>
@@ -279,9 +287,34 @@ const makeService = (collection: Collection<ProfileStorageDocument>): ProfileRep
               },
             },
           )
-          return result.matchedCount === 1 ? profile : null
+          if (result.matchedCount !== 1) return null
+          const family = await findFamilyDocument(googleSubject)
+          return family?.profiles.find(({ id }) => id === profileId) ?? profile
         },
         catch: (cause) => new ProfileRepositoryError({ cause, operation: 'update-child' }),
+      }),
+    updateLearningPaths: (googleSubject, profileId, learningPaths) =>
+      Effect.tryPromise({
+        try: async () => {
+          const settings = await Schema.decodeUnknownPromise(LearningPathSettingsSchema)(
+            learningPaths,
+          )
+          const now = new Date()
+          const result = await collection.updateOne(
+            { _id: googleSubject, 'profiles.id': profileId, schemaVersion: 2 },
+            {
+              $set: {
+                'profiles.$.learningPaths': settings,
+                'profiles.$.updatedAt': now,
+                updatedAt: now,
+              },
+            },
+          )
+          if (result.matchedCount !== 1) return null
+          const family = await findFamilyDocument(googleSubject)
+          return family?.profiles.find(({ id }) => id === profileId) ?? null
+        },
+        catch: (cause) => new ProfileRepositoryError({ cause, operation: 'update-learning-paths' }),
       }),
   }
 }

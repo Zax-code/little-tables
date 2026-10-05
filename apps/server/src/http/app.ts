@@ -1,6 +1,9 @@
 import {
   ChildProfileNameSchema,
+  ExerciseSchema,
   LearningEngine,
+  LearningPathSettingsSchema,
+  PracticeAnswerSchema,
   SelectableChildAvatarIdSchema,
 } from '@little-tables/domain'
 import { HttpRouter, HttpServerRequest, HttpServerResponse } from '@effect/platform'
@@ -23,7 +26,7 @@ import { AttemptRepository, ReminderLocaleSchema } from '../repositories/attempt
 import { GardenCollectionRepository } from '../repositories/garden-collection-repository.js'
 import { ProfileRepository } from '../repositories/profile-repository.js'
 
-const AttemptEventSchema = Schema.Struct({
+const attemptEventFields = {
   answerMode: Schema.Literal('choice', 'keypad'),
   answeredAt: Schema.DateFromString,
   choices: Schema.Array(Schema.Int),
@@ -34,11 +37,9 @@ const AttemptEventSchema = Schema.Struct({
   learningDayKey: Schema.optionalWith(Schema.String.pipe(Schema.pattern(/^\d{4}-\d{2}-\d{2}$/)), {
     exact: true,
   }),
-  left: Schema.Int.pipe(Schema.between(1, 144)),
   operation: Schema.optionalWith(Schema.Literal('multiply', 'divide'), {
     default: () => 'multiply' as const,
   }),
-  right: Schema.Int.pipe(Schema.between(1, 12)),
   questionCount: Schema.Int.pipe(Schema.between(1, 100)),
   selected: Schema.NonNegativeInt,
   sequence: Schema.NonNegativeInt,
@@ -46,7 +47,24 @@ const AttemptEventSchema = Schema.Struct({
   sessionKind: Schema.optionalWith(Schema.Literal('daily-watering', 'extra-practice'), {
     exact: true,
   }),
+}
+
+const FactAttemptEventSchema = Schema.Struct({
+  ...attemptEventFields,
+  left: Schema.Int.pipe(Schema.between(1, 144)),
+  right: Schema.Int.pipe(Schema.between(1, 12)),
 })
+
+// Additions, big numbers and fractions carry their operands in `exercise`.
+const PathAttemptEventSchema = Schema.Struct({
+  ...attemptEventFields,
+  exercise: ExerciseSchema,
+  left: Schema.Literal(0),
+  response: PracticeAnswerSchema,
+  right: Schema.Literal(0),
+})
+
+const AttemptEventSchema = Schema.Union(PathAttemptEventSchema, FactAttemptEventSchema)
 
 const SyncRequestSchema = Schema.Struct({
   attempts: Schema.Array(AttemptEventSchema).pipe(Schema.maxItems(100)),
@@ -65,6 +83,10 @@ const UpdateChildProfileSchema = Schema.Struct({
   profileId: Schema.NonEmptyString,
 })
 const RemoveChildProfileSchema = Schema.Struct({ profileId: Schema.NonEmptyString })
+const UpdateLearningPathsSchema = Schema.Struct({
+  learningPaths: LearningPathSettingsSchema,
+  profileId: Schema.NonEmptyString,
+})
 const AllowedEmailSchema = Schema.Struct({ email: Schema.String })
 const PushSubscriptionSchema = Schema.Struct({
   endpoint: Schema.NonEmptyString,
@@ -564,6 +586,23 @@ const updateChildProfile = Effect.gen(function* () {
     : yield* json({ profile })
 }).pipe(Effect.catchAll(() => json({ error: 'family_profile_save_failed' }, 503)))
 
+const updateLearningPaths = Effect.gen(function* () {
+  const account = yield* familyForIdentity
+  if (account === null) return yield* json({ error: 'unauthorized' }, 401)
+  const body = yield* HttpServerRequest.schemaBodyJson(UpdateLearningPathsSchema).pipe(
+    Effect.catchAll(() => Effect.succeed(null)),
+  )
+  if (body === null) return yield* json({ error: 'invalid_learning_paths' }, 400)
+  const profile = yield* account.profiles.updateLearningPaths(
+    account.identity.googleSubject,
+    body.profileId,
+    body.learningPaths,
+  )
+  return profile === null
+    ? yield* json({ error: 'profile_not_found' }, 404)
+    : yield* json({ profile })
+}).pipe(Effect.catchAll(() => json({ error: 'family_profile_save_failed' }, 503)))
+
 const removeChildProfile = Effect.gen(function* () {
   const account = yield* familyForIdentity
   if (account === null) return yield* json({ error: 'unauthorized' }, 401)
@@ -605,25 +644,29 @@ const staticWebApp = Effect.gen(function* () {
     : response
 }).pipe(Effect.catchAll(() => json({ error: 'not_found' }, 404)))
 
-export const httpApp = HttpRouter.empty.pipe(
-  HttpRouter.get('/health/live', json({ status: 'ok' })),
-  HttpRouter.get('/health/ready', ready),
-  HttpRouter.get('/api/v1/auth/status', authStatus),
-  HttpRouter.post('/api/v1/auth/google', googleSignIn),
-  HttpRouter.put('/api/v1/profile/name', savePreferredName),
-  HttpRouter.get('/api/v1/family/profiles', listFamilyProfiles),
-  HttpRouter.post('/api/v1/family/profiles', createChildProfile),
-  HttpRouter.put('/api/v1/family/profiles', updateChildProfile),
-  HttpRouter.del('/api/v1/family/profiles', removeChildProfile),
-  HttpRouter.get('/api/v1/admin/allowed-emails', listAllowedEmails),
-  HttpRouter.post('/api/v1/admin/allowed-emails', addAllowedEmail),
-  HttpRouter.del('/api/v1/admin/allowed-emails', removeAllowedEmail),
-  HttpRouter.post('/api/v1/session/refresh', refreshSession),
-  HttpRouter.get('/api/v1/bootstrap', bootstrap),
-  HttpRouter.post('/api/v1/garden/introduction-seen', markGardenIntroductionSeen),
-  HttpRouter.post('/api/v1/attempts/sync', sync),
-  HttpRouter.get('/api/v1/notifications/config', notificationConfig),
-  HttpRouter.post('/api/v1/notifications/subscriptions', savePushSubscription),
-  HttpRouter.del('/api/v1/notifications/subscriptions', removePushSubscription),
-  HttpRouter.get('/*', staticWebApp),
-)
+export const httpApp = HttpRouter.empty
+  .pipe(
+    HttpRouter.get('/health/live', json({ status: 'ok' })),
+    HttpRouter.get('/health/ready', ready),
+    HttpRouter.get('/api/v1/auth/status', authStatus),
+    HttpRouter.post('/api/v1/auth/google', googleSignIn),
+    HttpRouter.put('/api/v1/profile/name', savePreferredName),
+    HttpRouter.get('/api/v1/family/profiles', listFamilyProfiles),
+    HttpRouter.post('/api/v1/family/profiles', createChildProfile),
+    HttpRouter.put('/api/v1/family/profiles', updateChildProfile),
+    HttpRouter.del('/api/v1/family/profiles', removeChildProfile),
+    HttpRouter.put('/api/v1/family/profiles/learning-paths', updateLearningPaths),
+    HttpRouter.get('/api/v1/admin/allowed-emails', listAllowedEmails),
+    HttpRouter.post('/api/v1/admin/allowed-emails', addAllowedEmail),
+    HttpRouter.del('/api/v1/admin/allowed-emails', removeAllowedEmail),
+    HttpRouter.post('/api/v1/session/refresh', refreshSession),
+  )
+  .pipe(
+    HttpRouter.get('/api/v1/bootstrap', bootstrap),
+    HttpRouter.post('/api/v1/garden/introduction-seen', markGardenIntroductionSeen),
+    HttpRouter.post('/api/v1/attempts/sync', sync),
+    HttpRouter.get('/api/v1/notifications/config', notificationConfig),
+    HttpRouter.post('/api/v1/notifications/subscriptions', savePushSubscription),
+    HttpRouter.del('/api/v1/notifications/subscriptions', removePushSubscription),
+    HttpRouter.get('/*', staticWebApp),
+  )
