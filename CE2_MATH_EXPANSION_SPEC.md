@@ -1,6 +1,6 @@
 # Additions, soustractions et fractions du CE2 — spécification produit
 
-Statut : proposition à valider (révision 2 : décisions du 2026-10-05 intégrées, voir §11)  
+Statut : validée pour implémentation (révision 3 : toutes les décisions du 2026-10-05 intégrées, voir §11)  
 Date : 2026-10-05  
 Périmètre : étendre little tables au-delà de la multiplication avec deux nouveaux domaines du
 programme de CE2 : les additions et soustractions jusqu’à 10 000, et les fractions.
@@ -424,8 +424,8 @@ les niveaux de la compétence, par exemple `carry-0 / carry-1 / carry-2`.
 - **Portes des coins du jardin** (5, 15, 30 calculs bien ancrés) : elles comptent déjà toutes les
   clés `fluent`. Les nouvelles clés y contribuent. Le texte « Il faut aussi réussir {required}
   multiplications sans aide » devient « … calculs sans aide ».
-- **Nouvelle décoration, non bloquante** : une bordure de plate-bande. C’est un clin d’œil aux
-  fractions, débloqué au premier F-skill bien ancré. Ce point est à valider (§11, question ouverte 3).
+- **Pas de récompense dédiée** : les nouveaux sentiers font partie du même jeu. Ils font pousser le
+  même jardin, avec les mêmes blooms et les mêmes coins, sans décoration ni collection à part.
 
 ### 7.3 Ton et vocabulaire
 
@@ -573,18 +573,19 @@ Score de 0 à 2 sur chaque critère :
    (§3.1).
 2. **Plafond** : tout le champ du CE2, jusqu’à 10 000, par niveaux de chiffres (§1, §4.3, §4.5).
 3. **Soustraction posée** : compensation par défaut, cassage au choix du parent (§4.5).
+4. **Arrosage du jour** : les sentiers ouverts se mélangent selon les révisions dues (§6.1). Il n’y
+   a pas de « sentier du jour » en rotation.
+5. **Fractions non simplifiées** : toujours acceptées en F5, puisque le programme ne demande pas de
+   simplifier (§4.10).
+6. **Récompenses** : pas de récompense dédiée. Les nouveaux sentiers font partie du même jeu
+   (§7.2).
 
-### Questions ouvertes
+### Reporté
 
-1. **Mélange dans l’arrosage du jour.** Proposition : mélanger selon les révisions dues (§6.1).
-   L’autre option est un « sentier du jour » en rotation, plus simple mais moins espacé.
-2. **Réponses non simplifiées en F5.** Proposition : on les accepte toujours, puisque le programme
-   ne demande pas de simplifier.
-3. **Récompense dédiée** : une décoration « plate-bande », ou un nouveau coin de jardin lié aux
-   nouveaux sentiers ?
-4. **Nom de l’app** : « little tables » reste-t-il le nom, avec une description plus générale ?
+- **Nom de l’app** : on garde « little tables » pour l’instant. Seules les descriptions des
+  manifestes et les rappels deviennent plus généraux (§7.4, §9.3).
 
-### Sources de la révision 2
+### Sources des décisions
 
 - Programme du cycle 2, annexe 4 : CE1, « un unique et même algorithme sera privilégié au niveau
   d’une école » ; CE2, champ numérique jusqu’à 10 000.
