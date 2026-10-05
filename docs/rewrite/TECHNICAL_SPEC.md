@@ -33,7 +33,8 @@ sections de ce document. Le design actuel sert uniquement de checklist : le rede
 
 - Application native App Store (on reste une PWA ; l'architecture ne l'empêche pas plus tard).
 - Nouveaux contenus pédagogiques au-delà des 11 compétences actuelles.
-- Changement d'hébergement : même VPS, Caddy, Podman Quadlets, GHCR, déploiement avec rollback automatique.
+- Changement d'hébergement : même VPS et même Caddy ; seul le mode de déploiement passe de Quadlets à une release
+  immuable systemd (§7.3), toujours avec contrôle de santé et rollback automatique.
 
 ---
 
@@ -56,12 +57,12 @@ sections de ce document. Le design actuel sert uniquement de checklist : le rede
 ┌───────────────────────────────────▼──────────────────────────────────────┐
 │ Serveur Rust (axum + tokio)                                               │
 │   ├─ lt-domain (natif)   ├─ lt-api (handlers, schémas serde/schemars)     │
-│   ├─ lt-store (MongoDB)  ├─ lt-auth (Google ID token, sessions, CSRF)     │
+│   ├─ lt-store (SQLite)   ├─ lt-auth (Google ID token, sessions, CSRF)     │
 │   ├─ lt-push (Web Push VAPID, worker de rappels)                          │
 │   └─ fichiers statiques de la PWA (même origine)                          │
 └───────────────────────────────────┬──────────────────────────────────────┘
                                     │
-                              MongoDB 7 (inchangé)
+                SQLite (WAL) · /var/lib/little-tables
 ```
 
 ### 2.2 Organisation du dépôt
@@ -74,7 +75,7 @@ crates/
   lt-domain-wasm/   bindings wasm-bindgen + tsify (types TS générés)
   lt-api/           types HTTP (serde + schemars) = source de vérité du contrat
   lt-auth/          vérification Google, sessions HMAC, CSRF, allowlist
-  lt-store/         repositories MongoDB + implémentations mémoire (tests)
+  lt-store/         repositories SQLite (sqlx), migrations, import Mongo
   lt-push/          envoi Web Push, worker de rappels
   lt-server/        binaire axum (main), config, wiring, statiques
 apps/
@@ -88,7 +89,7 @@ packages/
 tools/
   golden/           générateur de vecteurs de test depuis l'ancien moteur TS
   codegen/          JSON Schema → Effect Schema
-deploy/             inchangé dans son principe (Quadlets, Caddy, scripts)
+deploy/             unité systemd, Caddy, script de release immuable
 ```
 
 ### 2.3 Choix structurants et justification
@@ -97,7 +98,7 @@ deploy/             inchangé dans son principe (Quadlets, Caddy, scripts)
 | --------------------- | ----------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------- |
 | Moteur partagé        | Crate Rust `lt-domain` compilé natif + WASM                                         | Une seule source de vérité, exécutée à l'identique hors-ligne et au serveur.                                    |
 | Framework HTTP        | axum 0.8 + tokio + tower-http                                                       | Standard de fait, middlewares (compression, traces, limites).                                                   |
-| Base de données       | MongoDB 7 conservé, driver officiel `mongodb`                                       | Continuité des données de production et des Quadlets ; schémas documents identiques (§5.6).                     |
+| Base de données       | SQLite (WAL) via `sqlx`                                                             | Usage familial, zéro service à opérer, sauvegarde `.backup`, aligné sur le VPS (§5.6).                          |
 | Contrat API           | Types Rust (`serde` + `schemars`) → JSON Schema → Effect Schema généré              | Le serveur est la source de vérité ; le client ne peut pas dériver. CI vérifie que le code généré est à jour.   |
 | Client logique        | Effect v3 (Layer, Context.Tag, Schema, Stream, Schedule)                            | Gestion explicite des erreurs, retries, ressources, testabilité.                                                |
 | Cache serveur côté UI | TanStack Query alimenté par des programmes Effect                                   | Cache, invalidation, état de chargement React éprouvés.                                                         |
@@ -259,9 +260,10 @@ seulement après une sync réussie.
 
 ### 5.1 Configuration
 
-Variables reprises à l'identique : `PORT`, `HOST`, `MONGODB_URI`, `MONGODB_DATABASE`, `SESSION_SECRET`,
-`GOOGLE_CLIENT_ID`, `GOOGLE_ALLOWED_EMAILS`, `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`,
-`WEB_DIST_PATH`, `APP_REVISION`. Nouvelles : `ADMIN_EMAILS` (remplace l'email codé en dur), `RUST_LOG`.
+Variables reprises à l'identique : `PORT`, `HOST`, `SESSION_SECRET`, `GOOGLE_CLIENT_ID`, `GOOGLE_ALLOWED_EMAILS`,
+`VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT`, `APP_REVISION`. Nouvelles : `DATABASE_PATH`
+(par défaut `/var/lib/little-tables/little-tables.db`), `ADMIN_EMAILS` (remplace l'email codé en dur), `RUST_LOG`.
+Retirées : `MONGODB_URI`, `MONGODB_DATABASE`, `WEB_DIST_PATH` (la PWA est embarquée dans le binaire, `rust-embed`).
 Démarrage refusé en production si une variable obligatoire manque (mode éphémère explicite pour les tests de fumée).
 
 ### 5.2 Authentification
@@ -301,11 +303,10 @@ couche d'adaptation, puis est retiré.
 ### 5.4 Ingestion et bootstrap
 
 - Validation par `lt-domain::validate_attempt` (mêmes raisons : `duplicate_in_batch`, `invalid_answer`,
-  `inconsistent_attempt`) ; upsert idempotent sur `_id = eventId`.
-- **Nouveau** : projection incrémentale `learning_snapshots` (snapshot + dernier événement traité) mise à jour à
-  l'ingestion ; le bootstrap ne rejoue plus tout l'historique. Recalcul complet possible (commande d'administration)
-  et vérifié en CI sur des historiques synthétiques.
-- Index ajoutés : unique `{profileId, attempt.sessionId, attempt.sequence, eventId}`, `{profileId, answeredAt}`.
+  `inconsistent_attempt`) ; `INSERT … ON CONFLICT(event_id) DO NOTHING` dans une seule transaction par lot.
+- **Nouveau** : projection incrémentale `learning_snapshots` (snapshot + dernier événement traité) mise à jour dans
+  la même transaction que l'ingestion ; le bootstrap ne rejoue plus tout l'historique. Recalcul complet possible
+  (`little-tables admin rebuild-snapshots`) et vérifié en CI sur des historiques synthétiques.
 
 ### 5.5 Rappels Web Push
 
@@ -326,11 +327,44 @@ Endpoint `GET /profiles/{id}/insights?range=7d|30d` calculé par `lt-domain` à 
 
 Affichée uniquement dans l'espace parent ; jamais de score ni de comparaison entre enfants.
 
-### 5.6 MongoDB
+### 5.6 Stockage : SQLite
 
-Collections conservées : `profiles` (familles v2), `attempt_events`, `garden_collections`, `allowed_emails`,
-`push_subscriptions`. Ajoutées : `learning_snapshots`, `parent_locks`. Les migrations paresseuses existantes
-(document historique → famille v2, avatars inconnus → `sprout`, profil « lou » réservé à l'admin) sont reprises.
+Choix (5 octobre 2026) : **SQLite** via `sqlx` (requêtes vérifiées à la compilation, migrations versionnées dans
+`crates/lt-store/migrations`). Cohérent avec la majorité des services du VPS (Love Letters, Loup-Garou, Raclettefin,
+Observatory, dashboard Prodigium) ; dimensionné pour un usage familial (un écrivain à la fois, quelques profils).
+
+Réglages : `journal_mode=WAL`, `synchronous=NORMAL`, `foreign_keys=ON`, `busy_timeout=5000` ; un pool d'écriture
+d'une connexion, plusieurs lecteurs.
+
+Schéma :
+
+| Table                | Colonnes principales                                                                                                                                      | Contraintes / index                                                                                |
+| -------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `families`           | `google_subject` PK, `onboarding_complete`, `schema_version`, `updated_at`                                                                                |                                                                                                    |
+| `profiles`           | `id` PK (UUID ou `lou`), `family_subject` FK, `name`, `avatar_id`, `learning_paths` (JSON), `reminder_minute`, `created_at`, `updated_at`                 | index `family_subject`                                                                             |
+| `attempt_events`     | `event_id` PK, `profile_id` FK, `session_id`, `sequence`, `answered_at`, `learning_day_key`, `fact_key`, `payload` (JSON `AttemptEvent`), `received_at`   | index `(profile_id, answered_at, sequence)`, unique `(profile_id, session_id, sequence, event_id)` |
+| `learning_snapshots` | `profile_id` PK, `algorithm_version`, `snapshot` (JSON), `last_event_rowid`, `updated_at`                                                                 |                                                                                                    |
+| `garden_collections` | `profile_id` PK, `awarded_flower_ids`, `flower_order`, `bloom_count`, `rewarded_day_keys` (JSON), `introduction_seen`, `catalog_version`                  |                                                                                                    |
+| `allowed_emails`     | `email` PK, `status`, `session_version`, `added_at`, `added_by`, `removed_at`, `removed_by`                                                               |                                                                                                    |
+| `push_subscriptions` | `endpoint` PK, `profile_id` FK, `keys_auth`, `keys_p256dh`, `expiration_time`, `locale`, `timezone`, `reminder_minute`, `last_sent_day_key`, `updated_at` | index `profile_id`                                                                                 |
+| `parent_locks`       | `family_subject` PK, `pin_hash` (Argon2id), `failed_attempts`, `locked_until`                                                                             |                                                                                                    |
+
+L'`event_id` reste globalement unique (comportement actuel). Les règles métier des repositories Mongo actuels sont
+reprises : dernier profil non supprimable, profil « lou » réservé à l'admin, avatars inconnus → `sprout`, ordre des
+fleurs avec préfixe historique puis mélange.
+
+**Migration depuis MongoDB** (une seule fois, lot 2) :
+
+1. Sauvegarde `mongodump` de la base de production + copie hors VPS.
+2. `little-tables admin import-mongo --uri … --database little_tables` : lit chaque collection, applique les
+   migrations paresseuses existantes (document historique → famille v2, avatars), écrit dans SQLite en transaction.
+3. Vérifications automatiques : nombres de documents par collection, recalcul des snapshots et comparaison du
+   bootstrap JSON (ancien serveur vs nouveau) pour chaque profil ; échec = pas de bascule.
+4. Bascule (fenêtre courte, outbox des appareils conservée : aucune perte), Mongo arrêté mais conservé 30 jours,
+   puis retrait du conteneur, du volume et des Quadlets après accord explicite.
+
+Sauvegardes : `sqlite3 .backup` (jamais de copie du seul fichier principal en WAL) avant chaque déploiement et
+quotidiennement par un timer systemd, avec rotation et copie hors VPS.
 
 ### 5.7 Observabilité et sécurité
 
@@ -427,31 +461,46 @@ reste exigé pour chaque PR web.
   produit des fixtures JSON ; `lt-domain` doit les reproduire bit à bit (sessions, distracteurs, snapshots, jardin).
 - Propriétés (proptest) : invariants du board 11 (rejouer = no-op, réduction déterministe, une séance ne rend pas un
   fait fluide, une erreur n'augmente jamais la stabilité).
-- Intégration Mongo (testcontainers-rs) ; tests HTTP axum ; tests de contrat client Effect ↔ serveur Rust.
+- Intégration SQLite sur base temporaire (migrations, concurrence d'écriture, transactions) ; test de l'import
+  Mongo sur un jeu de données anonymisé (Mongo en conteneur de test uniquement) ; tests HTTP axum ; tests de contrat
+  client Effect ↔ serveur Rust.
 - E2E Playwright sur viewport iPhone : connexion mockée, séance complète de chaque type d'exercice, hors-ligne puis
   sync, changement de profil, espace parent, mise à jour du SW.
 - Régression visuelle des écrans clés (captures Playwright comparées).
 
 ### 7.3 Déploiement
 
-- Image : build multi-étapes (Rust `cargo-chef`, wasm-pack, pnpm), runtime distroless/`debian-slim`, utilisateur non root,
-  `HEALTHCHECK /health/ready`.
-- Pipeline GitHub inchangé dans sa forme : `verify` → `publish` (GHCR, tag = SHA) → `deploy` (clé SSH restreinte,
-  vérification santé + révision, rollback automatique).
-- Smoke test conservé et étendu (`/` → `/sign-in`, 401 sur les API protégées, `no-store` sur `/sign-in`, `/api/v1` adapté).
+Modèle « release immuable systemd », identique à Love Letters, Loup-Garou et Raclettefin ; plus de conteneur.
+
+- Artefact : binaire Rust statique (`x86_64-unknown-linux-musl` ou glibc Debian 13), PWA embarquée, archive
+  `little-tables-<sha>.tar.zst` + somme SHA-256, publiée comme artefact de release GitHub.
+- Sur le VPS : `/opt/little-tables/releases/<sha>/`, lien atomique `/opt/little-tables/current`, état dans
+  `/var/lib/little-tables/` (base SQLite + sauvegardes), secrets dans `/etc/little-tables/little-tables.env`
+  (inchangé).
+- Unité `little-tables.service` durcie : utilisateur dédié, `DynamicUser` ou compte système, `ProtectSystem=strict`,
+  `ReadWritePaths=/var/lib/little-tables`, `NoNewPrivileges`, `PrivateTmp`, `MemoryMax=256M`, écoute sur
+  `127.0.0.1:32140` (Caddy inchangé).
+- Pipeline : `verify` → `release` (artefact) → `deploy` via la clé SSH à commande forcée, qui n'autorise plus que
+  `deploy <sha>`, `status` et `public-health`. Le script de déploiement : vérifie la somme, sauvegarde SQLite
+  (`.backup`), applique les migrations, bascule le lien, redémarre, contrôle `/health/ready` + révision, et revient
+  à la release précédente (lien + sauvegarde si une migration a échoué) en cas d'échec.
+- Les Quadlets `little-tables.container` et `little-tables-mongo.container`, le volume Mongo et l'image GHCR sont
+  retirés après la période de conservation de §5.6.
+- Smoke test conservé et étendu (`/` → `/sign-in`, 401 sur les API protégées, `no-store` sur `/sign-in`, `/api/v1`
+  adapté), lancé sur le binaire de release dans la CI.
 
 ---
 
 ## 8. Plan de livraison
 
-| Lot | Contenu                                                                                                          | Sortie                                 |
-| --- | ---------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
-| 0   | Specs validées, inventaire Pencil, direction de design                                                           | Ce document + fichier Pencil           |
-| 1   | `lt-domain` + vecteurs dorés + WASM ; design system (tokens, composants de base) ; maquettes HIG des écrans clés | Parité moteur prouvée                  |
-| 2   | Serveur Rust (auth, profils, sync, bootstrap incrémental, push) derrière `/api/v1` compatible                    | Bascule serveur sans changer le client |
-| 3   | Nouvelle PWA (espace enfant + séance + jardin + progrès)                                                         | Bêta famille                           |
-| 4   | Espace parent, code parent, vue des difficultés, heure de rappel par enfant, migration IndexedDB, déconnexion    | Parité complète + nouveautés           |
-| 5   | Retrait de `/api/v1`, de l'ancien code et des clés historiques                                                   | Fin de la réécriture                   |
+| Lot | Contenu                                                                                                                                   | Sortie                                 |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- |
+| 0   | Specs validées, inventaire Pencil, direction de design                                                                                    | Ce document + fichier Pencil           |
+| 1   | `lt-domain` + vecteurs dorés + WASM ; design system (tokens, composants de base) ; maquettes HIG des écrans clés                          | Parité moteur prouvée                  |
+| 2   | Serveur Rust + SQLite (auth, profils, sync, bootstrap incrémental, push), import Mongo vérifié, déploiement systemd, `/api/v1` compatible | Bascule serveur sans changer le client |
+| 3   | Nouvelle PWA (espace enfant + séance + jardin + progrès)                                                                                  | Bêta famille                           |
+| 4   | Espace parent, code parent, vue des difficultés, heure de rappel par enfant, migration IndexedDB, déconnexion                             | Parité complète + nouveautés           |
+| 5   | Retrait de `/api/v1`, de l'ancien code et des clés historiques                                                                            | Fin de la réécriture                   |
 
 ### 8.1 Risques
 
@@ -459,6 +508,7 @@ reste exigé pour chaque PR web.
 - Perte d'événements en migration locale → copie puis suppression après sync confirmée.
 - Taille du WASM → objectif < 300 Ko gzip, chargé en parallèle du bundle, mis en précache.
 - Haptique iOS limitée → jamais porteuse d'information.
+- Migration Mongo → SQLite → comparaison automatique des bootstraps par profil, Mongo conservé 30 jours.
 
 ### 8.2 Décisions
 
@@ -468,8 +518,10 @@ reste exigé pour chaque PR web.
 | Personnages      | Miffy conservé par défaut ; l'app reste à usage familial privé (liste blanche) |
 | Périmètre ajouté | Heure de rappel réglable par enfant, vue parent des difficultés, mode sombre   |
 | Hors périmètre   | Sign in with Apple                                                             |
+| Stockage         | SQLite (§5.6) ; MongoDB migré puis retiré                                      |
+| Déploiement      | Release immuable systemd (§7.3) ; Quadlets et image GHCR retirés               |
 
-### 8.3 Questions ouvertes
-
-1. Base de données et mode de déploiement : MongoDB en Quadlet (actuel), PostgreSQL ou SQLite (voir l'analyse en
-   réponse à la revue des specs).
+Pourquoi SQLite plutôt que MongoDB ou PostgreSQL : volume et concurrence d'un usage familial très faibles, aucun
+service supplémentaire à faire tourner ni à surveiller, sauvegarde `.backup` déjà pratiquée sur le VPS, typage fort
+avec `sqlx`, et alignement sur le modèle de la majorité des services de l'hôte. PostgreSQL resterait le choix en
+cas de diffusion large ; le passage serait localisé dans `lt-store`.
