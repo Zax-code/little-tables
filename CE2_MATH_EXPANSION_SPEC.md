@@ -1,9 +1,9 @@
 # Additions, soustractions et fractions du CE2 — spécification produit
 
-Statut : proposition à valider  
+Statut : proposition à valider (révision 2 : décisions du 2026-10-05 intégrées, voir §11)  
 Date : 2026-10-05  
 Périmètre : étendre little tables au-delà de la multiplication avec deux nouveaux domaines du
-programme de CE2 : les additions et soustractions jusqu’aux centaines, et les fractions.
+programme de CE2 : les additions et soustractions jusqu’à 10 000, et les fractions.
 
 Ce document décline la §4.27 « Future math expansion » de `TECHNICAL_PLAN.md`. Il reste
 compatible avec les principes produit (§1), la grille d’évaluation (§4.30) et les règles de
@@ -34,9 +34,10 @@ Points du programme couverts par cette spécification :
 Le programme précise aussi que la calculatrice n’est pas utilisée au cycle 2. L’app ne propose donc
 aucun outil de calcul.
 
-**Choix de périmètre.** Ta demande parle des « centaines ». La première version plafonne donc les
-nombres à 999. Les nombres jusqu’à 10 000 deviennent un pack « un peu plus loin » (§8, phase 4), sur
-le modèle des tables de 11 et 12.
+**Choix de périmètre.** On couvre tout le champ numérique du CE2 : nombres et résultats jusqu’à
+10 000. On y arrive par niveaux (2, puis 3, puis 4 chiffres), sans pack séparé. Les générateurs
+prennent la borne `maxValue` en paramètre : passer au champ du CM1 sera un réglage, pas une
+refonte.
 
 ## 2. Principes à préserver
 
@@ -61,29 +62,49 @@ Le jardin existant reste le même pour tout le monde. Chaque domaine devient un 
 regroupe des **compétences**. Le mot reprend la métaphore déjà utilisée (« le chemin à l’envers »,
 « choisis un petit chemin »).
 
-| Sentier (fr)          | Sentier (en) | Compétences                                                                                                    |
-| --------------------- | ------------ | -------------------------------------------------------------------------------------------------------------- |
-| les tables (existant) | the tables   | tables 1–10, 11·12, le chemin à l’envers (÷)                                                                   |
-| les petites additions | little sums  | A1 tables d’addition · A2 soustractions associées                                                              |
-| les centaines         | the hundreds | C1 calcul avec les centaines · C2 ajouter / retirer 9, 19, 29… · C3 additions posées · C4 soustractions posées |
-| les fractions         | fractions    | F1 lire une fraction · F2 fractions égales · F3 la bande graduée · F4 comparer · F5 ajouter et retirer         |
+| Sentier (fr)          | Sentier (en) | Compétences                                                                                                            |
+| --------------------- | ------------ | ---------------------------------------------------------------------------------------------------------------------- |
+| les tables (existant) | the tables   | tables 1–10, 11·12, le chemin à l’envers (÷)                                                                           |
+| les petites additions | little sums  | A1 tables d’addition · A2 soustractions associées                                                                      |
+| les grands nombres    | big numbers  | C1 calcul avec centaines et milliers · C2 ajouter / retirer 9, 19, 29… · C3 additions posées · C4 soustractions posées |
+| les fractions         | fractions    | F1 lire une fraction · F2 fractions égales · F3 la bande graduée · F4 comparer · F5 ajouter et retirer                 |
 
-### 3.1 Activation par profil
+### 3.1 Activation : automatique, ou manuelle par le parent
 
-Un parent active les sentiers par profil dans l’écran Famille, avec une ligne « ce que {name}
-apprend à l’école ». Il a deux niveaux de réglage :
+**Par défaut, c’est automatique.** Les trois nouveaux sentiers entrent dans l’arrosage du jour quand
+les tables de 1 à 10 sont acquises. « Acquises » reprend la règle qui ouvre déjà 11·12 : chaque fait
+de `CORE_FACTS` est familiar ou fluent.
 
-- **un raccourci de niveau** : « CE1 », « CE2 » ou « sur mesure ». CE2 active les trois sentiers.
-- **des interrupteurs par compétence**, pour suivre le calendrier de la classe. Par exemple, F3 (la
-  bande graduée) n’arrive qu’en période 3.
+- L’ouverture se fête une fois, sur l’écran de célébration : « un nouveau sentier s’ouvre dans ton
+  jardin ♡ ».
+- Les compétences arrivent ensuite une par une, selon §3.2, avec au plus 2 nouveautés par séance
+  (§6.1). L’enfant ne reçoit donc pas tout d’un coup.
+- Un profil qui a déjà acquis ses tables au moment de la mise à jour voit les sentiers s’ouvrir à sa
+  prochaine séance.
+- La multiplication reste dans l’arrosage du jour pour ses révisions dues : les tables ne
+  disparaissent pas.
 
-Le réglage est stocké dans le document profil (`profiles`, schemaVersion 3) et synchronisé. Un
-profil existant garde uniquement « les tables » tant que rien n’est changé : la mise à jour ne
-modifie pas le comportement en silence.
+**Le parent peut aussi décider à la main**, dans l’écran Famille, sous la ligne « ce que {name}
+apprend à l’école » :
+
+- **ouvrir un sentier avant l’heure**, même si les tables ne sont pas encore acquises ;
+- **choisir précisément les compétences** avec un interrupteur chacune, par exemple pour suivre le
+  calendrier de la classe (F3, la bande graduée, n’arrive qu’en période 3) ;
+- **mettre une activité en avant** : « en ce moment à l’école : les fractions égales ». L’arrosage du
+  jour donne alors la priorité à cette compétence (§6.1). On peut aussi la lancer directement,
+  depuis Famille ou depuis « choisis un petit chemin » ;
+- **choisir la méthode de soustraction posée** de l’école (§4.5).
+
+Le parent peut revenir au mode automatique à tout moment. Un sentier fermé à la main ne se rouvre pas
+tout seul.
+
+Le réglage est stocké dans le document profil (`profiles`, schemaVersion 3) et synchronisé. Avant
+l’ouverture automatique, un profil existant ne voit aucun changement.
 
 ### 3.2 Ouverture progressive à l’intérieur d’un sentier
 
-Les compétences activées s’ouvrent dans l’ordre recommandé ci-dessous. La règle est souple, comme
+Les compétences d’un sentier ouvert arrivent dans l’ordre recommandé ci-dessous. Un interrupteur
+parent ouvre une compétence tout de suite, sans attendre. La règle est souple, comme
 celle de 11·12 : on n’est jamais bloqué sur un score.
 
 | Compétence | S’ouvre quand                                                                     |
@@ -93,7 +114,7 @@ celle de 11·12 : on n’est jamais bloqué sur un score.
 | C2         | C1 est au moins « en train de pousser » (familiar)                                |
 | C3, C4     | A1 est majoritairement familiar ou fluent (les retenues demandent des faits sûrs) |
 | F2, F4     | F1 est familiar                                                                   |
-| F3         | interrupteur parent seulement (période 3), ou F2 familiar                         |
+| F3         | F2 est familiar, ou interrupteur parent (période 3)                               |
 | F5         | F2 est familiar                                                                   |
 
 Une compétence encore fermée apparaît dans Stats avec le ton existant : « ce chemin s’ouvrira quand
@@ -130,28 +151,40 @@ soustractions. Par exemple, `8 + 5 = 13` ouvre `13 − 5` et `13 − 8`.
 - **Clé** : `sub:total:part`.
 - **Aide** : la famille de calcul « quand tu sais 8 + 5 = 13, tu sais aussi 13 − 5 = 8 ».
 
-### 4.3 C1 — Calcul avec les centaines (numération)
+### 4.3 C1 — Calcul avec les centaines et les milliers (numération)
 
-Nombres ≤ 999. Le calcul s’appuie sur la valeur de position, sans retenue mentale complexe.
+Nombres et résultats ≤ 10 000. Le calcul s’appuie sur la valeur de position, sans retenue mentale
+complexe. Les familles s’ouvrent dans l’ordre du tableau.
 
-| Famille          | Exemples                             |
-| ---------------- | ------------------------------------ |
-| centaines rondes | `300 + 400`, `900 − 600`             |
-| dizaines rondes  | `450 + 30`, `680 − 50`               |
-| ± 10 / ± 100     | `395 + 10`, `802 − 100`              |
-| vers la centaine | `380 + … = 400`, `35 + … = 100`      |
-| vers 1 000       | `… + 300 = 1 000`, `750 + … = 1 000` |
+| Famille                      | Exemples                                     |
+| ---------------------------- | -------------------------------------------- |
+| centaines rondes             | `300 + 400`, `900 − 600`                     |
+| dizaines rondes              | `450 + 30`, `680 − 50`                       |
+| ± 10 / ± 100                 | `395 + 10`, `802 − 100`                      |
+| vers la centaine             | `380 + … = 400`, `35 + … = 100`              |
+| vers 1 000                   | `… + 300 = 1 000`, `750 + … = 1 000`         |
+| doubles et moitiés           | `2 × 250`, moitié de 600, moitié de 1 200    |
+| milliers ronds               | `3 000 + 4 000`, `9 000 − 2 000`             |
+| centaines sur les milliers   | `4 500 + 300`, `6 200 − 400`                 |
+| ± 10 / ± 100 / ± 1 000       | `3 990 + 10`, `5 020 − 100`, `8 400 + 1 000` |
+| vers le millier, vers 10 000 | `4 700 + … = 5 000`, `… + 3 000 = 10 000`    |
+
+Les doubles et moitiés reprennent la liste exacte du programme (doubles de 100, 150, 200, 250,
+300, 400, 500 et 600 ; moitiés de 200, 300, 400, 500, 600, 800, 1 000 et 1 200).
 
 - **Mode** : pavé numérique dès le départ, car ces calculs se lisent mal en QCM. La première
   rencontre de chaque famille passe par 4 tuiles.
 - **Clé** : une clé par famille, et non par item, car les items sont générés. Par exemple :
-  `hundreds:round`, `hundreds:tens`, `hundreds:step`, `hundreds:complement-100`.
-- **Aide** : des blocs de base dix dessinés en SVG (plaque = 100, barre = 10, cube = 1), c’est-à-dire
+  `numeration:round-100`, `numeration:round-1000`, `numeration:step-10`, `numeration:complement-1000`,
+  `numeration:double-half`.
+- **Aide** : des blocs de base dix dessinés en SVG (gros cube = 1 000, plaque = 100, barre = 10,
+  cube = 1), c’est-à-dire
   le matériel multibase cité par le programme. Le bloc qui change est mis en valeur.
 
 ### 4.4 C2 — Ajouter ou retirer 9, 19, 29, 39 (et 8, 18, 28, 38)
 
-- **Énoncé** : `247 + 29`, `563 − 19`, `128 + 38`. Le premier terme est ≤ 960 et le résultat ≤ 999.
+- **Énoncé** : `247 + 29`, `563 − 19`, `128 + 38`, puis `2 347 + 29` au niveau 4 chiffres. Le
+  résultat est ≤ 10 000.
 - **Mode** : pavé numérique.
 - **Clé** : `nearten:add:9`, `nearten:add:19`, …, `nearten:sub:39`. Cela fait 12 clés.
 - **Aide** : la procédure officielle sur une droite numérique, en deux bonds : `+ 30` puis `− 1`,
@@ -161,24 +194,50 @@ Nombres ≤ 999. Le calcul s’appuie sur la valeur de position, sans retenue me
 
 C’est la vraie nouveauté d’interaction de ce sentier.
 
-- **Énoncé** : deux nombres de 2 ou 3 chiffres, posés en colonnes (c, d, u) avec le signe à gauche
-  et le trait de résultat. Le programme ne fixe pas d’ordre de grandeur pour les termes, la
-  première version reste donc à 3 chiffres.
+- **Énoncé** : des nombres posés en colonnes (m, c, d, u), avec le signe à gauche et le trait de
+  résultat. Termes et résultat sont ≤ 10 000. La taille augmente par niveaux : 2 chiffres, puis 3,
+  puis 4. L’addition passe aussi à trois termes, comme l’exemple de CE1 `76 + 7 + 568`.
 - **Saisie** :
   - Les cases du résultat se remplissent de droite à gauche. La case active est mise en valeur et
     passe à gauche après chaque chiffre.
-  - Une petite case de **retenue** au-dessus de chaque colonne est facultative. Elle n’est jamais
-    notée, mais elle est enregistrée pour l’aide.
+  - Les **retenues** sont facultatives. Elles ne sont jamais notées, mais elles sont enregistrées
+    pour l’aide. Leur place dépend de la méthode (voir plus bas).
   - Le pavé est le pavé numérique existant. Une touche ✓ valide l’ensemble, et « ⌫ » efface la case
     active ou recule d’une case.
 - **Correction** : on note le résultat final. Si c’est faux, la **première colonne fausse** (de
   droite à gauche) est soulignée doucement, sans rouge.
 - **Aide** : la colonne concernée en blocs de base dix, avec l’échange expliqué (« 10 unités font
-  1 dizaine : je la note en retenue »). Pour la soustraction, la méthode montrée doit suivre celle
-  de la classe (§11, question 4).
-- **Niveaux** : la clé encode la difficulté. Par exemple `column:add:carry-0`, `carry-1`, `carry-2`,
-  et `column:sub:borrow-0`, `borrow-1`, `borrow-2`, plus `sub:zero` pour un zéro au milieu, comme
-  `503 − 128`.
+  1 dizaine : je la note en retenue »).
+- **Niveaux** : la clé encode la taille et la difficulté. Par exemple `column:add:3d:carry-1`,
+  `column:add:4d:carry-2`, `column:add:3-terms`, `column:sub:3d:borrow-1`, plus `column:sub:zero`
+  pour les zéros au milieu, comme `503 − 128` ou `3 000 − 2 158`.
+
+#### Méthode de la soustraction posée
+
+Le programme laisse le choix entre deux algorithmes, « par cassage » ou « par compensation ». Il
+demande qu’une école garde **un seul et même algorithme** du CE1 au CM2.
+
+Ce qu’on observe chez les enseignants et les parents :
+
+- La **compensation** est la méthode « traditionnelle » en France, celle que la plupart des parents
+  ont apprise. Sur les forums d’enseignants, elle reste un peu plus citée à l’échelle de l’école :
+  en 2025, 3 écoles contre 2 dans un fil récent. Les enseignants lui reconnaissent de rester légère
+  avec les grands nombres et les zéros, et de préparer la division posée.
+- Le **cassage** gagne du terrain en CE1 et CE2, car il se comprend mieux avec le matériel. Dans un
+  fil plus ancien (2017), les cinq enseignants qui répondent le préfèrent. Ses limites sont
+  connues : les zéros (`3 000 − 2 158`) deviennent lourds à écrire, et les parents sont perdus pour
+  aider aux devoirs.
+- Certaines méthodes (Cap Maths, Brissiaud) commencent par le cassage puis passent à la
+  compensation.
+
+**Décision.** Le défaut est la **compensation**. Le parent peut choisir le **cassage** dans Famille,
+pour suivre l’école. Comme seul le résultat est noté, ce choix ne change que deux choses :
+
+| Méthode      | Retenues à l’écran                                                                                                                           | Aide                                                                       |
+| ------------ | -------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------- |
+| compensation | un petit « 1 » devant le chiffre du haut, et un petit « + 1 » sous la colonne suivante, en bas                                               | « j’ajoute 10 unités en haut et 1 dizaine en bas : l’écart ne change pas » |
+| cassage      | on touche un chiffre du haut pour le « casser » : il est barré, remplacé par le chiffre moins 1, et la colonne de droite reçoit « 1 » devant | « je casse 1 dizaine en 10 unités » avec les blocs base dix                |
+
 - **Latence** : elle est **ignorée** dans la maîtrise. Une opération posée n’est pas un fait à
   restituer vite.
 - **Rappel** : une opération posée est toujours en production. Il n’y a pas de mode tuiles pour
@@ -276,8 +335,9 @@ Toutes ces briques s’ajoutent à `apps/web/src/components/`. Elles réutilisen
 
 - La grille est monospace, avec les chiffres centrés. Les cases de retenue sont en `--ink-muted`,
   plus petites, au-dessus de chaque colonne.
-- Une colonne mesure 44 pt de large au minimum (cible tactile iPhone). Avec 4 colonnes, la grille
-  tient en largeur 320.
+- Une colonne mesure 44 pt de large au minimum (cible tactile iPhone). Avec 5 colonnes (10 000) et
+  celle du signe, la grille mesure 264 pt et tient en largeur 320.
+- Les cases de retenue suivent la méthode de soustraction choisie (§4.5).
 - Le focus du lecteur d’écran suit la case active. Chaque case s’annonce par exemple « chiffre des
   dizaines du résultat ».
 
@@ -310,9 +370,11 @@ L’arrosage du jour reste **un seul bouton**. Le planificateur mélange les sen
 
 1. Il priorise les révisions dues dans tous les sentiers, avec le même score qu’aujourd’hui.
 2. Il ajoute au plus **2 nouveautés** par séance, toutes compétences confondues.
-3. Il garde au plus **2 types d’interaction** par séance (par exemple pavé numérique et pavé
+3. Si le parent a **mis une activité en avant** (§3.1), elle occupe environ la moitié des points de
+   la séance. Le reste sert aux révisions dues.
+4. Il garde au plus **2 types d’interaction** par séance (par exemple pavé numérique et pavé
    fraction), pour que la séance reste calme.
-4. Il groupe les questions d’un même type d’interaction en petits blocs. À l’intérieur d’un bloc,
+5. Il groupe les questions d’un même type d’interaction en petits blocs. À l’intérieur d’un bloc,
    les compétences s’entrelacent.
 
 Un bloom par jour reste attaché à l’arrosage du jour, comme aujourd’hui.
@@ -335,7 +397,7 @@ Une séance contient au plus 2 opérations posées.
 La feuille existante reçoit une rangée par sentier activé :
 
 - « les petites additions » ;
-- « les centaines » : calcul malin, ou opérations posées ;
+- « les grands nombres » : calcul malin, ou opérations posées ;
 - « les fractions » : avec une puce par compétence ouverte.
 
 Une séance ciblée suit la règle de `focusTable` : n − 2 questions de la compétence choisie et 2
@@ -363,7 +425,7 @@ les niveaux de la compétence, par exemple `carry-0 / carry-1 / carry-2`.
   clés `fluent`. Les nouvelles clés y contribuent. Le texte « Il faut aussi réussir {required}
   multiplications sans aide » devient « … calculs sans aide ».
 - **Nouvelle décoration, non bloquante** : une bordure de plate-bande. C’est un clin d’œil aux
-  fractions, débloqué au premier F-skill bien ancré. Ce point est à valider (§11, question 6).
+  fractions, débloqué au premier F-skill bien ancré. Ce point est à valider (§11, question ouverte 3).
 
 ### 7.3 Ton et vocabulaire
 
@@ -395,13 +457,13 @@ pousser ton jardin ♡ ».
 
 Chaque phase est une PR séparée, vérifiée par `pnpm check` et `pnpm doctor`.
 
-| Phase                                            | Contenu                                                                                                                                                               | Visible ? |
-| ------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
-| 0. Fondations                                    | Union de types question et réponse ; événement v2 (§9) ; validation serveur par type ; générateurs déterministes ; `fractionInWords` ; réglage « sentiers » du profil | non       |
-| 1. Petites additions + centaines (calcul mental) | A1, A2, C1, C2 avec le pavé existant, les aides « passer par 10 », droite numérique et blocs base dix, et la section Stats                                            | oui       |
-| 2. Opérations posées                             | `column-operation.tsx`, C3 et C4, poids de séance                                                                                                                     | oui       |
-| 3. Fractions                                     | `fraction-figure.tsx`, `fraction-keypad.tsx`, F1 à F5, sélection multiple et comparaison                                                                              | oui       |
-| 4. Un peu plus loin                              | nombres jusqu’à 10 000 (C1 à C4 à 4 chiffres), petites histoires plus nombreuses                                                                                      | oui, pack |
+| Phase                                                 | Contenu                                                                                                                                                                                                                                       | Visible ? |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------- |
+| 0. Fondations                                         | Union de types question et réponse ; événement v2 (§9) ; validation serveur par type ; générateurs déterministes ; `fractionInWords` ; réglages du profil (mode auto ou manuel, compétences, activité mise en avant, méthode de soustraction) | non       |
+| 1. Petites additions + grands nombres (calcul mental) | A1, A2, C1, C2 jusqu’à 10 000 avec le pavé existant (5 chiffres), les aides « passer par 10 », droite numérique et blocs base dix, l’ouverture automatique, l’écran Famille et la section Stats                                               | oui       |
+| 2. Opérations posées                                  | `column-operation.tsx`, C3 et C4 jusqu’à 4 chiffres, les deux méthodes de soustraction, poids de séance                                                                                                                                       | oui       |
+| 3. Fractions                                          | `fraction-figure.tsx`, `fraction-keypad.tsx`, F1 à F5, sélection multiple et comparaison                                                                                                                                                      | oui       |
+| 4. Petites histoires                                  | problèmes courts en une ou deux étapes, au jardin, pour les trois sentiers                                                                                                                                                                    | oui       |
 
 ## 9. Impacts techniques
 
@@ -435,7 +497,7 @@ type PracticeAnswer =
   - la prise en compte de la latence, ignorée pour C3 et C4.
 - `LearningProgress` reçoit `paths: PathProgress[]` à côté de `tables`.
 - Ajout de tests de propriétés fast-check :
-  - les générateurs respectent les bornes (≤ 999, d ≤ 12, fractions ≤ 1) ;
+  - les générateurs respectent les bornes (≤ 10 000, d ≤ 12, fractions ≤ 1) ;
   - `isCorrect` accepte toute fraction équivalente ;
   - le rejeu d’un même événement reste idempotent.
 
@@ -457,8 +519,25 @@ type PracticeAnswer =
   - `attempt-ingestion.ts` valide chaque `kind` : il vérifie les bornes, **recalcule la bonne
     réponse depuis les paramètres** et vérifie `correct` ;
   - les bornes actuelles (1..144, 1..12) ne s’appliquent qu’aux multiplications et divisions.
-- **Profil** : `schemaVersion` 3 ajoute `learningPaths: { level, enabledSkills[] }`. Le repository
-  Mongo migre en lecture : une v2 donne `{ level: 'custom', enabledSkills: ['tables'] }`.
+- **Profil** : `schemaVersion` 3 ajoute :
+
+  ```ts
+  learningPaths: {
+    mode: 'automatic' | 'manual'
+    enabledSkills: ReadonlyArray<SkillId> // utilisé en mode manuel
+    closedPaths: ReadonlyArray<PathId> // sentiers fermés à la main
+    focusSkill: SkillId | null // « en ce moment à l’école »
+    subtractionMethod: 'compensation' | 'decomposition'
+  }
+  ```
+
+  Le repository Mongo migre en lecture : une v2 donne `{ mode: 'automatic', enabledSkills: [],
+closedPaths: [], focusSkill: null, subtractionMethod: 'compensation' }`.
+
+- **Ouverture automatique** : c’est une fonction pure du domaine,
+  `deriveOpenPaths(snapshot, learningPaths)`, et non un état stocké. Le serveur et le client arrivent
+  donc au même résultat en rejouant les événements.
+- **Pavé numérique** : la limite passe de 3 à 5 chiffres (10 000), y compris dans `fact-rescue`.
 
 ### 9.3 Fichiers web les plus touchés
 
@@ -485,17 +564,31 @@ Score de 0 à 2 sur chaque critère :
 | accessible                      | 2                   | 1         | les figures demandent un vrai travail d’ARIA                               |
 | coût acceptable                 | 1                   | 1         | aucune nouvelle illustration générée ; deux nouvelles interactions         |
 
-## 11. Questions ouvertes
+## 11. Décisions et questions ouvertes
 
-1. **Qui active les sentiers ?** Proposition : le parent, dans Famille, avec le raccourci « CE2 ».
-   L’autre option est une activation automatique quand les tables 1–10 sont ancrées.
-2. **Mélange dans l’arrosage du jour.** Proposition : mélanger selon les révisions dues (§6.1).
+### Décisions prises (2026-10-05)
+
+1. **Activation** : automatique dans l’arrosage du jour quand les tables de 1 à 10 sont acquises.
+   Le parent peut aussi ouvrir à la main, choisir les compétences ou mettre une activité en avant
+   (§3.1).
+2. **Plafond** : tout le champ du CE2, jusqu’à 10 000, par niveaux de chiffres (§1, §4.3, §4.5).
+3. **Soustraction posée** : compensation par défaut, cassage au choix du parent (§4.5).
+
+### Questions ouvertes
+
+1. **Mélange dans l’arrosage du jour.** Proposition : mélanger selon les révisions dues (§6.1).
    L’autre option est un « sentier du jour » en rotation, plus simple mais moins espacé.
-3. **Plafond.** Est-ce qu’on garde 999 pour la v1, avec 10 000 en pack ?
-4. **Méthode de soustraction posée enseignée en classe** : par compensation (« on ajoute 10 en haut
-   et en bas ») ou par emprunt/cassage. Elle détermine l’aide de C4.
-5. **Réponses non simplifiées en F5.** Proposition : on les accepte toujours, puisque le programme
+2. **Réponses non simplifiées en F5.** Proposition : on les accepte toujours, puisque le programme
    ne demande pas de simplifier.
-6. **Récompense dédiée** : une décoration « plate-bande », ou un nouveau coin de jardin lié aux
+3. **Récompense dédiée** : une décoration « plate-bande », ou un nouveau coin de jardin lié aux
    nouveaux sentiers ?
-7. **Nom de l’app** : « little tables » reste-t-il le nom, avec une description plus générale ?
+4. **Nom de l’app** : « little tables » reste-t-il le nom, avec une description plus générale ?
+
+### Sources de la révision 2
+
+- Programme du cycle 2, annexe 4 : CE1, « un unique et même algorithme sera privilégié au niveau
+  d’une école » ; CE2, champ numérique jusqu’à 10 000.
+- Forums Enseignants du primaire : « Méthodes pour la soustraction » (juillet 2025) et « Quelle TO
+  pour la soustraction en CE2 ? » (novembre 2017).
+- Pass Education, « Quelles sont les 2 techniques de soustraction ? » : la compensation y est
+  présentée comme la technique usuelle en France.
