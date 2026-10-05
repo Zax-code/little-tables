@@ -9,6 +9,26 @@ publish = false
 rust-version = "1.90"
 
 [workspace.dependencies]
+argon2 = "0.5"
+axum = { version = "0.8", features = ["macros"] }
+base64 = "0.22"
+clap = { version = "4", features = ["derive", "env"] }
+hmac = "0.12"
+jsonwebtoken = { version = "10", default-features = false, features = ["use_pem", "rust_crypto"] }
+mime_guess = "2"
+rand = "0.8"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+sha2 = "0.10"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio", "sqlite", "migrate", "macros", "json"] }
+tempfile = "3"
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "time", "sync", "fs"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["compression-gzip", "limit", "timeout", "trace", "request-id", "set-header"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
+uuid = { version = "1", features = ["v4"] }
+web-push-native = "0.5"
 chrono = { version = "0.4", default-features = false, features = ["std"] }
 chrono-tz = "0.10"
 flate2 = "1"

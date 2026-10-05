@@ -1,0 +1,26 @@
+[package]
+name = "lt-push"
+description = "Daily reminders of little tables: local reminder clock, localized copy and Web Push delivery."
+version = "0.1.0"
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+base64.workspace = true
+chrono = { workspace = true, features = ["clock"] }
+chrono-tz.workspace = true
+lt-store = { path = "../lt-store" }
+reqwest.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+web-push-native.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
+
+[lints]
+workspace = true
