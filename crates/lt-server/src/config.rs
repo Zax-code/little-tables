@@ -58,9 +58,26 @@ fn emails(value: Option<String>) -> Vec<String> {
     list
 }
 
+/// `DATABASE_PATH`, or the deployment's default file outside development.
+pub fn database_path(lookup: &impl Fn(&str) -> Option<String>) -> PathBuf {
+    lookup("DATABASE_PATH")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| match lookup("LT_ENV").as_deref() {
+            Some("production" | "smoke") => {
+                PathBuf::from("/var/lib/little-tables/little-tables.db")
+            }
+            _ => PathBuf::from("little-tables.db"),
+        })
+}
+
+/// The environment's non-empty value of a variable.
+pub fn env_lookup(name: &str) -> Option<String> {
+    std::env::var(name).ok().filter(|value| !value.is_empty())
+}
+
 impl Config {
     pub fn from_env() -> Result<Self, ConfigError> {
-        Self::from_lookup(|name| std::env::var(name).ok().filter(|value| !value.is_empty()))
+        Self::from_lookup(env_lookup)
     }
 
     /// Reads the configuration through `lookup`, which returns a variable's non-empty value.
@@ -168,7 +185,11 @@ impl Config {
             host,
             port,
             public_origin,
-            revision: lookup("APP_REVISION").unwrap_or_else(|| "unknown".to_owned()),
+            // A release binary knows the commit it was built from.
+            revision: option_env!("APP_REVISION")
+                .map(str::to_owned)
+                .or_else(|| lookup("APP_REVISION"))
+                .unwrap_or_else(|| "unknown".to_owned()),
             vapid,
             web_dist_path,
         })

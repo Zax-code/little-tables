@@ -47,6 +47,13 @@ pub struct Store {
 impl Store {
     /// Opens (and creates when missing) the database file, then applies pending migrations.
     pub async fn open(path: &Path) -> Result<Self> {
+        let store = Self::connect(path).await?;
+        store.migrate().await?;
+        Ok(store)
+    }
+
+    /// Opens the database file as it is, without migrating it (for backups).
+    pub async fn connect(path: &Path) -> Result<Self> {
         let options = SqliteConnectOptions::from_str(&format!("sqlite://{}", path.display()))?
             .create_if_missing(true)
             .journal_mode(SqliteJournalMode::Wal)
@@ -57,12 +64,10 @@ impl Store {
             .max_connections(4)
             .connect_with(options)
             .await?;
-        let store = Self {
+        Ok(Self {
             pool,
             writer: Mutex::new(()),
-        };
-        store.migrate().await?;
-        Ok(store)
+        })
     }
 
     /// Applies the migrations bundled in the binary.

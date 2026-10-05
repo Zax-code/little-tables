@@ -1,0 +1,523 @@
+{
+  "allowedEmails": [
+    {
+      "email": "friend@example.com",
+      "sessionVersion": 0,
+      "status": "allowed"
+    },
+    {
+      "email": "gone@example.com",
+      "sessionVersion": 2,
+      "status": "blocked"
+    }
+  ],
+  "attempts": [
+    {
+      "attempt": {
+        "answerMode": "keypad",
+        "answeredAt": "2026-07-04T09:00:00.000Z",
+        "choices": [],
+        "correct": true,
+        "eventId": "column",
+        "factKey": "column:sub:zero",
+        "latencyMs": 41000,
+        "left": 0,
+        "operation": "multiply",
+        "questionCount": 1,
+        "right": 0,
+        "selected": 375,
+        "sequence": 0,
+        "sessionId": "paths",
+        "exercise": {
+          "kind": "column",
+          "operation": "subtract",
+          "skill": "column-subtraction",
+          "terms": [
+            503,
+            128
+          ]
+        },
+        "learningDayKey": "2026-07-04",
+        "response": {
+          "type": "integer",
+          "value": 375
+        }
+      },
+      "profileId": "b0d5d1a4-2f1e-4b8e-9a43-3b2cf6a5b0a1",
+      "receivedAt": 1783209600000
+    },
+    {
+      "attempt": {
+        "answerMode": "keypad",
+        "answeredAt": "2026-07-01T16:00:00.000Z",
+        "choices": [],
+        "correct": true,
+        "eventId": "d1-q1",
+        "factKey": "7:8",
+        "latencyMs": 1700,
+        "left": 7,
+        "operation": "multiply",
+        "questionCount": 2,
+        "right": 8,
+        "selected": 56,
+        "sequence": 0,
+        "sessionId": "day-1",
+        "learningDayKey": "2026-07-01"
+      },
+      "profileId": "lou",
+      "receivedAt": 1783209600000
+    },
+    {
+      "attempt": {
+        "answerMode": "keypad",
+        "answeredAt": "2026-07-01T16:00:05.000Z",
+        "choices": [],
+        "correct": true,
+        "eventId": "d1-q2",
+        "factKey": "7:8",
+        "latencyMs": 1700,
+        "left": 7,
+        "operation": "multiply",
+        "questionCount": 2,
+        "right": 8,
+        "selected": 56,
+        "sequence": 1,
+        "sessionId": "day-1",
+        "learningDayKey": "2026-07-01",
+        "sessionKind": "daily-watering"
+      },
+      "profileId": "lou",
+      "receivedAt": 1783209600000
+    },
+    {
+      "attempt": {
+        "answerMode": "keypad",
+        "answeredAt": "2026-07-02T23:30:00.000Z",
+        "choices": [],
+        "correct": false,
+        "eventId": "d2-q1",
+        "factKey": "7:8",
+        "latencyMs": 1700,
+        "left": 7,
+        "operation": "multiply",
+        "questionCount": 2,
+        "right": 8,
+        "selected": 54,
+        "sequence": 0,
+        "sessionId": "day-2"
+      },
+      "profileId": "lou",
+      "receivedAt": 1783209600000
+    },
+    {
+      "attempt": {
+        "answerMode": "keypad",
+        "answeredAt": "2026-07-02T23:30:09.000Z",
+        "choices": [],
+        "correct": true,
+        "eventId": "d2-q2",
+        "factKey": "7:8",
+        "latencyMs": 1700,
+        "left": 7,
+        "operation": "multiply",
+        "questionCount": 2,
+        "right": 8,
+        "selected": 56,
+        "sequence": 1,
+        "sessionId": "day-2"
+      },
+      "profileId": "lou",
+      "receivedAt": 1783209600000
+    },
+    {
+      "attempt": {
+        "answerMode": "keypad",
+        "answeredAt": "2026-07-03T10:00:00.000Z",
+        "choices": [],
+        "correct": true,
+        "eventId": "extra",
+        "factKey": "divide:56:7",
+        "latencyMs": 1700,
+        "left": 56,
+        "operation": "divide",
+        "questionCount": 1,
+        "right": 7,
+        "selected": 8,
+        "sequence": 0,
+        "sessionId": "extra-1",
+        "sessionKind": "extra-practice"
+      },
+      "profileId": "lou",
+      "receivedAt": 1783209600000
+    },
+    {
+      "attempt": {
+        "answerMode": "keypad",
+        "answeredAt": "2026-06-20T12:00:00.000Z",
+        "choices": [],
+        "correct": true,
+        "eventId": "orphan",
+        "factKey": "7:8",
+        "latencyMs": 1700,
+        "left": 7,
+        "operation": "multiply",
+        "questionCount": 2,
+        "right": 8,
+        "selected": 56,
+        "sequence": 0,
+        "sessionId": "gone"
+      },
+      "profileId": "removed-child",
+      "receivedAt": 1783209600000
+    }
+  ],
+  "expectedBootstraps": [
+    {
+      "bootstrap": {
+        "algorithmVersion": "1",
+        "profile": {
+          "displayName": "Mia",
+          "id": "b0d5d1a4-2f1e-4b8e-9a43-3b2cf6a5b0a1"
+        },
+        "completedSessions": 1,
+        "gardenBloomCount": 1,
+        "gardenCollection": {
+          "awardedFlowerIds": [],
+          "bloomsPerFlower": 3,
+          "catalogVersion": "1",
+          "flowerOrder": [
+            "rose-lotus",
+            "sunset-zinnia",
+            "ivory-magnolia",
+            "blue-wisteria",
+            "twilight-lupine",
+            "plum-snapdragon",
+            "velvet-foxglove",
+            "blushing-peony",
+            "ruby-bleeding-heart"
+          ],
+          "introductionSeen": false
+        },
+        "practiceDayKeys": [
+          "2026-07-04"
+        ],
+        "rewardedDayKeys": [
+          "2026-07-04"
+        ],
+        "rewards": [],
+        "snapshot": {
+          "algorithmVersion": "1",
+          "facts": {
+            "column:sub:zero": {
+              "correctCount": 1,
+              "correctStreak": 1,
+              "difficulty": 0.48,
+              "dueAt": "2026-07-05T09:00:00.000Z",
+              "lapseCount": 0,
+              "lastReviewedAt": "2026-07-04T09:00:00.000Z",
+              "lastReviewedDayKey": "2026-07-04",
+              "latencyMs": 41000,
+              "recallDayKeys": [
+                "2026-07-04"
+              ],
+              "stabilityDays": 1,
+              "state": "learning",
+              "successfulDayKeys": [
+                "2026-07-04"
+              ]
+            }
+          },
+          "processedEventIds": [
+            "column"
+          ]
+        }
+      },
+      "profileId": "b0d5d1a4-2f1e-4b8e-9a43-3b2cf6a5b0a1"
+    },
+    {
+      "bootstrap": {
+        "algorithmVersion": "1",
+        "profile": {
+          "displayName": "Léa",
+          "id": "lou"
+        },
+        "completedSessions": 3,
+        "gardenBloomCount": 3,
+        "gardenCollection": {
+          "awardedFlowerIds": [
+            "blue-wisteria"
+          ],
+          "bloomsPerFlower": 3,
+          "catalogVersion": "1",
+          "flowerOrder": [
+            "blue-wisteria",
+            "ivory-magnolia",
+            "blushing-peony",
+            "ruby-bleeding-heart",
+            "sunset-zinnia",
+            "plum-snapdragon",
+            "velvet-foxglove",
+            "twilight-lupine",
+            "rose-lotus"
+          ],
+          "introductionSeen": true
+        },
+        "practiceDayKeys": [
+          "2026-07-01",
+          "2026-07-02",
+          "2026-07-03"
+        ],
+        "rewardedDayKeys": [
+          "2026-06-30",
+          "2026-07-01",
+          "2026-07-02"
+        ],
+        "rewards": [
+          {
+            "id": "collection:blue-wisteria",
+            "kind": "flower",
+            "label": "blue wisteria"
+          }
+        ],
+        "snapshot": {
+          "algorithmVersion": "1",
+          "facts": {
+            "7:8": {
+              "correctCount": 2,
+              "correctStreak": 1,
+              "difficulty": 0.5399999999999999,
+              "dueAt": "2026-07-03T16:18:09.000Z",
+              "lapseCount": 1,
+              "lastReviewedAt": "2026-07-02T23:30:09.000Z",
+              "lastReviewedDayKey": "2026-07-02",
+              "latencyMs": 1700,
+              "recallDayKeys": [
+                "2026-07-01",
+                "2026-07-02"
+              ],
+              "stabilityDays": 0.7,
+              "state": "learning",
+              "successfulDayKeys": [
+                "2026-07-01",
+                "2026-07-02"
+              ]
+            },
+            "divide:56:7": {
+              "correctCount": 1,
+              "correctStreak": 1,
+              "difficulty": 0.48,
+              "dueAt": "2026-07-04T10:00:00.000Z",
+              "lapseCount": 0,
+              "lastReviewedAt": "2026-07-03T10:00:00.000Z",
+              "lastReviewedDayKey": "2026-07-03",
+              "latencyMs": 1700,
+              "recallDayKeys": [
+                "2026-07-03"
+              ],
+              "stabilityDays": 1,
+              "state": "learning",
+              "successfulDayKeys": [
+                "2026-07-03"
+              ]
+            }
+          },
+          "processedEventIds": [
+            "d1-q1",
+            "d1-q2",
+            "d2-q1",
+            "d2-q2",
+            "extra"
+          ]
+        }
+      },
+      "profileId": "lou"
+    },
+    {
+      "bootstrap": {
+        "algorithmVersion": "1",
+        "profile": {
+          "displayName": "Tom",
+          "id": "tom"
+        },
+        "completedSessions": 0,
+        "gardenBloomCount": 0,
+        "gardenCollection": {
+          "awardedFlowerIds": [],
+          "bloomsPerFlower": 3,
+          "catalogVersion": "1",
+          "flowerOrder": [
+            "velvet-foxglove",
+            "blue-wisteria",
+            "plum-snapdragon",
+            "ruby-bleeding-heart",
+            "twilight-lupine",
+            "ivory-magnolia",
+            "rose-lotus",
+            "sunset-zinnia",
+            "blushing-peony"
+          ],
+          "introductionSeen": false
+        },
+        "practiceDayKeys": [],
+        "rewardedDayKeys": [],
+        "rewards": [],
+        "snapshot": {
+          "algorithmVersion": "1",
+          "facts": {},
+          "processedEventIds": []
+        }
+      },
+      "profileId": "tom"
+    }
+  ],
+  "exportedAt": "2026-10-05T20:32:34.557Z",
+  "families": [
+    {
+      "createdAt": 1780300800000,
+      "googleSubject": "friend-subject",
+      "onboardingComplete": false,
+      "profiles": [
+        {
+          "avatarId": "bluebell",
+          "id": "b0d5d1a4-2f1e-4b8e-9a43-3b2cf6a5b0a1",
+          "learningPaths": {
+            "enabledSkills": [
+              "column-subtraction"
+            ],
+            "focusSkill": null,
+            "mode": "manual",
+            "subtractionMethod": "decomposition"
+          },
+          "name": "Mia"
+        }
+      ]
+    },
+    {
+      "createdAt": 1780300800000,
+      "googleSubject": "owner-subject",
+      "onboardingComplete": true,
+      "profiles": [
+        {
+          "avatarId": "mina-cat",
+          "id": "lou",
+          "name": "Léa"
+        },
+        {
+          "avatarId": "sprout",
+          "id": "tom",
+          "name": "Tom"
+        }
+      ]
+    }
+  ],
+  "format": "little-tables-export/1",
+  "gardens": [
+    {
+      "awardedFlowerIds": [
+        "blue-wisteria"
+      ],
+      "bloomCount": 3,
+      "catalogVersion": "1",
+      "createdAt": 1780300800000,
+      "flowerOrder": [
+        "blue-wisteria",
+        "ivory-magnolia",
+        "blushing-peony",
+        "ruby-bleeding-heart",
+        "sunset-zinnia",
+        "plum-snapdragon",
+        "velvet-foxglove",
+        "twilight-lupine",
+        "rose-lotus"
+      ],
+      "introductionSeen": true,
+      "profileId": "lou",
+      "rewardedDayKeys": [
+        "2026-06-30",
+        "2026-07-01",
+        "2026-07-02"
+      ],
+      "updatedAt": 1791232354553
+    },
+    {
+      "awardedFlowerIds": [],
+      "bloomCount": 0,
+      "catalogVersion": "1",
+      "createdAt": 1780300800000,
+      "flowerOrder": [
+        "blue-wisteria",
+        "ivory-magnolia",
+        "blushing-peony",
+        "ruby-bleeding-heart",
+        "sunset-zinnia",
+        "plum-snapdragon",
+        "velvet-foxglove",
+        "twilight-lupine",
+        "rose-lotus"
+      ],
+      "introductionSeen": false,
+      "profileId": "removed-child",
+      "rewardedDayKeys": [],
+      "updatedAt": 1780300800000
+    },
+    {
+      "awardedFlowerIds": [],
+      "bloomCount": 1,
+      "catalogVersion": "1",
+      "createdAt": 1791232354522,
+      "flowerOrder": [
+        "rose-lotus",
+        "sunset-zinnia",
+        "ivory-magnolia",
+        "blue-wisteria",
+        "twilight-lupine",
+        "plum-snapdragon",
+        "velvet-foxglove",
+        "blushing-peony",
+        "ruby-bleeding-heart"
+      ],
+      "introductionSeen": false,
+      "profileId": "b0d5d1a4-2f1e-4b8e-9a43-3b2cf6a5b0a1",
+      "rewardedDayKeys": [
+        "2026-07-04"
+      ],
+      "updatedAt": 1791232354523
+    },
+    {
+      "awardedFlowerIds": [],
+      "bloomCount": 0,
+      "catalogVersion": "1",
+      "createdAt": 1791232354554,
+      "flowerOrder": [
+        "velvet-foxglove",
+        "blue-wisteria",
+        "plum-snapdragon",
+        "ruby-bleeding-heart",
+        "twilight-lupine",
+        "ivory-magnolia",
+        "rose-lotus",
+        "sunset-zinnia",
+        "blushing-peony"
+      ],
+      "introductionSeen": false,
+      "profileId": "tom",
+      "rewardedDayKeys": [],
+      "updatedAt": 1791232354554
+    }
+  ],
+  "legacyProfileDocuments": [],
+  "pushSubscriptions": [
+    {
+      "endpoint": "https://push.example/lou",
+      "expirationTime": null,
+      "keys": {
+        "auth": "auth",
+        "p256dh": "p256dh"
+      },
+      "lastSentDayKey": "2026-07-02",
+      "locale": "fr",
+      "profileId": "lou",
+      "timezone": "Europe/Paris"
+    }
+  ]
+}
