@@ -1,0 +1,28 @@
+# Nightly consistent copy of the database, kept 14 days in /var/lib/little-tables/backups.
+# Off-host copies follow the host's backup process.
+[Unit]
+Description=little tables database backup
+After=little-tables.service
+
+[Service]
+Type=oneshot
+User=little-tables
+Group=little-tables
+Environment=DATABASE_PATH=/var/lib/little-tables/little-tables.db
+ExecStart=/usr/local/libexec/little-tables-backup
+StateDirectory=little-tables
+UMask=0027
+NoNewPrivileges=true
+CapabilityBoundingSet=
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+PrivateNetwork=true
+ProtectKernelModules=true
+ProtectKernelTunables=true
+ProtectControlGroups=true
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallArchitectures=native
