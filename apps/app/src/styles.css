@@ -1,0 +1,64 @@
+@import 'tailwindcss';
+@import '@little-tables/ui/styles.css';
+
+/* The garden's palette, unchanged from the previous app: the plant drawings use it. */
+:root {
+  --ink-primary: #1d1d1b;
+  --garden-bloom-coral: #ef625a;
+  --garden-bloom-red: #e94e43;
+  --garden-bloom-white: #fffdf7;
+  --garden-bloom-cream: #fffaf0;
+  --garden-bloom-home-pink: #f7b7c5;
+  --garden-bloom-pink: #f4a6b5;
+  --garden-bloom-soft-pink: #ffd8df;
+  --garden-bloom-gold: #f4bd47;
+  --garden-bloom-indigo: #7775b7;
+  --garden-bloom-lavender: #b99bd1;
+  --garden-bloom-mint: #a9d4b5;
+  --garden-bloom-moon: #e9e8ff;
+  --garden-bloom-peach: #f4ad84;
+  --garden-bloom-rose: #e68da4;
+  --garden-bloom-ruby: #c9485f;
+  --garden-bloom-star: #fff7cf;
+  --garden-bloom-sunset: #ef9147;
+  --garden-bloom-violet: #966caf;
+  --garden-center-yellow: #f5c83e;
+  --garden-center-cream: #fff7da;
+  --garden-center-russet: #8b5644;
+  --garden-pot-pink: #f2a4aa;
+  --garden-pot-gold: #dfb25e;
+  --garden-pot-indigo: #8f91be;
+  --garden-pot-lilac: #b5a0c5;
+  --garden-pot-mint: #8ebda3;
+  --garden-pot-peach: #dfa079;
+  --garden-pot-detail: #cf737f;
+  --garden-leaf-light: #6f9853;
+  --garden-leaf-deep: #5f8c49;
+  --garden-leaf-soft: #d7e8bc;
+  --garden-soil: #80634d;
+  --garden-water: #79b9dc;
+  --garden-lock-surface: #fffdf2;
+  --garden-lock-line: #9b967b;
+  --garden-lock-ink: #8d8875;
+  --garden-ground-shadow: rgb(132 125 69 / 10%);
+  --garden-page-dot: rgb(113 107 103 / 35%);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  background: var(--lt-bg);
+  color: var(--lt-label);
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 1ms !important;
+    transition-duration: 1ms !important;
+  }
+}

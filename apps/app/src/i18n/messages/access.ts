@@ -1,0 +1,79 @@
+/** Opening, sign-in, first name, no connection, recovery (B1 to B4). */
+export const en = {
+  'character.alt': '{character}',
+  'offline.copy':
+    'The very first opening needs the Internet. After that, your garden works even without a connection.',
+  'offline.retry': 'Try again',
+  'offline.title': 'No connection',
+  'onboarding.copy': 'This is the name your garden will show. You can add other children later.',
+  'onboarding.failed': 'The name could not be saved. Try again.',
+  'onboarding.label': 'First name',
+  'onboarding.open': 'Open my garden',
+  'onboarding.title': 'What’s your name?',
+  opening: 'Opening your garden…',
+  'recovery.copy': 'Something went a little wrong. Your progress is safely kept on this phone.',
+  'recovery.eyebrow': 'A little pause',
+  'recovery.reopen': 'Update and reopen',
+  'recovery.title': 'Let’s freshen things up',
+  'signIn.buttonUnavailable':
+    'The Google sign-in button could not load. Check the connection and reopen the app.',
+  'signIn.copy':
+    'Learn the times tables gently, one little watering a day. A parent signs in only once.',
+  'signIn.failed': 'Signing in with Google did not work. Try again.',
+  'signIn.invitedOnly': 'For invited families.',
+  'signIn.notInvited': 'This Google account is not invited to this garden yet.',
+  'signIn.title': 'Your garden is waiting ♡',
+}
+
+type Messages = Record<keyof typeof en, string>
+
+export const fr: Messages = {
+  'character.alt': '{character}',
+  'offline.copy':
+    'La toute première ouverture a besoin d’Internet. Ensuite, ton jardin marche même sans réseau.',
+  'offline.retry': 'Réessayer',
+  'offline.title': 'Pas de connexion',
+  'onboarding.copy':
+    'C’est le prénom que ton jardin affichera. Tu pourras ajouter d’autres enfants ensuite.',
+  'onboarding.failed': 'Le prénom n’a pas pu être enregistré. Réessaie.',
+  'onboarding.label': 'Prénom',
+  'onboarding.open': 'Ouvrir mon jardin',
+  'onboarding.title': 'Comment on t’appelle ?',
+  opening: 'On ouvre ton jardin…',
+  'recovery.copy':
+    'Quelque chose s’est mal passé. Tes progrès sont bien enregistrés sur ce téléphone.',
+  'recovery.eyebrow': 'Une petite pause',
+  'recovery.reopen': 'Mettre à jour et rouvrir',
+  'recovery.title': 'Rafraîchissons tout ça',
+  'signIn.buttonUnavailable':
+    'Le bouton de connexion Google n’a pas pu se charger. Vérifie la connexion et rouvre l’app.',
+  'signIn.copy':
+    'Apprendre les tables en douceur, un petit arrosage par jour. Un parent se connecte une seule fois.',
+  'signIn.failed': 'La connexion avec Google n’a pas abouti. Réessaie.',
+  'signIn.invitedOnly': 'Réservé aux familles invitées.',
+  'signIn.notInvited': 'Ce compte Google n’est pas encore invité dans ce jardin.',
+  'signIn.title': 'Ton jardin t’attend ♡',
+}
+
+export const zh: Messages = {
+  'character.alt': '{character}',
+  'offline.copy': '第一次打开需要连接网络。之后即使没有网络，你的花园也能使用。',
+  'offline.retry': '重试',
+  'offline.title': '没有网络连接',
+  'onboarding.copy': '花园里会显示这个名字。之后还可以添加其他孩子。',
+  'onboarding.failed': '名字没能保存，请再试一次。',
+  'onboarding.label': '名字',
+  'onboarding.open': '打开我的花园',
+  'onboarding.title': '你叫什么名字？',
+  opening: '正在打开你的花园…',
+  'recovery.copy': '出了一点小问题。你的进度已安全保存在这台手机上。',
+  'recovery.eyebrow': '稍作休息',
+  'recovery.reopen': '更新并重新打开',
+  'recovery.title': '让我们刷新一下',
+  'signIn.buttonUnavailable': 'Google 登录按钮无法加载。请检查网络后重新打开应用。',
+  'signIn.copy': '轻松学习乘法表，每天浇一次水。家长只需登录一次。',
+  'signIn.failed': '使用 Google 登录没有成功，请再试一次。',
+  'signIn.invitedOnly': '仅限受邀家庭使用。',
+  'signIn.notInvited': '这个 Google 账号还没有被邀请进入这个花园。',
+  'signIn.title': '你的花园在等你 ♡',
+}

@@ -20,6 +20,8 @@ const rows: ReadonlyArray<ReadonlyArray<PadKey>> = [
 export type NumberPadProps = Readonly<{
   className?: string
   eraseLabel?: string
+  /** Names the keypad for assistive technologies. */
+  label: string
   onKey: (key: PadKey) => void
   submitDisabled?: boolean
   submitLabel?: string
@@ -29,16 +31,13 @@ export type NumberPadProps = Readonly<{
 export function NumberPad({
   className,
   eraseLabel = 'Effacer',
+  label,
   onKey,
   submitDisabled = false,
   submitLabel = 'Valider',
 }: NumberPadProps) {
   return (
-    <div
-      className={cn('grid grid-cols-3 gap-2', className)}
-      role="group"
-      aria-label="Pavé numérique"
-    >
+    <div className={cn('grid grid-cols-3 gap-2', className)} role="group" aria-label={label}>
       {rows.flat().map((key) => (
         <button
           aria-label={key === 'erase' ? eraseLabel : key === 'submit' ? submitLabel : undefined}
@@ -71,13 +70,23 @@ export function NumberPad({
 
 export type PinPadProps = Readonly<{
   className?: string
+  eraseLabel: string
   length?: number
   onKey: (key: Exclude<PadKey, 'submit'>) => void
+  /** Spoken progress, e.g. "2 digits of 4". */
+  progressLabel: string
   value: string
 }>
 
 /** Four dots and round keys, for the parent code. */
-export function PinPad({ className, length = 4, onKey, value }: PinPadProps) {
+export function PinPad({
+  className,
+  eraseLabel,
+  length = 4,
+  onKey,
+  progressLabel,
+  value,
+}: PinPadProps) {
   const keys: ReadonlyArray<Exclude<PadKey, 'submit'> | null> = [
     '1',
     '2',
@@ -94,11 +103,7 @@ export function PinPad({ className, length = 4, onKey, value }: PinPadProps) {
   ]
   return (
     <div className={cn('flex flex-col items-center gap-8', className)}>
-      <div
-        aria-label={`${value.length} chiffres sur ${length}`}
-        className="flex gap-5"
-        role="status"
-      >
+      <div aria-label={progressLabel} className="flex gap-5" role="status">
         {Array.from({ length }, (_, index) => (
           <span
             className={cn(
@@ -115,7 +120,7 @@ export function PinPad({ className, length = 4, onKey, value }: PinPadProps) {
             <span key={index} />
           ) : (
             <button
-              aria-label={key === 'erase' ? 'Effacer' : key}
+              aria-label={key === 'erase' ? eraseLabel : key}
               className={cn(
                 'flex size-19.5 items-center justify-center rounded-full text-[1.875rem] font-bold transition-transform active:scale-95',
                 key === 'erase' ? 'text-label-2' : 'bg-surface text-label',
@@ -193,15 +198,26 @@ export function AnswerTiles<Value>({
 
 export type FractionTextProps = Readonly<{
   className?: string
-  denominator: number | string
-  numerator: number | string
+  /** A number, or any content such as a blank to fill in. */
+  denominator: ReactNode
+  /** Spoken form in the reader's language, e.g. "three quarters". */
+  label?: string
+  numerator: ReactNode
   /** Whole units written before the fraction, as in 1 ½. */
   whole?: number
 }>
 
 /** A fraction written as at school: numerator over a bar over the denominator. */
-export function FractionText({ className, denominator, numerator, whole = 0 }: FractionTextProps) {
-  const spoken = `${whole > 0 ? `${whole} et ` : ''}${numerator} sur ${denominator}`
+export function FractionText({
+  className,
+  denominator,
+  label,
+  numerator,
+  whole = 0,
+}: FractionTextProps) {
+  const plain = (part: ReactNode) =>
+    typeof part === 'number' || typeof part === 'string' ? String(part) : '?'
+  const spoken = label ?? `${whole > 0 ? `${whole} ` : ''}${plain(numerator)}/${plain(denominator)}`
   return (
     <span
       aria-label={spoken}

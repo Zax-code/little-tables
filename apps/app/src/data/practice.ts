@@ -14,7 +14,7 @@ import type {
 import { Effect } from 'effect'
 
 import { LocalStore } from './local-store.js'
-import type { SessionCompletion } from './schema.js'
+import type { ProfileState, SessionCompletion } from './schema.js'
 
 /** The sessions the app offers, as the previous app defined them. */
 export const policies = {
@@ -78,6 +78,7 @@ export type LearnerResponse =
 export type AnswerResult = Readonly<{
   correct: boolean
   session: PracticeSession
+  state: ProfileState
 }>
 
 /** Records the answer to the active session's current question. */
@@ -100,7 +101,7 @@ export const answerQuestion = (profileId: string, response: LearnerResponse, now
       timeZone: snapshotTimeZone,
     })
     const dayKey = outcome.event.learningDayKey
-    yield* store.update(profileId, (state) => ({
+    const state = yield* store.update(profileId, (state) => ({
       events: [outcome.event],
       state: {
         ...state,
@@ -112,8 +113,22 @@ export const answerQuestion = (profileId: string, response: LearnerResponse, now
         snapshot,
       },
     }))
-    return { correct: outcome.correct, session: outcome.session } satisfies AnswerResult
+    return { correct: outcome.correct, session: outcome.session, state } satisfies AnswerResult
   })
+
+/**
+ * Shows the next question: its answer time starts now, not when the previous answer was given,
+ * so reading the feedback does not count as hesitation.
+ */
+export const continueSession = (profileId: string, now = Date.now()) =>
+  Effect.flatMap(LocalStore, (store) =>
+    store.update(profileId, (state) => ({
+      state:
+        state.activeSession === null
+          ? state
+          : { ...state, activeSession: { ...state.activeSession, currentQuestionStartedAt: now } },
+    })),
+  )
 
 /** Leaves the active session; it can be started again from the beginning later. */
 export const abandonSession = (profileId: string) =>

@@ -192,7 +192,10 @@ export function EmptyState({ action, art, className, description, title }: Empty
 
 export type WeekStripProps = Readonly<{
   className?: string
-  days: ReadonlyArray<Readonly<{ label: string; practiced: boolean; today: boolean }>>
+  /** `description` is spoken, e.g. "Monday, watered, today". */
+  days: ReadonlyArray<
+    Readonly<{ description: string; label: string; practiced: boolean; today: boolean }>
+  >
   status: ReactNode
   title: ReactNode
 }>
@@ -209,7 +212,7 @@ export function WeekStrip({ className, days, status, title }: WeekStripProps) {
         {days.map((day, index) => (
           <li className="flex flex-col items-center gap-1.5" key={index}>
             <span
-              aria-label={`${day.label}${day.practiced ? ', arrosé' : ''}${day.today ? ", aujourd'hui" : ''}`}
+              aria-label={day.description}
               className={cn(
                 'flex size-9.5 items-center justify-center rounded-full',
                 day.practiced ? 'bg-leaf-soft text-leaf' : 'bg-surface-2',

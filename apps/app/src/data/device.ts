@@ -2,7 +2,8 @@
  * Small device settings kept in `localStorage` (`docs/rewrite/TECHNICAL_SPEC.md` §4.2). Every
  * value is decoded on read; a missing, unreadable or blocked storage falls back to defaults.
  */
-import type { ChildProfile } from '@little-tables/api-contract'
+import { ApiSchema, type ChildProfile } from '@little-tables/api-contract'
+import { LearningPathSettings, defaultLearningPathSettings } from '@little-tables/engine/schema'
 import { Either, Schema } from 'effect'
 
 import {
@@ -86,8 +87,29 @@ export const createDevice = (storage: Storage | null = defaultStorage()) => ({
   setPreferences: (preferences: DevicePreferences) =>
     write(keys.preferences, JSON.stringify(preferences), storage),
 
+  /** The family's children, or those the previous app cached, until the server answers. */
   profiles: (): ReadonlyArray<ChildProfile> =>
-    readJson(ProfilesCache, keys.profilesCache, storage) ?? [],
+    readJson(ProfilesCache, keys.profilesCache, storage) ??
+    (
+      readJson(
+        Schema.Array(
+          Schema.Struct({
+            avatarId: Schema.optional(ApiSchema.AvatarId),
+            id: Schema.NonEmptyString,
+            learningPaths: Schema.optional(LearningPathSettings),
+            name: Schema.String,
+          }),
+        ),
+        legacyKeys.profilesCache,
+        storage,
+      ) ?? []
+    ).map((profile) => ({
+      avatarId: profile.avatarId ?? 'sprout',
+      id: profile.id,
+      learningPaths: profile.learningPaths ?? defaultLearningPathSettings,
+      name: profile.name,
+      reminderMinute: 1080,
+    })),
   setProfiles: (profiles: ReadonlyArray<ChildProfile>) =>
     write(keys.profilesCache, JSON.stringify(profiles), storage),
 

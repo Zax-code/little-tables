@@ -22,6 +22,7 @@ import {
 import {
   answerQuestion,
   completeSession,
+  continueSession,
   policies,
   startSession,
   type AnswerResult,
@@ -207,6 +208,39 @@ const legacyState = {
     processedEventIds: ['old-1', 'old-2'],
   },
 }
+
+describe('answer timing', () => {
+  it('starts timing the next question when it is shown', async () => {
+    const profileId = newProfile()
+    const latency = await run(
+      Effect.gen(function* () {
+        const engine = yield* Engine
+        const store = yield* LocalStore
+        const session = yield* startSession(profileId, policies.quick(defaultPaths), 1_000)
+        if (session === null) throw new Error('no questions')
+        const answer = (index: number, at: number) =>
+          Effect.gen(function* () {
+            const question = session.questions[index]
+            if (question === undefined) throw new Error('missing question')
+            return yield* answerQuestion(
+              profileId,
+              question.exercise === undefined
+                ? { selected: yield* engine.correctAnswer(question) }
+                : { response: yield* engine.expectedAnswer(question.exercise) },
+              at,
+            )
+          })
+        yield* answer(0, 3_000)
+        // The child reads the feedback for 20 seconds before the next question appears.
+        yield* continueSession(profileId, 23_000)
+        yield* answer(1, 25_000)
+        const events = yield* store.sessionEvents(profileId, session.id)
+        return events.map(({ latencyMs }) => latencyMs)
+      }),
+    )
+    expect(latency).toEqual([2_000, 2_000])
+  })
+})
 
 describe('moving from the previous app', () => {
   it('copies events, the unsent outbox and the state, once', async () => {
@@ -448,6 +482,20 @@ describe('device settings', () => {
     expect(device.authGrant(1000)).toMatchObject({ expiresAt: 5000, onboardingRequired: true })
     expect(device.authGrant(6000)).toBeNull()
     expect(device.legacyProfileIds()).toEqual(['lou', 'zoe'])
+    expect(device.profiles()).toEqual([
+      {
+        avatarId: 'sprout',
+        id: 'zoe',
+        learningPaths: {
+          enabledSkills: [],
+          focusSkill: null,
+          mode: 'automatic',
+          subtractionMethod: 'compensation',
+        },
+        name: 'Zoé',
+        reminderMinute: 1080,
+      },
+    ])
     expect(storage.values.has('little-tables:locale')).toBe(true)
   })
 

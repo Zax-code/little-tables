@@ -82,7 +82,8 @@ export function ListRow({
     trailing === 'chevron' ? (
       <ChevronRight aria-hidden className="size-5 text-label-3" />
     ) : trailing === 'check' ? (
-      <Check aria-label="sélectionné" className="size-5 text-tint" />
+      // Decorative: the row itself says it is the current choice (`aria-current`).
+      <Check aria-hidden className="size-5 text-tint" />
     ) : (
       accessory
     )
@@ -104,9 +105,22 @@ export function ListRow({
     </>
   )
   const classes = cn('flex min-h-14 w-full items-center gap-3.5 px-4 py-2', className)
-  if (onClick === undefined) return <div className={classes}>{content}</div>
+  const current = trailing === 'check' ? { 'aria-current': true as const } : {}
+  if (onClick === undefined) {
+    return (
+      <div className={classes} {...current}>
+        {content}
+      </div>
+    )
+  }
   return (
-    <button className={cn(classes, 'active:bg-surface-2')} onClick={onClick} type={type} {...props}>
+    <button
+      className={cn(classes, 'active:bg-surface-2')}
+      onClick={onClick}
+      type={type}
+      {...current}
+      {...props}
+    >
       {content}
     </button>
   )

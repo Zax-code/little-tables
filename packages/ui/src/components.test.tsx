@@ -82,6 +82,7 @@ describe('accessibility', () => {
       'week',
       <WeekStrip
         days={['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((label, index) => ({
+          description: `${label}${index < 2 ? ', arrosé' : ''}`,
           label,
           practiced: index < 2,
           today: index === 4,
@@ -106,8 +107,16 @@ describe('accessibility', () => {
         <Chip>× 7</Chip>
       </>,
     ],
-    ['number pad', <NumberPad onKey={() => undefined} />],
-    ['pin pad', <PinPad onKey={() => undefined} value="12" />],
+    ['number pad', <NumberPad label="Pavé numérique" onKey={() => undefined} />],
+    [
+      'pin pad',
+      <PinPad
+        eraseLabel="Effacer"
+        onKey={() => undefined}
+        progressLabel="2 chiffres sur 4"
+        value="12"
+      />,
+    ],
     [
       'answer tiles',
       <AnswerTiles
@@ -134,7 +143,7 @@ describe('accessibility', () => {
 describe('NumberPad', () => {
   it('reports digits, erase and submit', async () => {
     const keys: PadKey[] = []
-    render(<NumberPad onKey={(key) => keys.push(key)} />)
+    render(<NumberPad label="Pavé numérique" onKey={(key) => keys.push(key)} />)
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: '5' }))
     await user.click(screen.getByRole('button', { name: 'Effacer' }))
@@ -143,14 +152,21 @@ describe('NumberPad', () => {
   })
 
   it('can block submitting an empty answer', () => {
-    render(<NumberPad onKey={() => undefined} submitDisabled />)
+    render(<NumberPad label="Pavé numérique" onKey={() => undefined} submitDisabled />)
     expect(screen.getByRole('button', { name: 'Valider' })).toBeDisabled()
   })
 })
 
 describe('PinPad', () => {
   it('shows how many digits are typed', () => {
-    render(<PinPad onKey={() => undefined} value="12" />)
+    render(
+      <PinPad
+        eraseLabel="Effacer"
+        onKey={() => undefined}
+        progressLabel="2 chiffres sur 4"
+        value="12"
+      />,
+    )
     expect(screen.getByRole('status')).toHaveAccessibleName('2 chiffres sur 4')
   })
 })
@@ -208,9 +224,14 @@ describe('Switch', () => {
 })
 
 describe('FractionText', () => {
-  it('reads as words', () => {
-    render(<FractionText denominator={2} numerator={1} whole={1} />)
-    expect(screen.getByRole('img')).toHaveAccessibleName('1 et 1 sur 2')
+  it('reads as the words it is given, or as digits', () => {
+    render(<FractionText denominator={2} label="un et demi" numerator={1} whole={1} />)
+    expect(screen.getByRole('img')).toHaveAccessibleName('un et demi')
+  })
+
+  it('falls back to digits', () => {
+    render(<FractionText denominator={4} numerator={3} />)
+    expect(screen.getByRole('img')).toHaveAccessibleName('3/4')
   })
 })
 
