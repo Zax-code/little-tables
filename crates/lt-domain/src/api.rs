@@ -13,7 +13,10 @@ use crate::engine::{
     derive_curriculum_pack_progress, derive_learning_progress, derive_rescue_strategies,
     derive_session_insight, empty_snapshot, reduce, validate_exercise_attempt,
 };
-use crate::exercises::{expected_answer, is_exercise_answer_correct, is_production_exercise};
+use crate::exercises::{
+    column_result, equal_option_indexes, expected_answer, fraction_operation_result,
+    is_exercise_answer_correct, is_production_exercise, line_tick_index,
+};
 use crate::garden::{
     GardenInput, LedgerTotals, SessionCompletionDay, derive_garden_progress,
     derive_garden_reward_ledger, derive_rewards, garden_flower_ids, merge_garden_reward_ledgers,
@@ -129,6 +132,27 @@ struct ExerciseAnswer {
     exercise: Exercise,
 }
 
+/// What an exercise screen shows besides the prompt: the answer, typed or chosen, and the
+/// values the illustrations reveal once it is settled.
+fn describe_exercise(exercise: &Exercise) -> Value {
+    let mut description = json!({
+        "expected": expected_answer(exercise),
+        "production": is_production_exercise(exercise),
+    });
+    match exercise {
+        Exercise::Column(column) => description["columnResult"] = json!(column_result(column)),
+        Exercise::FractionLine(line) => description["tickIndex"] = json!(line_tick_index(line)),
+        Exercise::FractionPick(pick) => {
+            description["equalOptions"] = json!(equal_option_indexes(pick));
+        }
+        Exercise::FractionOperation(operation) => {
+            description["operationResult"] = json!(fraction_operation_result(operation));
+        }
+        _ => {}
+    }
+    description
+}
+
 fn utc() -> String {
     "UTC".to_owned()
 }
@@ -202,6 +226,10 @@ pub fn dispatch(operation: &str, input: Value, day_keys: &dyn DayKeys) -> Result
         "isProductionExercise" => {
             let exercise: Exercise = parse(input)?;
             output(&is_production_exercise(&exercise))
+        }
+        "describeExercise" => {
+            let exercise: Exercise = parse(input)?;
+            output(&describe_exercise(&exercise))
         }
         "deriveLearningProgress" => {
             let input: LearningProgressInput = parse(input)?;

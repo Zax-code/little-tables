@@ -79,7 +79,6 @@ Workspace pnpm + workspace Cargo dans le même dépôt.
 crates/
   lt-domain/        moteur pédagogique pur (sans I/O, sans horloge, sans aléa implicite)
   lt-domain-wasm/   bindings wasm-bindgen (JSON in / JSON out)
-  lt-api/           types HTTP v2 (serde + schemars) + export JSON Schema (lot 3)
   lt-auth/          vérification Google, session HMAC, CSRF, code parent
   lt-store/         SQLite (sqlx), migrations, projection des snapshots
   lt-push/          Web Push, worker de rappels
@@ -88,7 +87,7 @@ apps/
   web/              PWA React
 packages/
   ui/               système de composants + tokens
-  api-contract/     schémas Effect de l'API et du domaine (écrits à la main, vérifiés contre lt-api, §2.4)
+  api-contract/     schémas Effect et client de l'API v2 (écrits à la main, vérifiés contre le serveur, §2.4)
   engine/           façade Effect autour de lt-domain.wasm (l'ancien packages/domain disparaît au lot 5)
   local-store/      Dexie + schémas Effect
   i18n/             catalogues fr / en / zh-Hans typés
@@ -115,16 +114,16 @@ deploy/             unité systemd, timer de sauvegarde, Caddy, script de releas
 
 ### 2.4 Contrat entre Rust et TypeScript
 
-1. `lt-api` et `lt-domain` dérivent `JsonSchema` (schemars) sur tous les types exposés.
-   `cargo run -p lt-api --bin export-schema` écrit `packages/api-contract/schema.json`.
-2. Les schémas Effect de `packages/api-contract` sont **écrits à la main** (lisibles, annotés, avec les transformations
-   dates ↔ millisecondes).
-3. Un test CI produit le JSON Schema de chaque schéma Effect (`JSONSchema.make`) et le compare, après normalisation,
-   à celui exporté par Rust. Toute divergence fait échouer la CI. On évite ainsi d'écrire et de maintenir un
-   générateur de code.
+1. Les schémas Effect de `packages/api-contract` sont **écrits à la main** (lisibles, annotés), en réutilisant ceux du
+   moteur (`@little-tables/engine/schema`).
+2. `crates/lt-server/tests/v2.rs` appelle chaque endpoint et enregistre une réponse par endpoint dans
+   `tests/fixtures/v2-responses.json` ; le test compare la **forme** (clés et types) des réponses à celle du fichier
+   versionné (`UPDATE_CONTRACT=1` le régénère).
+3. `packages/api-contract` décode ce fichier avec ses schémas en mode strict (propriétés en trop refusées). Une dérive
+   côté Rust casse le premier test, une dérive côté TypeScript le second. Plus simple qu'un export JSON Schema
+   (schemars) et sans générateur de code.
 4. Le WASM reçoit et renvoie du JSON (`serde-wasm-bindgen`) ; la façade `packages/engine` décode ses sorties avec les
    mêmes schémas. Les dates traversent la frontière en millisecondes UTC, les clés de jour en chaînes `YYYY-MM-DD`.
-5. Tests de contrat : le client Effect rejoue chaque endpoint contre le serveur Rust lancé en CI.
 
 ---
 
@@ -341,7 +340,7 @@ doivent lui appartenir, puisque la base impose les clés étrangères.
 | POST         | `/profiles/{id}/garden/introduction-seen`         | Carte d'intro vue                                                             |
 | GET          | `/profiles/{id}/insights?range=7d\|30d`           | Vue parent des difficultés (§5.6)                                             |
 | GET          | `/notifications/config`                           | Clé publique VAPID uniquement                                                 |
-| POST/DELETE  | `/profiles/{id}/notifications/subscriptions`      | Abonner · désabonner (`DELETE …/subscriptions/{endpoint}`)                    |
+| POST/DELETE  | `/profiles/{id}/notifications/subscriptions`      | Abonner · désabonner (`DELETE …/subscriptions?endpoint=…`)                    |
 | GET/POST     | `/admin/allowed-emails`                           | Lister · ajouter (admins, sinon 403)                                          |
 | DELETE       | `/admin/allowed-emails/{email}`                   | Retirer (409 pour un admin)                                                   |
 | GET          | `/*`                                              | PWA ; redirections de navigation `/` ↔ `/sign-in` ; `index.html` sans cache   |

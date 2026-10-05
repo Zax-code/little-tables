@@ -112,6 +112,20 @@ service (`sudo systemctl start little-tables.service`) and investigate.
 
 Then merge the pipeline change that deploys releases (`deploy-release`) instead of images.
 
+## Family beta of the new app (lot 3)
+
+Each release carries both apps: `web-v1/` (the previous one, served after the switch) and `web/`
+(the new one). Once the switch is stable, serve the new app by changing one line of the unit:
+
+```sh
+sudo systemctl edit little-tables.service   # Environment=WEB_DIST_PATH=/opt/little-tables/current/web
+sudo systemctl restart little-tables.service
+```
+
+On first opening, the new app copies each child's previous local data (events not yet sent
+included) and deletes the old copy only after it reached the server. Going back is the same edit
+with `web-v1`; both apps read the same server data.
+
 ## Rollback
 
 Before the pipeline change, rolling back is: stop `little-tables.service`, disable the native

@@ -110,7 +110,10 @@ export function TextField({ className, counter, label, id, ...props }: TextField
           {...props}
         />
         {counter === undefined ? null : (
-          <span className="text-footnote font-bold text-label-3">{counter}</span>
+          // The limit is already known from `maxLength`; the name stays the label alone.
+          <span aria-hidden className="text-footnote font-bold text-label-3">
+            {counter}
+          </span>
         )}
       </span>
     </label>

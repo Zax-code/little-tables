@@ -132,4 +132,33 @@ describe('WebAssembly engine', () => {
     expect(failure._tag).toBe('EngineError')
     expect(failure.operation).toBe('reduce')
   })
+
+  it('describes what an exercise screen reveals', () => {
+    const column = runSync(
+      engine.describeExercise({
+        kind: 'column',
+        operation: 'subtract',
+        skill: 'column-subtraction',
+        terms: [503, 128],
+      }),
+    )
+    expect(column).toEqual({
+      columnResult: 375,
+      expected: { type: 'integer', value: 375 },
+      production: true,
+    })
+    const line = runSync(
+      engine.describeExercise({
+        choices: [],
+        kind: 'fraction-line',
+        mode: 'place',
+        skill: 'fraction-line',
+        target: { denominator: 4, numerator: 3, whole: 0 },
+        ticks: 4,
+        units: 1,
+      }),
+    )
+    expect(line.tickIndex).toBe(3)
+    expect(line.expected).toEqual({ index: 3, type: 'tick' })
+  })
 })

@@ -7,8 +7,10 @@ pub mod bootstrap;
 pub mod config;
 pub mod import;
 pub mod ingestion;
+pub mod limits;
 pub mod state;
 pub mod v1;
+pub mod v2;
 pub mod web;
 
 use std::sync::Arc;
@@ -56,6 +58,7 @@ pub fn app(state: AppState) -> Router {
         )
         .route("/health/ready", get(ready))
         .merge(v1::router())
+        .merge(v2::router(state.clone()))
         .fallback(fallback)
         .method_not_allowed_fallback(fallback)
         .layer(DefaultBodyLimit::max(BODY_LIMIT))
@@ -84,11 +87,11 @@ pub async fn serve(config: config::Config) -> Result<(), Box<dyn std::error::Err
         .as_ref()
         .map(|auth| auth.google_client_id.clone())
         .unwrap_or_default();
-    let state = AppState {
-        config: config.clone(),
-        store: store.clone(),
-        verifier: Arc::new(lt_auth::GoogleVerifier::new(&client_id)),
-    };
+    let state = AppState::new(
+        config.clone(),
+        store.clone(),
+        Arc::new(lt_auth::GoogleVerifier::new(&client_id)),
+    );
     state.prepare().await?;
     if let Some(vapid) = &config.vapid {
         let sender = lt_push::PushSender::new(&vapid.private_key, &vapid.subject)?;
@@ -98,9 +101,12 @@ pub async fn serve(config: config::Config) -> Result<(), Box<dyn std::error::Err
     }
     let listener = tokio::net::TcpListener::bind((config.host, config.port)).await?;
     tracing::info!(address = %listener.local_addr()?, revision = %config.revision, "little tables is listening");
-    axum::serve(listener, app(state))
-        .with_graceful_shutdown(shutdown())
-        .await?;
+    axum::serve(
+        listener,
+        app(state).into_make_service_with_connect_info::<std::net::SocketAddr>(),
+    )
+    .with_graceful_shutdown(shutdown())
+    .await?;
     Ok(())
 }
 

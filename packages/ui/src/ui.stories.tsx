@@ -176,7 +176,12 @@ export const Progress: Story = () => (
       3/5
     </ProgressRing>
     <WeekStrip
-      days={week.map((label, index) => ({ label, practiced: index < 2, today: index === 4 }))}
+      days={week.map((label, index) => ({
+        description: `${label}${index < 2 ? ', arrosé' : ''}${index === 4 ? ", aujourd'hui" : ''}`,
+        label,
+        practiced: index < 2,
+        today: index === 4,
+      }))}
       status="Encore 1 jour"
       title="Ma semaine"
     />
@@ -192,6 +197,7 @@ export const Practice: Story = () => {
         {typed === '' ? '?' : typed}
       </p>
       <NumberPad
+        label="Pavé numérique"
         onKey={(key) =>
           setTyped((current) =>
             key === 'erase'
@@ -284,11 +290,13 @@ export const ParentCode: Story = () => {
   const [code, setCode] = useState('')
   return (
     <PinPad
+      eraseLabel="Effacer"
       onKey={(key) =>
         setCode((current) =>
           key === 'erase' ? current.slice(0, -1) : `${current}${key}`.slice(0, 4),
         )
       }
+      progressLabel={`${code.length} chiffres sur 4`}
       value={code}
     />
   )

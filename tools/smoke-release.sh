@@ -23,7 +23,7 @@ test "$("$release/little-tables" --version)" = "little-tables 0.1.0"
 
 DATABASE_PATH=$workspace/state/little-tables.db "$release/little-tables" admin migrate >/dev/null
 env -i PATH="$PATH" LT_ENV=smoke HOST=127.0.0.1 PORT="$port" \
-  DATABASE_PATH="$workspace/state/little-tables.db" WEB_DIST_PATH="$release/web" \
+  DATABASE_PATH="$workspace/state/little-tables.db" WEB_DIST_PATH="$release/${WEB:-web-v1}" \
   GOOGLE_ALLOWED_EMAILS=learner@example.com GOOGLE_CLIENT_ID=smoke.apps.googleusercontent.com \
   SESSION_SECRET=smoke-session-secret-at-least-32-bytes \
   "$release/little-tables" serve 2>"$workspace/server.log" &
@@ -47,8 +47,10 @@ test "$(status "$base/api/v1/notifications/config")" = 401
 test "$(status --header 'content-type: application/json' --data '{}' "$base/api/v1/invites/claim")" = 404
 test "$(status "$base/sign-in")" = 200
 test "$(header cache-control "$base/sign-in")" = no-store
-asset=$(cd "$release/web" && find assets -type f -name '*.js' | head -n 1)
+asset=$(cd "$release/${WEB:-web-v1}" && find assets -type f -name '*.js' | head -n 1)
 test "$(status "$base/$asset")" = 200
 curl --fail --silent "$base/api/v1/auth/status" | grep -q '"authenticationRequired":true'
+curl --fail --silent "$base/api/v2/auth/status" | grep -q '"authenticationRequired":true'
+test "$(status --header 'content-type: application/json' --data '{}' "$base/api/v2/family/profiles")" = 403
 
-echo "Release $revision smoke test passed on port $port."
+echo "Release $revision smoke test passed on port $port with ${WEB:-web-v1}."

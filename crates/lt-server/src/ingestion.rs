@@ -28,7 +28,7 @@ pub struct SyncResult {
 #[serde(rename_all = "camelCase")]
 struct WireAttempt {
     answer_mode: AnswerMode,
-    answered_at: String,
+    answered_at: Value,
     choices: Vec<i64>,
     correct: bool,
     event_id: String,
@@ -85,9 +85,25 @@ fn is_day_key_shaped(key: &str) -> bool {
         })
 }
 
+/// How a request writes instants: v1 as ISO strings, v2 as Unix milliseconds.
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
+pub enum Instants {
+    Iso,
+    Millis,
+}
+
 fn decode_attempt(value: Value) -> Result<AttemptEvent, String> {
+    decode_attempt_with(value, Instants::Iso)
+}
+
+/// Decodes one event and applies the schema rules of the wire format.
+pub fn decode_attempt_with(value: Value, instants: Instants) -> Result<AttemptEvent, String> {
     let wire: WireAttempt = serde_json::from_value(value).map_err(|error| error.to_string())?;
-    let answered_at = parse_instant(&wire.answered_at).ok_or("answeredAt is not a date")?;
+    let answered_at = match instants {
+        Instants::Iso => wire.answered_at.as_str().and_then(parse_instant),
+        Instants::Millis => wire.answered_at.as_i64().filter(|millis| *millis > 0),
+    }
+    .ok_or("answeredAt is not a date")?;
     let whole = |value: f64| value >= 0.0 && value.fract() == 0.0 && value.is_finite();
     if wire.event_id.is_empty() || wire.fact_key.is_empty() || wire.session_id.is_empty() {
         return Err("identifiers must not be empty".to_owned());

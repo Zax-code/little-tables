@@ -9,6 +9,7 @@ use lt_auth::{GoogleIdentity, GoogleVerifier, SESSION_COOKIE, SessionClaims, nor
 use lt_store::{EmailStatus, Store};
 
 use crate::config::Config;
+use crate::limits::RateLimiter;
 
 pub type BoxFuture<'a, T> = Pin<Box<dyn Future<Output = T> + Send + 'a>>;
 
@@ -38,6 +39,8 @@ pub struct AppState {
     pub config: Arc<Config>,
     pub store: Arc<Store>,
     pub verifier: Arc<dyn CredentialVerifier>,
+    /// Sign-in attempts per client address.
+    pub sign_in_limiter: Arc<RateLimiter>,
 }
 
 pub fn now() -> i64 {
@@ -63,6 +66,19 @@ pub fn header<'a>(headers: &'a HeaderMap, name: &str) -> Option<&'a str> {
 }
 
 impl AppState {
+    pub fn new(
+        config: Arc<Config>,
+        store: Arc<Store>,
+        verifier: Arc<dyn CredentialVerifier>,
+    ) -> Self {
+        Self {
+            config,
+            store,
+            verifier,
+            sign_in_limiter: Arc::new(RateLimiter::new(20, std::time::Duration::from_secs(60))),
+        }
+    }
+
     pub fn is_admin(&self, email: &str) -> bool {
         normalize_email(email).is_some_and(|email| self.config.admin_emails.contains(&email))
     }
@@ -118,6 +134,30 @@ impl AppState {
             Some(_) => Ok(true),
             None => Ok(false),
         }
+    }
+
+    /// Everyone who may sign in: admins, the stored list and the deployment list minus blocked.
+    pub async fn access_list(&self) -> lt_store::Result<Vec<String>> {
+        let blocked = self.store.list_emails(EmailStatus::Blocked).await?;
+        let mut emails = self.config.admin_emails.clone();
+        emails.extend(self.store.list_emails(EmailStatus::Allowed).await?);
+        emails.extend(
+            self.config
+                .allowed_emails
+                .iter()
+                .filter(|email| !blocked.contains(email))
+                .cloned(),
+        );
+        emails.sort();
+        emails.dedup();
+        Ok(emails)
+    }
+
+    /// Blocks an email and ends its sessions. True when it was allowed before.
+    pub async fn revoke(&self, email: &str, actor: &str) -> lt_store::Result<bool> {
+        let was_allowed = self.is_allowed(email).await?;
+        self.store.block_email(email, actor, now()).await?;
+        Ok(was_allowed)
     }
 
     pub async fn session_version(&self, email: &str) -> lt_store::Result<i64> {

@@ -51,7 +51,7 @@ fi
 mkdir "$incoming/extract"
 tar -xzf "$incoming/release.tar.gz" -C "$incoming/extract" --no-same-owner --no-same-permissions
 readonly unpacked=$incoming/extract/little-tables-$revision
-if [[ ! -x $unpacked/little-tables || ! -f $unpacked/web/index.html ]]; then
+if [[ ! -x $unpacked/little-tables || ! -f $unpacked/web/index.html || ! -f $unpacked/web-v1/index.html ]]; then
   echo 'release archive is incomplete' >&2
   exit 2
 fi

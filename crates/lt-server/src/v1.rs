@@ -3,22 +3,25 @@
 
 use axum::Router;
 use axum::body::Bytes;
+use std::time::Instant;
+
 use axum::extract::State;
-use axum::http::{HeaderMap, HeaderValue, StatusCode, header};
+use axum::http::{Extensions, HeaderMap, HeaderValue, StatusCode, header};
 use axum::response::{IntoResponse, Response};
 use axum::routing::{get, post, put};
 use lt_auth::{SESSION_COOKIE, SESSION_LIFETIME_MS, SessionClaims, normalize_email};
 use lt_domain::model::LearningPathSettings;
-use lt_store::{EmailStatus, Family, PushSubscription, RemoveChildResult};
+use lt_store::{Family, PushSubscription, RemoveChildResult};
 use serde::Deserialize;
 use serde::de::DeserializeOwned;
 use serde_json::{Value, json};
 
 use crate::bootstrap::v1_bootstrap;
 use crate::ingestion::{decode_v1_sync, ingest};
+use crate::limits::client_ip;
 use crate::state::{AppState, cookie, now};
 
-const SELECTABLE_AVATARS: [&str; 6] = [
+pub(crate) const SELECTABLE_AVATARS: [&str; 6] = [
     "sprout",
     "malo-bear",
     "fenna-fox",
@@ -26,7 +29,7 @@ const SELECTABLE_AVATARS: [&str; 6] = [
     "paco-dog",
     "colin-mallard",
 ];
-const DEFAULT_AVATAR: &str = "sprout";
+pub(crate) const DEFAULT_AVATAR: &str = "sprout";
 const REMINDER_HOUR: i64 = 18;
 
 pub fn json_response(status: StatusCode, body: Value) -> Response {
@@ -54,11 +57,11 @@ pub fn is_valid_name(name: &str) -> bool {
     !name.is_empty() && name.trim() == name && name.chars().count() <= 40
 }
 
-fn truncated_name(name: &str) -> String {
+pub(crate) fn truncated_name(name: &str) -> String {
     name.chars().take(40).collect()
 }
 
-fn with_session(mut response: Response, session: &str) -> Response {
+pub(crate) fn with_session(mut response: Response, session: &str) -> Response {
     let cookie = format!(
         "{SESSION_COOKIE}={session}; Max-Age={}; Path=/; HttpOnly; Secure; SameSite=Lax",
         SESSION_LIFETIME_MS / 1000
@@ -71,7 +74,11 @@ fn with_session(mut response: Response, session: &str) -> Response {
 
 /// The first profile keeps the historical id `lou` only for an administrator, who owned the
 /// single shared learner of the first deployment.
-fn legacy_profile_id<'a>(state: &AppState, email: &str, profile_id: &'a str) -> Option<&'a str> {
+pub(crate) fn legacy_profile_id<'a>(
+    state: &AppState,
+    email: &str,
+    profile_id: &'a str,
+) -> Option<&'a str> {
     state.is_admin(email).then_some(profile_id)
 }
 
@@ -136,10 +143,21 @@ struct GoogleCredential {
     credential: String,
 }
 
-async fn google_sign_in(State(state): State<AppState>, body: Bytes) -> Response {
+async fn google_sign_in(
+    State(state): State<AppState>,
+    headers: HeaderMap,
+    extensions: Extensions,
+    body: Bytes,
+) -> Response {
     let Some(auth) = state.config.auth.clone() else {
         return error(StatusCode::NOT_FOUND, "google_auth_unavailable");
     };
+    if !state
+        .sign_in_limiter
+        .allow(client_ip(&headers, &extensions), Instant::now())
+    {
+        return error(StatusCode::TOO_MANY_REQUESTS, "too_many_requests");
+    }
     let invalid = || error(StatusCode::UNAUTHORIZED, "invalid_google_credential");
     let Some(GoogleCredential { credential }) =
         parse(&body).filter(|body: &GoogleCredential| !body.credential.is_empty())
@@ -300,7 +318,7 @@ async fn refresh_session(State(state): State<AppState>, headers: HeaderMap) -> R
 /* Family profiles ---------------------------------------------------------------------------- */
 
 /// The caller's family, created on first use like the previous server did.
-async fn family_for_identity(
+pub(crate) async fn family_for_identity(
     state: &AppState,
     headers: &HeaderMap,
 ) -> lt_store::Result<Option<(Family, SessionClaims)>> {
@@ -542,23 +560,7 @@ async fn list_allowed_emails(State(state): State<AppState>, headers: HeaderMap) 
     if let Err(response) = administrator(&state, &headers).await {
         return *response;
     }
-    let result: lt_store::Result<Vec<String>> = async {
-        let blocked = state.store.list_emails(EmailStatus::Blocked).await?;
-        let mut emails = state.config.admin_emails.clone();
-        emails.extend(state.store.list_emails(EmailStatus::Allowed).await?);
-        emails.extend(
-            state
-                .config
-                .allowed_emails
-                .iter()
-                .filter(|email| !blocked.contains(email))
-                .cloned(),
-        );
-        emails.sort();
-        emails.dedup();
-        Ok(emails)
-    }
-    .await;
+    let result = state.access_list().await;
     match result {
         Ok(emails) => ok(json!({ "emails": emails })),
         Err(_) => error(
@@ -610,12 +612,7 @@ async fn remove_allowed_email(
     if state.is_admin(&email) {
         return error(StatusCode::CONFLICT, "protected_email");
     }
-    let result: lt_store::Result<bool> = async {
-        let was_allowed = state.is_allowed(&email).await?;
-        state.store.block_email(&email, &actor.email, now()).await?;
-        Ok(was_allowed)
-    }
-    .await;
+    let result = state.revoke(&email, &actor.email).await;
     match result {
         Ok(removed) => ok(json!({ "email": email, "removed": removed })),
         Err(_) => error(
