@@ -23,6 +23,7 @@ export const en = {
   'recovery.eyebrow': 'A little pause',
   'recovery.reopen': 'Update and reopen',
   'recovery.title': 'Let’s freshen things up',
+  'signIn.button': 'Sign in with Google',
   'signIn.buttonUnavailable':
     'The Google sign-in button could not load. Check the connection and reopen the app.',
   'signIn.copy':
@@ -61,6 +62,7 @@ export const fr: Messages = {
   'recovery.eyebrow': 'Une petite pause',
   'recovery.reopen': 'Mettre à jour et rouvrir',
   'recovery.title': 'Rafraîchissons tout ça',
+  'signIn.button': 'Se connecter avec Google',
   'signIn.buttonUnavailable':
     'Le bouton de connexion Google n’a pas pu se charger. Vérifie la connexion et rouvre l’app.',
   'signIn.copy':
@@ -94,6 +96,7 @@ export const zh: Messages = {
   'recovery.eyebrow': '稍作休息',
   'recovery.reopen': '更新并重新打开',
   'recovery.title': '让我们刷新一下',
+  'signIn.button': '使用 Google 登录',
   'signIn.buttonUnavailable': 'Google 登录按钮无法加载。请检查网络后重新打开应用。',
   'signIn.copy': '轻松学习乘法表，每天浇一次水。家长只需登录一次。',
   'signIn.failed': '使用 Google 登录没有成功，请再试一次。',

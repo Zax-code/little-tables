@@ -2,13 +2,13 @@
  * Screens shown before a family is open (mockups B1 to B4): sign-in, the first child's name, no
  * connection at the first opening, and recovery after an error.
  */
-import { Button, Screen, TextField } from '@little-tables/ui'
+import { Button, cn, Screen, TextField } from '@little-tables/ui'
 import { RefreshCw, RotateCcw, Sprout } from 'lucide-react'
 import { useEffect, useId, useRef, useState, type ReactNode, type SyntheticEvent } from 'react'
 
 import { runApi } from '../app/run-api.js'
 import { CharacterImage } from '../characters/character-image.js'
-import type { SceneId } from '../characters/characters.js'
+import { avatarImage, type SceneId } from '../characters/characters.js'
 import { useI18n } from '../i18n/i18n.js'
 import type { AppRuntime } from '../runtime.js'
 import { renderGoogleSignInButton } from './google-identity.js'
@@ -85,7 +85,32 @@ export function SignInScreen({ googleClientId, onSignedIn, runtime }: SignInProp
     <AccessLayout
       bottom={
         <div className="flex flex-col items-center gap-3">
-          <div aria-busy={pending} className="flex min-h-13 w-full justify-center" ref={button} />
+          {/* Google's own button, invisible, lies over ours: it receives the tap, ours shows. */}
+          <div
+            aria-busy={pending}
+            className={cn(
+              'relative flex min-h-15 w-full max-w-80 items-center justify-center overflow-hidden rounded-full bg-tint text-on-tint shadow-[0_6px_16px_color-mix(in_srgb,var(--lt-tint)_25%,transparent)] transition-opacity focus-within:outline-3 focus-within:outline-offset-3 focus-within:outline-sky',
+              pending && 'pointer-events-none opacity-55',
+            )}
+          >
+            <span
+              aria-hidden
+              className="pointer-events-none flex items-center gap-2.5 text-headline font-extrabold"
+            >
+              <img
+                alt=""
+                className="size-9 object-contain"
+                height={36}
+                src={avatarImage('miffy')}
+                width={36}
+              />
+              {t('signIn.button')}
+            </span>
+            <div
+              className="absolute top-1/2 left-0 z-10 min-h-10 w-full -translate-y-1/2 scale-y-[1.45] overflow-hidden opacity-[0.0001] [&_iframe]:!w-full [&>div]:!w-full"
+              ref={button}
+            />
+          </div>
           <p className="text-footnote text-label-3">{t('signIn.invitedOnly')}</p>
         </div>
       }
