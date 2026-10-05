@@ -70,6 +70,10 @@ const NewChildScreen = lazyRouteComponent(
 )
 const ChildScreen = lazyRouteComponent(() => import('./parents/child-screens.js'), 'ChildScreen')
 const SchoolScreen = lazyRouteComponent(() => import('./parents/child-screens.js'), 'SchoolScreen')
+const InsightsScreen = lazyRouteComponent(
+  () => import('./parents/insights-screen.js'),
+  'InsightsScreen',
+)
 
 /** Only administrators see who can sign in. */
 function AdminOnly() {
@@ -115,6 +119,7 @@ const routeTree = root.addChildren([
     parentRoute('/parents/new-child', NewChildScreen),
     parentRoute('/parents/children/$profileId', ChildScreen),
     parentRoute('/parents/children/$profileId/school', SchoolScreen),
+    parentRoute('/parents/children/$profileId/insights', InsightsScreen),
   ]),
 ])
 

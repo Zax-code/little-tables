@@ -1,5 +1,5 @@
 /** E3, E4, E6 and E9: one child's profile, their school, a new child, removing a child. */
-import type { ChildProfile, SelectableAvatarId } from '@little-tables/api-contract'
+import type { ChildProfile, ProfileChanges } from '@little-tables/api-contract'
 import type { LearningPathSettings, SkillId } from '@little-tables/engine/schema'
 import {
   Alert,
@@ -38,6 +38,7 @@ import { emptyState } from '../data/local-store.js'
 import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
 import { failureCode, useApi } from './api.js'
+import { DEFAULT_REMINDER_MINUTE, ReminderTimeSheet } from './reminder-time-sheet.js'
 import {
   disableReminders,
   enableReminders,
@@ -109,7 +110,7 @@ export function ChildScreen() {
 
 function Child({ child }: Readonly<{ child: ChildProfile }>) {
   const { family, preferences, runtime, setProfiles } = useApp()
-  const { t } = useI18n()
+  const { clock, t } = useI18n()
   const navigate = useNavigate()
   const api = useApi()
   const queryClient = useQueryClient()
@@ -121,9 +122,10 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
   const [removing, setRemoving] = useState(false)
   const [reminded, setReminded] = useState(() => remindedProfile())
   const [reminderBusy, setReminderBusy] = useState(false)
+  const [choosingTime, setChoosingTime] = useState(false)
   const character = characterOf(child.avatarId)
 
-  const save = (changes: Readonly<{ avatarId?: SelectableAvatarId; name?: string }>) =>
+  const save = (changes: ProfileChanges) =>
     api((client) => client.updateProfile(child.id, changes))
       .then(({ profile }) => replace(profile))
       .catch(() => toast.error(t('child.saveFailed')))
@@ -228,6 +230,21 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
           title={t('child.school')}
           trailing="chevron"
         />
+        <ListRow
+          leading={
+            <IconTile className="bg-sun">
+              <Sprout aria-hidden />
+            </IconTile>
+          }
+          onClick={() =>
+            void navigate({
+              params: { profileId: child.id },
+              to: '/parents/children/$profileId/insights',
+            })
+          }
+          title={t('hard.title')}
+          trailing="chevron"
+        />
       </ListGroup>
 
       <ListGroup
@@ -254,7 +271,12 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
           }
           title={t('child.reminderDaily')}
         />
-        <ListRow detail="18:00" title={t('child.reminderTime')} />
+        <ListRow
+          detail={clock(child.reminderMinute ?? DEFAULT_REMINDER_MINUTE)}
+          onClick={() => setChoosingTime(true)}
+          title={t('child.reminderTime')}
+          trailing="chevron"
+        />
       </ListGroup>
 
       <ListGroup>
@@ -264,6 +286,13 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
           title={t('child.remove', { name: child.name })}
         />
       </ListGroup>
+
+      <ReminderTimeSheet
+        child={child}
+        onOpenChange={setChoosingTime}
+        onSave={(reminderMinute) => save({ reminderMinute }).then(() => setChoosingTime(false))}
+        open={choosingTime}
+      />
 
       <Sheet
         closeLabel={t('common.close')}

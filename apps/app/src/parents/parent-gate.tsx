@@ -51,18 +51,12 @@ export function ParentGate({ children }: Readonly<{ children: ReactNode }>) {
 }
 
 function CodeScreen() {
-  const { device, preferences } = useApp()
-  const { count, t } = useI18n()
+  const { device } = useApp()
+  const { count, t, timeOf } = useI18n()
   const api = useApi()
   const navigate = useNavigate()
   const code = device.parentCode
-  const lockMessage = (lockedUntil: number) =>
-    t('lock.locked', {
-      time: new Intl.DateTimeFormat(preferences.language, {
-        hour: '2-digit',
-        minute: '2-digit',
-      }).format(lockedUntil),
-    })
+  const lockMessage = (lockedUntil: number) => t('lock.locked', { time: timeOf(lockedUntil) })
   const [step, setStep] = useState<Step>({ kind: 'checking' })
   const [digits, setDigits] = useState('')
   const [message, setMessage] = useState<string | null>(() => {
