@@ -15,3 +15,6 @@ assets/generated/drafts/
 /target/
 /packages/engine/wasm/
 /packages/ui/build/
+
+# The development server database (corepack pnpm dev:server)
+/little-tables.db*
