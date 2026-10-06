@@ -163,8 +163,12 @@
   }
 }
 
+/*
+ * iOS 26 blurs the content just below the status bar of a Home Screen app; the extra 1.5rem
+ * keeps the top row clear of it. Screens without a status bar inset (desktop) keep no gap.
+ */
 @utility safe-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(env(safe-area-inset-top) + min(env(safe-area-inset-top), 1.5rem));
 }
 
 @utility safe-bottom {
