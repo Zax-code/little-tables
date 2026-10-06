@@ -1,0 +1,432 @@
+{
+  "version": 2,
+  "tool": "built-in Image Generation",
+  "characterId": "miffy",
+  "sequence": "garden-walk",
+  "briefBranch": "docs/garden-walk-v2-brief",
+  "productionContract": {
+    "cellDimensions": [627, 627],
+    "layout": [2, 2],
+    "sheetDimensions": [1254, 1254],
+    "semanticOrder": ["W1", "W2", "W3", "W4"],
+    "loopSeconds": 0.58,
+    "contactBaselineExclusive": 570,
+    "wholeBodyBobPixels": 19
+  },
+  "identityReference": {
+    "path": "assets/generated/characters/miffy/home-reference/canonical-full-body-home.png",
+    "sha256": "d34e0f5df670d361ee086c64a9413c595a3769af2ac99c8a8dda5137e6ee70a1"
+  },
+  "rosterScaleReference": {
+    "path": "assets/generated/characters/roster-reference/canonical-full-body-home-roster-normalized.png",
+    "sha256": "5efb787beb7f245590e209a22cc9c2109d0fe22f9a2fce5c1fdcd750cca11d06"
+  },
+  "historicalPoseReferences": "Version 1 is retained unchanged in reference-1-frames/. Used for profile, can and framing only; not a v2 pose template.",
+  "alphaCleanupTemplate": {
+    "path": "assets/generated/characters/fenna-fox/garden-walk/generation-record.json",
+    "sha256": "489b001861a1828fee2c82458e6bc75064eb04ff08ed69eaa132fc2276be9a96"
+  },
+  "frames": [
+    {
+      "frameId": "W1",
+      "phase": "Contact: right/near forward heel; left/far rear toe.",
+      "prompt": "Use case: identity-preserve. Create one production animation frame W1 for Miffy's garden walk version 2. Edit/reference roles: image 1 is old profile walk framing/can model ONLY, not its timid stride; image 2 is canonical Miffy identity; image 3 is watering-sheet reference for apparent scale and baseline.\nOutput one square image on perfectly flat solid chroma green #00FF00 (background will be removed with existing helper). No text, labels, ground line, shadow or water.\nMiffy is a white rabbit in simple flat Dick Bruna-like children's-book style, round head, two upright ears, one visible dot eye and small x mouth on right profile, pink dress with scalloped collar and white button, white feet, clean even black outlines. Face RIGHT, exact profile like image 1. Carry image 1's same upright BLUE watering can in front paw with bent carrying arm, its spout pointing right; never tilt/pour.\nW1 CONTACT RIGHT FOOT: deliberately clear comfortable stride. Near/right foot forward towards right, heel on ground and toes slightly raised; far/left foot behind towards left, toe on ground and heel raised. Two distinct white legs below hem, no extra limbs. Free/far arm swings backwards, opposite forward right leg, visible to left of torso. Calm cheerful.\nFraming in 627x627 coordinate equivalents: fixed torso horizontal center x=310, contact ground baseline y=568, top of ears around y=30. Match WATERING reference apparent scale, head width about 235px and round head height about 190px, full ears plus head about 330px, body from neck y=353 to hem near y=518. Upright can lies in front at x=360..500, carrying hand around y=416. All subject fits with padding. Maintain head relative to torso, wardrobe, colours and line weight. Future three frames will keep this exact head, torso, can, carrying arm and their geometry; only leg phases, free arm swing and whole body bob may differ. Flat fills, no textures/gradients. Do not include flower or background scenery.",
+      "references": [
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
+          "sha256": "2fe41e2d9fd46786f48ec9e1c4d0dbebac76a48169d65359fb987d730acd1eb3"
+        },
+        {
+          "path": "assets/generated/characters/miffy/home-reference/canonical-full-body-home.png",
+          "sha256": "d34e0f5df670d361ee086c64a9413c595a3769af2ac99c8a8dda5137e6ee70a1"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/reference-water-G1.png",
+          "sha256": "cfeeaabd448f2bd3cfb49731d906e7083c7634a05226189d0dc1a0b3c4951af1"
+        }
+      ],
+      "generatedSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W1/generated-source.png",
+        "sha256": "83447c8fd2b43beb232c48bbee71b93fbdc152dc9725327a3c2de2beacd098a4"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+        "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+      },
+      "normalization": {
+        "method": "existing helper raster resize and translation; followed by shared invariant raster-core reuse",
+        "targetDimensions": [627, 627],
+        "scale": 1.05,
+        "offsetX": -40,
+        "offsetY": -20,
+        "feetTranslationY": 0
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+          "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+        },
+        "core": "One generated raster head, ears, face, torso/dress/collar/button, carrying arm/hand and can; no subject pixels drawn.",
+        "wholeBodyTranslationY": 0,
+        "freeArmSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+          "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+          "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+        },
+        "feetBaselineExclusive": 570
+      },
+      "review": {
+        "status": "approved",
+        "notes": [
+          "Round right-profile head, ears and face fixed by exact raster reuse; generated head drift is excluded from accepted final frames.",
+          "Identical torso proportions, outfit colours, carrying arm and upright dry blue can; unchanged can angle/spout right.",
+          "Generated free arm alternates opposite forward-leg phase; exactly two hands and two feet.",
+          "Body horizontal center and uniform 1.05 scale locked across cycle; W2/W4 translate body 19px upward while support feet stay on contact baseline.",
+          "Same approximately 542px apparent height and baseline as unchanged watering G1; water sheet and other characters are untouched.",
+          "Transparent corners, complete silhouette, fringe inspection, side-by-side review and live 0.58s right/mirrored-left loop."
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/miffy/garden-walk/W1/final-frame.png",
+        "sha256": "1f25c49fd3ddbdc0bd19aa2d94aaa40cbe328a9839ba463538067b17a98c89b6"
+      }
+    },
+    {
+      "frameId": "W2",
+      "phase": "Passing: right/near grounded support; left/far raised alongside shin.",
+      "prompt": "Use case: precise-object-edit. Make one precise correction to this W2 walk passing frame: increase the whole-body bob. At native 1254 square, move the entire upper character (head, ears, torso/dress, both arms/hands, watering can) UP by exactly 14 pixels, as one rigid unchanged group. Current ears top y72 should become y58, head/face remain SAME shape and relative geometry. Do not redraw, resize, turn, tilt or recolor anything. Horizontal position unchanged. Extend the straight grounded right support leg upward by those 14 pixels so its foot remains at the SAME ground baseline y1120. Move bent lifted left passing leg up with the torso, remaining tucked alongside support shin and above baseline. Exactly two legs and two arms. This creates the brief's total roughly 3% cell rise relative to W1 contact. Preserve the forward free arm pose and bent can arm. Flat green background, no scenery, text, water, shadow or ground line. Return only W2, preserve original precise identity and lineweight.",
+      "references": [
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/rejected-generated-source-2.png",
+          "sha256": "aed0435e19c09a37149e8fb59d2786487e59632c8e0b4a6939fde6464c5602c4"
+        }
+      ],
+      "generatedSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W2/generated-source.png",
+        "sha256": "7e1ff66258b008219af16c0f18bafe2c90866e65875d56b677532bdb2a73ac30"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/rejected-generated-source-1.png",
+          "prompt": "Use case: precise-object-edit / identity-preserve. Edit this exact image to make W2 of a four-frame walk cycle. One square production frame on the SAME flat #00FF00 green background. Preserve the exact canvas, Miffy's HEAD including both ears and their angle, round outline, single dot eye and x mouth, pink DRESS including collar and button and black linework, bent can arm and hand, and exact blue WATERING CAN shape/size/angle/spout. These parts must not be redrawn or resized. No flowers, scenery, shadow, text, ground line or water.\nChange only the TWO LEGS below the dress and FREE/FAR ARM, plus translate entire upper character upwards by 3% of square (about 38px on this 1254 square) without changing horizontal position. W2 is PASSING LEFT LIFTS: near/right leg straight beneath the body, foot flat on same ground baseline as previous W1 right heel; far/left leg has knee bent forward, left foot lifted off ground and passing beside right shin. Show a distinct elevated foot, not two feet standing next to each other. Clearly readable short rabbit legs. Free/far arm now swings gently forward on the right, opposite the lifting left leg and the previous backward arm. Only that free arm moves; carrying arm stays bent and can stays upright at same body-relative height. Body/head/ears/can bob together upward about 3%; grounded support foot stays at original baseline by extension of its leg. No head turn or tilt. A calm cheerful walk to the right. Return only ONE frame W2.",
+          "reviewNote": "Lifted left foot trails too far behind the body rather than passing under it.",
+          "sha256": "edf154258a0d919d737ffa8eada83c78c3be32ed5790d3d1000689c96992f220",
+          "references": [
+            {
+              "path": "assets/generated/characters/miffy/garden-walk/W1/generated-source.png",
+              "sha256": "83447c8fd2b43beb232c48bbee71b93fbdc152dc9725327a3c2de2beacd098a4"
+            }
+          ]
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/rejected-generated-source-2.png",
+          "prompt": "Use case: precise-object-edit. Edit ONLY the lifted left/far leg below the pink dress in this W2 passing image. Preserve everything above the hem EXACTLY: head and ears and face, dress/collar/button, both arms/hands, watering can, outline, colors, green background, canvas. Preserve the flat grounded RIGHT support leg/foot under the body at its exact baseline. Do not change body/head size or position.\nCorrect the FAR LEFT lifted foot: the current foot trails backwards on the left, which is a recovery pose. For true W2 PASSING, bend the left knee forward to the RIGHT and lift the left foot so that it is passing directly alongside the support shin. The small lifted white foot should point right, hover about 45px above ground, emerge just to the RIGHT of the support shin (behind it in depth), with heel tucked just behind the right support shin. Draw the short bent left leg from the left underside of dress, angled to right behind the support leg. Exactly two legs, one straight grounded leg and one bent clearly elevated passing leg. No other changes; exact head geometry is essential. No water, scenery, text, shadow. Return one square frame W2 on flat green.",
+          "reviewNote": "Passing phase improved, but body bob was too small; regenerate bob before rigid-core reuse.",
+          "sha256": "aed0435e19c09a37149e8fb59d2786487e59632c8e0b4a6939fde6464c5602c4",
+          "references": [
+            {
+              "path": "assets/generated/characters/miffy/garden-walk/W2/rejected-generated-source-1.png",
+              "sha256": "edf154258a0d919d737ffa8eada83c78c3be32ed5790d3d1000689c96992f220"
+            }
+          ]
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W2/alpha-source.png",
+        "sha256": "d26ae7134c764c714b7111bd7a8f3d0d0c37fe1b5c7652362a61fbdfb5dcb6e4"
+      },
+      "normalization": {
+        "method": "existing helper raster resize and translation; followed by shared invariant raster-core reuse",
+        "targetDimensions": [627, 627],
+        "scale": 1.05,
+        "offsetX": -40,
+        "offsetY": -10,
+        "feetTranslationY": 1
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+          "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+        },
+        "core": "One generated raster head, ears, face, torso/dress/collar/button, carrying arm/hand and can; no subject pixels drawn.",
+        "wholeBodyTranslationY": -19,
+        "freeArmSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W3/alpha-source.png",
+          "sha256": "46a0596d2df4a96db237313ef39e207bb8b2392add8d807bfd3120540cf8c96e"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/alpha-source.png",
+          "sha256": "d26ae7134c764c714b7111bd7a8f3d0d0c37fe1b5c7652362a61fbdfb5dcb6e4"
+        },
+        "feetBaselineExclusive": 570
+      },
+      "review": {
+        "status": "approved",
+        "notes": [
+          "Round right-profile head, ears and face fixed by exact raster reuse; generated head drift is excluded from accepted final frames.",
+          "Identical torso proportions, outfit colours, carrying arm and upright dry blue can; unchanged can angle/spout right.",
+          "Generated free arm alternates opposite forward-leg phase; exactly two hands and two feet.",
+          "Body horizontal center and uniform 1.05 scale locked across cycle; W2/W4 translate body 19px upward while support feet stay on contact baseline.",
+          "Same approximately 542px apparent height and baseline as unchanged watering G1; water sheet and other characters are untouched.",
+          "Transparent corners, complete silhouette, fringe inspection, side-by-side review and live 0.58s right/mirrored-left loop."
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/miffy/garden-walk/W2/final-frame.png",
+        "sha256": "97558ac678a89dae1d40cb9ee4b21d42ec1bc8de008259fd5fef7b1958d2d62d"
+      }
+    },
+    {
+      "frameId": "W3",
+      "phase": "Contact: left/far forward heel; right/near rear toe.",
+      "prompt": "Use case: precise-object-edit / identity-preserve. Make W3 CONTACT LEFT FOOT by editing this exact W1 contact frame. Preserve exact canvas and green background, whole head BOTH ears round silhouette dot eye x mouth, exact pink torso/dress/collar/button, bent carrying arm/paw and upright blue watering can/spout. Do not redraw or resize those invariant parts. Keep their precise locations: W3 is at exactly SAME low body height as W1. No bob for this contact frame. No text/scenery/ground/shadows/water.\nChange only legs and free/far arm. W3 has LEFT/FAR leg forward pointing right, heel on same ground y as W1 right heel; RIGHT/NEAR leg trailing backwards to LEFT, toes touching ground, heel raised. This near trailing foot must be in front of the far-leg root where they overlap under the dress. Use a full confident calm stride width like W1, about 400px total feet separation on this 1254 image. Rear foot rotated toes DOWN so its toe contacts ground; front foot toes UP with heel on ground. Exactly two white short legs, black outlines identical thickness. W3 must clearly differ from W1 through reversed leg overlap and rear ankle pose. Free/far arm swings FORWARD towards right, opposite the forward left leg. That free arm white hand appears at the right side of upper dress near sleeve, behind can, while carrying arm stays precisely unchanged. Same apparent scale, horizontal body center and ground baseline. Return single W3 frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/generated-source.png",
+          "sha256": "83447c8fd2b43beb232c48bbee71b93fbdc152dc9725327a3c2de2beacd098a4"
+        }
+      ],
+      "generatedSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W3/generated-source.png",
+        "sha256": "d270add58164c6db76caabdada2529038a7361ae43f6c81cb511e43d7b3a04b0"
+      },
+      "rejectedSources": [],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W3/alpha-source.png",
+        "sha256": "46a0596d2df4a96db237313ef39e207bb8b2392add8d807bfd3120540cf8c96e"
+      },
+      "normalization": {
+        "method": "existing helper raster resize and translation; followed by shared invariant raster-core reuse",
+        "targetDimensions": [627, 627],
+        "scale": 1.05,
+        "offsetX": -40,
+        "offsetY": -20,
+        "feetTranslationY": 1
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+          "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+        },
+        "core": "One generated raster head, ears, face, torso/dress/collar/button, carrying arm/hand and can; no subject pixels drawn.",
+        "wholeBodyTranslationY": 0,
+        "freeArmSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W3/alpha-source.png",
+          "sha256": "46a0596d2df4a96db237313ef39e207bb8b2392add8d807bfd3120540cf8c96e"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W3/alpha-source.png",
+          "sha256": "46a0596d2df4a96db237313ef39e207bb8b2392add8d807bfd3120540cf8c96e"
+        },
+        "feetBaselineExclusive": 570
+      },
+      "review": {
+        "status": "approved",
+        "notes": [
+          "Round right-profile head, ears and face fixed by exact raster reuse; generated head drift is excluded from accepted final frames.",
+          "Identical torso proportions, outfit colours, carrying arm and upright dry blue can; unchanged can angle/spout right.",
+          "Generated free arm alternates opposite forward-leg phase; exactly two hands and two feet.",
+          "Body horizontal center and uniform 1.05 scale locked across cycle; W2/W4 translate body 19px upward while support feet stay on contact baseline.",
+          "Same approximately 542px apparent height and baseline as unchanged watering G1; water sheet and other characters are untouched.",
+          "Transparent corners, complete silhouette, fringe inspection, side-by-side review and live 0.58s right/mirrored-left loop."
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/miffy/garden-walk/W3/final-frame.png",
+        "sha256": "a698508cce53957629b1df9adca7722ea33ab2a90a4c4fca5403dcc413513a17"
+      }
+    },
+    {
+      "frameId": "W4",
+      "phase": "Passing: left/far grounded support; right/near raised on right.",
+      "prompt": "Use case: precise-object-edit. Create W4 opposite passing phase using THIS accepted W2 image as an exact immutable upper-body template. This is a localized edit only; all head/ear/face, torso/dress/collar/button, bent carrying arm/paw and blue can pixels and geometry must be preserved EXACTLY at the SAME height and horizontal position. Do not redraw, shift, resize, distort or recolor them. Green background unchanged. Return same square size.\nEdit two areas:\n1. Legs BELOW DRESS HEM only: replace W2's straight right leg and left lifted foot by LEFT leg straight down under body at x roughly600, white foot flat with sole at EXACT SAME y1100 baseline. RIGHT near leg bent with knee forward, foot hovering to RIGHT of support shin at x720..810, toes pointing right, sole about55px above ground. Exactly two legs, near lifted one occludes far straight one.\n2. Free arm only: MOVE the free sleeve/hand currently sticking out RIGHT side of torso to a gently backward swinging pose on LEFT side at x410..510 and y715..825, like W1. REMOVE the right protruding sleeve AND white hand completely, restoring green outside torso. There must be exactly two hands total: unchanged middle can-holding hand, and new left backward free hand. Do not add a third arm. Preserve dress width and core silhouette.\nNo other changes. Can stays upright, same model/size/angle spout right, no water. No text, scenery, shadows, ground line. Head invariance and SAME W2 bob height are essential, absolutely no translation of upper-body template.",
+      "references": [
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/generated-source.png",
+          "sha256": "7e1ff66258b008219af16c0f18bafe2c90866e65875d56b677532bdb2a73ac30"
+        }
+      ],
+      "generatedSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W4/generated-source.png",
+        "sha256": "4442af56e7a1daea59061487db5391552bd2ccc7f0f8d21445cfcd27338a338d"
+      },
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W4/rejected-generated-source-1.png",
+          "prompt": "Use case: precise-object-edit / identity-preserve. Make W4 PASSING RIGHT LIFTS by editing this exact W2 passing image. KEEP EVERY HEAD/ear/face pixel and pink dress torso/collar/button and blue upright watering can and carrying arm/paw geometry IDENTICAL, at the exact SAME elevated bob height as this W2 image. Do not move or resize those invariant parts; same green background canvas. Edit only free/far arm and legs.\nW4 is the opposite passing phase and must have a very DIFFERENT feet silhouette from W2. LEFT/FAR leg is STRAIGHT vertically UNDER BODY, its white grounded foot flat at exact original W2 ground baseline. RIGHT/NEAR leg is lifted, bent knee moving forward towards RIGHT, elevated white foot clearly visible to the RIGHT of the straight support shin, hovering about 55px ABOVE baseline. Near lifted foot in front of support leg where they overlap. Its heel tucked up, toes pointing right. Do not leave the lifted foot on the left behind the shin; it must be visible on RIGHT FRONT of support leg. Exactly two legs. This is a passing step, not standing or contact.\nFree/far arm swings BACKWARDS towards LEFT, pink sleeve with white hand visible at left side of torso, like W1. Remove W2's forward free hand on right. Carrying arm is unchanged bent in front, no can tilt or water. Keep identical head shape/size/position, ears, single dot eye and x mouth, body scale and horizontal center, line weight/colors. No text, shadow, ground line or scenery. Single square W4 frame.",
+          "reviewNote": "Extra third hand/arm retained on right side; reject and remove it.",
+          "sha256": "c2cb9b44ad2e9163779d92680ef491302312a8876581e21136de467c4eed94ad",
+          "references": [
+            {
+              "path": "assets/generated/characters/miffy/garden-walk/W2/rejected-generated-source-2.png",
+              "sha256": "aed0435e19c09a37149e8fb59d2786487e59632c8e0b4a6939fde6464c5602c4"
+            }
+          ]
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W4/rejected-generated-source-2.png",
+          "prompt": "Use case: precise-object-edit. Correct one mistake in this W4 image: it has THREE arms. REMOVE the extra arm/hand protruding on the RIGHT side of pink torso, behind the watering can. Replace that entire right shoulder sleeve and white hand protrusion with flat chroma green background outside the torso, and preserve the smooth pink torso right contour as in the original W1 dress. Miffy must have exactly TWO arms: (1) unchanged bent carrying arm at CENTER with white hand on blue handle; (2) unchanged backward free arm at LEFT. The white oval hand on right is extra and must vanish completely.\nDo not change any other pixel or geometry. Keep the EXACT same head/ears/face, dress collar/button, can carrying arm and paw, blue watering can upright and spout to right, legs: left straight grounded support and right bent foot visibly elevated to right. Same green background, same square canvas, same framing, identical line weight/colours. No water, text, scenery or shadows. One W4 frame.",
+          "reviewNote": "Anatomy corrected, but bob too small; regenerate.",
+          "sha256": "2a1a5c92240e375cb2e79b1691ef540bc03ff98142263b56bd82b4c957a1f2ab",
+          "references": [
+            {
+              "path": "assets/generated/characters/miffy/garden-walk/W4/rejected-generated-source-1.png",
+              "sha256": "c2cb9b44ad2e9163779d92680ef491302312a8876581e21136de467c4eed94ad"
+            }
+          ]
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W4/rejected-generated-source-3.png",
+          "prompt": "Use case: precise-object-edit. Make one precise correction to this W4 walk passing frame: increase the whole-body bob. At native 1254 square, move the entire upper character (head, ears, torso/dress, both arms/hands, watering can) UP by exactly 14 pixels, as one rigid unchanged group. Current ears top y72 should become y58, head/face remain SAME shape and relative geometry. Do not redraw, resize, turn, tilt or recolor anything. Horizontal position unchanged. Extend the straight grounded left support leg upward by those 14 pixels so its foot remains at the SAME ground baseline y1120. Move bent lifted right passing leg up with the torso, remaining tucked alongside support shin and above baseline. Exactly two legs and two arms. This creates the brief's total roughly 3% cell rise relative to W1 contact. Preserve the backward free arm pose and bent can arm. Flat green background, no scenery, text, water, shadow or ground line. Return only W4, preserve original precise identity and lineweight.",
+          "reviewNote": "Regeneration changed ground/body relationship relative to W2; reject and use accepted W2 as direct edit reference.",
+          "sha256": "12cdf2437fdcf5be6f0ffef39cc7eafa47aa62c5fc1e3ebb8e6b021e1191515e",
+          "references": [
+            {
+              "path": "assets/generated/characters/miffy/garden-walk/W4/rejected-generated-source-2.png",
+              "sha256": "2a1a5c92240e375cb2e79b1691ef540bc03ff98142263b56bd82b4c957a1f2ab"
+            }
+          ]
+        }
+      ],
+      "alphaCleanup": {
+        "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
+        "autoKey": "border",
+        "softMatte": true,
+        "transparentThreshold": 12,
+        "opaqueThreshold": 220,
+        "despill": true,
+        "edgeContract": 1
+      },
+      "alphaSource": {
+        "path": "assets/generated/characters/miffy/garden-walk/W4/alpha-source.png",
+        "sha256": "bd188039e0061f8112c6288f57852ed4aaeaf760f2214f59b37a0b630a5338d5"
+      },
+      "normalization": {
+        "method": "existing helper raster resize and translation; followed by shared invariant raster-core reuse",
+        "targetDimensions": [627, 627],
+        "scale": 1.05,
+        "offsetX": -40,
+        "offsetY": -10,
+        "feetTranslationY": 1
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+          "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+        },
+        "core": "One generated raster head, ears, face, torso/dress/collar/button, carrying arm/hand and can; no subject pixels drawn.",
+        "wholeBodyTranslationY": -19,
+        "freeArmSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/alpha-source.png",
+          "sha256": "4f07cb9b69c7615d49ebc3010256a675a5061854d87b08ab064cf3bb2906e0ec"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/miffy/garden-walk/W4/alpha-source.png",
+          "sha256": "bd188039e0061f8112c6288f57852ed4aaeaf760f2214f59b37a0b630a5338d5"
+        },
+        "feetBaselineExclusive": 570
+      },
+      "review": {
+        "status": "approved",
+        "notes": [
+          "Round right-profile head, ears and face fixed by exact raster reuse; generated head drift is excluded from accepted final frames.",
+          "Identical torso proportions, outfit colours, carrying arm and upright dry blue can; unchanged can angle/spout right.",
+          "Generated free arm alternates opposite forward-leg phase; exactly two hands and two feet.",
+          "Body horizontal center and uniform 1.05 scale locked across cycle; W2/W4 translate body 19px upward while support feet stay on contact baseline.",
+          "Same approximately 542px apparent height and baseline as unchanged watering G1; water sheet and other characters are untouched.",
+          "Transparent corners, complete silhouette, fringe inspection, side-by-side review and live 0.58s right/mirrored-left loop."
+        ]
+      },
+      "finalFrame": {
+        "path": "assets/generated/characters/miffy/garden-walk/W4/final-frame.png",
+        "sha256": "4b312dcc87fe482c346bb051ce1823bc603c927e3fb452dae8fbf347ded5f54a"
+      }
+    }
+  ],
+  "rasterStabilization": {
+    "helper": {
+      "path": "assets/generated/characters/miffy/garden-walk/rebuild.py",
+      "sha256": "3248e5c307158e22bc24a00a4d24cf81e26f0734496cf580f053c2ba37f8a36c"
+    },
+    "reason": "Independent review found 6-7px ear/eye-relative distortion in separately generated passing frames. Regeneration alone did not enforce the exact invariant; reuse rigid generated raster regions instead, preserving generation provenance for every leg phase.",
+    "headCheck": "Exact RGBA equality of the shared head/ears/face region after 19px bob compensation; independently confirmed by reviewer.",
+    "armBoundary": "Selections trim at existing generated black torso contour; no replacement outline or subject pixel is drawn.",
+    "rebuildCommand": "python3 assets/generated/characters/miffy/garden-walk/rebuild.py (requires Pillow)"
+  },
+  "review": {
+    "sideBySide": {
+      "path": "assets/generated/characters/miffy/garden-walk/review/frames-side-by-side.png",
+      "sha256": "4e1d70ddca44b72180bc5fd9e0db56a3c3d72571da42bd797476f2578c538458"
+    },
+    "animatedPreview": {
+      "path": "assets/generated/characters/miffy/garden-walk/review/walk-loop.gif",
+      "sha256": "c6e0c424e31a278c3d7efac5c98df03467f43148739957dd95f5d4ca6ee271b5"
+    },
+    "htmlPreview": {
+      "path": "assets/generated/characters/miffy/garden-walk/review/preview.html",
+      "sha256": "a49a9c947ff04236211bd726c43db04fc512fc0abaad6285f2572bcbd948bbed"
+    },
+    "waterComparison": {
+      "path": "assets/generated/characters/miffy/garden-walk/review/walk-water-comparison.png",
+      "sha256": "7d5fdcdf204190dbfeef4f445e4748da7d89445e21e64767ad96c9f1bb3d0c0c"
+    },
+    "waterG1": {
+      "path": "assets/generated/characters/miffy/garden-walk/review/water-reference.png",
+      "sha256": "15ccfc0cb85ce7e4ad77d5719a9e0dfbc2985f50fb82f4d5c29b4ad246022289"
+    },
+    "loopSeconds": 0.58,
+    "checks": [
+      "four phases in W1/W2/W3/W4 order",
+      "exact shared head geometry and rigid 19px bob",
+      "constant can/torso/carrying-arm geometry",
+      "same fixed 570 exclusive baseline",
+      "same-scale comparison to water G1",
+      "right and mirrored-left browser playback",
+      "lossless sheet cells equal reviewed final PNGs"
+    ],
+    "independentReview": "Head deformation finding resolved; reviewer independently confirmed zero differing head RGBA pixels after rigid 19px bob compensation. Subsequent minor torso fringe was trimmed at the original black raster contour.",
+    "validation": "corepack pnpm check passed; corepack pnpm doctor passed with 100/100 and no findings; final raster/sheet/hash validation passed."
+  },
+  "assembly": {
+    "method": "existing asset-pipeline lossless reviewed-frame assembly, then canonical zero transparent RGB preserved with WebP exact=True",
+    "runtimeAsset": {
+      "path": "apps/app/public/characters/miffy/garden-walk-sheet.webp",
+      "sha256": "54813f7eb611e00b66fbac6853a4266139a37f4762af795cfe1e1be984bf7770"
+    },
+    "previewSheet": {
+      "path": "assets/generated/characters/miffy/garden-walk/review/runtime-sheet.webp",
+      "sha256": "54813f7eb611e00b66fbac6853a4266139a37f4762af795cfe1e1be984bf7770"
+    }
+  }
+}

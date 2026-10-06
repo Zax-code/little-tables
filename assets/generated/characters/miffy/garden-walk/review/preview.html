@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Miffy garden walk v2 review</title>
+    <style>
+      body {
+        margin: 24px;
+        color: #26372c;
+        background: #eff5e9;
+        font: 16px system-ui;
+      }
+      h1 {
+        font-size: 24px;
+      }
+      .row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 24px;
+      }
+      figure {
+        margin: 0;
+      }
+      figcaption {
+        margin: 10px 0;
+      }
+      .sprite {
+        width: 313.5px;
+        height: 313.5px;
+        background-size: 200% 200%;
+        background-repeat: no-repeat;
+        border-bottom: 1px solid #9aae9d;
+      }
+      .walk {
+        background-image: url('runtime-sheet.webp');
+        animation: sprite-walk 0.58s steps(1, end) infinite;
+      }
+      .water {
+        background-size: 100% 100%;
+        background-image: url('water-reference.png');
+      }
+      .left {
+        transform: scaleX(-1);
+      }
+      @keyframes sprite-walk {
+        0%,
+        24% {
+          background-position: 0 0;
+        }
+        25%,
+        49% {
+          background-position: 100% 0;
+        }
+        50%,
+        74% {
+          background-position: 0 100%;
+        }
+        75%,
+        100% {
+          background-position: 100% 100%;
+        }
+      }
+      button,
+      select {
+        font: inherit;
+        margin: 8px 8px 16px 0;
+        padding: 8px 12px;
+      }
+      .frames {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      .frames img {
+        width: 240px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Miffy — garden walk v2</h1>
+    <p>Four frames at the app's 0.58-second loop timing. Water G1 uses the same display size.</p>
+    <button id="play" type="button">Pause</button>
+    <label
+      >Frame
+      <select id="phase">
+        <option value="loop">Loop</option>
+        <option value="0">W1 · right contact</option>
+        <option value="1">W2 · left passing</option>
+        <option value="2">W3 · left contact</option>
+        <option value="3">W4 · right passing</option>
+      </select></label
+    >
+    <div class="row">
+      <figure>
+        <div class="sprite walk"></div>
+        <figcaption>Walk right</figcaption>
+      </figure>
+      <figure>
+        <div class="sprite walk left"></div>
+        <figcaption>Walk left (mirrored)</figcaption>
+      </figure>
+      <figure>
+        <div class="sprite water"></div>
+        <figcaption>Water G1 — unchanged</figcaption>
+      </figure>
+    </div>
+    <h2>Original 627 × 627 frames</h2>
+    <div class="frames">
+      <figure>
+        <img src="../W1/final-frame.png" alt="W1 right contact" />
+        <figcaption>W1 · right contact</figcaption>
+      </figure>
+      <figure>
+        <img src="../W2/final-frame.png" alt="W2 left passing" />
+        <figcaption>W2 · left passing</figcaption>
+      </figure>
+      <figure>
+        <img src="../W3/final-frame.png" alt="W3 left contact" />
+        <figcaption>W3 · left contact</figcaption>
+      </figure>
+      <figure>
+        <img src="../W4/final-frame.png" alt="W4 right passing" />
+        <figcaption>W4 · right passing</figcaption>
+      </figure>
+    </div>
+    <script>
+      const walks = [...document.querySelectorAll('.walk')]
+      const play = document.querySelector('#play')
+      const phase = document.querySelector('#phase')
+      let paused = false
+      play.addEventListener('click', () => {
+        phase.value = 'loop'
+        paused = !paused
+        play.textContent = paused ? 'Play' : 'Pause'
+        walks.forEach((sprite) => {
+          sprite.style.animation = ''
+          sprite.style.animationPlayState = paused ? 'paused' : 'running'
+        })
+      })
+      phase.addEventListener('change', () => {
+        if (phase.value === 'loop') {
+          paused = false
+          play.textContent = 'Pause'
+          walks.forEach((sprite) => {
+            sprite.style.animation = ''
+            sprite.style.animationPlayState = 'running'
+          })
+        } else {
+          const index = Number(phase.value)
+          paused = true
+          play.textContent = 'Play'
+          walks.forEach((sprite) => {
+            sprite.style.animation = 'none'
+            sprite.style.backgroundPosition = `${(index % 2) * 100}% ${Math.floor(index / 2) * 100}%`
+          })
+        }
+      })
+    </script>
+  </body>
+</html>
