@@ -163,8 +163,12 @@
   }
 }
 
+/*
+ * iOS 26 blurs the content just below the status bar of a Home Screen app; the extra 1.5rem
+ * keeps the top row clear of it. Screens without a status bar inset (desktop) keep no gap.
+ */
 @utility safe-top {
-  padding-top: env(safe-area-inset-top);
+  padding-top: calc(env(safe-area-inset-top) + min(env(safe-area-inset-top), 1.5rem));
 }
 
 @utility safe-bottom {
@@ -173,4 +177,46 @@
 
 @utility tabular {
   font-variant-numeric: tabular-nums;
+}
+
+/*
+ * Bottom sheets glide up from the bottom edge and settle without vaul's long crawl, then leave
+ * a little faster, gathering speed. Outside the layers and one attribute more specific than
+ * vaul's own rules, which it adds to the page after this sheet.
+ */
+.lt-sheet[data-vaul-drawer][data-vaul-drawer-direction='bottom'][data-vaul-snap-points='false'][data-state='open'] {
+  animation: lt-sheet-in 0.46s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+}
+.lt-sheet[data-vaul-drawer][data-vaul-drawer-direction='bottom'][data-vaul-snap-points='false'][data-state='closed'] {
+  animation: lt-sheet-out 0.3s cubic-bezier(0.45, 0, 0.8, 0.4) both;
+}
+.lt-sheet-overlay[data-vaul-overlay][data-vaul-snap-points='false'][data-state='open'] {
+  animation: lt-sheet-fade-in 0.46s ease-out both;
+}
+.lt-sheet-overlay[data-vaul-overlay][data-vaul-snap-points='false'][data-state='closed'] {
+  animation: lt-sheet-fade-out 0.3s ease-in both;
+}
+@keyframes lt-sheet-in {
+  from {
+    transform: translate3d(0, 100%, 0);
+  }
+  to {
+    transform: translate3d(0, 0, 0);
+  }
+}
+/* No start frame: a sheet let go mid-swipe leaves from where the finger left it. */
+@keyframes lt-sheet-out {
+  to {
+    transform: translate3d(0, 100%, 0);
+  }
+}
+@keyframes lt-sheet-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes lt-sheet-fade-out {
+  to {
+    opacity: 0;
+  }
 }

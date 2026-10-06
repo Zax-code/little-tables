@@ -29,13 +29,16 @@ function Herbarium({ state }: Readonly<{ state: ProfileState }>) {
         />
       }
     >
-      <p className="-mt-3 px-1 text-subhead font-semibold text-label-2">
+      <p className="shrink-0 px-1 text-subhead font-semibold text-label-2">
         {count('herbarium.count', garden.collection.collectedCount, {
           total: garden.collection.totalCount,
         })}
       </p>
       {garden.chapters.map((chapter) => (
-        <section className="flex flex-col gap-2" key={chapter.id}>
+        <section
+          className="flex shrink-0 flex-col gap-2 last:pb-[env(safe-area-inset-bottom)]"
+          key={chapter.id}
+        >
           <h2 className="px-1 text-title-3 font-extrabold">
             {t(`chapter.${chapter.id}` as MessageKey)}
           </h2>

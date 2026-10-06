@@ -19,6 +19,7 @@ import {
 export const keys = {
   activeProfile: 'little-tables:active-profile',
   authGrant: 'little-tables:auth-grant',
+  lightDefault: 'little-tables:light-default',
   preferences: 'little-tables:preferences',
   profilesCache: 'little-tables:profiles-cache',
   seenCards: 'little-tables:seen-cards',
@@ -143,6 +144,15 @@ export const createDevice = (storage: Storage | null = defaultStorage()) => ({
    * child and the offline grant keep the family signed in without network.
    */
   adoptLegacyKeys: (now = Date.now()) => {
+    // Light became the default after "system" had been written for every device: those move to
+    // light once, and a later choice of "system" stays.
+    if (read(keys.lightDefault, storage) === null) {
+      const preferences = readJson(Preferences, keys.preferences, storage)
+      if (preferences?.appearance === 'system') {
+        write(keys.preferences, JSON.stringify({ ...preferences, appearance: 'light' }), storage)
+      }
+      write(keys.lightDefault, '1', storage)
+    }
     if (read(keys.preferences, storage) === null) {
       const language = read(legacyKeys.language, storage)
       write(
