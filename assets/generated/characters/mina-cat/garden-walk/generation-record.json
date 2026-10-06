@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "tool": "built-in Image Generation",
   "characterId": "mina-cat",
   "sequence": "garden-walk",
@@ -23,22 +23,205 @@
       "W4"
     ]
   },
+  "previousVersion": {
+    "path": "assets/generated/characters/mina-cat/garden-walk/generation-record-v1.json",
+    "sha256": "f74fb91d9b30d904035f72fe9b65130e8cae2a5f3dc222898931639b8dcf2473"
+  },
+  "method": {
+    "rebuildScript": {
+      "path": "assets/generated/characters/mina-cat/garden-walk/rebuild.py",
+      "sha256": "de9cc41c1ac1bf693f672207f6ed3234b4f410e0a34ed9bc68211e9e90bb2b7a"
+    },
+    "dependencies": [
+      "Pillow",
+      "NumPy"
+    ],
+    "master": "W3",
+    "invariantRaster": "One normalized W3 head, ears, profile face, markings, torso, cardigan, yellow collar, cream skirt, carrying arm, upright blue can and grey rigid tail; repeated exactly, translated up19 px in passing frames. Generated limbs supply phases.",
+    "normalization": {
+      "scale": 1.05,
+      "offsetX": -8,
+      "offsetY": 12
+    },
+    "palette": {
+      "sourcePalette": {
+        "fur": [
+          153,
+          145,
+          146
+        ],
+        "cream": [
+          254,
+          238,
+          216
+        ],
+        "cardigan": [
+          206,
+          157,
+          205
+        ],
+        "collar": [
+          247,
+          185,
+          62
+        ],
+        "can": [
+          19,
+          115,
+          204
+        ]
+      },
+      "waterPalette": {
+        "fur": [
+          138,
+          137,
+          136
+        ],
+        "cream": [
+          251,
+          236,
+          209
+        ],
+        "cardigan": [
+          196,
+          157,
+          200
+        ],
+        "collar": [
+          243,
+          189,
+          62
+        ],
+        "can": [
+          44,
+          106,
+          172
+        ]
+      },
+      "dominantFur": [
+        138,
+        137,
+        136
+      ],
+      "waterDominantFur": [
+        138,
+        137,
+        136
+      ],
+      "dominantCanBlue": [
+        44,
+        105,
+        171
+      ],
+      "waterDominantCanBlue": [
+        43,
+        106,
+        171
+      ],
+      "baseline": 572,
+      "bob": 19,
+      "bodyCenterX": 310,
+      "alphaBounds": [
+        [
+          109,
+          92,
+          511,
+          572
+        ],
+        [
+          109,
+          73,
+          511,
+          572
+        ],
+        [
+          109,
+          92,
+          511,
+          572
+        ],
+        [
+          109,
+          73,
+          511,
+          572
+        ]
+      ]
+    },
+    "references": [
+      {
+        "role": "Canonical identity",
+        "path": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png",
+        "sha256": "238decdc5fe9685059dbe5885e215d199f78a99e1c0bd8816b848aa710593dc8"
+      },
+      {
+        "role": "Roster relative proportions",
+        "path": "assets/generated/characters/roster-reference/canonical-full-body-home-roster-normalized.png",
+        "sha256": "5efb787beb7f245590e209a22cc9c2109d0fe22f9a2fce5c1fdcd750cca11d06"
+      },
+      {
+        "role": "Water palette and shared-box placement; unchanged",
+        "path": "apps/app/public/characters/mina-cat/garden-water-sheet.webp",
+        "sha256": "5a324948574a8b212083b5a52ebed3877f13c036dd7faa6b2205f2889c67646d"
+      },
+      {
+        "role": "Miffy shared raster/bob method",
+        "path": "assets/generated/characters/miffy/garden-walk/rebuild.py",
+        "sha256": "3248e5c307158e22bc24a00a4d24cf81e26f0734496cf580f053c2ba37f8a36c"
+      },
+      {
+        "role": "Malo colour matching method",
+        "path": "assets/generated/characters/malo-bear/garden-walk/rebuild.py",
+        "sha256": "8595ce1e3ea438204cec5b50144dddd769be38dc0c072f26e9fc1182b8673b8b"
+      },
+      {
+        "role": "Fenna rigid tail method",
+        "path": "assets/generated/characters/fenna-fox/garden-walk/rebuild.py",
+        "sha256": "828406f0b4c23ffed2b5a99d33490c4c2f1eae7303eebe2c2ff6900e05fd134e"
+      }
+    ],
+    "framing": "G1 water head/body optical axis x309\u2013310, baseline exclusive y572. Normalize with offsetX-8 so the walking garment/body axis coincides; never centre on tail/can-inclusive alpha bounds."
+  },
   "frames": [
     {
       "frameId": "W1",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
-        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing stride with the front foot forward. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Right contact: right foot forward heel down, left foot trailing toes down; free arm back.",
+      "prompt": "Use case: illustration-story. Generate ONE square production children's-book raster walk frame W1 for Mina the cat on solid pure #00ff00 chroma green, no shadow, text, grid, scenery or water. Image 1 identity: Mina, grey cat with cream muzzle/blaze and inner ears, lilac cardigan with small cream button, yellow collar, cream skirt and paws; preserve colours, markings and proportions. Do not carry flower. Image 2 pose reference: Miffy's approved W1; copy right-facing PROFILE direction, calm cheerful walk, broad stride, carrying bent front arm and upright blue watering can spout right, never pouring. Image 3 watering sheet is exact Mina palette and scale reference: same apparent size, body horizontal centre ~310/627, soles baseline y572/627, ears around y100/627, preserve Mina relative roster height (short ears, do not enlarge to rabbit height). Pose W1 right foot forward heel down and left foot behind toes down, lowest body position; free arm swings backward opposite forward leg. Wide readable contact stride. Can stays upright around x350-480 y400-510 as reference. Complete uncropped silhouette. Tail grey, one simple smoothly curled rigid tail extending behind at left, fixed shape and size. Flat restrained black outlines and flat fills. Single character on uniform green background. Exact square canvas composition with ample margin.",
+      "references": [
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W1/final-frame.png",
+          "sha256": "1f25c49fd3ddbdc0bd19aa2d94aaa40cbe328a9839ba463538067b17a98c89b6"
+        },
+        {
+          "role": "Mina identity",
+          "path": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png",
+          "sha256": "238decdc5fe9685059dbe5885e215d199f78a99e1c0bd8816b848aa710593dc8"
+        },
+        {
+          "role": "Mina palette, scale and placement",
+          "path": "apps/app/public/characters/mina-cat/garden-water-sheet.webp",
+          "sha256": "5a324948574a8b212083b5a52ebed3877f13c036dd7faa6b2205f2889c67646d"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W1/generated-source.png",
-        "sha256": "925bea815a6995135d77666b9f3f868f286020cc35e78c87624b30abc927ce24"
+        "sha256": "52294d6f10b19a6b6d33144f304e8049c6ab459f31de5028d2fed99bc1d3613d",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
       "rejectedSources": [
         {
+          "path": "assets/generated/characters/mina-cat/garden-walk/W1/rejected-generated-source-1.png",
+          "sha256": "925bea815a6995135d77666b9f3f868f286020cc35e78c87624b30abc927ce24",
+          "reason": "Version 1 superseded: timid contact/passing phases and independently changing head/core. Preserved before regeneration."
+        },
+        {
           "path": "assets/generated/characters/mina-cat/garden-walk/W1/rejected-generated-source.png",
-          "sha256": "4df5f5e7a9202d4e207940247cea1c02d398c785e72eefd122b088e47f58e1de"
+          "sha256": "4df5f5e7a9202d4e207940247cea1c02d398c785e72eefd122b088e47f58e1de",
+          "reason": "Previously rejected version 1 identity attempt; retained unchanged from the existing source history."
         }
       ],
       "alphaCleanup": {
@@ -52,47 +235,79 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W1/alpha-source.png",
-        "sha256": "74bdcf4ab0b762b563d7ab821d46f167627409cf940be159941a66b9e85e1f1c"
+        "sha256": "144acc0eaa42910ee70856efc7213eee1edbf0e70a16932cf97f69fe0b2706ac"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing normalize helper: raster resize and canvas translation",
+        "scale": 1.05,
+        "offsetX": -8,
+        "offsetY": 12,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 0.923,
-        "offsetX": 28,
-        "offsetY": 56
+        ]
+      },
+      "invariantSource": "W3/alpha-source.png after normalization and RGB mapping; no per-frame core rescaling",
+      "bodyBobY": 0,
+      "legFit": {
+        "sourceTopY": 480,
+        "targetTopY": 450,
+        "targetBaselineY": 572,
+        "offsetX": -6
       },
       "review": {
         "status": "approved",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+          "Complete right-facing profile head/ears/face exactly shared after inverse 19 px bob",
+          "Exact shared torso/cardigan/collar/carrying arm/upright can/rigid tail",
+          "Generated legs and free-arm phases visibly distinct",
+          "627 x 627 RGBA; transparent corners, no green fringe, complete silhouette",
+          "Fixed sole baseline y572 and body horizontal axis approximately x310",
+          "Same apparent scale as unchanged Mina watering sheet and roster-relative height",
+          "Five material anchors within 3 RGB units; dominant full-frame fur and can blue within 3 of watering sheet"
+        ],
+        "notes": [
+          "Right contact: right foot forward heel down, left foot trailing toes down; free arm back.",
+          "W3 core selected because its bent carrying arm and can match the pose contract better; heads/cans/torso/tail of other generated phases are discarded.",
+          "No skin/outfit or outline pixels drawn: masks select generated rasters; only generated lower-leg fitting, arm selection, rigid bob and RGB mapping."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W1/final-frame.png",
-        "sha256": "f18b9efce53d45c8a4e4513fda1b199532d426f376710521bb58705101346c80"
+        "sha256": "361e0ea033028efd346c843787813c7f8a75d3965f202650ca3870f68243e245"
       }
     },
     {
       "frameId": "W2",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W2.png",
-        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing passing pose with the feet close. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Left passing: right supporting leg straight, left foot lifted behind while passing; free arm forward.",
+      "prompt": "Use case: identity-preserve. ONE square children's-book raster animation frame W2 on FLAT pure #00ff00 green. Reference 1 is Mina W1 master: keep EXACT same head/ear silhouette, profile face pointing right, grey fur cream blaze/markings, lilac cardigan yellow collar cream skirt, size, framing, tail shape, black outlines and blue watering can (upright spout right no water). Reference 2 Miffy W2 is ONLY the passing phase limb pose. Change Mina W1 into W2: right supporting leg STRAIGHT vertically under body ending on ground; left foot clearly LIFTED off ground behind, bent at knee, passing forward beneath skirt, foot about 30 px higher than sole baseline at627. NOT a standing pose, NOT contact stride. Free arm swings FORWARD (to right), separated visible behind the bent carrying arm. Carrying arm and can fixed exactly as W1, apart from whole torso/head bob up 19/627 of canvas. Preserve proportions and horizontal body centre exactly; feet baseline does not rise. Single complete character, ample green margins, no text/grid/shadows/plants/water. Rigid tail same model and shape.",
+      "references": [
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W2/final-frame.png",
+          "sha256": "97558ac678a89dae1d40cb9ee4b21d42ec1bc8de008259fd5fef7b1958d2d62d"
+        },
+        {
+          "role": "Mina W1 generated identity and composition",
+          "path": "assets/generated/characters/mina-cat/garden-walk/W1/generated-source.png",
+          "sha256": "52294d6f10b19a6b6d33144f304e8049c6ab459f31de5028d2fed99bc1d3613d"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W2/generated-source.png",
-        "sha256": "4373ffde32e27245b4da1ca27052dbd89336046c8429e2fb85c79124728c15aa"
+        "sha256": "f377d42a33c4208e2ba7ddaa3749e5e40c01d28dec3209a7429f3cbf5cde33c9",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/mina-cat/garden-walk/W2/rejected-generated-source-1.png",
+          "sha256": "4373ffde32e27245b4da1ca27052dbd89336046c8429e2fb85c79124728c15aa",
+          "reason": "Version 1 superseded: timid contact/passing phases and independently changing head/core. Preserved before regeneration."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -104,47 +319,79 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W2/alpha-source.png",
-        "sha256": "4ad6e2c1d20cfeb854ed1943b0ce843faccd3e9044fadcd8752099efe00f3bb5"
+        "sha256": "1b00c28ee508a0f5e1f4a76a6ee99ae2fa212986904c0760cf33752fd8cb8823"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing normalize helper: raster resize and canvas translation",
+        "scale": 1.05,
+        "offsetX": -8,
+        "offsetY": 12,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 0.998,
-        "offsetX": -6,
-        "offsetY": 48
+        ]
+      },
+      "invariantSource": "W3/alpha-source.png after normalization and RGB mapping; no per-frame core rescaling",
+      "bodyBobY": -19,
+      "legFit": {
+        "sourceTopY": 460,
+        "targetTopY": 450,
+        "targetBaselineY": 572,
+        "offsetX": 0
       },
       "review": {
         "status": "approved",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+          "Complete right-facing profile head/ears/face exactly shared after inverse 19 px bob",
+          "Exact shared torso/cardigan/collar/carrying arm/upright can/rigid tail",
+          "Generated legs and free-arm phases visibly distinct",
+          "627 x 627 RGBA; transparent corners, no green fringe, complete silhouette",
+          "Fixed sole baseline y572 and body horizontal axis approximately x310",
+          "Same apparent scale as unchanged Mina watering sheet and roster-relative height",
+          "Five material anchors within 3 RGB units; dominant full-frame fur and can blue within 3 of watering sheet"
+        ],
+        "notes": [
+          "Left passing: right supporting leg straight, left foot lifted behind while passing; free arm forward.",
+          "W3 core selected because its bent carrying arm and can match the pose contract better; heads/cans/torso/tail of other generated phases are discarded.",
+          "No skin/outfit or outline pixels drawn: masks select generated rasters; only generated lower-leg fitting, arm selection, rigid bob and RGB mapping."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W2/final-frame.png",
-        "sha256": "62f79a6b1eb248abb9c73c672b3d947152eb94bfc64cc2779587db5508ab3e8f"
+        "sha256": "bcf787d85889242a7d8c1188fc4193a7e28f6b27e7a9de568c1ffd0e4c8586d8"
       }
     },
     {
       "frameId": "W3",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W3.png",
-        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing opposite stride. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Left contact: left foot forward heel down, right foot trailing toes down; free arm forward.",
+      "prompt": "Use case: identity-preserve. ONE square raster children's-book walk frame W3, uniform pure #00ff00 chroma green. Reference1 Mina W1 master EXACT identity, framing and proportions. Reference2 Miffy W3 leg and free-arm phase only. Keep Mina EXACT head grey cream blaze, ear shape/angle, right-facing profile face, lilac cardigan yellow collar cream skirt and paws. Keep upright blue watering can spout right, same model and position, bent carrying arm. No water. Same rigid grey curved tail. Body lowest point SAME W1; only limbs change. W3 is opposite contact: LEFT foot forward heel down to right and RIGHT foot behind to left toes down. Broad stride. To make opposite contact visibly different, slightly farther forward lifted-toe cream front paw and slightly more extended back cream paw; preserve skin paw model. Free arm swings FORWARD to right exactly as Miffy W3, away from silhouette and separate from can arm. No extra limbs. Complete silhouette, same horizontal body centre and sole baseline as W1. NO text/grid/scenery/shadow/flowers, only one Mina. Do not create sheet.",
+      "references": [
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W3/final-frame.png",
+          "sha256": "a698508cce53957629b1df9adca7722ea33ab2a90a4c4fca5403dcc413513a17"
+        },
+        {
+          "role": "Mina W1 generated identity and composition",
+          "path": "assets/generated/characters/mina-cat/garden-walk/W1/generated-source.png",
+          "sha256": "52294d6f10b19a6b6d33144f304e8049c6ab459f31de5028d2fed99bc1d3613d"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W3/generated-source.png",
-        "sha256": "07fb801fa07cdf9fbd3e08d4be25b9f81dfab89473b67b23c573307e8ad99881"
+        "sha256": "e38d8336a92dce07f087f6457d5a76177d18633c03505d2326b373197f66a711",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/mina-cat/garden-walk/W3/rejected-generated-source-1.png",
+          "sha256": "07fb801fa07cdf9fbd3e08d4be25b9f81dfab89473b67b23c573307e8ad99881",
+          "reason": "Version 1 superseded: timid contact/passing phases and independently changing head/core. Preserved before regeneration."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -156,47 +403,79 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W3/alpha-source.png",
-        "sha256": "a00c5d81093fa123d73b755c887e28cbc9cceafbd880abc19b0969e9c0a1d1d7"
+        "sha256": "f119021704e87856e09d6916b7d0ca1539f7d59c84fe53b577da171702639403"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing normalize helper: raster resize and canvas translation",
+        "scale": 1.05,
+        "offsetX": -8,
+        "offsetY": 12,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 1.015,
-        "offsetX": -12,
-        "offsetY": 21
+        ]
+      },
+      "invariantSource": "W3/alpha-source.png after normalization and RGB mapping; no per-frame core rescaling",
+      "bodyBobY": 0,
+      "legFit": {
+        "sourceTopY": 480,
+        "targetTopY": 480,
+        "targetBaselineY": 572,
+        "offsetX": 0
       },
       "review": {
         "status": "approved",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+          "Complete right-facing profile head/ears/face exactly shared after inverse 19 px bob",
+          "Exact shared torso/cardigan/collar/carrying arm/upright can/rigid tail",
+          "Generated legs and free-arm phases visibly distinct",
+          "627 x 627 RGBA; transparent corners, no green fringe, complete silhouette",
+          "Fixed sole baseline y572 and body horizontal axis approximately x310",
+          "Same apparent scale as unchanged Mina watering sheet and roster-relative height",
+          "Five material anchors within 3 RGB units; dominant full-frame fur and can blue within 3 of watering sheet"
+        ],
+        "notes": [
+          "Left contact: left foot forward heel down, right foot trailing toes down; free arm forward.",
+          "W3 core selected because its bent carrying arm and can match the pose contract better; heads/cans/torso/tail of other generated phases are discarded.",
+          "No skin/outfit or outline pixels drawn: masks select generated rasters; only generated lower-leg fitting, arm selection, rigid bob and RGB mapping."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W3/final-frame.png",
-        "sha256": "5cf7879bcb08a31f9992e1a72bd7dfa63a805bc160d59fb0c2ff160aea30f756"
+        "sha256": "69501132419eaf9af6013208406c231a6bc0d176bdfcbf8e992ac3963c6eb937"
       }
     },
     {
       "frameId": "W4",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W4.png",
-        "reference2Identity": "assets/generated/characters/mina-cat/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Mina, the approved cat; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing second passing pose. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep lilac cardigan and yellow collar unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Right passing: left supporting leg straight, right foot lifted forward; free arm back.",
+      "prompt": "Use case: identity-preserve. ONE square children's-book walk frame W4 on uniform pure #00ff00 green. Reference1 Mina W1 EXACT identity, fixed profile right-facing head ears face marking silhouette, grey fur cream blaze lilac cardigan yellow collar cream skirt and paws, blue upright watering can spout right and same rigid tail. Reference2 Miffy W4 limb phase ONLY. Make RIGHT foot clearly lifted passing forward to the RIGHT, bent knee under skirt with rounded cream paw 30px above ground at627, and LEFT supporting leg straight vertical under body to baseline. This must be visibly DIFFERENT from W2: lifted foot is to right, planted left leg is left of centre. Free arm swings BACKWARD toward left, opposite lifted right leg. Do NOT repeat W2. Body/head rise19/627 from W1 contact phase while planted foot stays baseline; same horizontal body centre and scale. Can arm stays bent and can upright no pouring, no water; not swinging. Complete uncropped subject ample green margins. No text/grid/borders/shadow/scenery/plants/flower or extra limbs. Only one frame.",
+      "references": [
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W4/final-frame.png",
+          "sha256": "4b312dcc87fe482c346bb051ce1823bc603c927e3fb452dae8fbf347ded5f54a"
+        },
+        {
+          "role": "Mina W1 generated identity and composition",
+          "path": "assets/generated/characters/mina-cat/garden-walk/W1/generated-source.png",
+          "sha256": "52294d6f10b19a6b6d33144f304e8049c6ab459f31de5028d2fed99bc1d3613d"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W4/generated-source.png",
-        "sha256": "f412f85e197a86c3270ccf81f814e5a2bb02ebd2471c908841b365ab4ee2c72d"
+        "sha256": "7ed4d209af35af39e47273d7ab4395e1687a53362fe4001044778e392c5b2d4a",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/mina-cat/garden-walk/W4/rejected-generated-source-1.png",
+          "sha256": "f412f85e197a86c3270ccf81f814e5a2bb02ebd2471c908841b365ab4ee2c72d",
+          "reason": "Version 1 superseded: timid contact/passing phases and independently changing head/core. Preserved before regeneration."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -208,41 +487,118 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W4/alpha-source.png",
-        "sha256": "04ab031530c1e0a3f4de54144d3c84eaddcb0e9906b136250bdd95940dace11f"
+        "sha256": "cc869017250ce216101b5685a50eca7353aac5c08ca45ad61cfed162ff52ae12"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing normalize helper: raster resize and canvas translation",
+        "scale": 1.05,
+        "offsetX": -8,
+        "offsetY": 12,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 1,
-        "offsetX": -10,
-        "offsetY": 13
+        ]
+      },
+      "invariantSource": "W3/alpha-source.png after normalization and RGB mapping; no per-frame core rescaling",
+      "bodyBobY": -19,
+      "legFit": {
+        "sourceTopY": 460,
+        "targetTopY": 461,
+        "targetBaselineY": 572,
+        "offsetX": 0
       },
       "review": {
         "status": "approved",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+          "Complete right-facing profile head/ears/face exactly shared after inverse 19 px bob",
+          "Exact shared torso/cardigan/collar/carrying arm/upright can/rigid tail",
+          "Generated legs and free-arm phases visibly distinct",
+          "627 x 627 RGBA; transparent corners, no green fringe, complete silhouette",
+          "Fixed sole baseline y572 and body horizontal axis approximately x310",
+          "Same apparent scale as unchanged Mina watering sheet and roster-relative height",
+          "Five material anchors within 3 RGB units; dominant full-frame fur and can blue within 3 of watering sheet"
+        ],
+        "notes": [
+          "Right passing: left supporting leg straight, right foot lifted forward; free arm back.",
+          "W3 core selected because its bent carrying arm and can match the pose contract better; heads/cans/torso/tail of other generated phases are discarded.",
+          "No skin/outfit or outline pixels drawn: masks select generated rasters; only generated lower-leg fitting, arm selection, rigid bob and RGB mapping."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/mina-cat/garden-walk/W4/final-frame.png",
-        "sha256": "64bf97779e42fa51f6b27dc2ff82e1e002aa523e7372bd84d5c78413be1f3076"
+        "sha256": "72fa7ef7a19e1fa2889589d47ecacd78b1819806f25c795575cbc6f95e1f0cff"
       }
     }
   ],
   "assembly": {
-    "method": "lossless reviewed-frame sheet assembly only",
+    "method": "existing assemble helper; canonical zero transparent RGB; lossless exact WebP",
     "runtimeAsset": {
-      "path": "apps/web/public/characters/mina-cat/garden-walk-sheet.webp",
-      "sha256": "6dd33bdf026e6048d41559e74cf7968f65da6118dc7e0d0eabb6bc5f1df5f977"
+      "path": "apps/app/public/characters/mina-cat/garden-walk-sheet.webp",
+      "sha256": "c5bf88ab8744b7708369ae8adbfa3d8bbccc9c8622b14146640d508339acb5d9"
     }
+  },
+  "review": {
+    "status": "approved",
+    "artifacts": [
+      {
+        "path": "assets/generated/characters/mina-cat/garden-walk/review/frames-side-by-side.png",
+        "sha256": "8e867c817c11b83ff44a64ca515e4c8981f3ed3a14a252719dc3177f08777e1d"
+      },
+      {
+        "path": "assets/generated/characters/mina-cat/garden-walk/review/metrics.json",
+        "sha256": "18ab51e2036fe31e8d068cf8de45d39790cfe25b2bb51392c09246cc2f890fc1"
+      },
+      {
+        "path": "assets/generated/characters/mina-cat/garden-walk/review/preview.html",
+        "sha256": "d84ad671cbea86c2ce97b3d03a129ee4c48c40404e2a45af20467b197f3a0a66"
+      },
+      {
+        "path": "assets/generated/characters/mina-cat/garden-walk/review/runtime-sheet.webp",
+        "sha256": "c5bf88ab8744b7708369ae8adbfa3d8bbccc9c8622b14146640d508339acb5d9"
+      },
+      {
+        "path": "assets/generated/characters/mina-cat/garden-walk/review/walk-loop.gif",
+        "sha256": "7018e443c6d431884a170fc94e2a1742bce9cea97c9e3a2f8a306718093341bf"
+      },
+      {
+        "path": "assets/generated/characters/mina-cat/garden-walk/review/walk-water-comparison.png",
+        "sha256": "504f964e6683396f3e722024d4ac259d4da6d23ffe42c3ab537a230ee360e08b"
+      },
+      {
+        "path": "assets/generated/characters/mina-cat/garden-walk/review/water-reference.png",
+        "sha256": "9769af05cd9e57b0459663202a058a5028e20c4902ea120179ff57496797ec56"
+      }
+    ],
+    "iterations": [
+      {
+        "reason": "Initial free-arm mask cut through the right shoulder outline and retained the former sleeve top as a short stroke.",
+        "resolution": "Follow the existing generated black torso contour and remove the sleeve top without drawing or changing the master."
+      },
+      {
+        "reason": "Free-arm mask intersected a few pixels at the raised can spout; W1/W4 spout top was clipped.",
+        "resolution": "Protect all blue can pixels and their adjacent black outline using the existing raster mask before core selection."
+      },
+      {
+        "reason": "Independent visual review found W2 rear leg/hem slit and W1 small leg join notch.",
+        "resolution": "Fit W2 generated shins 11 px farther under the invariant bobbed hem; fit W1 generated legs from targetTopY450 with horizontal join offset-6. Fixed soles remain y572; independent re-review confirms both joins continuous."
+      },
+      {
+        "reason": "Profile head, tail and spout skew the overall alpha-bounds centre.",
+        "resolution": "Final rigid 10 px left translation aligns the garment/body axis with the measured water x309\u2013310; all masks and walk swatches follow this translation. Scale, phases, baseline, bob and invariants stay identical."
+      }
+    ],
+    "verification": {
+      "rasterChecks": "rebuild.py asserts exact shared opaque core/head, 19pxbob, five palette anchors, dominant fur/can within3, dimensions/corners/baseline and decoded sheetcells.",
+      "pnpmCheck": "passed",
+      "pnpmDoctor": "passed; no issues, 100/100",
+      "loopTimingMs": [
+        140,
+        150,
+        140,
+        150
+      ],
+      "loopPlayback": "Pending public GIF playback; local HTML blocked by browser URL policy and native viewer has no accessible window."
+    },
+    "independentReview": "Approved after W1 and W2 leg join adjustments; no remaining substantive findings. Head/tail/core, actual can, identity, roster scale, phases, palette, transparency, GIF frames and timing reviewed."
   }
 }
