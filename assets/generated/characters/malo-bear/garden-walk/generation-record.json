@@ -1,8 +1,12 @@
 {
-  "version": 1,
+  "version": 2,
   "tool": "built-in Image Generation",
   "characterId": "malo-bear",
   "sequence": "garden-walk",
+  "poseReferenceApproval": {
+    "pullRequest": "https://github.com/Zax-code/little-tables/pull/70",
+    "mergeCommit": "567fdc47370560665d67b79835acb410af688cf4"
+  },
   "productionContract": {
     "cellDimensions": [
       627,
@@ -21,24 +25,59 @@
       "W2",
       "W3",
       "W4"
-    ]
+    ],
+    "loopSeconds": 0.58,
+    "wholeBodyBobPixels": 19,
+    "contactBaselineExclusive": 572,
+    "visibleBaselineExclusiveAlphaAtLeast10": 570,
+    "bodyAnchor": "fixed torso raster and x translation; same-size water comparison reviewed",
+    "runtimeCodeChange": false
+  },
+  "identityReference": {
+    "path": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png",
+    "sha256": "15c370bc227ad649cad17d017e8cd20f4eb7af4bb302c2340c0ff7f33769b19d"
+  },
+  "rosterScaleReference": {
+    "path": "assets/generated/characters/roster-reference/canonical-full-body-home-roster-normalized.png",
+    "sha256": "5efb787beb7f245590e209a22cc9c2109d0fe22f9a2fce5c1fdcd750cca11d06"
+  },
+  "unchangedWaterReference": {
+    "path": "apps/app/public/characters/malo-bear/garden-water-sheet.webp",
+    "sha256": "7460ef7cab1863ebd55039aafcd2a25b20bcd42e2695d7e4e92576fd52ee55f0"
+  },
+  "previousVersion": {
+    "commit": "567fdc47370560665d67b79835acb410af688cf4",
+    "recordPath": "assets/generated/characters/malo-bear/garden-walk/generation-record.json",
+    "sources": "Version1 accepted sources and finals remain in Git history; its rejected W1 source is preserved with numbered filename."
   },
   "frames": [
     {
       "frameId": "W1",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
-        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing stride with the front foot forward. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Contact: right/near foot forward, left/far behind.",
+      "prompt": "Use case: illustration-story. Create ONE garden walking animation frame W1 for Malo bear, on perfectly flat vivid chroma green #00ff00, square canvas, no text.\nReference 1 Miffy W1 is ONLY the right-contact walking pose and blue watering can style. Reference 2 Malo home is ONLY identity: warm ochre brown round bear ears, cream muzzle, black nose, cream short-sleeve shirt and brick-red neckerchief. Reference 3 Malo water G1 sets apparent scale and position.\nDraw Malo facing RIGHT in clear side/profile (one visible eye, muzzle pointing right), calmly cheerful. Right/near foot stretches forward toward right with heel contacting ground; left/far foot trails back with toes down. Generous distinct stride like Miffy. Free far arm swings BACK left, carrying near arm bent across chest holds the upright BLUE watering can, spout right, never pouring, no water. Keep large round bear head, small round ears, tuft, cream muzzle and stout bear proportions. Simple children's book raster with restrained black outlines and subtle warm texture matching Malo water.\nComposition in 627px coordinates: feet ground baseline y=570, torso horizontal center x=320; head top about y=65, torso/shirt from y=295 to y=500, legs below shirt; complete silhouette including can fits within cell. Same apparent character height as Malo water G1 (~505px), same body width, no rabbit ears. Can similar blue model shown, carried at waist, spout to right. Character wholly visible. Flat green everywhere outside character and in holes. No flowers, scenery, shadows, words, extra limbs, droplets. Single frame, never sprite sheet.",
+      "references": [
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/final-frame.png",
+          "sha256": "1f25c49fd3ddbdc0bd19aa2d94aaa40cbe328a9839ba463538067b17a98c89b6"
+        },
+        {
+          "path": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png",
+          "sha256": "15c370bc227ad649cad17d017e8cd20f4eb7af4bb302c2340c0ff7f33769b19d"
+        },
+        {
+          "path": "assets/generated/characters/malo-bear/garden-walk/review/water-reference.png",
+          "sha256": "4ca1fe7db7230497be9950a12181a0e0823d8421a29a234139114e56fba3ec68"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W1/generated-source.png",
-        "sha256": "ca951fc0c665d1460f399a3612d02cdbf7040d89951547bf03a3a6106a15f4b8"
+        "sha256": "d0a269277d0e384162997c16df2431949deb3ad352997f8594269293b31e2c5e"
       },
       "rejectedSources": [
         {
-          "path": "assets/generated/characters/malo-bear/garden-walk/W1/rejected-generated-source.png",
-          "sha256": "271e997a5128110b5885133d4cced8ffe28da9deaf6601215c1b615a9dd64529"
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/rejected-generated-source-1.png",
+          "sha256": "271e997a5128110b5885133d4cced8ffe28da9deaf6601215c1b615a9dd64529",
+          "reviewNote": "Retained rejected version1 source; not used in version2."
         }
       ],
       "alphaCleanup": {
@@ -52,45 +91,71 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
-        "sha256": "32234c3139d9da30a24198b7092d443eafb6367e667c2ece3fce65fd07439312"
+        "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing helper resize/translation, then generated-raster core/arm/leg selection; vertical leg normalization behind shared hem",
         "targetDimensions": [
           627,
           627
         ],
-        "scale": 1,
-        "offsetX": 14,
-        "offsetY": 15
+        "scale": 1.05,
+        "offsetX": -14,
+        "offsetY": -11,
+        "legSourceCropTop": 460,
+        "legTargetTop": 451,
+        "feetBaselineExclusive": 572
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+          "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
+        },
+        "wholeBodyTranslationY": 0,
+        "freeArmSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+          "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+          "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
+        }
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exactly one W1 raster master supplies head, ear, tuft, profile face, shirt, neckerchief, carrying arm and upright dry blue can; no subject pixels drawn.",
+          "Generated upper-body drift is discarded. Head equality includes transparent silhouette boundaries; every opaque core pixel equals the master after bob compensation.",
+          "Generated leg phases and generated free arms are retained by raster selection. W1/W4 use backward W1 arm; W2/W3 use forward W3 arm.",
+          "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
+          "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
+          "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W1/final-frame.png",
-        "sha256": "7bc89a1254f20ff9b6b13e8e83f31279a8499996eb4a45eff693a2cb03ed4831"
+        "sha256": "f3ee2e57d09428bb4618f3bea5172eef68f73d7f42f64c35e053778677697589"
       }
     },
     {
       "frameId": "W2",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W2.png",
-        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing passing pose with the feet close. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Passing: right/near straight support, left/far raised beside shin.",
+      "prompt": "Use case: precise-object-edit. Create ONE W2 LEFT-PASSING animation frame by editing image 1, Malo W1. Image 2 Miffy W2 is pose reference ONLY.\nPreserve image 1's exact bear identity, head shape/size/ear/tuft/muzzle/eye, cream shirt, red neckerchief, carrying arm, upright blue can with spout right, raster style, square canvas, flat chroma #00ff00 background. No water, extra limbs, scenery, shadows or text.\nChange LEGS and FREE ARM only, plus rigid upward body bob 38 pixels in this 1254px square (19px in final627).\nW2: right/NEAR leg straight vertically under torso, planted foot on exact SAME ground baseline as W1. Left/FAR leg is bent and lifted, passing directly next to support shin, visibly hovering above ground (about90px native), not a trailing stretched leg and not two standing feet. Follow Miffy W2 two-foot silhouette: lifted far foot visible on LEFT/back side of straight support shin, tucked under body.\nFree far arm swings FORWARD to right, visible beyond torso at right shoulder/chest height, opposite the leg phase; remove backward free arm at left completely. Exactly TWO arms, one unchanged holding can and one forward free arm. Carrying can angle unchanged, do not tilt.\nHead, torso, carrying hand and can move together up 38px, horizontal center unchanged, with support shin extended to maintain baseline. Match exact W1 scale and proportions. One frame only.",
+      "references": [
+        {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/generated-source.png",
+          "sha256": "d0a269277d0e384162997c16df2431949deb3ad352997f8594269293b31e2c5e"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/final-frame.png",
+          "sha256": "97558ac678a89dae1d40cb9ee4b21d42ec1bc8de008259fd5fef7b1958d2d62d"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W2/generated-source.png",
-        "sha256": "01196e7ca4f09929411e23e89c0c713af96319e2ce82e6bd337e79467673b46c"
+        "sha256": "3c6ee4f5383a4dda498c57d8c6ccbca565f8f3fdc0c7f9a4cf3934a983ecf3de"
       },
       "rejectedSources": [],
       "alphaCleanup": {
@@ -104,45 +169,71 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W2/alpha-source.png",
-        "sha256": "096720bd0183ecbbde8623f5efeae34ff89429853d9b9b079b89889aa32bca50"
+        "sha256": "ea99bcf0ea5aa3fac0527122bd90cd67805dda1776ff091de7560a1e5e634fe9"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing helper resize/translation, then generated-raster core/arm/leg selection; vertical leg normalization behind shared hem",
         "targetDimensions": [
           627,
           627
         ],
-        "scale": 1.08,
-        "offsetX": -80,
-        "offsetY": 0
+        "scale": 1.05,
+        "offsetX": -14,
+        "offsetY": -11,
+        "legSourceCropTop": 445,
+        "legTargetTop": 431,
+        "feetBaselineExclusive": 572
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+          "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
+        },
+        "wholeBodyTranslationY": -19,
+        "freeArmSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W3/alpha-source.png",
+          "sha256": "4a517ffede521a94a26678fe3b70c497582c934255d5caab5e7eb496c2d5997e"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W2/alpha-source.png",
+          "sha256": "ea99bcf0ea5aa3fac0527122bd90cd67805dda1776ff091de7560a1e5e634fe9"
+        }
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exactly one W1 raster master supplies head, ear, tuft, profile face, shirt, neckerchief, carrying arm and upright dry blue can; no subject pixels drawn.",
+          "Generated upper-body drift is discarded. Head equality includes transparent silhouette boundaries; every opaque core pixel equals the master after bob compensation.",
+          "Generated leg phases and generated free arms are retained by raster selection. W1/W4 use backward W1 arm; W2/W3 use forward W3 arm.",
+          "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
+          "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
+          "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W2/final-frame.png",
-        "sha256": "2a7417843dee8c1b5dece201644601d4105646aea649d2dfb496f772dd9dfd2e"
+        "sha256": "4fbc4e1962803cffd5ec0181533a4e3d27a42f84258a3cbcf56c4b99f9e6eac2"
       }
     },
     {
       "frameId": "W3",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W3.png",
-        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing opposite stride. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Contact: left/far foot forward, right/near behind.",
+      "prompt": "Use case: precise-object-edit. Create ONE W3 LEFT-CONTACT walk animation frame by editing reference1 Malo W1. Reference2 Miffy W3 is ONLY opposite-contact pose and free arm reference.\nKeep exact Malo head profile/ear/tuft/face/size/position, torso cream shirt, brick-red neckerchief, carrying bent arm and same upright dry blue can at same position with rightward spout. Same square #00ff00 flat green background, scale and baseline. W3 is at SAME low body height as W1, NO bob.\nChange only legs and FREE far arm. LEFT/FAR foot is now FORWARD to RIGHT with heel on ground and toes slightly raised; RIGHT/NEAR foot is BACK to LEFT with toes grounded, heel lifted. Reverse which leg occludes the other at crotch versus W1; show clear opposing stride and two bear feet with black toe marks. Match generous comfortable Miffy W3 contact stance. Same ground baseline, shirt hem, proportions.\nFree arm swings FORWARD to RIGHT (behind/above can spout), cream sleeve and brown paw; remove W1 backward arm at left fully. Exactly two arms total, unchanged can holding and one forward free. Preserve fixed shirt torso width and smooth left torso edge. One frame only. No flower, water, text, shadows, scenery or extra limbs.",
+      "references": [
+        {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/generated-source.png",
+          "sha256": "d0a269277d0e384162997c16df2431949deb3ad352997f8594269293b31e2c5e"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W3/final-frame.png",
+          "sha256": "a698508cce53957629b1df9adca7722ea33ab2a90a4c4fca5403dcc413513a17"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W3/generated-source.png",
-        "sha256": "a54cd40d1bcd42ad5022aa2ebc5b6068d9ea173a91d29fb82f697b0bb531a979"
+        "sha256": "0d1d5f0d0437715bfc6b0ce702e2d916fc69cb620edd2be248f1406ea3f0c6e6"
       },
       "rejectedSources": [],
       "alphaCleanup": {
@@ -156,45 +247,75 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W3/alpha-source.png",
-        "sha256": "893869e51fabc55ecfae118520eb0ab1ca947c95b2cf8405076fcc1f22bb46fc"
+        "sha256": "4a517ffede521a94a26678fe3b70c497582c934255d5caab5e7eb496c2d5997e"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing helper resize/translation, then generated-raster core/arm/leg selection; vertical leg normalization behind shared hem",
         "targetDimensions": [
           627,
           627
         ],
-        "scale": 1,
-        "offsetX": -16,
-        "offsetY": 5
+        "scale": 1.05,
+        "offsetX": -14,
+        "offsetY": -11,
+        "legSourceCropTop": 460,
+        "legTargetTop": 451,
+        "feetBaselineExclusive": 572
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+          "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
+        },
+        "wholeBodyTranslationY": 0,
+        "freeArmSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W3/alpha-source.png",
+          "sha256": "4a517ffede521a94a26678fe3b70c497582c934255d5caab5e7eb496c2d5997e"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W3/alpha-source.png",
+          "sha256": "4a517ffede521a94a26678fe3b70c497582c934255d5caab5e7eb496c2d5997e"
+        }
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exactly one W1 raster master supplies head, ear, tuft, profile face, shirt, neckerchief, carrying arm and upright dry blue can; no subject pixels drawn.",
+          "Generated upper-body drift is discarded. Head equality includes transparent silhouette boundaries; every opaque core pixel equals the master after bob compensation.",
+          "Generated leg phases and generated free arms are retained by raster selection. W1/W4 use backward W1 arm; W2/W3 use forward W3 arm.",
+          "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
+          "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
+          "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W3/final-frame.png",
-        "sha256": "742b7bd79dad88d473cd423c8d209ea4c9086d5e374bf82ba6234f6272b13a83"
+        "sha256": "751f4559b90a11000a3097028127e1f2a52a62df29556404f090243905b82dab"
       }
     },
     {
       "frameId": "W4",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W4.png",
-        "reference2Identity": "assets/generated/characters/malo-bear/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Malo, the approved bear; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing second passing pose. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep cream short-sleeve T-shirt and brick-red neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Passing: left/far straight support, right/near raised to the right.",
+      "prompt": "Use case: precise-object-edit. Create ONE W4 RIGHT-PASSING walk animation frame. Reference1 Malo W2 gives EXACT elevated body height and identity. Reference2 Malo W1 gives backward free arm. Reference3 Miffy W4 gives opposite passing LEGS ONLY.\nKeep W2 head/profile/ear/face/torso/neckerchief/carrying arm/upright blue can unchanged at SAME elevated height and same horizontal position. Same scale, raster texture, square flat green background.\nEdit two parts:\n1. Below cream shirt hem: LEFT/FAR leg straight vertically under body, brown foot flat on EXACT same W2 ground baseline. RIGHT/NEAR leg bent forward, its brown foot lifted and visibly hovering to RIGHT of support shin, sole about90px above ground at native1254. Near lifted leg occludes support shin. Exactly two legs and feet. Opposite foot silhouette from W2, closely follow Miffy W4.\n2. Remove W2 forward free arm/paw at RIGHT completely (including sleeve). Restore smooth torso right contour like W1. Put free arm swinging backward at LEFT like reference2 W1 with cream sleeve/brown hand. Exactly TWO arms including unchanged can-holding one.\nNo other changes, absolutely no head/upper body shift from W2. Upright dry blue can spout right, no water. No third arm, text, flowers, scenery, shadow or ground line. One frame W4 only.",
+      "references": [
+        {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W2/generated-source.png",
+          "sha256": "3c6ee4f5383a4dda498c57d8c6ccbca565f8f3fdc0c7f9a4cf3934a983ecf3de"
+        },
+        {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/generated-source.png",
+          "sha256": "d0a269277d0e384162997c16df2431949deb3ad352997f8594269293b31e2c5e"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W4/final-frame.png",
+          "sha256": "4b312dcc87fe482c346bb051ce1823bc603c927e3fb452dae8fbf347ded5f54a"
+        }
+      ],
       "generatedSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W4/generated-source.png",
-        "sha256": "b392591b65901ddccbc5d146a83fc6c798f5097ea666dafedc73a16330bc8cdb"
+        "sha256": "b60ed89e7bf9060224a26c762be3da8a16c2f16c8bac36348fea6fccaa9bbc71"
       },
       "rejectedSources": [],
       "alphaCleanup": {
@@ -208,41 +329,247 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W4/alpha-source.png",
-        "sha256": "577efbf0e6f283ee20570b87d6d69f23931c7335be8bd19c8b1cccc751e1d854"
+        "sha256": "15e4d43273e998e0c554bac4122afc47dba577b868d6e35242c9c18d19dded12"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "method": "existing helper resize/translation, then generated-raster core/arm/leg selection; vertical leg normalization behind shared hem",
         "targetDimensions": [
           627,
           627
         ],
-        "scale": 1.15,
-        "offsetX": -89,
-        "offsetY": -28
+        "scale": 1.05,
+        "offsetX": -14,
+        "offsetY": -11,
+        "legSourceCropTop": 445,
+        "legTargetTop": 431,
+        "feetBaselineExclusive": 572
+      },
+      "rigidRasterReuse": {
+        "invariantMaster": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+          "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
+        },
+        "wholeBodyTranslationY": -19,
+        "freeArmSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W1/alpha-source.png",
+          "sha256": "3ac7b8524f2fb4306fa42c7bc2b4421fb8c753586aae457aeebbdccdb7d5c2e4"
+        },
+        "feetSource": {
+          "path": "assets/generated/characters/malo-bear/garden-walk/W4/alpha-source.png",
+          "sha256": "15e4d43273e998e0c554bac4122afc47dba577b868d6e35242c9c18d19dded12"
+        }
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exactly one W1 raster master supplies head, ear, tuft, profile face, shirt, neckerchief, carrying arm and upright dry blue can; no subject pixels drawn.",
+          "Generated upper-body drift is discarded. Head equality includes transparent silhouette boundaries; every opaque core pixel equals the master after bob compensation.",
+          "Generated leg phases and generated free arms are retained by raster selection. W1/W4 use backward W1 arm; W2/W3 use forward W3 arm.",
+          "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
+          "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
+          "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W4/final-frame.png",
-        "sha256": "30b186eb21f77ee806563d2489019721b7bb95c84f98f2d0e86e5fc2388fae4d"
+        "sha256": "0d70fd0a2e18bbe635cd318d1a4331c31f5cbd497c113bc973eca7af7ec75cdc"
       }
     }
   ],
+  "rasterStabilization": {
+    "helper": {
+      "path": "assets/generated/characters/malo-bear/garden-walk/rebuild.py",
+      "sha256": "8595ce1e3ea438204cec5b50144dddd769be38dc0c072f26e9fc1182b8673b8b"
+    },
+    "rebuildCommand": "python3 assets/generated/characters/malo-bear/garden-walk/rebuild.py (requires Pillow)",
+    "reason": "Reuse one upper-body raster to eliminate head popping; preserve generated motion phases. Masks select existing pixels only.",
+    "resolvedAssemblyReviewFindings": [
+      "Rejected intermediate assembly: original arm/foot outline remnants; corrected contour and blue-vs-black classification.",
+      "Independent reviewer rejected W3 alpha seam and W4 old-leg crescent; replaced rectangular can exclusion with actual raster selection, removed brown leg skin from core, extended generated legs behind shared hem.",
+      "Reviewer rechecked all frames: former W3 seam fully opaque, W4 crescent absent, can intact, no substantive findings."
+    ],
+    "checks": [
+      "Exact head RGBA after bob compensation",
+      "Every opaque core pixel equals W1 master",
+      "Transparent corners and fixed water baseline",
+      "PNG cells exactly equal lossless WebP",
+      "Deterministic isolated rebuild confirmed by reviewer",
+      "Per-material palette anchors match unchanged water sheet within3 RGB units",
+      "Exact pre/post colour-map alpha, linework and blue-can equality"
+    ]
+  },
+  "review": {
+    "sideBySide": {
+      "path": "assets/generated/characters/malo-bear/garden-walk/review/frames-side-by-side.png",
+      "sha256": "11c8e7632b6af7eb4a1687f5482b4de9bcb6ee5811062fa7910c312f9d1574a2"
+    },
+    "animatedPreview": {
+      "path": "assets/generated/characters/malo-bear/garden-walk/review/walk-loop.gif",
+      "sha256": "c8f44b19bf5e16296fad9c6d554d7072f158680b25c04be6681af75653d4c2bb"
+    },
+    "htmlPreview": {
+      "path": "assets/generated/characters/malo-bear/garden-walk/review/preview.html",
+      "sha256": "e7f1ea8a9605e6fb3589966088682e687fce3a57d0df7f8db562b555f8cad197"
+    },
+    "waterComparison": {
+      "path": "assets/generated/characters/malo-bear/garden-walk/review/walk-water-comparison.png",
+      "sha256": "259070ba218d9a5f3765c790767e3a72c53d6a5cb0ed461e0f30cc0996e0943c"
+    },
+    "waterG1": {
+      "path": "assets/generated/characters/malo-bear/garden-walk/review/water-reference.png",
+      "sha256": "4ca1fe7db7230497be9950a12181a0e0823d8421a29a234139114e56fba3ec68"
+    },
+    "loopSeconds": 0.58,
+    "independentReview": "Approved after join corrections: no substantive visual/raster findings; isolated rebuild reproduced every PNG and runtime sheet.",
+    "validation": {
+      "pnpmCheck": "Passed required full check for colour correction: format, lint, typecheck, Rust/TypeScript/asset/deployment tests, Quadlet validation and production build.",
+      "pnpmDoctor": "Local audit passed with no issues; remote score unavailable (score API unreachable).",
+      "scope": "Only Malo garden walk sources/review and runtime walking sheet changed; water sheet and every other character unchanged."
+    },
+    "paletteReview": "Rebuilt side-by-side, GIF, and walk/water comparison inspected. Fur #b86820 in W1-W4, and sampled inner ear/muzzle/shirt/scarf anchors match; no geometric changes. Repeat rebuild is byte-identical; all four frames have original PR alpha bytes and protected line/can pixels. GIF retains four frames and 580ms duration."
+  },
   "assembly": {
-    "method": "lossless reviewed-frame sheet assembly only",
+    "method": "existing asset-pipeline lossless 2x2 assembly; canonical transparent RGB and WebP exact=True",
     "runtimeAsset": {
-      "path": "apps/web/public/characters/malo-bear/garden-walk-sheet.webp",
-      "sha256": "f7ffd84d819fa42aa249672a358617ea0678ea55f1a0c4fefd3d26b9a7e3c8d9"
+      "path": "apps/app/public/characters/malo-bear/garden-walk-sheet.webp",
+      "sha256": "09096a6255f748e54e8bda55f5677d661f0437a6f4e940d09d75b8a72e1aac8d"
+    },
+    "previewSheet": {
+      "path": "assets/generated/characters/malo-bear/garden-walk/review/runtime-sheet.webp",
+      "sha256": "09096a6255f748e54e8bda55f5677d661f0437a6f4e940d09d75b8a72e1aac8d"
+    }
+  },
+  "paletteMatching": {
+    "method": "Deterministic per-material RGB lookup anchored to modal opaque 8-unit RGB bins sampled from the unchanged watering sheet. Shared offsets preserve generated shading and texture; no new drawing.",
+    "stage": "After generated-raster assembly and geometry/core checks, before final PNGs, lossless sheet and review exports. Generated-source.png and alpha-source.png remain unchanged.",
+    "waterReference": {
+      "path": "apps/app/public/characters/malo-bear/garden-water-sheet.webp",
+      "sha256": "7460ef7cab1863ebd55039aafcd2a25b20bcd42e2695d7e4e92576fd52ee55f0"
+    },
+    "sampling": {
+      "binSize": 8,
+      "minimumAlpha": 255,
+      "fur": "Dominant warm-brown material across all four unchanged water cells; source anchor sampled from assembled W1.",
+      "otherMaterials": "Interior G1 crops; inner ear mapped only inside the generated ear contour selected by flood fill. Muzzle and shirt classified separately by body-relative height.",
+      "waterG1Swatches": {
+        "innerEar": [
+          203,
+          112,
+          225,
+          139
+        ],
+        "muzzle": [
+          290,
+          247,
+          313,
+          282
+        ],
+        "shirt": [
+          205,
+          433,
+          265,
+          468
+        ],
+        "scarf": [
+          284,
+          322,
+          349,
+          347
+        ]
+      },
+      "walkW1Swatches": {
+        "innerEar": [
+          241,
+          117,
+          265,
+          140
+        ],
+        "muzzle": [
+          404,
+          231,
+          425,
+          249
+        ],
+        "shirt": [
+          218,
+          424,
+          289,
+          449
+        ],
+        "scarf": [
+          310,
+          312,
+          351,
+          328
+        ]
+      }
+    },
+    "materials": {
+      "fur": {
+        "sourceAnchor": "#d07018",
+        "waterAnchor": "#b86820",
+        "rgbOffset": [
+          -24,
+          -8,
+          8
+        ]
+      },
+      "innerEar": {
+        "sourceAnchor": "#d07018",
+        "waterAnchor": "#b86018",
+        "rgbOffset": [
+          -24,
+          -16,
+          0
+        ]
+      },
+      "muzzle": {
+        "sourceAnchor": "#f8e8c0",
+        "waterAnchor": "#f8e0b8",
+        "rgbOffset": [
+          0,
+          -8,
+          -8
+        ]
+      },
+      "shirt": {
+        "sourceAnchor": "#f8e8c0",
+        "waterAnchor": "#f8e0b0",
+        "rgbOffset": [
+          0,
+          -8,
+          -16
+        ]
+      },
+      "scarf": {
+        "sourceAnchor": "#d04028",
+        "waterAnchor": "#b83820",
+        "rgbOffset": [
+          -24,
+          -8,
+          -8
+        ]
+      }
+    },
+    "preservationChecks": [
+      "Every alpha byte identical before/after palette mapping",
+      "All original RGB pixels with maximum channel <=100 and every blue-can pixel unchanged",
+      "Shared head byte-identical after 19px bob compensation",
+      "All four current frames have exactly the approved PR head silhouettes and alpha geometry"
+    ],
+    "dominantColorCheck": {
+      "maxChannelTolerance": 3,
+      "waterFur": "#b86820",
+      "frames": {
+        "W1": "#b86820",
+        "W2": "#b86820",
+        "W3": "#b86820",
+        "W4": "#b86820"
+      },
+      "maximumObservedChannelDifference": 0,
+      "otherMaterials": "All four bob-compensated material swatches within3 RGB units of the sampled water anchors (currently exact)."
     }
   }
 }
