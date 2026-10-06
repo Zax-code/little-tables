@@ -105,10 +105,17 @@ service (`sudo systemctl start little-tables.service`) and investigate.
    `deploy/little-tables-deploy-ssh` forced command, all root-owned. Allow the deploy user to run
    `/usr/local/sbin/deploy-little-tables-release` through sudo, exactly like the image deployer.
 4. Install `deploy/math.leaetzak.love.Caddyfile` in `/etc/caddy/conf.d/` (its CSP lets the new
-   app run its WebAssembly engine), `sudo caddy validate --config /etc/caddy/Caddyfile`, and keep
-   the reload for step 5.
-5. Add `ADMIN_EMAILS` and `PUBLIC_ORIGIN` to the environment file, then
-   `sudo ln -sfn /opt/little-tables/releases/<sha> /opt/little-tables/current`.
+   app run its WebAssembly engine) with the owner and mode of the file it replaces,
+   `0640 root:caddy`: Caddy reads it as the `caddy` user, and a root-only file passes a root
+   `caddy validate` but fails the reload. Validate as Caddy does,
+   `sudo runuser -u caddy -- caddy validate --config /etc/caddy/Caddyfile`, and keep the reload
+   for step 6.
+5. Copy the environment file into the rollback directory, then edit it: add `ADMIN_EMAILS` and
+   `PUBLIC_ORIGIN`, and **remove `WEB_DIST_PATH`**. The Node image needed it (`/app/web-dist`,
+   a path inside its container), and systemd lets `EnvironmentFile=` override the unit's
+   `Environment=WEB_DIST_PATH`, so the new server would serve nothing. `HOST` and `PORT` already
+   match the unit; the Mongo and Node variables are ignored. Make it `0640 root:little-tables`,
+   then `sudo ln -sfn /opt/little-tables/releases/<sha> /opt/little-tables/current`.
 6. `sudo systemd-analyze verify little-tables.service`, then
    `sudo systemctl daemon-reload && sudo systemctl enable --now little-tables.service little-tables-backup.timer`
    and `sudo systemctl reload caddy`.
@@ -129,8 +136,9 @@ Then set the repository variable `DEPLOY_ON_MERGE` to `true`: merges deploy rele
 ## Rollback
 
 Before deploying on merge resumes, rolling back is: stop `little-tables.service`, disable the
-native units, restore `little-tables.container` into `/etc/containers/systemd/` and the previous
-Caddy fragment, `daemon-reload`, start the Quadlet service and reload Caddy. MongoDB was frozen at step 2, so answers synced to the Rust server since
+native units, restore `little-tables.container` into `/etc/containers/systemd/`, the previous
+environment file and the previous Caddy fragment, `daemon-reload`, start the Quadlet service and
+reload Caddy. MongoDB was frozen at step 2, so answers synced to the Rust server since
 then are not in MongoDB: devices keep only unsynced answers. Decide before rolling back after
 real use.
 
