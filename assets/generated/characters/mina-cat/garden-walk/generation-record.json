@@ -538,7 +538,7 @@
     }
   },
   "review": {
-    "status": "approved",
+    "status": "raster-approved; live playback blocked",
     "artifacts": [
       {
         "path": "assets/generated/characters/mina-cat/garden-walk/review/frames-side-by-side.png",
@@ -597,7 +597,7 @@
         140,
         150
       ],
-      "loopPlayback": "Pending public GIF playback; local HTML blocked by browser URL policy and native viewer has no accessible window."
+      "loopPlayback": "Live playback not observed: local HTML file URL rejected by browser protocol policy; opening the committed public GIF was declined by browser approval; native Finder/Preview windows were unavailable. Four GIF frames and 140/150/140/150 ms durations verified programmatically and visually as extracted frames; user playback review requested."
     },
     "independentReview": "Approved after W1 and W2 leg join adjustments; no remaining substantive findings. Head/tail/core, actual can, identity, roster scale, phases, palette, transparency, GIF frames and timing reviewed."
   }
