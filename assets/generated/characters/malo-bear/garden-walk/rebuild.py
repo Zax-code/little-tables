@@ -3,7 +3,9 @@
 
 Requires Pillow. Chroma-key settings are recorded in generation-record.json.
 Selections reuse original artwork; no subject pixels or outlines are drawn.
+A deterministic RGB palette lookup matches the unchanged watering sheet.
 """
+from collections import Counter
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
@@ -90,6 +92,114 @@ def canonical(image):
     ))
 
 
+WATER_SHEET = REPO / 'apps/app/public/characters/malo-bear/garden-water-sheet.webp'
+PALETTE_BIN = 8
+PALETTE_TOLERANCE = 3
+# Interior swatches in G1, avoiding outlines, eyes, nose, and can.
+WATER_SWATCHES = {
+    'innerEar': (203, 112, 225, 139),
+    'muzzle': (290, 247, 313, 282),
+    'shirt': (205, 433, 265, 468),
+    'scarf': (284, 322, 349, 347),
+}
+WALK_SWATCHES = {
+    'innerEar': (241, 117, 265, 140),
+    'muzzle': (404, 231, 425, 249),
+    'shirt': (218, 424, 289, 449),
+    'scarf': (310, 312, 351, 328),
+}
+
+
+def is_fur(rgb):
+    red, green, blue = rgb
+    return red > 100 and .36 * red < green < .7 * red and blue < .6 * green
+
+
+def dominant_color(image, fur_only=False):
+    """Modal opaque RGB in fixed 8-unit bins; deterministic tie ordering."""
+    counts = Counter()
+    data = image.tobytes()
+    for offset in range(0, len(data), 4):
+        red, green, blue, alpha = data[offset:offset + 4]
+        if alpha != 255 or max(red, green, blue) <= 100:
+            continue
+        if fur_only and not is_fur((red, green, blue)):
+            continue
+        counts[tuple(c // PALETTE_BIN * PALETTE_BIN for c in (red, green, blue))] += 1
+    assert counts, 'Palette sample has no opaque material pixels'
+    return min(counts, key=lambda rgb: (-counts[rgb], rgb))
+
+
+def palette_contract(master, water_sheet):
+    source = {'fur': dominant_color(master, fur_only=True)}
+    target = {'fur': dominant_color(water_sheet, fur_only=True)}
+    water = water_sheet.crop((0, 0, CELL, CELL))
+    for material in WATER_SWATCHES:
+        source[material] = dominant_color(master.crop(WALK_SWATCHES[material]))
+        target[material] = dominant_color(water.crop(WATER_SWATCHES[material]))
+    return source, target
+
+
+def inner_ear_mask(master):
+    """Select the generated inner-ear fill enclosed by its original black lines."""
+    mask = Image.new('L', master.size)
+    selected, pixels = mask.load(), master.load()
+    queue = [(255, 125)]
+    while queue:
+        x, y = queue.pop()
+        if not (0 <= x < CELL and 0 <= y < CELL) or selected[x, y]:
+            continue
+        red, green, blue, alpha = pixels[x, y]
+        if alpha < 128 or not is_fur((red, green, blue)):
+            continue
+        selected[x, y] = 255
+        queue.extend(((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)))
+    assert 100 < sum(bool(a) for a in mask.tobytes()) < 2000, 'Inner ear contour is open'
+    return mask
+
+
+def match_palette(frame, bob, source, target, ear_mask):
+    """RGB lookup on assembled generated rasters: no alpha or geometry changes.
+
+    One material offset per channel preserves source shading/texture. Outlines,
+    facial black pixels and every blue-can pixel are returned byte-for-byte.
+    Raw generated and alpha-cleaned sources remain immutable provenance inputs.
+    """
+    offsets = {material: tuple(b - a for a, b in zip(source[material], target[material]))
+               for material in source}
+    pixels, ears = frame.load(), ear_mask.load()
+    output = frame.copy()
+    corrected = output.load()
+    lookup = {}
+    for y in range(CELL):
+        master_y = y + bob
+        for x in range(CELL):
+            red, green, blue, alpha = pixels[x, y]
+            if not alpha or max(red, green, blue) <= 100:
+                continue
+            material = None
+            if is_fur((red, green, blue)):
+                material = 'innerEar' if master_y < CELL and ears[x, master_y] else 'fur'
+            elif red > 110 and red > green * 2 and red > blue * 2:
+                material = 'scarf'
+            elif red > 220 and min(red, green, blue) > 140:
+                material = 'muzzle' if master_y < 303 else 'shirt'
+            if material:
+                key = (material, red, green, blue)
+                if key not in lookup:
+                    lookup[key] = tuple(max(0, min(255, c + delta))
+                                        for c, delta in zip((red, green, blue), offsets[material]))
+                corrected[x, y] = (*lookup[key], alpha)
+    assert output.getchannel('A').tobytes() == frame.getchannel('A').tobytes()
+    # Protect exact linework and the watering-can raster, not just their bounds.
+    for y in range(CELL):
+        for x in range(CELL):
+            red, green, blue, alpha = pixels[x, y]
+            if max(red, green, blue) <= 100 or blue > red:
+                assert corrected[x, y] == pixels[x, y]
+    return output
+
+
 def rebuild():
     normalized = []
     with TemporaryDirectory(prefix='malo-walk-v2-') as temporary:
@@ -165,7 +275,6 @@ def rebuild():
         frame.alpha_composite(forward_arm if index in (1, 2) else backward_arm, (0, bob))
         frame.alpha_composite(core, (0, bob))
         frame = canonical(frame)
-        frame.save(SEQUENCE / f'W{index + 1}/final-frame.png')
         assert frame.getchannel('A').getbbox()[3] == BASELINE
         assert all(frame.getpixel(p)[3] == 0 for p in ((0, 0), (626, 0), (0, 626), (626, 626)))
         frames.append(frame)
@@ -190,6 +299,29 @@ def rebuild():
         bob = BOB if index in (1, 3) else 0
         assert all(frame.getpixel((x, y - bob)) == core.getpixel((x, y))
                    for x, y in opaque_core)
+
+    with Image.open(WATER_SHEET) as reference:
+        water_sheet = reference.convert('RGBA')
+    source_palette, target_palette = palette_contract(frames[0], water_sheet)
+    ears = inner_ear_mask(frames[0])
+    frames = [match_palette(frame, BOB if index in (1, 3) else 0,
+                            source_palette, target_palette, ears)
+              for index, frame in enumerate(frames)]
+    for index, frame in enumerate(frames):
+        fur = dominant_color(frame, fur_only=True)
+        assert max(abs(a - b) for a, b in zip(fur, target_palette['fur'])) <= PALETTE_TOLERANCE, (
+            f'W{index + 1} fur {fur} differs from watering fur {target_palette["fur"]}'
+        )
+        bob = BOB if index in (1, 3) else 0
+        for material, (x0, y0, x1, y1) in WALK_SWATCHES.items():
+            sampled = dominant_color(frame.crop((x0, y0 - bob, x1, y1 - bob)))
+            assert max(abs(a - b) for a, b in zip(sampled, target_palette[material])) <= PALETTE_TOLERANCE
+        frame.save(SEQUENCE / f'W{index + 1}/final-frame.png')
+    # Palette mapping must retain the approved shared head and its 19px bob.
+    for index, frame in enumerate(frames):
+        bob = BOB if index in (1, 3) else 0
+        assert frame.crop((190, 45 - bob, 460, 290 - bob)).tobytes() == frames[0].crop((190, 45, 460, 290)).tobytes()
+    print(f'Palette anchors: {source_palette} -> {target_palette}; all fur deltas <= {PALETTE_TOLERANCE}.')
 
     runtime = REPO / 'apps/app/public/characters/malo-bear/garden-walk-sheet.webp'
     assemble([SEQUENCE / f'W{i}/final-frame.png' for i in range(1, 5)], runtime, 2, 2, CELL, CELL)

@@ -130,12 +130,13 @@
           "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
           "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
           "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
-          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe."
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W1/final-frame.png",
-        "sha256": "7aea3911d4b2042bdc773f35340c654abf3fdcc9815000af70a43b8ae84b8e44"
+        "sha256": "f3ee2e57d09428bb4618f3bea5172eef68f73d7f42f64c35e053778677697589"
       }
     },
     {
@@ -207,12 +208,13 @@
           "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
           "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
           "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
-          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe."
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W2/final-frame.png",
-        "sha256": "7f2c90d56d4e5c9e3314f9826ceea01a276ff5e8a4f22370a5a8328a51a76f35"
+        "sha256": "4fbc4e1962803cffd5ec0181533a4e3d27a42f84258a3cbcf56c4b99f9e6eac2"
       }
     },
     {
@@ -284,12 +286,13 @@
           "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
           "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
           "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
-          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe."
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W3/final-frame.png",
-        "sha256": "c39b8e7e8c4cc6ac8a5096f65a66238faa214cc0628137b7d211e398dd0de28a"
+        "sha256": "751f4559b90a11000a3097028127e1f2a52a62df29556404f090243905b82dab"
       }
     },
     {
@@ -365,19 +368,20 @@
           "Uniform whole-source scale 1.05, offset (-14,-11); invariant torso horizontal position. W2/W4 core moves up exactly19px; support soles remain fixed.",
           "Generated leg raster is vertically normalized beneath the shared hem, with fixed soles; original cream hem is excluded to avoid duplicate edges.",
           "Same apparent scale and ground line as unchanged Malo watering G1: alpha>=10 baseline570, all nonzero alpha exclusive baseline572; no resizing or editing of water sheet.",
-          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe."
+          "Reviewed at native resolution, side by side, against water G1, and in 0.58s browser playback with mirrored left walk; complete silhouettes, two arms/two legs, clean corners and no fringe.",
+          "Palette corrected deterministically to sampled water fur, inner ear, muzzle, shirt and scarf; all material anchors match, alpha/linework/can unchanged."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/malo-bear/garden-walk/W4/final-frame.png",
-        "sha256": "26aa91d285f346010122aa0fe9663538a4357000eb30aaf93d0648ae6f73e752"
+        "sha256": "0d70fd0a2e18bbe635cd318d1a4331c31f5cbd497c113bc973eca7af7ec75cdc"
       }
     }
   ],
   "rasterStabilization": {
     "helper": {
       "path": "assets/generated/characters/malo-bear/garden-walk/rebuild.py",
-      "sha256": "571e4d65e8a2ae8b214cebb8279403d4008a0f839a33075b2c559c410813d7bb"
+      "sha256": "8595ce1e3ea438204cec5b50144dddd769be38dc0c072f26e9fc1182b8673b8b"
     },
     "rebuildCommand": "python3 assets/generated/characters/malo-bear/garden-walk/rebuild.py (requires Pillow)",
     "reason": "Reuse one upper-body raster to eliminate head popping; preserve generated motion phases. Masks select existing pixels only.",
@@ -391,17 +395,19 @@
       "Every opaque core pixel equals W1 master",
       "Transparent corners and fixed water baseline",
       "PNG cells exactly equal lossless WebP",
-      "Deterministic isolated rebuild confirmed by reviewer"
+      "Deterministic isolated rebuild confirmed by reviewer",
+      "Per-material palette anchors match unchanged water sheet within3 RGB units",
+      "Exact pre/post colour-map alpha, linework and blue-can equality"
     ]
   },
   "review": {
     "sideBySide": {
       "path": "assets/generated/characters/malo-bear/garden-walk/review/frames-side-by-side.png",
-      "sha256": "eaa7f7426f733320b65bb6e09d425ad2b6690145edd9a8e9179040668d980397"
+      "sha256": "11c8e7632b6af7eb4a1687f5482b4de9bcb6ee5811062fa7910c312f9d1574a2"
     },
     "animatedPreview": {
       "path": "assets/generated/characters/malo-bear/garden-walk/review/walk-loop.gif",
-      "sha256": "4313a946f5dc222cc722e2439e10aa7d1fdf1a3d8516cf1e79f51523e836b8e5"
+      "sha256": "c8f44b19bf5e16296fad9c6d554d7072f158680b25c04be6681af75653d4c2bb"
     },
     "htmlPreview": {
       "path": "assets/generated/characters/malo-bear/garden-walk/review/preview.html",
@@ -409,7 +415,7 @@
     },
     "waterComparison": {
       "path": "assets/generated/characters/malo-bear/garden-walk/review/walk-water-comparison.png",
-      "sha256": "e55c1c26254331a2c501ed2cd593fab727a2a11419a834c2dd7fb04dd466ec02"
+      "sha256": "259070ba218d9a5f3765c790767e3a72c53d6a5cb0ed461e0f30cc0996e0943c"
     },
     "waterG1": {
       "path": "assets/generated/characters/malo-bear/garden-walk/review/water-reference.png",
@@ -418,20 +424,152 @@
     "loopSeconds": 0.58,
     "independentReview": "Approved after join corrections: no substantive visual/raster findings; isolated rebuild reproduced every PNG and runtime sheet.",
     "validation": {
-      "pnpmCheck": "Passed format, lint, typecheck, Rust and TypeScript tests, asset/deployment tests, Quadlet validation and production build.",
-      "pnpmDoctor": "Local audit passed with no issues. Remote score unavailable; network-enabled score run rejected by automatic approval review.",
+      "pnpmCheck": "Passed required full check for colour correction: format, lint, typecheck, Rust/TypeScript/asset/deployment tests, Quadlet validation and production build.",
+      "pnpmDoctor": "Local audit passed with no issues; remote score unavailable (score API unreachable).",
       "scope": "Only Malo garden walk sources/review and runtime walking sheet changed; water sheet and every other character unchanged."
-    }
+    },
+    "paletteReview": "Rebuilt side-by-side, GIF, and walk/water comparison inspected. Fur #b86820 in W1-W4, and sampled inner ear/muzzle/shirt/scarf anchors match; no geometric changes. Repeat rebuild is byte-identical; all four frames have original PR alpha bytes and protected line/can pixels. GIF retains four frames and 580ms duration."
   },
   "assembly": {
     "method": "existing asset-pipeline lossless 2x2 assembly; canonical transparent RGB and WebP exact=True",
     "runtimeAsset": {
       "path": "apps/app/public/characters/malo-bear/garden-walk-sheet.webp",
-      "sha256": "289dc1cab06b61ecedb1653260ab05b5045c02cd744324ba713f7808d74d4f5c"
+      "sha256": "09096a6255f748e54e8bda55f5677d661f0437a6f4e940d09d75b8a72e1aac8d"
     },
     "previewSheet": {
       "path": "assets/generated/characters/malo-bear/garden-walk/review/runtime-sheet.webp",
-      "sha256": "289dc1cab06b61ecedb1653260ab05b5045c02cd744324ba713f7808d74d4f5c"
+      "sha256": "09096a6255f748e54e8bda55f5677d661f0437a6f4e940d09d75b8a72e1aac8d"
+    }
+  },
+  "paletteMatching": {
+    "method": "Deterministic per-material RGB lookup anchored to modal opaque 8-unit RGB bins sampled from the unchanged watering sheet. Shared offsets preserve generated shading and texture; no new drawing.",
+    "stage": "After generated-raster assembly and geometry/core checks, before final PNGs, lossless sheet and review exports. Generated-source.png and alpha-source.png remain unchanged.",
+    "waterReference": {
+      "path": "apps/app/public/characters/malo-bear/garden-water-sheet.webp",
+      "sha256": "7460ef7cab1863ebd55039aafcd2a25b20bcd42e2695d7e4e92576fd52ee55f0"
+    },
+    "sampling": {
+      "binSize": 8,
+      "minimumAlpha": 255,
+      "fur": "Dominant warm-brown material across all four unchanged water cells; source anchor sampled from assembled W1.",
+      "otherMaterials": "Interior G1 crops; inner ear mapped only inside the generated ear contour selected by flood fill. Muzzle and shirt classified separately by body-relative height.",
+      "waterG1Swatches": {
+        "innerEar": [
+          203,
+          112,
+          225,
+          139
+        ],
+        "muzzle": [
+          290,
+          247,
+          313,
+          282
+        ],
+        "shirt": [
+          205,
+          433,
+          265,
+          468
+        ],
+        "scarf": [
+          284,
+          322,
+          349,
+          347
+        ]
+      },
+      "walkW1Swatches": {
+        "innerEar": [
+          241,
+          117,
+          265,
+          140
+        ],
+        "muzzle": [
+          404,
+          231,
+          425,
+          249
+        ],
+        "shirt": [
+          218,
+          424,
+          289,
+          449
+        ],
+        "scarf": [
+          310,
+          312,
+          351,
+          328
+        ]
+      }
+    },
+    "materials": {
+      "fur": {
+        "sourceAnchor": "#d07018",
+        "waterAnchor": "#b86820",
+        "rgbOffset": [
+          -24,
+          -8,
+          8
+        ]
+      },
+      "innerEar": {
+        "sourceAnchor": "#d07018",
+        "waterAnchor": "#b86018",
+        "rgbOffset": [
+          -24,
+          -16,
+          0
+        ]
+      },
+      "muzzle": {
+        "sourceAnchor": "#f8e8c0",
+        "waterAnchor": "#f8e0b8",
+        "rgbOffset": [
+          0,
+          -8,
+          -8
+        ]
+      },
+      "shirt": {
+        "sourceAnchor": "#f8e8c0",
+        "waterAnchor": "#f8e0b0",
+        "rgbOffset": [
+          0,
+          -8,
+          -16
+        ]
+      },
+      "scarf": {
+        "sourceAnchor": "#d04028",
+        "waterAnchor": "#b83820",
+        "rgbOffset": [
+          -24,
+          -8,
+          -8
+        ]
+      }
+    },
+    "preservationChecks": [
+      "Every alpha byte identical before/after palette mapping",
+      "All original RGB pixels with maximum channel <=100 and every blue-can pixel unchanged",
+      "Shared head byte-identical after 19px bob compensation",
+      "All four current frames have exactly the approved PR head silhouettes and alpha geometry"
+    ],
+    "dominantColorCheck": {
+      "maxChannelTolerance": 3,
+      "waterFur": "#b86820",
+      "frames": {
+        "W1": "#b86820",
+        "W2": "#b86820",
+        "W3": "#b86820",
+        "W4": "#b86820"
+      },
+      "maximumObservedChannelDifference": 0,
+      "otherMaterials": "All four bob-compensated material swatches within3 RGB units of the sampled water anchors (currently exact)."
     }
   }
 }
