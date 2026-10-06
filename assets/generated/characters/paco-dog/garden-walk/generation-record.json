@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "tool": "built-in Image Generation",
   "characterId": "paco-dog",
   "sequence": "garden-walk",
@@ -23,22 +23,282 @@
       "W4"
     ]
   },
+  "previousVersion": {
+    "path": "assets/generated/characters/paco-dog/garden-walk/generation-record-v1.json",
+    "sha256": "8117aa5dd473e0198685bb3c89c3be34c6e7f5dca4dc9dc2ebae29cdf05327b0"
+  },
+  "method": {
+    "rebuildScript": {
+      "path": "assets/generated/characters/paco-dog/garden-walk/rebuild.py",
+      "sha256": "94d294c7cad926c1e485426ed0517c903dfeec1bdbd0604b31bdfae0f2e906b0"
+    },
+    "master": "W3",
+    "invariantRaster": "One W3 raster for complete head, ears, face, torso, striped shirt, mint scarf and bow, tail, carrying paw and upright can. Only whole-body 19px bob. Generated W1 backward arm and W3 forward arm alternate. Generated legs selected by reviewed hem/material masks; no subject pixels drawn.",
+    "normalization": {
+      "scale": 1,
+      "offsetX": 17,
+      "offsetY": 28,
+      "cellDimensions": [
+        627,
+        627
+      ]
+    },
+    "legs": "Source lower legs resized to fixed baseline 572, contacts source/target top 480, W2 source top 450/target 455, W4 source 465/target 455. W2 unobscured support shin 508..537 stretched to 488..538 under the rigid hem, with original paw atbaseline 572. Source skin/neutral edge selection, can protection scoped x >= 330, connected-component cleanup minimum 100 pixels.",
+    "palette": {
+      "sourcePalettes": [
+        {
+          "fur": [
+            253,
+            242,
+            222
+          ],
+          "ears": [
+            222,
+            126,
+            37
+          ],
+          "stripe": [
+            148,
+            190,
+            217
+          ],
+          "mint": [
+            138,
+            197,
+            191
+          ],
+          "can": [
+            12,
+            115,
+            195
+          ]
+        },
+        {
+          "fur": [
+            254,
+            244,
+            226
+          ],
+          "ears": [
+            230,
+            128,
+            30
+          ],
+          "stripe": [
+            137,
+            202,
+            201
+          ],
+          "mint": [
+            137,
+            202,
+            201
+          ],
+          "can": [
+            1,
+            122,
+            213
+          ]
+        },
+        {
+          "fur": [
+            254,
+            243,
+            226
+          ],
+          "ears": [
+            224,
+            125,
+            33
+          ],
+          "stripe": [
+            148,
+            189,
+            219
+          ],
+          "mint": [
+            134,
+            196,
+            194
+          ],
+          "can": [
+            8,
+            117,
+            202
+          ]
+        },
+        {
+          "fur": [
+            254,
+            245,
+            229
+          ],
+          "ears": [
+            228,
+            127,
+            33
+          ],
+          "stripe": [
+            150,
+            193,
+            223
+          ],
+          "mint": [
+            132,
+            200,
+            196
+          ],
+          "can": [
+            3,
+            116,
+            202
+          ]
+        }
+      ],
+      "waterPalette": {
+        "fur": [
+          252,
+          237,
+          212
+        ],
+        "ears": [
+          210,
+          118,
+          42
+        ],
+        "stripe": [
+          146,
+          185,
+          206
+        ],
+        "mint": [
+          129,
+          191,
+          180
+        ],
+        "can": [
+          20,
+          97,
+          168
+        ]
+      },
+      "dominantFur": [
+        [
+          252,
+          237,
+          212
+        ],
+        [
+          252,
+          237,
+          212
+        ],
+        [
+          252,
+          237,
+          212
+        ],
+        [
+          252,
+          237,
+          212
+        ]
+      ],
+      "waterDominantFur": [
+        252,
+        237,
+        212
+      ],
+      "dominantCanBlue": [
+        [
+          20,
+          97,
+          168
+        ],
+        [
+          20,
+          97,
+          168
+        ],
+        [
+          20,
+          97,
+          168
+        ],
+        [
+          20,
+          97,
+          168
+        ]
+      ],
+      "waterDominantCanBlue": [
+        20,
+        97,
+        168
+      ],
+      "baseline": 572,
+      "bob": 19,
+      "bodyCenterX": 325,
+      "alphaBounds": [
+        [
+          176,
+          134,
+          553,
+          572
+        ],
+        [
+          176,
+          115,
+          553,
+          572
+        ],
+        [
+          176,
+          134,
+          553,
+          572
+        ],
+        [
+          176,
+          115,
+          553,
+          572
+        ]
+      ]
+    }
+  },
   "frames": [
     {
       "frameId": "W1",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
-        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing stride with the front foot forward. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png",
+          "sha256": "4e070b9fe8e2ac4b52ba9c0f18dc39a7224a64a9223b61c211d00c70154369df"
+        },
+        {
+          "path": "assets/generated/characters/paco-dog/garden-walk/review/water-reference.png",
+          "sha256": "eb2ac84bf6c4f5bfaab30d269d3ecfc0a89803198e3cdf9ba1b11e10d69da082"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/final-frame.png",
+          "sha256": "1f25c49fd3ddbdc0bd19aa2d94aaa40cbe328a9839ba463538067b17a98c89b6"
+        }
+      ],
+      "prompt": "Use case: illustration-story. Production raster garden-walk animation frame of Paco the floppy-eared dog, facing RIGHT in clear profile, a calm cheerful children's-book walk. Reference 1 is Paco's canonical identity: cream fur, orange-brown floppy ears, pale blue and cream striped sailor shirt, mint neckerchief, black soft outline. Reference 2 is Paco's watering sheet: match exact colours, body proportions, character apparent size and position in a 627x627 cell; ignore front facing direction and pouring. Reference 3 is Miffy's approved v2 pose for this phase: match phase, upright watering-can placement, broad stride, framing and baseline, translate rabbit identity into Paco. One full-body dog only on uniform flat #00ff00 chroma green background (opaque). No scene, no grass, no shadow, no text. Upright blue watering can in bent FRONT carrying paw, spout right, never pouring, no water or droplets. Free arm swings opposite advancing leg. Keep shirt stripes and scarf consistent, complete feet and tail. In 627 equivalent coordinates character body centre x330, grounded soles y568, top of head about y135; keep generous green margin. Dog profile should show one eye and black nose projecting right, one dominant orange floppy ear on near side and small far ear; small cream tail behind. Keep short dog legs but show substantial stride. Output one square frame, not a grid.\nPHASE: W1 CONTACT RIGHT FOOT: near/right leg forward toward right, heel on ground, toes up slightly; far/left leg stretched behind to left, toes touch ground, heel lifted. Lowest body point. Free arm swings backward. Clearly separated feet, broad stride.",
       "generatedSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W1/generated-source.png",
-        "sha256": "fb172965bb20ac8045b3220dcbb8a6decf0ba3f398bff63b9a7594eec1b4ac6c"
+        "sha256": "cbb70447406240741da2d7b1245dfe40b9668ba4d98e98773ca455624e3a8579"
       },
       "rejectedSources": [
         {
+          "path": "assets/generated/characters/paco-dog/garden-walk/W1/rejected-generated-source-1.png",
+          "sha256": "fb172965bb20ac8045b3220dcbb8a6decf0ba3f398bff63b9a7594eec1b4ac6c",
+          "reason": "Version1 superseded: timid stride, near-standing passing phases and head drift."
+        },
+        {
           "path": "assets/generated/characters/paco-dog/garden-walk/W1/rejected-generated-source.png",
-          "sha256": "adcdc65bb015b61d71dec6a99831b6b1f2cb639986a43f54941af35483f5639f"
+          "sha256": "adcdc65bb015b61d71dec6a99831b6b1f2cb639986a43f54941af35483f5639f",
+          "reason": "Historical version1 rejected attempt; original reason not recorded."
         }
       ],
       "alphaCleanup": {
@@ -52,47 +312,64 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W1/alpha-source.png",
-        "sha256": "4240aef4756dabd4d0c0c31a71b3e3b72209f018ca258720f34491d81159ac35"
+        "sha256": "6780da631a920a660cbf9799c05598405dee2f325fdc75df50895bf044167f01"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 1,
+        "offsetX": 17,
+        "offsetY": 28,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 1.05,
-        "offsetX": -2,
-        "offsetY": 45
+        ]
       },
       "review": {
-        "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "status": "approved-static-and-raster-invariants",
+        "notes": [
+          "Exact shared head silhouette and pixels after bob; shared opaque core equality checked across all phases, with direct complete scarf-leaf crop regression.",
+          "Outfit, cream fur, orange ears, pale blue shirt stripes and mint scarf mapped by RGB offsets to unchanged watering palette; alpha and dark outlines preserved.",
+          "Dominant fur (252,237,212) and can blue (20,97,168) match whole watering sheet exactly; maximum channel tolerance 3 asserted per frame.",
+          "627x627 cell; zero-alpha corners; fixed sole baseline 572; torso axis about x325, matched to watering shirt/feet axis 325\u2013326; head top 134 vs water 131.",
+          "Same upright can geometry/size/angle and body-relative height, spout right; no water. Tail and ears rigidly identical.",
+          "Source leg phase and free-arm silhouette inspected alongside approved Miffy phase; final joins re-reviewed independently.",
+          "Right foot forward contact, left rear toes down, free arm backward."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected during review: shirt/leg/can fragments and far-arm line beside scarf. Hem masks, skin/neutral-edge selection, can protection and connected-component cleanup corrected joins.",
+          "Scarf-leaf holes rejected: turquoise source pixels were missed by a narrow mint predicate; broadened material classification and added exact crop/alpha regression.",
+          "W2 under-can support-shin gap rejected: use unobscured generated vertical shin under hem while preserving original paw.",
+          "W1 rear-leg outline break rejected: off-can blue speck triggered global can protection; scoped mask to actual can x >= 330. Independent final visual review repeated."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W1/final-frame.png",
-        "sha256": "6be15cff5adf5360a30fc6970231e6cec9b97429cfb564c98ebbe2b1415c6458"
+        "sha256": "c0e2edac9ebe9f407d57b69e01dc3670c63e44b2c9fa5e3a4eb7e7c28bad8152"
       }
     },
     {
       "frameId": "W2",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W2.png",
-        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing passing pose with the feet close. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/paco-dog/garden-walk/W1/generated-source.png",
+          "sha256": "cbb70447406240741da2d7b1245dfe40b9668ba4d98e98773ca455624e3a8579"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/final-frame.png",
+          "sha256": "97558ac678a89dae1d40cb9ee4b21d42ec1bc8de008259fd5fef7b1958d2d62d"
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference 1 Paco W1 into ONE production W2 passing frame on the same uniform flat #00ff00 chroma-green background. Reference 2 Miffy W2 is the leg-phase reference ONLY. Keep exact Paco profile head, floppy ears, features, cream fur and orange ear colours, pale-blue/cream striped sailor shirt, mint neckerchief, tail, proportions, black line weight and complete upright blue can spout right. Carrying arm remains bent, no pouring/no water. Same canvas framing and body centre. W2 PASSING LEFT LIFTS: near/right leg straight vertically under body, right foot flat on fixed ground baseline; far/left knee bent and foot lifted behind passing forward, distinctly off ground. Body 19 equivalent pixels higher. Free arm starts swinging forward. Do not draw two standing feet. Near/right support shin vertical under right hip; far left paw clearly lifted behind on LEFT side of support shin with visible green gap under it. Keep toe marks. Whole upper body/can shifts up 19px in 627px-equivalent coordinates but planted sole stays fixed. ONLY two legs, no scenery/text/shadow.",
       "generatedSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W2/generated-source.png",
-        "sha256": "1244229219deefb421aa64ebbca632165d750190543a65bf1e899291a7137e76"
+        "sha256": "4fe842fcfc9b5256f80f4c6bc224aa5bf313e810759805481c2381742b67f185"
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/paco-dog/garden-walk/W2/rejected-generated-source-1.png",
+          "sha256": "1244229219deefb421aa64ebbca632165d750190543a65bf1e899291a7137e76",
+          "reason": "Version1 superseded: timid stride, near-standing passing phases and head drift."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -104,47 +381,64 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W2/alpha-source.png",
-        "sha256": "f4b729bc8229d33db41def0835290c7f750b77948f8c09f57477cafdcbb53042"
+        "sha256": "35595709652ff920b869565c3a0872b8e5f960d371750422adc96dceee211b4a"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 1,
+        "offsetX": 17,
+        "offsetY": 28,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 0.924,
-        "offsetX": 10,
-        "offsetY": 71
+        ]
       },
       "review": {
-        "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "status": "approved-static-and-raster-invariants",
+        "notes": [
+          "Exact shared head silhouette and pixels after bob; shared opaque core equality checked across all phases, with direct complete scarf-leaf crop regression.",
+          "Outfit, cream fur, orange ears, pale blue shirt stripes and mint scarf mapped by RGB offsets to unchanged watering palette; alpha and dark outlines preserved.",
+          "Dominant fur (252,237,212) and can blue (20,97,168) match whole watering sheet exactly; maximum channel tolerance 3 asserted per frame.",
+          "627x627 cell; zero-alpha corners; fixed sole baseline 572; torso axis about x325, matched to watering shirt/feet axis 325\u2013326; head top 134 vs water 131.",
+          "Same upright can geometry/size/angle and body-relative height, spout right; no water. Tail and ears rigidly identical.",
+          "Source leg phase and free-arm silhouette inspected alongside approved Miffy phase; final joins re-reviewed independently.",
+          "Right support leg vertical, left foot lifted behind, free arm forward; upper body19px higher."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected during review: shirt/leg/can fragments and far-arm line beside scarf. Hem masks, skin/neutral-edge selection, can protection and connected-component cleanup corrected joins.",
+          "Scarf-leaf holes rejected: turquoise source pixels were missed by a narrow mint predicate; broadened material classification and added exact crop/alpha regression.",
+          "W2 under-can support-shin gap rejected: use unobscured generated vertical shin under hem while preserving original paw.",
+          "W1 rear-leg outline break rejected: off-can blue speck triggered global can protection; scoped mask to actual can x >= 330. Independent final visual review repeated."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W2/final-frame.png",
-        "sha256": "59f924023b16d4ca631e367bf0c8b1d4c741dddc7ec3cfbe22dc77017eba745f"
+        "sha256": "1b6b70f46d4c143a579f3ad05ac1618c3f60d4e0d72f90cd053ba14cfb3e837d"
       }
     },
     {
       "frameId": "W3",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W3.png",
-        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing opposite stride. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/paco-dog/garden-walk/W1/generated-source.png",
+          "sha256": "cbb70447406240741da2d7b1245dfe40b9668ba4d98e98773ca455624e3a8579"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W3/final-frame.png",
+          "sha256": "a698508cce53957629b1df9adca7722ea33ab2a90a4c4fca5403dcc413513a17"
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference 1 Paco W1 into ONE W3 LEFT FOOT CONTACT production sprite. Reference 2 Miffy W3 is pose only. Same flat uniform #00ff00 chroma green background and same framing. Keep Paco's EXACT right-facing profile head, ear shape/angles, face, cream fur/orange ears, pale-blue/cream striped sailor shirt, mint neckerchief, tail, body proportions, outline weight, carrying arm and upright blue can (spout right, no water). Same low body height as W1. W3 CONTACT LEFT FOOT: far/left leg forward toward right, heel on ground; near/right leg stretched behind toward left, toes down, heel lifted. Same body height as W1. Free arm swings forward. Preserve leg depth ordering: far forward leg behind nearer rear leg. The legs must be visibly different to W1: near/right REAR leg at LEFT bends with rear heel lifted and toes touching ground, far/left FORWARD leg at RIGHT straighter reaches forward heel planted. Free arm swings FORWARD to right as Miffy W3, behind the bent carrying arm, hand near chest/can top. Exactly two arms and two legs, toe marks on paws. No flower, ground, grass, shadows, text, border or water.",
       "generatedSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W3/generated-source.png",
-        "sha256": "1d68c94c22f7d7686f2396262e52f543aff8429ab62afee7181cb77fd3fb763e"
+        "sha256": "27a002eca020b8335ecb6ec99708669e692753ca861be043ddbae434ef5a08be"
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/paco-dog/garden-walk/W3/rejected-generated-source-1.png",
+          "sha256": "1d68c94c22f7d7686f2396262e52f543aff8429ab62afee7181cb77fd3fb763e",
+          "reason": "Version1 superseded: timid stride, near-standing passing phases and head drift."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -156,47 +450,64 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W3/alpha-source.png",
-        "sha256": "6deae405b7c118029e24ffd401379d2b5c1a3db2a3b8949744d54dd58e5e1ae3"
+        "sha256": "51b0d9ca33d9c918a0331f5d93b85ed3d441833372ccb94b666dc2db4b8806d9"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 1,
+        "offsetX": 17,
+        "offsetY": 28,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 1,
-        "offsetX": -1,
-        "offsetY": 28
+        ]
       },
       "review": {
-        "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "status": "approved-static-and-raster-invariants",
+        "notes": [
+          "Exact shared head silhouette and pixels after bob; shared opaque core equality checked across all phases, with direct complete scarf-leaf crop regression.",
+          "Outfit, cream fur, orange ears, pale blue shirt stripes and mint scarf mapped by RGB offsets to unchanged watering palette; alpha and dark outlines preserved.",
+          "Dominant fur (252,237,212) and can blue (20,97,168) match whole watering sheet exactly; maximum channel tolerance 3 asserted per frame.",
+          "627x627 cell; zero-alpha corners; fixed sole baseline 572; torso axis about x325, matched to watering shirt/feet axis 325\u2013326; head top 134 vs water 131.",
+          "Same upright can geometry/size/angle and body-relative height, spout right; no water. Tail and ears rigidly identical.",
+          "Source leg phase and free-arm silhouette inspected alongside approved Miffy phase; final joins re-reviewed independently.",
+          "Left foot forward contact with opposite leg silhouette/depth, right rear toes down, free arm forward."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected during review: shirt/leg/can fragments and far-arm line beside scarf. Hem masks, skin/neutral-edge selection, can protection and connected-component cleanup corrected joins.",
+          "Scarf-leaf holes rejected: turquoise source pixels were missed by a narrow mint predicate; broadened material classification and added exact crop/alpha regression.",
+          "W2 under-can support-shin gap rejected: use unobscured generated vertical shin under hem while preserving original paw.",
+          "W1 rear-leg outline break rejected: off-can blue speck triggered global can protection; scoped mask to actual can x >= 330. Independent final visual review repeated."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W3/final-frame.png",
-        "sha256": "4ee3a1addc0a0c35251adaafc338da2fa1a25423acdba4af8911764a1aa39e73"
+        "sha256": "34e43cbca642f163d8ed5af628705671d17fa83da2df3bf320a1466fa204a9b4"
       }
     },
     {
       "frameId": "W4",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W4.png",
-        "reference2Identity": "assets/generated/characters/paco-dog/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Paco, the approved floppy-eared dog; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing second passing pose. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep pale blue-and-cream striped sailor shirt and mint neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/paco-dog/garden-walk/W1/generated-source.png",
+          "sha256": "cbb70447406240741da2d7b1245dfe40b9668ba4d98e98773ca455624e3a8579"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W4/final-frame.png",
+          "sha256": "4b312dcc87fe482c346bb051ce1823bc603c927e3fb452dae8fbf347ded5f54a"
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference 1 Paco W1 into ONE W4 RIGHT PASSING production sprite. Reference 2 Miffy W4 is required leg silhouette. Same flat uniform #00ff00 chroma-green backdrop. Keep EXACT Paco profile head/ears/face, cream fur and orange floppy-ear colours, pale-blue/cream striped sailor shirt and mint neckerchief, tail, proportions, carrying paw and blue upright can spout right, black line weight. No water. W4 PASSING RIGHT LIFTS: far/left leg straight vertically under body, left foot flat on fixed ground baseline; near/right knee bent with foot lifted FORWARD toward right while passing, distinctly off ground. Same body height as W2, 19 pixels above contact. Free arm starts swinging backward. Must differ from W2: lifted foot is ahead instead of behind. Far/left support leg straight VERTICAL from LEFT hip, planted sole under body. Near/right knee bends FORWARD to RIGHT and paw is lifted on RIGHT of support shin about 45 pixels above ground in 627-equivalent coordinates, like Miffy W4. This lifted paw must be on RIGHT, not behind on LEFT. Free far arm swings BACK LEFT as original W1. Upper body/can bob up 19px equivalent but support sole on same baseline. Complete character, exactly two legs and two arms, toe marks. No scene/shadows/text/water.",
       "generatedSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W4/generated-source.png",
-        "sha256": "020da8fa65c69715f549c3b59560e12b8a3b3bf63653f146aa311151fe2935d6"
+        "sha256": "236f77a9912d980d8e1474bc2670f484ce9f2590d180c09c1b0d39a45f3c0c34"
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/paco-dog/garden-walk/W4/rejected-generated-source-1.png",
+          "sha256": "020da8fa65c69715f549c3b59560e12b8a3b3bf63653f146aa311151fe2935d6",
+          "reason": "Version1 superseded: timid stride, near-standing passing phases and head drift."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -208,41 +519,83 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W4/alpha-source.png",
-        "sha256": "ebd56f83240c1f0d69ec5cc4d623846c84a6ec4cf0fffea53fbca0e90ac819a5"
+        "sha256": "d748b8cf465cad99dde447496a8c3f8d08f0df3bd1c3af89d301b1ee01d93745"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 1,
+        "offsetX": 17,
+        "offsetY": 28,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 1.062,
-        "offsetX": -38,
-        "offsetY": 0
+        ]
       },
       "review": {
-        "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "status": "approved-static-and-raster-invariants",
+        "notes": [
+          "Exact shared head silhouette and pixels after bob; shared opaque core equality checked across all phases, with direct complete scarf-leaf crop regression.",
+          "Outfit, cream fur, orange ears, pale blue shirt stripes and mint scarf mapped by RGB offsets to unchanged watering palette; alpha and dark outlines preserved.",
+          "Dominant fur (252,237,212) and can blue (20,97,168) match whole watering sheet exactly; maximum channel tolerance 3 asserted per frame.",
+          "627x627 cell; zero-alpha corners; fixed sole baseline 572; torso axis about x325, matched to watering shirt/feet axis 325\u2013326; head top 134 vs water 131.",
+          "Same upright can geometry/size/angle and body-relative height, spout right; no water. Tail and ears rigidly identical.",
+          "Source leg phase and free-arm silhouette inspected alongside approved Miffy phase; final joins re-reviewed independently.",
+          "Left support leg vertical, right foot lifted ahead, free arm backward; upper body19px higher."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected during review: shirt/leg/can fragments and far-arm line beside scarf. Hem masks, skin/neutral-edge selection, can protection and connected-component cleanup corrected joins.",
+          "Scarf-leaf holes rejected: turquoise source pixels were missed by a narrow mint predicate; broadened material classification and added exact crop/alpha regression.",
+          "W2 under-can support-shin gap rejected: use unobscured generated vertical shin under hem while preserving original paw.",
+          "W1 rear-leg outline break rejected: off-can blue speck triggered global can protection; scoped mask to actual can x >= 330. Independent final visual review repeated."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/paco-dog/garden-walk/W4/final-frame.png",
-        "sha256": "2cd24a11df2821b66e720db82598732828a0bcca2ce11c746dfbf2dcd8d78cac"
+        "sha256": "d638c23662992ef2376de934583e5064a64a8b38a658c7ed2fd12e628bb6004f"
       }
     }
   ],
+  "sequenceReview": {
+    "sideBySide": {
+      "path": "assets/generated/characters/paco-dog/garden-walk/review/frames-side-by-side.png",
+      "sha256": "2f3d449a20596d06099827b2b0717bfd490cbcd707327860e77c260c58b9700c"
+    },
+    "loop": {
+      "path": "assets/generated/characters/paco-dog/garden-walk/review/walk-loop.gif",
+      "sha256": "74c35813ce084e9a1b3a3d72f3d98685ccf378b38f0ca1c164539e66f2b825a6"
+    },
+    "htmlPreview": {
+      "path": "assets/generated/characters/paco-dog/garden-walk/review/preview.html",
+      "sha256": "9b2a9d11f8df4edff198a4b545241b4058dbb283a0bb8fb3df615065c687e5e7"
+    },
+    "waterComparison": {
+      "path": "assets/generated/characters/paco-dog/garden-walk/review/walk-water-comparison.png",
+      "sha256": "0390284863b0e619324ad4b9d1abde631c2d256dacb4ec06dc0af970af3f944f"
+    },
+    "metrics": {
+      "path": "assets/generated/characters/paco-dog/garden-walk/review/metrics.json",
+      "sha256": "fe462e0a89241859597172620f81fd24baff6c5729b83eddfc7482dc65f8def1"
+    },
+    "wateringSheetUnchanged": {
+      "path": "apps/app/public/characters/paco-dog/garden-water-sheet.webp",
+      "sha256": "bb6aa0b849deab5a9bb766a1660bddc11cb861f47608ca6d574773de0dcf5cd1"
+    },
+    "rosterReference": {
+      "path": "assets/generated/characters/roster-reference/canonical-full-body-home-roster-normalized.png",
+      "sha256": "5efb787beb7f245590e209a22cc9c2109d0fe22f9a2fce5c1fdcd750cca11d06"
+    },
+    "notes": [
+      "Four generated phases inspected side by side and against unchanged watering G1 at identical cell size. Fixed torso axis and sole baseline; contact head top 134 vs water 131, keeping roster proportions.",
+      "GIF durations 140/150/140/150ms total 580ms; four decoded frames confirmed in W1\u2013W4 order. HTML has app steps animation and left mirror.",
+      "Real-time playback review could not be completed: browser security policy denied localhost access, and native Finder/Preview tools returned cgWindowNotFound. Animation remains available as GIF and HTML for PR review. No browser workaround attempted.",
+      "Full corepack pnpm check passed; corepack pnpm doctor 100/100, no issues.",
+      "Independent final visual review: no substantive findings remain; rear-leg outline, scarf leaf, free-arm joins and W2 support shin corrected."
+    ]
+  },
   "assembly": {
-    "method": "lossless reviewed-frame sheet assembly only",
+    "method": "Existing asset helper assembles exact lossless 2x2 W1/W2/W3/W4 grid; hidden RGB canonicalized, WebP exact encoding; decoded cells asserted byte-identical to final frames.",
     "runtimeAsset": {
-      "path": "apps/web/public/characters/paco-dog/garden-walk-sheet.webp",
-      "sha256": "5e84cf6e9d9b824f4a1480a5f75b9196d09d142020d1f265465994a9cd63ac7d"
+      "path": "apps/app/public/characters/paco-dog/garden-walk-sheet.webp",
+      "sha256": "dcb6f928317635dfc9560b692714dd52e87c9109d1848c688969024be13db165"
     }
   }
 }
