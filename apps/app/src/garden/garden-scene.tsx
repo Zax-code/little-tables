@@ -20,8 +20,20 @@ type Chapter = GardenProgress['chapters'][number]
 const potCentres = [20, 50, 80] as const
 
 const WATER_MS = 5200
-/** Walking from one pot to the next takes this long; farther pots take longer. */
-const WALK_PER_POT_MS = 1600
+
+/** The character's sprite is this share of a corner's width. */
+const SPRITE_WIDTH = 0.46
+/** In the watering frames, the water falls this far across the sprite (from its left edge). */
+const POUR_POINT = 0.8
+/**
+ * One walk cycle (`.sprite-walk` in styles.css) lasts 0.58 s and its two steps carry the body
+ * about half the sprite's width. Moving at that speed keeps the feet planted on the ground: the
+ * character neither slides nor walks on the spot.
+ */
+const WALK_CYCLE_MS = 580
+const STRIDE_PER_CYCLE = 0.5
+/** Corners per millisecond. */
+const WALK_SPEED = (STRIDE_PER_CYCLE * SPRITE_WIDTH) / WALK_CYCLE_MS
 
 type Stop = Readonly<{ chapter: number; position: number }>
 
@@ -29,12 +41,31 @@ type Stop = Readonly<{ chapter: number; position: number }>
 const worldX = ({ chapter, position }: Stop, chapters: number) =>
   (chapter * 100 + (potCentres[position] ?? 50)) / chapters
 
+/**
+ * The character waters a pot of a corner's left half from its right, facing left, as in the
+ * previous app: it stays inside that corner instead of standing in the one before.
+ */
+const facesLeft = ({ position }: Stop) => (potCentres[position] ?? 50) < 50
+
+/** Share of the sprite's width between its left edge and the point over the pot. */
+const pourShare = (stop: Stop) => (facesLeft(stop) ? 1 - POUR_POINT : POUR_POINT)
+
+/** Where the character's left edge stands while watering, in percent of the world's width. */
+const standX = (stop: Stop, chapters: number) =>
+  worldX(stop, chapters) - (pourShare(stop) * SPRITE_WIDTH * 100) / chapters
+
 /** The next plant to water: another watered plant, chosen at random, never the same twice. */
 const nextStop = (stops: ReadonlyArray<Stop>, current: number) => {
   if (stops.length < 2) return current
   const other = Math.floor(Math.random() * (stops.length - 1))
   return other >= current ? other + 1 : other
 }
+
+type Walk = Readonly<{ ms: number; towardsLeft: boolean }>
+
+/** A steady pace, as fast as the steps (easing would make the feet slide); no motion at rest. */
+const motionOf = (walk: Walk | null, reduced: boolean) =>
+  reduced || walk === null ? { duration: 0 } : { duration: walk.ms / 1000, ease: 'linear' as const }
 
 type GardenWorldProps = Readonly<{
   chapters: ReadonlyArray<Chapter>
@@ -67,7 +98,7 @@ export function GardenWorld({
       stops.findIndex(({ chapter }) => chapter === initialChapter),
     ),
   )
-  const [walk, setWalk] = useState<Readonly<{ ms: number; towardsLeft: boolean }> | null>(null)
+  const [walk, setWalk] = useState<Walk | null>(null)
   const target = stops[stop]
 
   useEffect(() => {
@@ -82,11 +113,11 @@ export function GardenWorld({
         const next = nextStop(stops, stop)
         const to = stops[next]
         if (from === undefined || to === undefined) return
-        // In pot gaps: one corner is about three gaps wide.
-        const distance = Math.abs(worldX(to, count) - worldX(from, count)) / (30 / count)
+        // In corners: the world is `count` corners wide.
+        const distance = (Math.abs(standX(to, count) - standX(from, count)) * count) / 100
         setWalk({
-          ms: Math.min(6000, Math.max(1, distance) * WALK_PER_POT_MS),
-          towardsLeft: worldX(to, count) < worldX(from, count),
+          ms: Math.round(distance / WALK_SPEED),
+          towardsLeft: standX(to, count) < standX(from, count),
         })
         setStop(next)
       },
@@ -158,20 +189,22 @@ export function GardenWorld({
             animate={{ x: `${worldX(target, count)}%` }}
             className="pointer-events-none absolute inset-x-0 bottom-[16%] z-10"
             initial={false}
-            transition={
-              reduced || walk === null
-                ? { duration: 0 }
-                : { duration: walk.ms / 1000, ease: 'easeInOut' }
-            }
+            transition={motionOf(walk, reduced)}
           >
-            <div className="-translate-x-[62%]" style={{ width: `${46 / count}%` }}>
+            {/* The pour point, not the sprite's middle, stands over the pot's soil. */}
+            <m.div
+              animate={{ x: `-${pourShare(target) * 100}%` }}
+              initial={false}
+              style={{ width: `${(SPRITE_WIDTH * 100) / count}%` }}
+              transition={motionOf(walk, reduced)}
+            >
               <Sprite
                 character={character}
-                flipped={walk?.towardsLeft === true}
+                flipped={walk === null ? facesLeft(target) : walk.towardsLeft}
                 label={t('garden.caretaker', { character: characterNames[character] })}
                 motion={walk === null ? 'water' : 'walk'}
               />
-            </div>
+            </m.div>
           </m.div>
         )}
       </div>
