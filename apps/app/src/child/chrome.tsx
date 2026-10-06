@@ -1,12 +1,13 @@
 /** The child space's frame: profile pill, parent lock and tab bar (mockups R1). */
 import { IconButton, TabBar, TabBarItem } from '@little-tables/ui'
 import { Link, useLocation, useNavigate } from '@tanstack/react-router'
-import { ChartColumn, ChevronDown, Lock, Sprout, Sun } from 'lucide-react'
+import { ChevronDown, Lock } from 'lucide-react'
 import { useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
 import { avatarImage, characterOf } from '../characters/characters.js'
 import { useI18n } from '../i18n/i18n.js'
+import { TabIcon } from './tab-icons.js'
 import { WhoPlaysSheet } from './who-plays-sheet.js'
 
 export function ChildTopBar() {
@@ -48,9 +49,9 @@ export function ChildTabBar() {
   const { t } = useI18n()
   const { pathname } = useLocation()
   const tabs = [
-    { icon: <Sun />, label: t('tabs.today'), to: '/' },
-    { icon: <Sprout />, label: t('tabs.garden'), to: '/garden' },
-    { icon: <ChartColumn />, label: t('tabs.progress'), to: '/progress' },
+    { icon: <TabIcon name="home" />, label: t('tabs.today'), to: '/' },
+    { icon: <TabIcon name="garden" />, label: t('tabs.garden'), to: '/garden' },
+    { icon: <TabIcon name="progress" />, label: t('tabs.progress'), to: '/progress' },
   ] as const
   return (
     <TabBar label={t('tabs.label')}>
