@@ -107,8 +107,12 @@ service (`sudo systemctl start little-tables.service`) and investigate.
 4. Install `deploy/math.leaetzak.love.Caddyfile` in `/etc/caddy/conf.d/` (its CSP lets the new
    app run its WebAssembly engine), `sudo caddy validate --config /etc/caddy/Caddyfile`, and keep
    the reload for step 5.
-5. Add `ADMIN_EMAILS` and `PUBLIC_ORIGIN` to the environment file, then
-   `sudo ln -sfn /opt/little-tables/releases/<sha> /opt/little-tables/current`.
+5. Copy the environment file into the rollback directory, then edit it: add `ADMIN_EMAILS` and
+   `PUBLIC_ORIGIN`, and **remove `WEB_DIST_PATH`**. The Node image needed it (`/app/web-dist`,
+   a path inside its container), and systemd lets `EnvironmentFile=` override the unit's
+   `Environment=WEB_DIST_PATH`, so the new server would serve nothing. `HOST` and `PORT` already
+   match the unit; the Mongo and Node variables are ignored. Make it `0640 root:little-tables`,
+   then `sudo ln -sfn /opt/little-tables/releases/<sha> /opt/little-tables/current`.
 6. `sudo systemd-analyze verify little-tables.service`, then
    `sudo systemctl daemon-reload && sudo systemctl enable --now little-tables.service little-tables-backup.timer`
    and `sudo systemctl reload caddy`.
@@ -129,8 +133,9 @@ Then set the repository variable `DEPLOY_ON_MERGE` to `true`: merges deploy rele
 ## Rollback
 
 Before deploying on merge resumes, rolling back is: stop `little-tables.service`, disable the
-native units, restore `little-tables.container` into `/etc/containers/systemd/` and the previous
-Caddy fragment, `daemon-reload`, start the Quadlet service and reload Caddy. MongoDB was frozen at step 2, so answers synced to the Rust server since
+native units, restore `little-tables.container` into `/etc/containers/systemd/`, the previous
+environment file and the previous Caddy fragment, `daemon-reload`, start the Quadlet service and
+reload Caddy. MongoDB was frozen at step 2, so answers synced to the Rust server since
 then are not in MongoDB: devices keep only unsynced answers. Decide before rolling back after
 real use.
 
