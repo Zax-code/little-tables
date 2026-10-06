@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "tool": "built-in Image Generation",
   "characterId": "colin-mallard",
   "sequence": "garden-walk",
@@ -21,24 +21,512 @@
       "W2",
       "W3",
       "W4"
-    ]
+    ],
+    "loopSeconds": 0.58,
+    "wholeBodyBobPixels": 19,
+    "contactBaselineExclusive": 572,
+    "runtimeCodeChange": false
+  },
+  "previousVersion": {
+    "path": "assets/generated/characters/colin-mallard/garden-walk/generation-record-v1.json",
+    "sha256": "e51a9becd49bdd5d50cae676a5854ffe1e4032e2da067037456a55f231bde20b"
+  },
+  "method": {
+    "status": "verified deterministic rebuild and palette mapping",
+    "rebuildScript": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/rebuild.py",
+      "sha256": "4f9f9e70e84b93992d23d8e45833a1b9c4cd2c59d44abf9f9495b4ea72daa73f"
+    },
+    "dependencies": [
+      "Pillow",
+      "NumPy"
+    ],
+    "master": "W3",
+    "normalization": {
+      "scale": 1.04,
+      "offsetX": -25,
+      "offsetY": 6,
+      "cellDimensions": [
+        627,
+        627
+      ],
+      "bodyCenterX": 285,
+      "baselineExclusive": 572,
+      "contactTuftTop": 76,
+      "passingTuftTop": 57,
+      "bobPixels": 19
+    },
+    "rasterSelection": "W3 supplies the invariant upper body and the forward free wing used by W2/W3. Each generated source supplies its reviewed leg phase; W1 supplies the backward free wing used by W1/W4.",
+    "paletteMapping": [
+      "head",
+      "yellow bill and feet",
+      "vest",
+      "body",
+      "wing",
+      "scarf",
+      "watering can"
+    ],
+    "intendedInvariants": [
+      "One W3 raster supplies the identical head, bill, tuft, face, torso, outfit, tail feathers, carrying wing and upright dry watering can; only the 19px body bob moves it.",
+      "Passing frames move the shared upper-body raster upward by exactly 19 pixels while the planted foot remains on the fixed baseline.",
+      "Generated sources supply the distinct leg phases and free-wing motion; no new subject pixels are painted.",
+      "Final cells are 627 x 627 RGBA and the runtime sheet is an exact lossless 2 x 2 W1/W2/W3/W4 assembly."
+    ],
+    "references": [
+      {
+        "role": "Canonical Colin identity",
+        "path": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png",
+        "sha256": "394cd333166799e86b35f61f4d9dbb4c7bfe9a2c995e2e48b7b7255391e51035"
+      },
+      {
+        "role": "Roster relative proportions",
+        "path": "assets/generated/characters/roster-reference/canonical-full-body-home-roster-normalized.png",
+        "sha256": "5efb787beb7f245590e209a22cc9c2109d0fe22f9a2fce5c1fdcd750cca11d06"
+      },
+      {
+        "role": "Unchanged Colin watering palette, scale and placement",
+        "path": "apps/app/public/characters/colin-mallard/garden-water-sheet.webp",
+        "sha256": "a6c9592853f759e0444dff06c1b6ece35bd67d08eb57c4f1e66f10663ad412fd"
+      }
+    ],
+    "metrics": {
+      "sourcePalettes": [
+        {
+          "head": [
+            10,
+            143,
+            83
+          ],
+          "yellow": [
+            254,
+            179,
+            2
+          ],
+          "vest": [
+            89,
+            136,
+            61
+          ],
+          "body": [
+            154,
+            89,
+            37
+          ],
+          "wing": [
+            197,
+            179,
+            167
+          ],
+          "scarf": [
+            188,
+            109,
+            224
+          ],
+          "can": [
+            22,
+            115,
+            200
+          ]
+        },
+        {
+          "head": [
+            5,
+            144,
+            83
+          ],
+          "yellow": [
+            254,
+            186,
+            3
+          ],
+          "vest": [
+            81,
+            137,
+            56
+          ],
+          "body": [
+            157,
+            87,
+            32
+          ],
+          "wing": [
+            202,
+            180,
+            170
+          ],
+          "scarf": [
+            188,
+            109,
+            225
+          ],
+          "can": [
+            7,
+            121,
+            199
+          ]
+        },
+        {
+          "head": [
+            6,
+            144,
+            85
+          ],
+          "yellow": [
+            254,
+            179,
+            3
+          ],
+          "vest": [
+            84,
+            137,
+            61
+          ],
+          "body": [
+            158,
+            88,
+            33
+          ],
+          "wing": [
+            202,
+            180,
+            169
+          ],
+          "scarf": [
+            190,
+            107,
+            227
+          ],
+          "can": [
+            14,
+            121,
+            207
+          ]
+        },
+        {
+          "head": [
+            5,
+            147,
+            89
+          ],
+          "yellow": [
+            254,
+            183,
+            3
+          ],
+          "vest": [
+            85,
+            137,
+            60
+          ],
+          "body": [
+            158,
+            87,
+            32
+          ],
+          "wing": [
+            203,
+            180,
+            169
+          ],
+          "scarf": [
+            192,
+            108,
+            232
+          ],
+          "can": [
+            5,
+            121,
+            212
+          ]
+        }
+      ],
+      "waterPalette": {
+        "head": [
+          17,
+          134,
+          81
+        ],
+        "yellow": [
+          252,
+          171,
+          1
+        ],
+        "vest": [
+          95,
+          147,
+          65
+        ],
+        "body": [
+          144,
+          89,
+          35
+        ],
+        "wing": [
+          183,
+          173,
+          160
+        ],
+        "scarf": [
+          179,
+          114,
+          213
+        ],
+        "can": [
+          29,
+          107,
+          176
+        ]
+      },
+      "finalPalettes": [
+        {
+          "head": [
+            17,
+            134,
+            81
+          ],
+          "yellow": [
+            252,
+            170,
+            1
+          ],
+          "vest": [
+            95,
+            147,
+            65
+          ],
+          "body": [
+            144,
+            89,
+            35
+          ],
+          "wing": [
+            183,
+            173,
+            160
+          ],
+          "scarf": [
+            179,
+            114,
+            213
+          ],
+          "can": [
+            29,
+            107,
+            176
+          ]
+        },
+        {
+          "head": [
+            17,
+            134,
+            81
+          ],
+          "yellow": [
+            252,
+            171,
+            1
+          ],
+          "vest": [
+            95,
+            147,
+            65
+          ],
+          "body": [
+            144,
+            89,
+            35
+          ],
+          "wing": [
+            183,
+            173,
+            160
+          ],
+          "scarf": [
+            179,
+            114,
+            213
+          ],
+          "can": [
+            29,
+            107,
+            176
+          ]
+        },
+        {
+          "head": [
+            17,
+            134,
+            81
+          ],
+          "yellow": [
+            252,
+            171,
+            1
+          ],
+          "vest": [
+            95,
+            147,
+            65
+          ],
+          "body": [
+            144,
+            89,
+            35
+          ],
+          "wing": [
+            183,
+            173,
+            160
+          ],
+          "scarf": [
+            179,
+            114,
+            213
+          ],
+          "can": [
+            29,
+            107,
+            176
+          ]
+        },
+        {
+          "head": [
+            17,
+            134,
+            81
+          ],
+          "yellow": [
+            252,
+            172,
+            1
+          ],
+          "vest": [
+            95,
+            147,
+            65
+          ],
+          "body": [
+            144,
+            89,
+            35
+          ],
+          "wing": [
+            183,
+            173,
+            160
+          ],
+          "scarf": [
+            179,
+            114,
+            213
+          ],
+          "can": [
+            29,
+            107,
+            176
+          ]
+        }
+      ],
+      "baseline": 572,
+      "bob": 19,
+      "bodyCenterX": 285,
+      "normalization": {
+        "scale": 1.04,
+        "offsetX": -25,
+        "offsetY": 6
+      },
+      "alphaBounds": [
+        [
+          137,
+          76,
+          510,
+          572
+        ],
+        [
+          140,
+          57,
+          510,
+          572
+        ],
+        [
+          140,
+          76,
+          510,
+          572
+        ],
+        [
+          137,
+          57,
+          510,
+          572
+        ]
+      ],
+      "masterFrame": "W3",
+      "sharedCorePixelCount": 86012
+    },
+    "postResamplingAlphaNoiseFloor": 8,
+    "legFitting": {
+      "horizontalScaleAboutBodyAxis": 0.85,
+      "sourceCropTop": [
+        490,
+        472,
+        490,
+        475
+      ],
+      "targetTop": [
+        496,
+        477,
+        496,
+        477
+      ],
+      "fixedBaselineExclusive": 572,
+      "liftedFootTranslationY": -8,
+      "supportShinExtension": "Resample each generated straight upper shin upward under the bobbed master hem, preserving foot raster and sole baseline."
+    }
   },
   "frames": [
     {
       "frameId": "W1",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
-        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W1.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing stride with the front foot forward. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Right contact: near/right foot forward with heel grounded; far/left foot behind with toes grounded; free wing back.",
+      "references": [
+        {
+          "role": "Canonical Colin identity",
+          "path": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png",
+          "sha256": "394cd333166799e86b35f61f4d9dbb4c7bfe9a2c995e2e48b7b7255391e51035",
+          "imageInputIndex": 1
+        },
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W1/final-frame.png",
+          "sha256": "1f25c49fd3ddbdc0bd19aa2d94aaa40cbe328a9839ba463538067b17a98c89b6",
+          "imageInputIndex": 2
+        },
+        {
+          "role": "Colin palette, scale and placement",
+          "path": "apps/app/public/characters/colin-mallard/garden-water-sheet.webp",
+          "sha256": "a6c9592853f759e0444dff06c1b6ece35bd67d08eb57c4f1e66f10663ad412fd",
+          "imageInputIndex": 3
+        }
+      ],
+      "prompt": "Use case: illustration-story. Create ONE square animation frame W1, Colin the mallard walking cheerfully to the RIGHT in calm children's-book flat raster style. Reference 1 Colin canonical identity: emerald round head with three short tuft feathers, yellow bill and yellow webbed feet, lavender neckerchief with white collar, leafy green open vest, brown lower torso, grey-beige wings, restrained black outline. Reference 2 Miffy W1 specifies strong walking contact stride, upright blue watering can in bent front carrying wing (spout right, NO water), framing. Reference 3 Colin watering sheet specifies EXACT apparent scale and palette: body centre at x=285/627 and foot ground baseline y=571/627; emerald head diameter about 245/627; from tuft top about y=80/627 to ground y=570/627. Face RIGHT IN PROFILE: single visible eye, bill extending right, small brown duck tail projecting behind to left. Right near foot reaches far FORWARD right, heel on ground; left far foot far BEHIND left, toes grounded. Wide confident separation about 170/627 pixels between feet, duck-sized broad webbed feet, no shoes. Free rear wing swings BACK left opposite forward leg, can wing stays bent. Keep whole body vertical, no head tilt, can upright at lower torso about y=420, spout extending right to x=490. Background uniform flat chroma green #00ff00, with no gradient/shadow/ground line/texture. Distinguish dark emerald head and muted leafy vest from saturated lime chroma. Full uncropped figure with generous margins. No flowers, pots, scenery, droplets, text, border or duplicate frames. ONLY one W1 frame, NOT a sheet.",
       "generatedSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W1/generated-source.png",
-        "sha256": "f3213ca175e0ad8807a0e4bfe3dcc9df7dcab02bedfe16f1532e5f212d70dab9"
+        "sha256": "f1a4ca032be71e9a59bd8bb362edd58ca577e3997c19fbe23fd76585c99472e7",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
       "rejectedSources": [
         {
+          "path": "assets/generated/characters/colin-mallard/garden-walk/W1/rejected-generated-source-1.png",
+          "sha256": "f3213ca175e0ad8807a0e4bfe3dcc9df7dcab02bedfe16f1532e5f212d70dab9",
+          "reason": "Version 1 accepted source superseded: the loop shuffled gait phases and its independently generated head drifted between frames."
+        },
+        {
           "path": "assets/generated/characters/colin-mallard/garden-walk/W1/rejected-generated-source.png",
-          "sha256": "2ce99b42f5d29478a3ece8a5f9748c5d3f9598ec86f04c811fd255a857e57f90"
+          "sha256": "2ce99b42f5d29478a3ece8a5f9748c5d3f9598ec86f04c811fd255a857e57f90",
+          "reason": "Legacy rejected version 1 generation retained unchanged; original review reason was not recorded."
         }
       ],
       "alphaCleanup": {
@@ -50,8 +538,8 @@
         "despill": true,
         "edgeContract": 1,
         "foregroundInteriorProtection": {
-          "edgeDespillKeyColor": "#ff00ff",
-          "hardKeyColor": "#ff00ff",
+          "edgeDespillKeyColor": "#00ff00",
+          "hardKeyColor": "#00ff00",
           "hardTolerance": 64,
           "erosionPixels": 3,
           "minimumComponentPixels": 50,
@@ -61,54 +549,78 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W1/alpha-source.png",
-        "sha256": "40b122423452783cc7f72d0c49d713eb3de565148cc3b0aa6879b2ffbb96b622"
+        "sha256": "a90697885597f07e090c4f6a6099d472ab987ed11ad026efb3512742a0302b97"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "status": "verified by deterministic rebuild and same-size watering comparison",
+        "scale": 1.04,
+        "offsetX": -25,
+        "offsetY": 6,
+        "bodyBobY": 0,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 1.023,
-        "offsetX": -2,
-        "offsetY": 7
+        ]
       },
       "review": {
-        "status": "approved",
+        "status": "static review approved; playback unverified",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+          "Distinct contact/passing phase with fixed planted baseline",
+          "Exact shared head/bill/tuft/core/tail/can after undoing 19px bob",
+          "Outfit and feather/bill/foot/clothing/can palette matches water G1 (maximum modal channel difference <=3)",
+          "Transparent corners, clean chroma edges and connected limbs",
+          "Native-resolution and side-by-side review; exact decoded sheet cell"
+        ],
+        "notes": [
+          "Independent review found a residual forward-wing triangle and a beige arc near the handle. Refined the selection and protected only blue can pixels plus their dark outline; both defects resolved."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W1/final-frame.png",
-        "sha256": "6f9bb2a2b627f59b50e9c5e2108e6b4e4ae2cca102a73926196486d20396ddf2"
+        "sha256": "70e7c4f230e268bf41fa554aa33fa008017b95850c09675ccf0446c2a8f93b73"
       }
     },
     {
       "frameId": "W2",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W2.png",
-        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W2.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing passing pose with the feet close. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Left passing: near/right leg supports vertically; far/left foot lifts behind; free wing forward; upper body 19 pixels higher.",
+      "references": [
+        {
+          "role": "Colin W1 generated identity and composition",
+          "path": "assets/generated/characters/colin-mallard/garden-walk/W1/generated-source.png",
+          "sha256": "f1a4ca032be71e9a59bd8bb362edd58ca577e3997c19fbe23fd76585c99472e7",
+          "imageInputIndex": 1
+        },
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W2/final-frame.png",
+          "sha256": "97558ac678a89dae1d40cb9ee4b21d42ec1bc8de008259fd5fef7b1958d2d62d",
+          "imageInputIndex": 2
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference 1 Colin W1 into ONE animation frame W2: LEFT FOOT LIFTS IN PASSING. Same exact Colin emerald head, tuft, profile bill, single eye, lavender scarf, white collar, leafy green vest, brown body, beige wings, brown tail and upright blue watering can as reference 1. Reference 2 Miffy W2 gives pose only; DO NOT copy rabbit anatomy/outfit. Replace ONLY legs and free rear wing. Body is 19/627 px higher, highest point of gait; RIGHT near leg is straight vertical under centre of body, weight-bearing webbed foot flat on unchanged ground baseline about y=557/627. LEFT far foot is lifted well clear of floor (sole about y=514/627), tucked BEHIND LEFT of stance leg, knee bent and passing forwards, with distinct visible webbed foot. Same short broad yellow duck feet size as W1. Exactly two legs/feet. Free rear beige wing swings FORWARD RIGHT behind carrying arm opposite the lifted left foot. Carrying wing stays bent holding exactly same can angle and location relative to torso, spout right no water. Uniform flat chroma green #00ff00 background, no shadow, floor, line, text, droplets, other props. Keep image framing and scale identical reference 1; only 19px body bob, same x centre. Generate a SINGLE W2 image, not sheet.",
       "generatedSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W2/generated-source.png",
-        "sha256": "524163bb1140121252841e907a810742f1872df89e3fa5a6dde8ec189666d6df"
+        "sha256": "a66bbe6cb9d886dc9f7e0b427bee76a6e3dc3317123c092d85b90f5be5c1fad8",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
       "rejectedSources": [
         {
+          "path": "assets/generated/characters/colin-mallard/garden-walk/W2/rejected-generated-source-1.png",
+          "sha256": "524163bb1140121252841e907a810742f1872df89e3fa5a6dde8ec189666d6df",
+          "reason": "Version 1 accepted source superseded: the loop shuffled gait phases and its independently generated head drifted between frames."
+        },
+        {
           "path": "assets/generated/characters/colin-mallard/garden-walk/W2/rejected-generated-source.png",
-          "sha256": "6ddc16cc18bfcc5d6d3f637542aef6109fedbc894d1b60f4fec6dd26750a7245"
+          "sha256": "6ddc16cc18bfcc5d6d3f637542aef6109fedbc894d1b60f4fec6dd26750a7245",
+          "reason": "Legacy rejected version 1 generation retained unchanged; original review reason was not recorded."
         },
         {
           "path": "assets/generated/characters/colin-mallard/garden-walk/W2/rejected-generated-with-flowers.png",
-          "sha256": "77d01ba08e3a4e37243014904a4e477d877952f266a957dcbd2ccb1b8d16953a"
+          "sha256": "77d01ba08e3a4e37243014904a4e477d877952f266a957dcbd2ccb1b8d16953a",
+          "reason": "Legacy rejected version 1 generation added flowers contrary to the isolated-frame contract."
         }
       ],
       "alphaCleanup": {
@@ -120,8 +632,8 @@
         "despill": true,
         "edgeContract": 1,
         "foregroundInteriorProtection": {
-          "edgeDespillKeyColor": "#ff00ff",
-          "hardKeyColor": "#ff00ff",
+          "edgeDespillKeyColor": "#00ff00",
+          "hardKeyColor": "#00ff00",
           "hardTolerance": 64,
           "erosionPixels": 3,
           "minimumComponentPixels": 50,
@@ -131,54 +643,79 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W2/alpha-source.png",
-        "sha256": "6bbe6b4613698b9b7f712a01769d8ccfeeec7b16f37b4cdf92cb1cf2eae8a380"
+        "sha256": "616247d0feb0b48d56cbf9aa44f7541f13bc947ba3483d865663d3f6d7752f97"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "status": "verified by deterministic rebuild and same-size watering comparison",
+        "scale": 1.04,
+        "offsetX": -25,
+        "offsetY": 6,
+        "bodyBobY": -19,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 0.902,
-        "offsetX": -11,
-        "offsetY": 47
+        ]
       },
       "review": {
-        "status": "approved",
+        "status": "static review approved; playback unverified",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+          "Distinct contact/passing phase with fixed planted baseline",
+          "Exact shared head/bill/tuft/core/tail/can after undoing 19px bob",
+          "Outfit and feather/bill/foot/clothing/can palette matches water G1 (maximum modal channel difference <=3)",
+          "Transparent corners, clean chroma edges and connected limbs",
+          "Native-resolution and side-by-side review; exact decoded sheet cell"
+        ],
+        "notes": [
+          "Fitted generated support shin and lifted-foot placement to eliminate body/leg gaps while retaining webbed-foot scale and fixed floor.",
+          "Generated W2 free wing stayed backward; reuse the generated W3 forward-wing raster for the correct swing, as with Miffy master compositing."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W2/final-frame.png",
-        "sha256": "a78563b315471d01b191ac4e2ad09d6529e74e6e5c839afd2eb78f9935e2dd7f"
+        "sha256": "c121a9f4f2301acff02624ff9763633cd46fa6fa6d4c27e4c763ccab783719bd"
       }
     },
     {
       "frameId": "W3",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W3.png",
-        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W3.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing opposite stride. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Left contact: far/left foot forward with heel grounded; near/right foot behind with toes grounded; free wing forward.",
+      "references": [
+        {
+          "role": "Colin W1 generated identity and composition",
+          "path": "assets/generated/characters/colin-mallard/garden-walk/W1/generated-source.png",
+          "sha256": "f1a4ca032be71e9a59bd8bb362edd58ca577e3997c19fbe23fd76585c99472e7",
+          "imageInputIndex": 1
+        },
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W3/final-frame.png",
+          "sha256": "a698508cce53957629b1df9adca7722ea33ab2a90a4c4fca5403dcc413513a17",
+          "imageInputIndex": 2
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference 1 Colin W1 into ONE square animation frame W3 CONTACT LEFT FOOT FORWARD, right foot back, NOT a passing pose. Ref 2 Miffy W3 is the pose reference only. Keep same exact round emerald profile head/tuft/bill/single eye, outfit, colours, tail, body scale, framing, upright blue can and bent carrying wing from Colin W1. Change only TWO LEGS and FREE REAR WING. LEFT FAR leg reaches confidently FORWARD RIGHT with broad webbed foot heel touching baseline y=557/627, near RIGHT leg trails far BACK LEFT with toes down, heel slightly raised. Same broad webbed foot size as W1, stride span about 170/627 pixels. Make the near leg's dark outline cross IN FRONT of the far leg at upper leg join, so this is opposite leg contact from W1. Lowest body height, same as W1. Free rear grey-beige wing swings FORWARD RIGHT visible beside chest ABOVE can rim (not back left); opposite to forward left foot. Exact same blue can upright, spout right, no water, same carrying position. Flat chroma green #00ff00 background. Full unclipped right-facing duck, no text, flowers, pots, floor line, shadows, extra limbs, shoes, water, or multiple frames. One W3 frame.",
       "generatedSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W3/generated-source.png",
-        "sha256": "61d7587d52c6f6bb3d722809ca58155a939024b19f9806bcb6161d07ebb75e2f"
+        "sha256": "05a0d1d0bd06902601d5d4a757c9d0b8cc72f9ac24a64f59e649c16afca0ff8d",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
       "rejectedSources": [
         {
+          "path": "assets/generated/characters/colin-mallard/garden-walk/W3/rejected-generated-source-1.png",
+          "sha256": "61d7587d52c6f6bb3d722809ca58155a939024b19f9806bcb6161d07ebb75e2f",
+          "reason": "Version 1 accepted source superseded: the loop shuffled gait phases and its independently generated head drifted between frames."
+        },
+        {
           "path": "assets/generated/characters/colin-mallard/garden-walk/W3/rejected-generated-source.png",
-          "sha256": "b7fad6c035fc07717146629c134cee2cb71ddd1d27f57d38908b6c1c4ae209bc"
+          "sha256": "b7fad6c035fc07717146629c134cee2cb71ddd1d27f57d38908b6c1c4ae209bc",
+          "reason": "Legacy rejected version 1 generation retained unchanged; original review reason was not recorded."
         },
         {
           "path": "assets/generated/characters/colin-mallard/garden-walk/W3/rejected-generated-with-flowers.png",
-          "sha256": "bdc144ba6472fc561a875838b77e74c63a60415e4d951fcc5c0519279679114b"
+          "sha256": "bdc144ba6472fc561a875838b77e74c63a60415e4d951fcc5c0519279679114b",
+          "reason": "Legacy rejected version 1 generation added flowers contrary to the isolated-frame contract."
         }
       ],
       "alphaCleanup": {
@@ -190,8 +727,8 @@
         "despill": true,
         "edgeContract": 1,
         "foregroundInteriorProtection": {
-          "edgeDespillKeyColor": "#ff00ff",
-          "hardKeyColor": "#ff00ff",
+          "edgeDespillKeyColor": "#00ff00",
+          "hardKeyColor": "#00ff00",
           "hardTolerance": 64,
           "erosionPixels": 3,
           "minimumComponentPixels": 50,
@@ -201,54 +738,76 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W3/alpha-source.png",
-        "sha256": "d44a84967425175b07f6dbfaa7ac4f99415d52334aa281498cc1a9be711ccf71"
+        "sha256": "e46ac21d3dccb664344753f6c0405e2b2176cbdc0690ae5b3fb568e400920ab6"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "status": "verified by deterministic rebuild and same-size watering comparison",
+        "scale": 1.04,
+        "offsetX": -25,
+        "offsetY": 6,
+        "bodyBobY": 0,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 1,
-        "offsetX": 2,
-        "offsetY": -10
+        ]
       },
       "review": {
-        "status": "approved",
+        "status": "static review approved; playback unverified",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
-        ]
+          "Distinct contact/passing phase with fixed planted baseline",
+          "Exact shared head/bill/tuft/core/tail/can after undoing 19px bob",
+          "Outfit and feather/bill/foot/clothing/can palette matches water G1 (maximum modal channel difference <=3)",
+          "Transparent corners, clean chroma edges and connected limbs",
+          "Native-resolution and side-by-side review; exact decoded sheet cell"
+        ],
+        "notes": []
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W3/final-frame.png",
-        "sha256": "210132ef68d660a469ebfbaf7fdc02a91635eb18963633e28b6f2d463e433b4d"
+        "sha256": "47b6e3d077046a7a4e1a2bff3e5d2d5a5e239cc69d8a4747560f8d3340ee0950"
       }
     },
     {
       "frameId": "W4",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W4.png",
-        "reference2Identity": "assets/generated/characters/colin-mallard/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W4.\nOutput exact 627:627 aspect, one character, flat chroma-key magenta background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Colin, the approved mallard; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing second passing pose. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep leafy-green vest and lavender neckerchief unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "phase": "Right passing: far/left leg supports vertically; near/right foot lifts ahead; free wing back; upper body 19 pixels higher.",
+      "references": [
+        {
+          "role": "Colin W1 generated identity and composition",
+          "path": "assets/generated/characters/colin-mallard/garden-walk/W1/generated-source.png",
+          "sha256": "f1a4ca032be71e9a59bd8bb362edd58ca577e3997c19fbe23fd76585c99472e7",
+          "imageInputIndex": 1
+        },
+        {
+          "role": "Miffy approved v2 phase pose",
+          "path": "assets/generated/characters/miffy/garden-walk/W4/final-frame.png",
+          "sha256": "4b312dcc87fe482c346bb051ce1823bc603c927e3fb452dae8fbf347ded5f54a",
+          "imageInputIndex": 2
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference 1 Colin W1 to ONE square W4 animation frame, RIGHT FOOT LIFTS FORWARDS, opposite passing pose to W2. Ref 2 Miffy W4 ONLY specifies phase. Keep EXACT same emerald round right-profile head, tuft, yellow bill, single eye, lavender scarf/white collar, green vest, beige wings, brown body/tail and upright blue can as Colin W1. Change only legs and free rear wing. LEFT FAR leg straight VERTICAL under body centre bearing weight, small broad yellow webbed foot flat at ground baseline y=557/627. RIGHT NEAR leg lifts well CLEAR of ground passing FORWARD RIGHT, knee bent, foot projects RIGHT of straight stance leg at sole y=514/627. Both feet same broad duck size, no shoes, exactly two feet. This raised forward foot distinguishes W4 from W2's raised foot behind left. Body highest point, raised 19/627 pixels, head and can move with body only. Free rear beige wing swings BACK LEFT opposite to forward right leg, as W1. Carrying wing bent unchanged, exactly same upright blue can, spout right no water. Whole figure same scale and same x centre as ref1. Uniform chroma green #00ff00 background with no ground line, shadows, scenery, text, flowers, water, or additional frames. Generate ONE W4 image.",
       "generatedSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W4/generated-source.png",
-        "sha256": "ce08a4bb59cdb4a44e6ec5cf17aa813bd9831f4f11a03b12ebfcde914ab35db2"
+        "sha256": "f095a9f7ea59510dd8efc2c52ac6f9c5ee52ab7e04f375c89a68b9fdc8448878",
+        "dimensions": [
+          1254,
+          1254
+        ]
       },
       "rejectedSources": [
         {
+          "path": "assets/generated/characters/colin-mallard/garden-walk/W4/rejected-generated-source-1.png",
+          "sha256": "ce08a4bb59cdb4a44e6ec5cf17aa813bd9831f4f11a03b12ebfcde914ab35db2",
+          "reason": "Version 1 accepted source superseded: the loop shuffled gait phases and its independently generated head drifted between frames."
+        },
+        {
           "path": "assets/generated/characters/colin-mallard/garden-walk/W4/rejected-generated-source.png",
-          "sha256": "68b0e20f7998610b9be9df15ba069bcb32c3ae2b096019fc53c3d6d0dc2116bc"
+          "sha256": "68b0e20f7998610b9be9df15ba069bcb32c3ae2b096019fc53c3d6d0dc2116bc",
+          "reason": "Legacy rejected version 1 generation retained unchanged; original review reason was not recorded."
         },
         {
           "path": "assets/generated/characters/colin-mallard/garden-walk/W4/rejected-generated-with-flowers.png",
-          "sha256": "4fae3e489a1087d26ef1623034bc532a44cab4f68f3bd198d0bc2a61e655c5d4"
+          "sha256": "4fae3e489a1087d26ef1623034bc532a44cab4f68f3bd198d0bc2a61e655c5d4",
+          "reason": "Legacy rejected version 1 generation added flowers contrary to the isolated-frame contract."
         }
       ],
       "alphaCleanup": {
@@ -260,8 +819,8 @@
         "despill": true,
         "edgeContract": 1,
         "foregroundInteriorProtection": {
-          "edgeDespillKeyColor": "#ff00ff",
-          "hardKeyColor": "#ff00ff",
+          "edgeDespillKeyColor": "#00ff00",
+          "hardKeyColor": "#00ff00",
           "hardTolerance": 64,
           "erosionPixels": 3,
           "minimumComponentPixels": 50,
@@ -271,41 +830,102 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W4/alpha-source.png",
-        "sha256": "6b0f4601c5ab28c11d3b3ad2b9043842b4e1357cb05c52740e54242156f48a62"
+        "sha256": "eac8e9bb60f247194b98d94e78c47c3ba4ed58d05ea96efada33d3d248e1fb8d"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
+        "status": "verified by deterministic rebuild and same-size watering comparison",
+        "scale": 1.04,
+        "offsetX": -25,
+        "offsetY": 6,
+        "bodyBobY": -19,
         "targetDimensions": [
           627,
           627
-        ],
-        "scale": 0.877,
-        "offsetX": -7,
-        "offsetY": 42
+        ]
       },
       "review": {
-        "status": "approved",
+        "status": "static review approved; playback unverified",
         "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+          "Distinct contact/passing phase with fixed planted baseline",
+          "Exact shared head/bill/tuft/core/tail/can after undoing 19px bob",
+          "Outfit and feather/bill/foot/clothing/can palette matches water G1 (maximum modal channel difference <=3)",
+          "Transparent corners, clean chroma edges and connected limbs",
+          "Native-resolution and side-by-side review; exact decoded sheet cell"
+        ],
+        "notes": [
+          "Fitted generated support shin and lifted-foot placement to eliminate body/leg gaps while retaining webbed-foot scale and fixed floor.",
+          "Independent review found a residual forward-wing triangle and a beige arc near the handle. Refined the selection and protected only blue can pixels plus their dark outline; both defects resolved."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/colin-mallard/garden-walk/W4/final-frame.png",
-        "sha256": "fe910f07e9ece4027f7382aa0c7126ff86b0b5e9e08f0d0c8b4185dd1e62b08a"
+        "sha256": "90a1c633f7c4984c5c01043180dbdc5549d84322fa40ebbd4bfd95192a2d1d60"
       }
     }
   ],
+  "sequenceReview": {
+    "status": "visual review pending; real-time playback review pending",
+    "htmlPreview": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/review/preview.html",
+      "sha256": "956293d74864be90c99a363f44dd520e503595c4ed3606ea30028a9ca4b899b3"
+    },
+    "wateringSheetUnchanged": {
+      "path": "apps/app/public/characters/colin-mallard/garden-water-sheet.webp",
+      "sha256": "a6c9592853f759e0444dff06c1b6ece35bd67d08eb57c4f1e66f10663ad412fd"
+    },
+    "rosterReference": {
+      "path": "assets/generated/characters/roster-reference/canonical-full-body-home-roster-normalized.png",
+      "sha256": "5efb787beb7f245590e209a22cc9c2109d0fe22f9a2fce5c1fdcd750cca11d06"
+    },
+    "loopTimingMs": [
+      140,
+      150,
+      140,
+      150
+    ],
+    "notes": [
+      "Reviewed all four 627px frames, side-by-side phases, and the same-size unchanged watering comparison. Contact tuft top76 and baseline572 match water; body axis approximately x285. Passing core shifts upward exactly 19px.",
+      "Independent review approves final static result after correcting lifted-leg joins, free-wing stump and can-handle proximity fringe. No substantive static findings remain.",
+      "GIF has four frames with 140/150/140/150ms delays (580ms total); HTML provides app steps animation and mirrored walk. Real-time playback was attempted but not verified: Chrome denied 127.0.0.1 preview access because permission was denied; Finder returned cgWindowNotFound. User playback review remains required before merge.",
+      "No new generated phase needed rejection: usable generated limbs were retained and selection/normalization defects were corrected deterministically. Version1 superseded and earlier rejected sources remain stored."
+    ],
+    "sideBySide": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/review/frames-side-by-side.png",
+      "sha256": "1828ecaa52fe71675da65b7781af522cde238c9bd6cd6d799ebf07ea8274fe7b"
+    },
+    "loop": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/review/walk-loop.gif",
+      "sha256": "e216c4665f30bb5d810fc76441513414f1f3f1b07632cf6a51255874a271a432"
+    },
+    "runtimePreview": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/review/runtime-sheet.webp",
+      "sha256": "a7482e8f0d2ea82b25b14b2904711ee99a05b76edf9c17ab034192792c795fd4"
+    },
+    "waterComparison": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/review/walk-water-comparison.png",
+      "sha256": "d7ddc2bf44ff1ad7f7adaeb9c8e7e063943d2f5e7e9796141a09ac2d615135bb"
+    },
+    "waterReference": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/review/water-reference.png",
+      "sha256": "6be342c0df907285e5f3c154fc64dea2258abd45ad90008a46f64a6261b8c12b"
+    },
+    "metrics": {
+      "path": "assets/generated/characters/colin-mallard/garden-walk/review/metrics.json",
+      "sha256": "a048a8ac7413882f20a8ce1f9320f29ecf9479f2fd7ef72f4f77f616ca774be2"
+    },
+    "validation": {
+      "rebuild": "passed; includes alpha cleanup from raw sources and palette/geometry/connected-limb/fringe assertions",
+      "pnpmCheck": "passed: formatting, lint, typecheck, Rust checks/tests, TS/Python tests, Quadlet validation and production build",
+      "reactDoctor": "passed, 100/100, no issues",
+      "recordHashes": "passed: every recorded artifact SHA-256 matches its file"
+    }
+  },
   "assembly": {
-    "method": "lossless reviewed-frame sheet assembly only",
+    "status": "pending deterministic rebuild",
+    "method": "Exact lossless 2 x 2 W1/W2/W3/W4 assembly with canonical transparent RGB; decoded runtime cells must match final frames.",
     "runtimeAsset": {
-      "path": "apps/web/public/characters/colin-mallard/garden-walk-sheet.webp",
-      "sha256": "aaf5fa400d038820a2670c99bf680ad94fe1713213f7fc2a809456a4fbe1cc73"
+      "path": "apps/app/public/characters/colin-mallard/garden-walk-sheet.webp",
+      "sha256": "a7482e8f0d2ea82b25b14b2904711ee99a05b76edf9c17ab034192792c795fd4"
     }
   }
 }
