@@ -505,6 +505,24 @@ describe('device settings', () => {
     expect(storage.values.has('little-tables:locale')).toBe(true)
   })
 
+  it('moves devices left on the former system default to light, once', () => {
+    const storage = memoryStorage({
+      [keys.preferences]: JSON.stringify({
+        appearance: 'system',
+        language: 'en',
+        sound: true,
+        textSize: 'default',
+      }),
+    })
+    const device = createDevice(storage)
+    device.adoptLegacyKeys()
+    expect(device.preferences()).toMatchObject({ appearance: 'light', language: 'en' })
+    device.setPreferences({ ...device.preferences(), appearance: 'system' })
+    device.adoptLegacyKeys()
+    expect(device.preferences().appearance).toBe('system')
+    expect(createDevice(memoryStorage()).preferences().appearance).toBe('light')
+  })
+
   it('falls back to defaults on unreadable values and forgets the family at sign-out', () => {
     const storage = memoryStorage({ [keys.preferences]: '{"language":"de"}' })
     const device = createDevice(storage)

@@ -141,8 +141,8 @@ export function Sheet({
   return (
     <Drawer.Root onOpenChange={onOpenChange} open={open}>
       <Drawer.Portal>
-        <Drawer.Overlay className="fixed inset-0 z-40 bg-scrim" />
-        <Drawer.Content className="fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[92dvh] max-w-lg flex-col rounded-t-sheet bg-bg outline-none safe-bottom">
+        <Drawer.Overlay className="lt-sheet-overlay fixed inset-0 z-40 bg-scrim" />
+        <Drawer.Content className="lt-sheet fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[92dvh] max-w-lg flex-col rounded-t-sheet bg-bg outline-none safe-bottom">
           <div aria-hidden className="mx-auto mt-2.5 mb-1 h-1.25 w-10 rounded-full bg-label-3" />
           <div className="flex items-start justify-between gap-3 px-4 pt-2 pb-3">
             <div className="flex flex-col gap-0.5">

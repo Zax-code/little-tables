@@ -76,7 +76,7 @@ export const Preferences = Schema.Struct({
 export type Preferences = typeof Preferences.Type
 
 export const defaultPreferences: Preferences = {
-  appearance: 'system',
+  appearance: 'light',
   language: 'fr',
   sound: true,
   textSize: 'default',

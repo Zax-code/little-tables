@@ -101,10 +101,7 @@ export function GardenWorld({
       onScroll={onScroll}
       ref={scrollerRef}
     >
-      <div
-        className="relative flex h-full bg-[linear-gradient(180deg,var(--lt-sky-soft),var(--lt-surface)_70%)]"
-        style={{ width: `${count * 100}%` }}
-      >
+      <div className="relative flex h-full bg-surface" style={{ width: `${count * 100}%` }}>
         <div aria-hidden className="absolute inset-x-0 bottom-0 h-[24%] bg-soil" />
         {chapters.map((chapter, index) => {
           const name = t(`chapter.${chapter.id}` as MessageKey)
