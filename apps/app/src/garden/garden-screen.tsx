@@ -1,4 +1,4 @@
-/** D2: the garden, one corner per page, with the herbarium and how it grows (D3, D4). */
+/** D2: the garden, one corner per page of one continuous world, with the herbarium and how it grows (D3, D4). */
 import { Button, cn, IconTile, ListGroup, ListRow, Screen, Sheet } from '@little-tables/ui'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
@@ -15,7 +15,7 @@ import type { ProfileState } from '../data/schema.js'
 import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
 import { Effect } from 'effect'
-import { GardenScene } from './garden-scene.js'
+import { GardenWorld } from './garden-scene.js'
 
 const ambient = [
   'ambient.bird',
@@ -97,28 +97,16 @@ function Garden({ state }: Readonly<{ state: ProfileState }>) {
       </header>
 
       <section aria-label={t('garden.pages')} className="flex flex-col gap-2">
-        <div
-          className="-mx-4 flex snap-x snap-mandatory overflow-x-auto scroll-smooth px-4 [scrollbar-width:none]"
+        <GardenWorld
+          chapters={garden.chapters}
+          character={character}
+          initialChapter={page}
           onScroll={(event) => {
             const element = event.currentTarget
-            setPage(Math.round(element.scrollLeft / Math.max(1, element.clientWidth - 32)))
+            setPage(Math.round(element.scrollLeft / Math.max(1, element.clientWidth)))
           }}
-          ref={attach}
-        >
-          {garden.chapters.map((chapter, index) => (
-            <div
-              className="w-full shrink-0 snap-center pr-0 [&:not(:last-child)]:mr-4"
-              key={chapter.id}
-            >
-              <GardenScene
-                chapter={chapter}
-                character={character}
-                index={index}
-                total={garden.chapters.length}
-              />
-            </div>
-          ))}
-        </div>
+          scrollerRef={attach}
+        />
         <div className="flex justify-center gap-1.5">
           {garden.chapters.map((chapter, index) => (
             <button
@@ -128,7 +116,7 @@ function Garden({ state }: Readonly<{ state: ProfileState }>) {
               key={chapter.id}
               onClick={() => {
                 const element = pages.current
-                element?.scrollTo({ left: index * (element.clientWidth - 16) })
+                element?.scrollTo({ left: index * element.clientWidth })
                 setPage(index)
               }}
               type="button"
