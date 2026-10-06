@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "tool": "built-in Image Generation",
   "characterId": "fenna-fox",
   "sequence": "garden-walk",
@@ -23,22 +23,162 @@
       "W4"
     ]
   },
+  "previousVersion": {
+    "path": "assets/generated/characters/fenna-fox/garden-walk/generation-record-v1.json",
+    "sha256": "489b001861a1828fee2c82458e6bc75064eb04ff08ed69eaa132fc2276be9a96"
+  },
+  "method": {
+    "rebuildScript": {
+      "path": "assets/generated/characters/fenna-fox/garden-walk/rebuild.py",
+      "sha256": "828406f0b4c23ffed2b5a99d33490c4c2f1eae7303eebe2c2ff6900e05fd134e"
+    },
+    "master": "W1",
+    "invariantRaster": "Head, ears, face, neckerchief, open vest, torso, tail, carrying arm and upright can reused from W1. Only whole-body 19px bob; generated legs and free arm selected by masks. No subject pixels drawn.",
+    "normalization": {
+      "scale": 0.928,
+      "offsetX": 24,
+      "offsetY": 43,
+      "cellDimensions": [
+        627,
+        627
+      ]
+    },
+    "legs": "Generated lower-leg rasters fitted from waist cutoffs 481/451/481/455 to baseline 572, with horizontal join offsets 0/-12/-8/-6 px; original toe marks preserved.",
+    "palette": {
+      "sourcePalette": {
+        "fur": [
+          254,
+          109,
+          2
+        ],
+        "vest": [
+          246,
+          146,
+          2
+        ],
+        "neckerchief": [
+          19,
+          137,
+          212
+        ],
+        "muzzle": [
+          252,
+          231,
+          207
+        ],
+        "tail": [
+          254,
+          111,
+          2
+        ]
+      },
+      "waterPalette": {
+        "fur": [
+          250,
+          103,
+          3
+        ],
+        "vest": [
+          236,
+          145,
+          5
+        ],
+        "neckerchief": [
+          43,
+          122,
+          194
+        ],
+        "muzzle": [
+          250,
+          228,
+          204
+        ],
+        "tail": [
+          249,
+          101,
+          2
+        ]
+      },
+      "dominantFur": [
+        250,
+        103,
+        3
+      ],
+      "waterDominantFur": [
+        252,
+        100,
+        1
+      ],
+      "baseline": 572,
+      "bob": 19,
+      "bodyCenterX": 320,
+      "alphaBounds": [
+        [
+          121,
+          81,
+          521,
+          572
+        ],
+        [
+          121,
+          62,
+          521,
+          572
+        ],
+        [
+          121,
+          81,
+          521,
+          572
+        ],
+        [
+          121,
+          62,
+          521,
+          572
+        ]
+      ]
+    },
+    "legHorizontalOffsets": [
+      0,
+      -12,
+      -8,
+      -6
+    ],
+    "componentCleanup": "Existing character_alpha connected-component helper removes detached W1 leg-edge islands from the master (minimum100 pixels), preserving subject silhouettes."
+  },
   "frames": [
     {
       "frameId": "W1",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W1.png",
-        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W1.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W1 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing stride with the front foot forward. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png",
+          "sha256": "9cef3587c283a61992799593617469b9e3c9fbe9d83545c908ad99ae967eacc3"
+        },
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/review/water-reference.png",
+          "sha256": "ee7f54f36cab6c12552fca85d2ff2087d689a31fc5d37429c056ff91646a4165"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W1/final-frame.png",
+          "sha256": "1f25c49fd3ddbdc0bd19aa2d94aaa40cbe328a9839ba463538067b17a98c89b6"
+        }
+      ],
+      "prompt": "Use case: illustration-story. Create ONE production sprite W1 for Fenna fox garden walk, square canvas, flat uniform chroma green #00ff00 background. References: image 1 canonical Fenna identity, image 2 her garden water G1 for exact proportions/colors/scale, image 3 approved Miffy W1 for leg/arm phase only. Replace rabbit identity with Fenna. Calm cheerful right-facing profile fox: same large rounded orange head, triangular ears with cream interiors, one black eye, short pointed cream muzzle and black nose, open warm-ochre vest, blue neckerchief, cream tummy, cream feet with two toe lines, bushy orange tail with cream tip trailing left. Carry upright BLUE watering can in bent FRONT paw, spout right, no water. Free far arm swings backward left.\nW1 RIGHT FOOT CONTACT: near/right leg reaches boldly forward toward right, heel planted on ground, toes slightly up; far/left leg reaches back toward left, toes down and heel raised. Broad clear stride with separated feet, children's-book gentle gait. Full body and complete tail/can uncropped. Keep same apparent scale as water G1: if canvas 627px, head top about y82 and body/can center x320, soles y570, can ends x490. Head width about 250px with ears, torso extends y335..520, head/body proportions unchanged from G1. Profile replaces front view, no size jump. Can carried same y420..515 like Miffy, not pouring. Thin restrained smooth black outlines, flat orange and ochre colors, light subtle texture as reference. No flower, grass, floor, shadow, text, border, extra limbs, droplets. Only one sprite.",
       "generatedSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W1/generated-source.png",
-        "sha256": "e7969846a9bb5d80190c09452149284dc9eb6c6caaedde3bc25afac1cef08966"
+        "sha256": "1d56df739d027ed6feed3015d0eaecffb9658ca42100f505517108e819d78f42"
       },
       "rejectedSources": [
         {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W1/rejected-generated-source-1.png",
+          "sha256": "e7969846a9bb5d80190c09452149284dc9eb6c6caaedde3bc25afac1cef08966",
+          "reason": "Version 1 superseded: timid stride, inconsistent head and near-standing passing poses; kept as prior provenance."
+        },
+        {
           "path": "assets/generated/characters/fenna-fox/garden-walk/W1/rejected-generated-source.png",
-          "sha256": "40c0681794e569940871241019eed7de31fd776d3acaab1e694e6b368a602139"
+          "sha256": "40c0681794e569940871241019eed7de31fd776d3acaab1e694e6b368a602139",
+          "reason": "Prior version 1 rejected generation; original review reason not recorded."
         }
       ],
       "alphaCleanup": {
@@ -52,47 +192,70 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W1/alpha-source.png",
-        "sha256": "9a1d07713eba7a38f3095b9332fc17cbed35b7c103b1dc45bf6d9e99cccf0e09"
+        "sha256": "0cb80db931fb80fd3e489af04894a9d899399a6da48a9753d1b44097221ba88b"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 0.928,
+        "offsetX": 24,
+        "offsetY": 43,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 0.968,
-        "offsetX": 8,
-        "offsetY": 38
+        ]
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exact shared master core with 19px bob verified by rebuild assertions; same head, ears, features, torso, vest, neckerchief, carrying arm, can and tail.",
+          "627px transparent cell; four zero-alpha corners; soles reach y572 in all frames; body optical axis at x320.",
+          "Blue upright can reused unchanged, spout right; no water.",
+          "Exact RGB fur, vest, neckerchief, cream muzzle and orange tail swatches mapped to watering G1 anchors; dominant fur walk (250,103,3) vs whole watering sheet (252,100,1), maximum channel delta3.",
+          "Generated leg and free-arm silhouette inspected at full resolution; toe marks retained.",
+          "Broad right contact, near leg forward/far leg behind; backward free arm."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected: rectangular leg masks left W1 rear-foot fragments and clipped generated feet. Masks follow tail/leg contours and fit soles while keeping waist joins.",
+          "Scarf bow preserved separately from swinging arm to prevent a remnant shoulder line.",
+          "Independent review caught lower-body seams, detached thigh pixels and an old thigh spur retained beside the can. Separate source/master contour protection, skin-adjacent outline retention and join offsets resolved them; re-review approved."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W1/final-frame.png",
-        "sha256": "3a8e5cf5c4858c3c1df21121b1c1f6364d6829aeca01a373f6c02314d768ae48"
+        "sha256": "8c5800f4cdbd2683c879507cda3f3916220efaecd58e83516cc3e330cfab824a"
+      },
+      "supportingIdentityReference": {
+        "path": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png",
+        "sha256": "9cef3587c283a61992799593617469b9e3c9fbe9d83545c908ad99ae967eacc3"
+      },
+      "poseReference": {
+        "path": "assets/generated/characters/miffy/garden-walk/W1/final-frame.png",
+        "sha256": "1f25c49fd3ddbdc0bd19aa2d94aaa40cbe328a9839ba463538067b17a98c89b6"
       }
     },
     {
       "frameId": "W2",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W2.png",
-        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W2.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W2 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing passing pose with the feet close. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W1/generated-source.png",
+          "sha256": "1d56df739d027ed6feed3015d0eaecffb9658ca42100f505517108e819d78f42"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W2/final-frame.png",
+          "sha256": "97558ac678a89dae1d40cb9ee4b21d42ec1bc8de008259fd5fef7b1958d2d62d"
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference image 1 (Fenna W1 generated sprite) into ONE sprite W2. Reference image 2 Miffy W2 is only a gait phase guide, NOT identity. Flat uniform chroma green background.\nKeep Fenna's EXACT right-profile head shape/size/ear angles/face/muzzle, neckerchief, open warm ochre vest, orange fur, cream toes with two toe marks, tail size and curve, black line weight and blue upright watering can unchanged. Same canvas/framing/body horizontal center and scale. Front arm stays bent carrying identical blue can upright at same body-relative height, spout right, no water.\nChange only legs and free far arm for W2 LEFT PASSING: near/right support leg straight vertical under hip, foot flat on SAME ground baseline. Far/left thigh swings forward under body, knee bends sharply and cream foot lifts clearly about 55 px above ground (at 627px canvas), passing behind support leg, pointing down/back. Distinct from standing and W4. Move entire head/torso/tail/carrying arm/can up 19px at 627px canvas, body highest point; do not move planted foot baseline. Free far arm swings FORWARD right, visible behind carrying arm nearer chest. Retain 2 legs, complete silhouettes and clean outlines. Follow Miffy passing mechanics. One image only, no water, text, scenery or shadow.",
       "generatedSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W2/generated-source.png",
-        "sha256": "60fed51db4e1096bd799fa38ecc8281a2275a36f19d97de0877fe23febf7ecd9"
+        "sha256": "88f2cb6e5b868b2e1ec3be4c926b88bc59c5069a8636246f1ec0dff01015c374"
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W2/rejected-generated-source-1.png",
+          "sha256": "60fed51db4e1096bd799fa38ecc8281a2275a36f19d97de0877fe23febf7ecd9",
+          "reason": "Version 1 superseded: timid stride, inconsistent head and near-standing passing poses; kept as prior provenance."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -104,47 +267,76 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W2/alpha-source.png",
-        "sha256": "7046beedc6fab5fea367f571e9eacfc008088559b475f1941ecf454f1d5eb76b"
+        "sha256": "c1b44cd8135a516552ab5a57f169f4768d85570804d7d53ad23a9ff0a3f7369d"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 0.928,
+        "offsetX": 24,
+        "offsetY": 43,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 1.029,
-        "offsetX": -43,
-        "offsetY": 32
+        ]
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exact shared master core with 19px bob verified by rebuild assertions; same head, ears, features, torso, vest, neckerchief, carrying arm, can and tail.",
+          "627px transparent cell; four zero-alpha corners; soles reach y572 in all frames; body optical axis at x320.",
+          "Blue upright can reused unchanged, spout right; no water.",
+          "Exact RGB fur, vest, neckerchief, cream muzzle and orange tail swatches mapped to watering G1 anchors; dominant fur walk (250,103,3) vs whole watering sheet (252,100,1), maximum channel delta3.",
+          "Generated leg and free-arm silhouette inspected at full resolution; toe marks retained.",
+          "Left passing with right support shin vertical, left foot lifted behind; forward free arm."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected: rectangular leg masks left W1 rear-foot fragments and clipped generated feet. Masks follow tail/leg contours and fit soles while keeping waist joins.",
+          "Scarf bow preserved separately from swinging arm to prevent a remnant shoulder line.",
+          "Independent review caught lower-body seams, detached thigh pixels and an old thigh spur retained beside the can. Separate source/master contour protection, skin-adjacent outline retention and join offsets resolved them; re-review approved."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W2/final-frame.png",
-        "sha256": "8889425ff95588e6ea0dd8a5f7ef25617487e8f411566344488966f5adabe2f7"
+        "sha256": "1a863d692ab2f96ab1f7b5ef327f81a79fc1469aa544fc13c4a5fbb5971c6461"
+      },
+      "supportingIdentityReference": {
+        "path": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png",
+        "sha256": "9cef3587c283a61992799593617469b9e3c9fbe9d83545c908ad99ae967eacc3"
+      },
+      "poseReference": {
+        "path": "assets/generated/characters/miffy/garden-walk/W2/final-frame.png",
+        "sha256": "97558ac678a89dae1d40cb9ee4b21d42ec1bc8de008259fd5fef7b1958d2d62d"
       }
     },
     {
       "frameId": "W3",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W3.png",
-        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W3.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W3 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing opposite stride. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W3/rejected-generated-source-2.png",
+          "sha256": "947abd7b063cf5dc0aa5a9db789b80139c2d2a5edcd4eec8c038010bf6e163a7"
+        },
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W1/generated-source.png",
+          "sha256": "1d56df739d027ed6feed3015d0eaecffb9658ca42100f505517108e819d78f42"
+        }
+      ],
+      "prompt": "Use case: precise-object-edit. Edit reference 1 Fenna W3. Keep ALL head/ears/face/scarf/vest/arms/tail/can/colors/scale/framing/background pixels unchanged. Change ONLY both legs below vest. This must be the OPPOSITE CONTACT from W1 (reference 2).\nImportant leg overlap correction: NEAR visible leg goes BACKWARD DOWN LEFT from RIGHT hip, laid OVER the FAR leg which reaches FORWARD DOWN RIGHT from LEFT hip. At crotch draw the existing black leg separation as a diagonal sloping DOWN RIGHT, NOT down left. The back-reaching left-side foot is near viewer, orange shin overlaps other leg at center and heel rises while cream toe points down touching baseline. The far forward right-side cream foot has heel on same baseline, toes up slightly. Broad calm stride with two clearly separated feet and exact same toe marks, fur/cream fills and line weight. W3 lower body silhouette slightly different from W1, legs explicitly reverse depth ordering. NO extra leg, no limb outline through vest or can. Can upright spout right no water. All other parts identical to reference1. Flat chroma green, one sprite only, no shadow/text/scenery.",
       "generatedSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W3/generated-source.png",
-        "sha256": "5a988665df9103485b9da4c882d43697ebe7e120aa23052e5c0f44071452347f"
+        "sha256": "ed13996b1e2251f92ccbd50a578b92c88ee01a856a5f8e301216a5fe15d8a330"
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W3/rejected-generated-source-1.png",
+          "sha256": "5a988665df9103485b9da4c882d43697ebe7e120aa23052e5c0f44071452347f",
+          "reason": "Version 1 superseded: timid stride, inconsistent head and near-standing passing poses; kept as prior provenance."
+        },
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W3/rejected-generated-source-2.png",
+          "sha256": "947abd7b063cf5dc0aa5a9db789b80139c2d2a5edcd4eec8c038010bf6e163a7",
+          "reason": "First v2 W3 retained W1-like leg overlap; regenerated to clarify near rear-leg overlap.",
+          "prompt": "Use case: identity-preserve. Edit reference image 1 Fenna W1 into ONE production sprite W3 opposite contact. Reference image 2 Miffy W3 gives free-arm and stride phase only. Flat uniform chroma green #00ff00 background.\nKeep Fenna exact head silhouette, pointed cream muzzle, ears/angle, one black eye/nose/mouth, neckerchief, open warm ochre vest, orange fur, cream tummy, bushy orange tail with cream tip, outlines, canvas scale and all upper-body positions unchanged. Carrying near/right arm stays bent holding SAME upright blue watering can, same model/size/angle/body-relative height, spout right, never pouring. Body same low height as W1.\nW3 LEFT FOOT CONTACT: FAR/LEFT leg reaches FORWARD right, cream foot heel planted, toes slightly up; NEAR/RIGHT leg reaches BACK left, cream foot toe planted and heel raised. Strong clear opposite stride: legs overlap in reverse depth order compared with W1, near backward leg and its hip seam visible in front, far forward leg behind. Same foot baseline and stride width as W1. Retain TWO black toe marks on every foot. Free far arm swings FORWARD RIGHT, its cream paw visible to right of vest behind carrying arm, like Miffy W3. Complete character/tail/can unclipped. Do not merely duplicate W1. No shadows, scenery, flowers, water, extra limbs, text."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -156,47 +348,80 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W3/alpha-source.png",
-        "sha256": "1ed0cbdb7382f37d276508110f8459a6dfae6e1bace9dd0f496501f87a611e5c"
+        "sha256": "bb2906673d0a2d73c6d262f24e011bd04b98d5c4259cd0b906056242defacc01"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 0.928,
+        "offsetX": 24,
+        "offsetY": 43,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 1.026,
-        "offsetX": -8,
-        "offsetY": 23
+        ]
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exact shared master core with 19px bob verified by rebuild assertions; same head, ears, features, torso, vest, neckerchief, carrying arm, can and tail.",
+          "627px transparent cell; four zero-alpha corners; soles reach y572 in all frames; body optical axis at x320.",
+          "Blue upright can reused unchanged, spout right; no water.",
+          "Exact RGB fur, vest, neckerchief, cream muzzle and orange tail swatches mapped to watering G1 anchors; dominant fur walk (250,103,3) vs whole watering sheet (252,100,1), maximum channel delta3.",
+          "Generated leg and free-arm silhouette inspected at full resolution; toe marks retained.",
+          "Left contact with near rear leg crossing over far forward leg; forward free arm."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected: rectangular leg masks left W1 rear-foot fragments and clipped generated feet. Masks follow tail/leg contours and fit soles while keeping waist joins.",
+          "Scarf bow preserved separately from swinging arm to prevent a remnant shoulder line.",
+          "Independent review caught lower-body seams, detached thigh pixels and an old thigh spur retained beside the can. Separate source/master contour protection, skin-adjacent outline retention and join offsets resolved them; re-review approved."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W3/final-frame.png",
-        "sha256": "b6f9e13a17a849acda50e7629415be82289b58575448c54880e07d785cb81929"
+        "sha256": "1710bfdc02245ed0801cefb9f34eba7e80238b3418281e5e9311a6a737032c96"
+      },
+      "retakeReferences": [
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W3/rejected-generated-source-2.png",
+          "sha256": "947abd7b063cf5dc0aa5a9db789b80139c2d2a5edcd4eec8c038010bf6e163a7"
+        },
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W1/generated-source.png",
+          "sha256": "1d56df739d027ed6feed3015d0eaecffb9658ca42100f505517108e819d78f42"
+        }
+      ],
+      "supportingIdentityReference": {
+        "path": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png",
+        "sha256": "9cef3587c283a61992799593617469b9e3c9fbe9d83545c908ad99ae967eacc3"
+      },
+      "poseReference": {
+        "path": "assets/generated/characters/miffy/garden-walk/W3/final-frame.png",
+        "sha256": "a698508cce53957629b1df9adca7722ea33ab2a90a4c4fca5403dcc413513a17"
       }
     },
     {
       "frameId": "W4",
-      "references": {
-        "reference1Pose": "assets/generated/characters/miffy/garden-walk/reference-1-frames/W4.png",
-        "reference2Identity": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png"
-      },
-      "prompt": "USE CASE / OUTPUT\nCreate one production raster frame for garden-walk / W4.\nOutput exact 627:627 aspect, one character, flat chroma-key green background, no text.\n\nREFERENCE ROLES\nReference 1 is the active Miffy W4 pose-and-composition contract. Preserve its exact action phase, camera, framing, optical center, negative space, prop location/angle/endpoints, baseline, and padding.\nReference 2 is the identity contract. Replace Miffy with Fenna, the approved fox; preserve the canonical silhouette, face, fixed colors, and wardrobe. Do not blend species or retain rabbit features.\n\nSEMANTIC STATE\nright-facing second passing pose. Face right. This is one reviewed frame only, not a generic pose or animation sheet.\n\nSTYLE / FRAMING\nUse simple flat children's-book color and restrained black linework. Keep the complete character and every required prop uncropped. Match the neighboring frame's apparent scale, line weight, colors, baseline, and composition. Use only flat chroma behind the subject.\n\nINVARIANTS\nKeep open warm-ochre vest, blue neckerchief, visible tail, and toe-line marks unchanged. Keep the complete upright blue watering can unchanged and do not add water.\n\nAVOID\nNo Miffy or rabbit identity, pink dress, extra limbs, extra props, flowers, plants, scenery, shadows, text, logo, watermark, border, or droplets beyond the semantic frame.",
+      "references": [
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W1/generated-source.png",
+          "sha256": "1d56df739d027ed6feed3015d0eaecffb9658ca42100f505517108e819d78f42"
+        },
+        {
+          "path": "assets/generated/characters/miffy/garden-walk/W4/final-frame.png",
+          "sha256": "4b312dcc87fe482c346bb051ce1823bc603c927e3fb452dae8fbf347ded5f54a"
+        }
+      ],
+      "prompt": "Use case: identity-preserve. Edit reference image 1 Fenna W1 into ONE W4 right-passing sprite. Reference image 2 Miffy W4 is the required leg silhouette. Flat uniform chroma green.\nKeep exact Fenna right-facing profile head, ears/angle, features, muzzle, proportions, fur and clothing colors, open ochre vest, blue neckerchief, tail shape/size, black outline weight and watering can model/size/angle. Same framing/body center. Carrying arm bent holding upright blue can spout right, no water; same body-relative height.\nW4 LEFT SUPPORT / RIGHT LIFTS: far LEFT leg straight VERTICAL down from LEFT hip, planted cream foot centered slightly LEFT of body center. Near RIGHT knee bends FORWARD to RIGHT and cream foot floats CLEARLY TO THE RIGHT of the support shin about 50px above baseline (627px equivalent). The lifted foot must appear on RIGHT side of supporting leg, like Miffy W4. Visually opposite to W2 where lifted foot hangs behind to left. Every cream foot retains TWO black toe marks. Whole torso/head/tail/can bob UP 19px (627px equivalent), but planted sole stays same baseline. Free far arm swings BACK LEFT as original W1. Complete character/can/tail uncropped; strong clear passing pose, TWO legs only. No shadows/scenery/text/extra limbs/droplets.",
       "generatedSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W4/generated-source.png",
-        "sha256": "a5bc4f31e3b519e3906187845898258e86a184a7beae4d9b368516025172c8ec"
+        "sha256": "bf976b3b15bceb9f234a45ad2dcf9663ac2661db9f548999cafe92dcb52e86b7"
       },
-      "rejectedSources": [],
+      "rejectedSources": [
+        {
+          "path": "assets/generated/characters/fenna-fox/garden-walk/W4/rejected-generated-source-1.png",
+          "sha256": "a5bc4f31e3b519e3906187845898258e86a184a7beae4d9b368516025172c8ec",
+          "reason": "Version 1 superseded: timid stride, inconsistent head and near-standing passing poses; kept as prior provenance."
+        }
+      ],
       "alphaCleanup": {
         "helper": "~/.codex/skills/.system/imagegen/scripts/remove_chroma_key.py",
         "autoKey": "border",
@@ -208,41 +433,89 @@
       },
       "alphaSource": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W4/alpha-source.png",
-        "sha256": "56afde63bd5b7aae943b253051f400f649eecaebc4649ca7770ed2e1782134b2"
+        "sha256": "3e287ec94f17faf185a5fa85efd9efcf4e41195a64c72ab9f63978f4132d59e6"
       },
       "normalization": {
-        "method": "reviewed raster resize and transparent-canvas translation only",
-        "targetDimensions": [
+        "scale": 0.928,
+        "offsetX": 24,
+        "offsetY": 43,
+        "cellDimensions": [
           627,
           627
-        ],
-        "scale": 1.002,
-        "offsetX": -39,
-        "offsetY": 24
+        ]
       },
       "review": {
         "status": "approved",
-        "checks": [
-          "active runtime reference frame",
-          "identity and fixed wardrobe",
-          "action phase and pose landmarks",
-          "baseline, crop, apparent scale, and prop endpoints",
-          "frame-specific droplet count and placement",
-          "transparent corners, fringe, and complete silhouette",
-          "original-resolution inspection and sequence continuity"
+        "notes": [
+          "Exact shared master core with 19px bob verified by rebuild assertions; same head, ears, features, torso, vest, neckerchief, carrying arm, can and tail.",
+          "627px transparent cell; four zero-alpha corners; soles reach y572 in all frames; body optical axis at x320.",
+          "Blue upright can reused unchanged, spout right; no water.",
+          "Exact RGB fur, vest, neckerchief, cream muzzle and orange tail swatches mapped to watering G1 anchors; dominant fur walk (250,103,3) vs whole watering sheet (252,100,1), maximum channel delta3.",
+          "Generated leg and free-arm silhouette inspected at full resolution; toe marks retained.",
+          "Right passing with left support shin vertical, right foot lifted ahead; backward free arm."
+        ],
+        "iterationNotes": [
+          "Initial composite rejected: rectangular leg masks left W1 rear-foot fragments and clipped generated feet. Masks follow tail/leg contours and fit soles while keeping waist joins.",
+          "Scarf bow preserved separately from swinging arm to prevent a remnant shoulder line.",
+          "Independent review caught lower-body seams, detached thigh pixels and an old thigh spur retained beside the can. Separate source/master contour protection, skin-adjacent outline retention and join offsets resolved them; re-review approved."
         ]
       },
       "finalFrame": {
         "path": "assets/generated/characters/fenna-fox/garden-walk/W4/final-frame.png",
-        "sha256": "ab13c3bb9874bd962d68e46f9c326aa6a962aeeead674279a8901d070d12ed91"
+        "sha256": "fc1e4b8c27923f77dcc94c9a98ec3f985a04b3f66a5a7c9be760e99aca868c07"
+      },
+      "supportingIdentityReference": {
+        "path": "assets/generated/characters/fenna-fox/home-reference/canonical-full-body-home.png",
+        "sha256": "9cef3587c283a61992799593617469b9e3c9fbe9d83545c908ad99ae967eacc3"
+      },
+      "poseReference": {
+        "path": "assets/generated/characters/miffy/garden-walk/W4/final-frame.png",
+        "sha256": "4b312dcc87fe482c346bb051ce1823bc603c927e3fb452dae8fbf347ded5f54a"
       }
     }
   ],
+  "sequenceReview": {
+    "sideBySide": {
+      "path": "assets/generated/characters/fenna-fox/garden-walk/review/frames-side-by-side.png",
+      "sha256": "e62e3d5fa2f07f0fc44f39f8fcbb6d8f689b1412f20c67f0b653aa8deab9df97"
+    },
+    "loop": {
+      "path": "assets/generated/characters/fenna-fox/garden-walk/review/walk-loop.gif",
+      "sha256": "904d662707c7b3b144a1d9e444f690c7b24de657944428ae23941ed4bbd166af"
+    },
+    "htmlPreview": {
+      "path": "assets/generated/characters/fenna-fox/garden-walk/review/preview.html",
+      "sha256": "5850d6787515491356d7bebeaaaa052db10e0a6458dcc3bc55d1c0beae2a6979"
+    },
+    "waterComparison": {
+      "path": "assets/generated/characters/fenna-fox/garden-walk/review/walk-water-comparison.png",
+      "sha256": "e555e807a2cba6f74b6e51d5355acd785f27648b99109f324036b25a9a5b76de"
+    },
+    "metrics": {
+      "path": "assets/generated/characters/fenna-fox/garden-walk/review/metrics.json",
+      "sha256": "49daab21b4e5f59cc64c9ca3db647c1b81467ca14111a621312d1564e12035a2"
+    },
+    "wateringSheetUnchanged": {
+      "path": "apps/app/public/characters/fenna-fox/garden-water-sheet.webp",
+      "sha256": "85fa7bb439fd5b568f4f256d2747c52ede567cd946598fbe01d7b5bcc1bddd58"
+    },
+    "rosterReference": {
+      "path": "assets/generated/characters/roster-reference/canonical-full-body-home-roster-normalized.png",
+      "sha256": "5efb787beb7f245590e209a22cc9c2109d0fe22f9a2fce5c1fdcd750cca11d06"
+    },
+    "notes": [
+      "Contacts have same low body/head height; passings are exactly 19px higher, with fixed sole baseline.",
+      "Four-phase GIF uses durations 140/150/140/150 ms = 580 ms loop; HTML mirrors the app steps animation and includes a left-facing mirror.",
+      "Head/can/tail do not resize or rotate; right-facing profile compared with unchanged frontal watering G1 at the same cell size.",
+      "HTML browser playback blocked by declined browser permission; GIF opened locally in Finder Quick Look.",
+      "Independent review approved the final can/thigh joins; no remaining substantive findings. Full pnpm check passed and React Doctor found no issues (100/100)."
+    ]
+  },
   "assembly": {
-    "method": "lossless reviewed-frame sheet assembly only",
+    "method": "Existing helper assembles exact lossless 2x2 sheet; canonical hidden RGB retained with exact WebP encoding.",
     "runtimeAsset": {
-      "path": "apps/web/public/characters/fenna-fox/garden-walk-sheet.webp",
-      "sha256": "e78424a95f1496c86082edfd4f450df3bab078bd41663998a8f44025535f7b17"
+      "path": "apps/app/public/characters/fenna-fox/garden-walk-sheet.webp",
+      "sha256": "3db0e76c65b85a5cf1ad6fff4d3328cba19f671a0a32d169ecaffb34c24979a7"
     }
   }
 }
