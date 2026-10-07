@@ -6,7 +6,8 @@ window and must not touch other workloads or the Mongo volume. Pre-production
 (`preprod/PREPROD_RUNBOOK.md`) rehearses the same export and import beside production.
 
 Until it is done, deploying on merge stays paused (repository variable `DEPLOY_ON_MERGE`). Every
-CI run builds and smoke-tests the release (`little-tables-<commit>` artifact).
+CI run builds and smoke-tests the release; runs on `main` keep it as the `little-tables-<commit>`
+artifact.
 
 ## What changes
 
