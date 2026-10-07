@@ -13,7 +13,9 @@ describe('a child’s first day', { serial: true }, () => {
 
   test('waters the garden with a practice session', async ({ agent, screen }) => {
     await screen.getByRole('button', 'Arroser mon jardin').tap()
-    await agent.act('answer every question of the session correctly until it ends')
+    await agent.act(
+      'answer every question of the session until it ends: work out each result first, then tap the answer showing exactly that number, and tap "Suivant" or "Continuer" to move on',
+    )
     await agent.assert('the session is over and the child is congratulated')
     await agent.act('go back to the "Aujourd’hui" screen')
     await expect(screen.getByRole('link', 'Aujourd’hui')).toBeVisible()
