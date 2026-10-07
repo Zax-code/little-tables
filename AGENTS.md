@@ -10,10 +10,9 @@ A Rust workspace (`crates/`) and a pnpm workspace:
 - `apps/e2e/`: agentic end-to-end tests with e2e (tester.army) against the built app and the server without sign-in; see its README.
 - `packages/engine/`, `packages/api-contract/`, `packages/ui/`: the engine facade, the `/api/v2` client and the design system.
 - `tools/golden/`: the frozen TypeScript engine that produced the golden vectors; `assets/`: artwork sources.
-- `deploy/`: the systemd release units, deployment and backup scripts, Caddy fragments, the pre-production setup, and the Quadlets production runs until the switch.
+- `deploy/`: the systemd release units, deployment and backup scripts, Caddy fragments and the pre-production setup.
 - `.github/workflows/pipeline.yml`: CI in parallel jobs (web app, Rust checks, server binary), the
-  smoke-tested release archive and production deployment; `deployment.yml` validates the Quadlets
-  only when `deploy/` changes.
+  smoke-tested release archive and production deployment.
 
 Keep tests beside their implementation as `*.test.ts`. Do not edit generated `dist/` output.
 

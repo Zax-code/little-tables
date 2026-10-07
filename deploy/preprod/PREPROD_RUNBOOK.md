@@ -1,15 +1,20 @@
 # Pre-production beside production
 
 `math-preprod.leaetzak.love` runs the Rust server and the new app on a copy of production data,
-while `math.leaetzak.love` keeps running unchanged (Node image and MongoDB). It lets the family try
-the rewrite before the switch described in `../RUST_CUTOVER_RUNBOOK.md`.
+while `math.leaetzak.love` keeps serving. It let the family try the rewrite before the switch
+recorded in `../RUST_CUTOVER_RUNBOOK.md`; it can still run a release beside production.
 
-| Production                         | Pre-production                                       |
-| ---------------------------------- | ---------------------------------------------------- |
-| Quadlets on `127.0.0.1:32140`      | `little-tables-preprod.service` on `127.0.0.1:32141` |
-| MongoDB volume                     | `/var/lib/little-tables-preprod/little-tables.db`    |
-| `/etc/little-tables/`              | `/etc/little-tables-preprod/little-tables.env`       |
-| Daily reminders with the prod keys | Its own VAPID keys; no subscription copied from prod |
+Steps 2 and 3 date from the MongoDB era: the exporter image and the MongoDB it read are gone.
+To refresh the copy today, restore a production backup from `/var/backups/little-tables/` as
+`/var/lib/little-tables-preprod/little-tables.db` (owned by `little-tables-preprod`), then drop
+the copied push subscriptions as step 3 does.
+
+| Production                                   | Pre-production                                       |
+| -------------------------------------------- | ---------------------------------------------------- |
+| `little-tables.service` on `127.0.0.1:32140` | `little-tables-preprod.service` on `127.0.0.1:32141` |
+| `/var/lib/little-tables/little-tables.db`    | `/var/lib/little-tables-preprod/little-tables.db`    |
+| `/etc/little-tables/`                        | `/etc/little-tables-preprod/little-tables.env`       |
+| Daily reminders with the prod keys           | Its own VAPID keys; no subscription copied from prod |
 
 The two never share state: answers given on pre-production stay there. Refreshing the copy repeats
 steps 2 to 4 on an empty database.
