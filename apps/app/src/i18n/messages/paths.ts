@@ -98,7 +98,6 @@ export const en = {
   'home.newPathAction': 'let’s go',
   'home.newPathCopy':
     'Your tables are well rooted. Additions, big numbers and fractions will now visit your watering, a little at a time.',
-  'home.newPathDismiss': 'Close the new paths message',
   'home.newPathHeading': 'new paths are opening in your garden ♡',
   'home.pathsHeading': 'the new paths',
   'level.columnAdd': 'written addition',
@@ -333,7 +332,6 @@ export const fr: Messages = {
   'home.newPathAction': 'on y va',
   'home.newPathCopy':
     'Tes tables sont bien ancrées. Les additions, les grands nombres et les fractions vont venir dans ton arrosage, tout doucement.',
-  'home.newPathDismiss': 'Fermer le message des nouveaux sentiers',
   'home.newPathHeading': 'de nouveaux sentiers s’ouvrent dans ton jardin ♡',
   'home.pathsHeading': 'les nouveaux sentiers',
   'level.columnAdd': 'addition posée',
@@ -555,7 +553,6 @@ export const zh: Messages = {
   'hint.readLabel': '数一数份数',
   'home.newPathAction': '出发吧',
   'home.newPathCopy': '你的乘法表已经很扎实啦。加减法、大数和分数会慢慢走进你的每日浇水。',
-  'home.newPathDismiss': '关闭新小路的消息',
   'home.newPathHeading': '花园里开出了新的小路 ♡',
   'home.pathsHeading': '新的小路',
   'level.columnAdd': '竖式加法',

@@ -22,12 +22,7 @@ export function ReminderTimeSheet({
   const [minute, setMinute] = useState(() => child.reminderMinute ?? DEFAULT_REMINDER_MINUTE)
   const [saving, setSaving] = useState(false)
   return (
-    <Sheet
-      closeLabel={t('common.close')}
-      onOpenChange={onOpenChange}
-      open={open}
-      title={t('child.reminderTime')}
-    >
+    <Sheet onOpenChange={onOpenChange} open={open} title={t('child.reminderTime')}>
       <div className="flex flex-col gap-4">
         <p className="text-subhead font-semibold text-label-2">
           {t('child.reminderTimeCopy', { name: child.name })}

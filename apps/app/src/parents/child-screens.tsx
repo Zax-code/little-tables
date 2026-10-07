@@ -295,12 +295,7 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
         open={choosingTime}
       />
 
-      <Sheet
-        closeLabel={t('common.close')}
-        onOpenChange={setChoosing}
-        open={choosing}
-        title={t('child.characterTitle')}
-      >
+      <Sheet onOpenChange={setChoosing} open={choosing} title={t('child.characterTitle')}>
         <CharacterGrid
           onPick={(picked) => {
             void save({ avatarId: avatarOf[picked] })
@@ -310,12 +305,7 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
         />
       </Sheet>
 
-      <Sheet
-        closeLabel={t('common.close')}
-        onOpenChange={setRenaming}
-        open={renaming}
-        title={t('child.rename')}
-      >
+      <Sheet onOpenChange={setRenaming} open={renaming} title={t('child.rename')}>
         <form className="flex flex-col gap-3" onSubmit={rename}>
           <TextField
             counter={`${Array.from(name).length}/40`}

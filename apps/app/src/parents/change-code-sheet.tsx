@@ -90,7 +90,7 @@ export function ChangeCodeSheet({
         : 'lock.confirmTitle',
   )
   return (
-    <Sheet closeLabel={t('common.close')} onOpenChange={close} open={open} title={t('lock.change')}>
+    <Sheet onOpenChange={close} open={open} title={t('lock.change')}>
       <div className="flex flex-col items-center gap-5 pb-4 text-center">
         <h3 className="text-headline font-extrabold">{title}</h3>
         <p aria-live="polite" className="min-h-6 text-subhead font-semibold text-label-2">

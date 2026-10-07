@@ -291,7 +291,6 @@ function VerbSheet({
           .join(' · ')
   return (
     <Sheet
-      closeLabel={t('common.close')}
       {...(description === undefined ? {} : { description })}
       onOpenChange={onOpenChange}
       open={verb !== null && table !== null}

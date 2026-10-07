@@ -14,12 +14,7 @@ export function WhoPlaysSheet({ onOpenChange, open }: WhoPlaysSheetProps) {
   const { t } = useI18n()
   const navigate = useNavigate()
   return (
-    <Sheet
-      closeLabel={t('common.close')}
-      onOpenChange={onOpenChange}
-      open={open}
-      title={t('whoPlays.title')}
-    >
+    <Sheet onOpenChange={onOpenChange} open={open} title={t('whoPlays.title')}>
       <ul className="grid grid-cols-3 gap-3">
         {family.profiles.map((profile) => {
           const selected = profile.id === activeProfile.id
