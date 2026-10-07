@@ -11,6 +11,6 @@
     "effect": "^3.21.4"
   },
   "devDependencies": {
-    "tsx": "^4.23.1"
+    "tsx": "^4.23.15"
   }
 }
