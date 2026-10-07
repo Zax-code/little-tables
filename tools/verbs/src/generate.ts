@@ -14,7 +14,7 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { gzipSync } from 'node:zlib'
+import { gunzipSync, gzipSync } from 'node:zlib'
 
 type Forms = ReadonlyArray<string | null>
 type Entry = Readonly<{
@@ -108,7 +108,9 @@ for (const [path, content] of outputs) {
         return null
       }
     })()
-    if (!current?.equals(Buffer.from(content))) {
+    // gzip bytes depend on the zlib build (macOS, Linux): compare what they hold.
+    const comparable = (bytes: Buffer) => (path.endsWith('.gz') ? gunzipSync(bytes) : bytes)
+    if (current === null || !comparable(current).equals(comparable(Buffer.from(content)))) {
       console.error(`${path} is out of date: run pnpm --filter @little-tables/verbs generate`)
       stale = true
     }
