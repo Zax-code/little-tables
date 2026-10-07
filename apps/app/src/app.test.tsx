@@ -374,8 +374,8 @@ describe('the new app', () => {
           expect(screen.getByText(form, { selector: 'span' })).toBeInTheDocument()
           await user.click(screen.getByRole('button', { name: 'Valider' }))
         } else {
-          // An iPad keyboard: letters, a slip erased with backspace, then Enter.
-          await user.keyboard(`${form}e{Backspace}{Enter}`)
+          // An iPad keyboard: letters, the last one erased and typed again, then Enter.
+          await user.keyboard(`${form}{Backspace}${form.slice(-1)}{Enter}`)
         }
         written += 1
         expect(await screen.findByText(`Oui ! ${form} ♡`)).toBeInTheDocument()
