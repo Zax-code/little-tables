@@ -157,6 +157,8 @@ export type AnswerTilesProps<Value> = Readonly<{
   speak?: (value: Value) => string
   stateOf?: (value: Value, index: number) => TileState
   values: ReadonlyArray<Value>
+  /** `word` fits written forms such as « finissaient » on the tiles. */
+  size?: 'number' | 'word'
 }>
 
 /** Two columns of large answer tiles. */
@@ -166,6 +168,7 @@ export function AnswerTiles<Value>({
   label,
   onPick,
   render,
+  size = 'number',
   speak,
   stateOf,
   values,
@@ -179,7 +182,10 @@ export function AnswerTiles<Value>({
             aria-label={speak?.(value)}
             aria-pressed={state === 'correct' || state === 'wrong'}
             className={cn(
-              'flex min-h-24 items-center justify-center rounded-[1.5rem] border-2 text-[2.5rem] font-black tabular transition-[transform,opacity] active:scale-[0.97]',
+              'flex min-h-24 items-center justify-center rounded-[1.5rem] border-2 font-black tabular transition-[transform,opacity] active:scale-[0.97]',
+              size === 'word'
+                ? 'px-2 text-[1.625rem] leading-tight [overflow-wrap:anywhere]'
+                : 'text-[2.5rem]',
               'shadow-[0_3px_0_var(--lt-separator)]',
               state === 'correct' && 'border-leaf bg-leaf-soft text-leaf',
               state === 'wrong' && 'border-sun bg-sun-soft text-sun',
@@ -337,5 +343,152 @@ export function CharacterDock({ bubble, className, label, pose, poses }: Charact
         width={size.width}
       />
     </div>
+  )
+}
+
+/* ------------------------------------------------------------------------------------------ */
+/* Conjugation                                                                                */
+/* ------------------------------------------------------------------------------------------ */
+
+export type LetterKey = Readonly<{ index: number; letter: string }> | 'erase' | 'submit'
+
+export type LetterBankProps = Readonly<{
+  className?: string
+  disabled?: boolean
+  eraseLabel: string
+  /** Names the tiles for assistive technologies. */
+  label: string
+  letters: ReadonlyArray<string>
+  onKey: (key: LetterKey) => void
+  /** How a space tile is read out. */
+  spaceLabel: string
+  submitDisabled?: boolean
+  submitLabel: string
+  /** Indexes of the tiles already used in the answer. */
+  used: ReadonlyArray<number>
+}>
+
+/** Letter tiles to write a word with, six to a row, then erase and submit (mockup C12). */
+export function LetterBank({
+  className,
+  disabled = false,
+  eraseLabel,
+  label,
+  letters,
+  onKey,
+  spaceLabel,
+  submitDisabled = false,
+  submitLabel,
+  used,
+}: LetterBankProps) {
+  const key =
+    'flex h-14 items-center justify-center rounded-[1.125rem] font-extrabold transition-[transform,opacity] active:scale-95 shadow-[0_2px_0_var(--lt-separator)]'
+  return (
+    <div className={cn('flex flex-col gap-2', className)} role="group" aria-label={label}>
+      <div className="grid grid-cols-6 gap-1.5">
+        {letters.map((letter, index) => {
+          const spent = used.includes(index)
+          return (
+            <button
+              aria-disabled={spent}
+              aria-label={letter === ' ' ? spaceLabel : letter}
+              className={cn(
+                key,
+                'text-[1.625rem]',
+                spent
+                  ? 'bg-surface-2 text-label-3 opacity-45 shadow-none'
+                  : 'bg-surface text-label',
+              )}
+              disabled={disabled || spent}
+              key={index}
+              onClick={() => onKey({ index, letter })}
+              type="button"
+            >
+              {letter === ' ' ? '␣' : letter}
+            </button>
+          )
+        })}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          aria-label={eraseLabel}
+          className={cn(key, 'bg-surface-2 text-label')}
+          disabled={disabled}
+          onClick={() => onKey('erase')}
+          type="button"
+        >
+          <Delete aria-hidden className="size-6" />
+        </button>
+        <button
+          aria-label={submitLabel}
+          className={cn(key, 'bg-tint text-[1.75rem] text-on-tint disabled:opacity-45')}
+          disabled={disabled || submitDisabled}
+          onClick={() => onKey('submit')}
+          type="button"
+        >
+          ✓
+        </button>
+      </div>
+    </div>
+  )
+}
+
+export type VerbChipProps = Readonly<{ className?: string; tense: string; verb: string }>
+
+/** « finir · au présent », above every conjugation question. */
+export function VerbChip({ className, tense, verb }: VerbChipProps) {
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center rounded-full bg-sky-soft px-3.5 py-1.5 text-subhead font-extrabold text-sky',
+        className,
+      )}
+      lang="fr"
+    >
+      {verb} · {tense}
+    </span>
+  )
+}
+
+export type FormPartRole = 'auxiliary' | 'ending' | 'mark' | 'stem'
+
+export type FormBreakdownProps = Readonly<{
+  className?: string
+  parts: ReadonlyArray<Readonly<{ role: FormPartRole; text: string }>>
+  /** Underline each part, as in a hint; the parent's sheet only colours them. */
+  underline?: boolean
+}>
+
+const partColour: Readonly<Record<FormPartRole, string>> = {
+  auxiliary: 'text-sky',
+  ending: 'text-tint',
+  mark: 'text-sky',
+  stem: 'text-label',
+}
+
+/** A written form split into stem, tense mark and person ending (« fin · iss · ent »). */
+export function FormBreakdown({ className, parts, underline = false }: FormBreakdownProps) {
+  return (
+    <span
+      className={cn('inline-flex items-end font-black', underline && 'gap-0.5', className)}
+      lang="fr"
+    >
+      {parts.map((part, index) =>
+        part.text.trim() === '' ? (
+          <span key={index}>&nbsp;</span>
+        ) : (
+          <span
+            className={cn(
+              partColour[part.role],
+              underline && 'border-b-4 border-current pb-0.5',
+              underline && index > 0 && 'ml-1',
+            )}
+            key={index}
+          >
+            {part.text}
+          </span>
+        ),
+      )}
+    </span>
   )
 }

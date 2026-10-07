@@ -487,7 +487,14 @@ async fn update_learning_paths(
 ) -> Reply {
     let (family, _) = family(&state, &headers).await?;
     let settings: LearningPathSettings = body(&bytes, "invalid_learning_paths")?;
-    if settings.enabled_skills.len() > 11 {
+    // The catalogue offers the Lefff's verbs; the engine alone would conjugate any -er word.
+    let verbs_offered = settings.conjugation.as_ref().is_none_or(|conjugation| {
+        conjugation
+            .verbs
+            .iter()
+            .all(|verb| lt_domain::conjugation::index::contains(verb))
+    });
+    if !lt_domain::paths::validate_learning_paths(&settings) || !verbs_offered {
         return Err(fail(StatusCode::BAD_REQUEST, "invalid_learning_paths"));
     }
     let profile = state

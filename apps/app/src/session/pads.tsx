@@ -183,6 +183,7 @@ function AnswerFace({ answer }: Readonly<{ answer: PracticeAnswer }>) {
     )
   }
   if (answer.type === 'comparison') return <>{answer.symbol}</>
+  if (answer.type === 'text') return <span lang="fr">{answer.value}</span>
   return null
 }
 
@@ -193,10 +194,18 @@ type ChoiceTilesProps = Readonly<{
   onChoose: (answer: PracticeAnswer) => void
   /** The answer given, once settled. */
   chosen: PracticeAnswer | null
+  /** `word` for written forms such as « finissaient ». */
+  size?: 'number' | 'word'
 }>
 
 /** Answer tiles; once answered, the right one turns green and a miss turns warm. */
-export function ChoiceTiles({ choices, chosen, isCorrect, onChoose }: ChoiceTilesProps) {
+export function ChoiceTiles({
+  choices,
+  chosen,
+  isCorrect,
+  onChoose,
+  size = 'number',
+}: ChoiceTilesProps) {
   const { language, t } = useI18n()
   const settled = chosen !== null
   return (
@@ -205,6 +214,7 @@ export function ChoiceTiles({ choices, chosen, isCorrect, onChoose }: ChoiceTile
       label={t('session.answers')}
       onPick={(answer) => onChoose(answer)}
       render={(answer) => <AnswerFace answer={answer} />}
+      size={size}
       speak={(answer) => answerWords(answer, language)}
       stateOf={(answer): TileState =>
         !settled

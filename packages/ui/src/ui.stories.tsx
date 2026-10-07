@@ -9,9 +9,12 @@ import { IconTile, ListGroup, ListRow } from './list.js'
 import {
   AnswerTiles,
   CharacterDock,
+  FormBreakdown,
   FractionText,
+  LetterBank,
   NumberPad,
   PinPad,
+  VerbChip,
   type CharacterPose,
 } from './practice.js'
 import { Alert, NavigationBar, Sheet } from './structure.js'
@@ -208,6 +211,62 @@ export const Practice: Story = () => {
           )
         }
       />
+    </div>
+  )
+}
+
+/** Mockups C11 to C13: a conjugation question, its letter tiles and the coloured answer. */
+export const Conjugation: Story = () => {
+  const letters = ['n', 'v', 'z', 'o', 'p', 'u', 's', 'o', 'e', 'a', 't', 'i']
+  const [used, setUsed] = useState<number[]>([])
+  const typed = used.map((index) => letters[index]).join('')
+  return (
+    <div className="flex max-w-sm flex-col items-center gap-5">
+      <VerbChip tense="au présent" verb="pouvoir" />
+      <p className="flex items-end gap-3 font-black">
+        <span className="text-[3.5rem] leading-none">nous</span>
+        <span className="inline-flex min-w-40 justify-center rounded-[0.6rem] border-2 border-tint bg-surface px-2 text-[2.25rem]">
+          {typed || '\u00a0'}
+        </span>
+      </p>
+      <LetterBank
+        className="w-full"
+        eraseLabel="Effacer"
+        label="Lettres"
+        letters={letters}
+        onKey={(key) =>
+          setUsed((current) =>
+            key === 'erase'
+              ? current.slice(0, -1)
+              : key === 'submit'
+                ? []
+                : [...current, key.index],
+          )
+        }
+        spaceLabel="espace"
+        submitDisabled={used.length === 0}
+        submitLabel="Valider"
+        used={used}
+      />
+      <AnswerTiles
+        className="w-full"
+        label="Formes"
+        onPick={() => undefined}
+        render={(value) => value}
+        size="word"
+        stateOf={(value) => (value === 'finissent' ? 'correct' : 'idle')}
+        values={['finissent', 'finisent', 'finissez', 'finissaient']}
+      />
+      <p className="text-[2.25rem]">
+        <FormBreakdown
+          parts={[
+            { role: 'stem', text: 'fin' },
+            { role: 'mark', text: 'iss' },
+            { role: 'ending', text: 'ent' },
+          ]}
+          underline
+        />
+      </p>
     </div>
   )
 }

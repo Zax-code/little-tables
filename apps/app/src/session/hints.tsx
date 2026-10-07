@@ -5,20 +5,33 @@
 import type {
   Exercise,
   ExerciseDescription,
+  PracticeAnswer,
   Fraction,
   LearningPathSettings,
   PracticeQuestion,
   RescueStrategy,
 } from '@little-tables/engine/schema'
-import { Button } from '@little-tables/ui'
-import { useState, type ReactNode, type SyntheticEvent } from 'react'
+import { Engine } from '@little-tables/engine'
+import { Button, FormBreakdown } from '@little-tables/ui'
+import { Effect } from 'effect'
+import { useMemo, useState, type ReactNode, type SyntheticEvent } from 'react'
+
+import { useApp } from '../app/app-context.js'
 
 import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey, Translator } from '../i18n/translator.js'
 import { columnSteps, digitAt, placeKeys } from './column-entry.js'
 import { GardenBed } from './figures.js'
 import { filledParts } from './fraction-figures.js'
-import { formatFraction, formatNumber, fractionInWords, fractionUnitName } from './format.js'
+import {
+  displayVerb,
+  formatFraction,
+  formatNumber,
+  fractionInWords,
+  fractionUnitName,
+  normalizeForm,
+  withSubject,
+} from './format.js'
 import { RulerDrawing } from './ruler.js'
 
 type SubtractionMethod = LearningPathSettings['subtractionMethod']
@@ -588,14 +601,24 @@ type ExerciseHintProps = Readonly<{
   description: ExerciseDescription
   exercise: Exercise
   method: SubtractionMethod
+  /** The child's answer, to pick the conjugation hint that fits the mistake. */
+  response?: PracticeAnswer | null
   wrongColumn: number | null
 }>
 
 /** A gentle explanation fitted to the skill; the exercise will come back later. */
-export function ExerciseHint({ description, exercise, method, wrongColumn }: ExerciseHintProps) {
+export function ExerciseHint({
+  description,
+  exercise,
+  method,
+  response = null,
+  wrongColumn,
+}: ExerciseHintProps) {
   const { t } = useI18n()
   const hint =
-    exercise.kind === 'arithmetic' ? (
+    exercise.kind === 'conjugation' ? (
+      <ConjugationHint description={description} exercise={exercise} response={response} />
+    ) : exercise.kind === 'arithmetic' ? (
       <ArithmeticHint exercise={exercise} />
     ) : exercise.kind === 'column' ? (
       <ColumnHint exercise={exercise} method={method} wrongColumn={wrongColumn} />
@@ -607,5 +630,145 @@ export function ExerciseHint({ description, exercise, method, wrongColumn }: Exe
       {hint}
       <p className="px-1 text-footnote font-semibold text-label-2">{t('rescue.revisit')}</p>
     </div>
+  )
+}
+
+/* Conjugation ---------------------------------------------------------------------------------- */
+
+type ConjugationStrategy = 'compound' | 'cousin' | 'person' | 'stem' | 'tense'
+
+type VerbTable = Readonly<{
+  tenses: ReadonlyArray<
+    Readonly<{
+      rows: ReadonlyArray<
+        Readonly<{ form: string; person: number; subjects: ReadonlyArray<string> }>
+      >
+      tense: string
+    }>
+  >
+}>
+
+const rowsOf = (table: VerbTable | null, tense: string) =>
+  table?.tenses.find((entry) => entry.tense === tense)?.rows ?? []
+
+/** The strategies that fit, in order, each once. */
+const fittingStrategies = (
+  candidates: ReadonlyArray<readonly [boolean, ConjugationStrategy]>,
+): ReadonlyArray<ConjugationStrategy> => {
+  const chosen = new Set<ConjugationStrategy>()
+  for (const [fits, strategy] of candidates) {
+    if (fits) chosen.add(strategy)
+  }
+  return [...chosen]
+}
+
+type ConjugationHintProps = Readonly<{
+  description: ExerciseDescription
+  exercise: Extract<Exercise, { kind: 'conjugation' }>
+  response: PracticeAnswer | null
+}>
+
+/** The expected form split in colours, with the explanation that fits the mistake (C13). */
+function ConjugationHint({ description, exercise, response }: ConjugationHintProps) {
+  const { t } = useI18n()
+  const { runtime } = useApp()
+  const [index, setIndex] = useState(0)
+  const tables = useMemo(() => {
+    const table = (verb: string) =>
+      runtime.runSync(Effect.flatMap(Engine, (engine) => engine.verbTable({ verb })))
+    const cousin = description.cousin ?? null
+    return { cousin: cousin === null ? null : table(cousin), verb: table(exercise.verb) }
+  }, [description.cousin, exercise.verb, runtime])
+  const given = response?.type === 'text' ? normalizeForm(response.value) : ''
+  const sameTense = rowsOf(tables.verb, exercise.tense)
+  const otherPerson = sameTense.some(
+    (row) => row.person !== exercise.person && normalizeForm(row.form) === given,
+  )
+  const otherTense = (tables.verb?.tenses ?? []).some(
+    (entry) =>
+      entry.tense !== exercise.tense &&
+      entry.rows.some((row) => row.person === exercise.person && normalizeForm(row.form) === given),
+  )
+  const cousinRow = rowsOf(tables.cousin, exercise.tense).find(
+    (row) => row.person === exercise.person,
+  )
+  const strategies = fittingStrategies([
+    [exercise.tense === 'compound-past', 'compound'],
+    [otherTense && exercise.tense !== 'present', 'tense'],
+    [otherPerson || exercise.tense === 'present', 'person'],
+    [tables.verb?.group === 'third' && exercise.tense === 'present', 'stem'],
+    [exercise.tense === 'imperfect' || exercise.tense === 'future', 'tense'],
+    [cousinRow !== undefined, 'cousin'],
+    [true, 'person'],
+  ])
+  const strategy = strategies[index % strategies.length] ?? 'person'
+  const parts = description.parts ?? [{ role: 'stem' as const, text: exercise.expected }]
+  const ending = [...parts].reverse().find((part) => part.role === 'ending')?.text ?? ''
+  const stem = parts.find((part) => part.role === 'stem')?.text ?? ''
+  const form = withSubject(exercise.subject, exercise.expected)
+  const verb = displayVerb(exercise.verb)
+  const presentRows = rowsOf(tables.verb, 'present')
+  const auxiliary = tables.verb?.auxiliary === 'etre' ? 'être' : 'avoir'
+  const text = (() => {
+    switch (strategy) {
+      case 'compound':
+        return t('conj.hint.compound', { auxiliary, form })
+      case 'cousin':
+        return t('conj.hint.cousin', {
+          cousin: displayVerb(tables.cousin?.verb ?? ''),
+          cousinForm: withSubject(cousinRow?.subjects[0] ?? '', cousinRow?.form ?? ''),
+          form,
+          verb,
+        })
+      case 'stem':
+        return t('conj.hint.stem', {
+          forms: [0, 3, 5]
+            .map((person) => presentRows.find((row) => row.person === person))
+            .flatMap((row) =>
+              row === undefined ? [] : [withSubject(row.subjects[0] ?? '', row.form)],
+            )
+            .join(', '),
+          verb,
+        })
+      case 'tense':
+        return exercise.tense === 'future'
+          ? t('conj.hint.future', { ending: `-${ending}`, form, stem })
+          : t('conj.hint.imperfect', { ending: `-${ending}`, form })
+      case 'person':
+        return t('conj.hint.person', {
+          ending: `-${ending}`,
+          form,
+          subject: exercise.subject.replace('’', 'e'),
+        })
+    }
+  })()
+  const label = t(
+    strategy === 'compound'
+      ? 'conj.hintLabel.compound'
+      : strategy === 'cousin'
+        ? 'conj.hintLabel.cousin'
+        : strategy === 'stem'
+          ? 'conj.hintLabel.stem'
+          : strategy === 'tense'
+            ? 'conj.hintLabel.tense'
+            : 'conj.hintLabel.person',
+  )
+  return (
+    <HintCard
+      actions={
+        strategies.length > 1 ? (
+          <Button onClick={() => setIndex((current) => current + 1)} size="sm" variant="gray">
+            {t('rescue.another')}
+          </Button>
+        ) : undefined
+      }
+      label={label}
+    >
+      <p className="flex justify-center text-[2.25rem] leading-tight">
+        <FormBreakdown parts={parts} underline />
+      </p>
+      <p>{text}</p>
+      {strategy === 'compound' && auxiliary === 'être' ? <p>{t('conj.hint.agreement')}</p> : null}
+    </HintCard>
   )
 }

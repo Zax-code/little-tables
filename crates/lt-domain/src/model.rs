@@ -14,6 +14,8 @@ pub enum PathId {
     Additions,
     BigNumbers,
     Fractions,
+    /// Verbs a parent ticked; not part of the three CE2 maths paths of `paths.rs`.
+    Conjugation,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
@@ -30,6 +32,8 @@ pub enum SkillId {
     FractionLine,
     FractionCompare,
     FractionOperation,
+    /// Every conjugation key: the verb and the tense are in the key, not in the skill.
+    Conjugation,
 }
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
@@ -53,7 +57,61 @@ pub struct LearningPathSettings {
     pub focus_skill: Option<SkillId>,
     pub mode: PathMode,
     pub subtraction_method: SubtractionMethod,
+    /// The verbs and tenses a parent ticked; absent, the conjugation path is closed.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub conjugation: Option<ConjugationSettings>,
 }
+
+/// The four tenses of the CE2 programme, in teaching order.
+#[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum Tense {
+    Present,
+    Imperfect,
+    Future,
+    CompoundPast,
+}
+
+impl Tense {
+    pub const ALL: [Tense; 4] = [
+        Tense::Present,
+        Tense::Imperfect,
+        Tense::Future,
+        Tense::CompoundPast,
+    ];
+
+    pub fn slug(self) -> &'static str {
+        match self {
+            Tense::Present => "present",
+            Tense::Imperfect => "imperfect",
+            Tense::Future => "future",
+            Tense::CompoundPast => "compound-past",
+        }
+    }
+
+    pub fn from_slug(slug: &str) -> Option<Tense> {
+        Tense::ALL.into_iter().find(|tense| tense.slug() == slug)
+    }
+}
+
+/// « En ce moment en classe »: a verb, and optionally one of its tenses.
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct ConjugationFocus {
+    pub tense: Option<Tense>,
+    pub verb: String,
+}
+
+/// What a parent ticked in the verb catalogue.
+#[derive(Clone, Debug, Default, Deserialize, PartialEq, Serialize)]
+pub struct ConjugationSettings {
+    pub focus: Option<ConjugationFocus>,
+    pub tenses: Vec<Tense>,
+    /// Infinitives in the order they were ticked.
+    pub verbs: Vec<String>,
+}
+
+/// At most this many verbs ticked for one child.
+pub const MAX_CONJUGATION_VERBS: usize = 60;
 
 impl Default for LearningPathSettings {
     fn default() -> Self {
@@ -62,6 +120,7 @@ impl Default for LearningPathSettings {
             focus_skill: None,
             mode: PathMode::Automatic,
             subtraction_method: SubtractionMethod::Compensation,
+            conjugation: None,
         }
     }
 }
@@ -108,6 +167,10 @@ pub enum PracticeAnswer {
     },
     Selection {
         ids: Vec<i64>,
+    },
+    /// A written word, such as a conjugated form.
+    Text {
+        value: String,
     },
 }
 
@@ -234,6 +297,24 @@ pub struct FractionOperationExercise {
     pub story: bool,
 }
 
+/// Write the form of a verb for a subject at a tense: « ils … (finir, au présent) ».
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct ConjugationExercise {
+    /// Four forms to choose from while discovering; empty when the child writes the form.
+    pub choices: Vec<PracticeAnswer>,
+    /// The form expected, without the subject; recomputed and checked by the server.
+    pub expected: String,
+    /// Letter tiles to write the form with; empty while discovering.
+    pub letters: Vec<String>,
+    /// 0 to 5: je, tu, il or elle, nous, vous, ils or elles.
+    pub person: i64,
+    pub skill: SkillId,
+    /// The subject shown, elided when needed (« j’ »).
+    pub subject: String,
+    pub tense: Tense,
+    pub verb: String,
+}
+
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(tag = "kind", rename_all = "kebab-case")]
 pub enum Exercise {
@@ -245,6 +326,7 @@ pub enum Exercise {
     FractionLine(FractionLineExercise),
     FractionCompare(FractionCompareExercise),
     FractionOperation(FractionOperationExercise),
+    Conjugation(ConjugationExercise),
 }
 
 impl Exercise {
@@ -258,6 +340,7 @@ impl Exercise {
             Self::FractionLine(exercise) => exercise.skill,
             Self::FractionCompare(exercise) => exercise.skill,
             Self::FractionOperation(exercise) => exercise.skill,
+            Self::Conjugation(exercise) => exercise.skill,
         }
     }
 
@@ -269,6 +352,7 @@ impl Exercise {
             Self::FractionEqual(exercise) => Some(&exercise.choices),
             Self::FractionLine(exercise) => Some(&exercise.choices),
             Self::FractionOperation(exercise) => Some(&exercise.choices),
+            Self::Conjugation(exercise) => Some(&exercise.choices),
             Self::Column(_) | Self::FractionPick(_) | Self::FractionCompare(_) => None,
         }
     }
@@ -464,6 +548,9 @@ pub struct PracticePolicy {
     pub focus_skill: Option<SkillId>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub focus_table: Option<i64>,
+    /// A session on one verb, outside the daily watering.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub focus_verb: Option<ConjugationFocus>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub kind: Option<SessionKind>,
     #[serde(default, skip_serializing_if = "Option::is_none")]

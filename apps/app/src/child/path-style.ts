@@ -5,4 +5,5 @@ export const pathStyle: Readonly<Record<PathId, Readonly<{ mark: string; tile: s
   additions: { mark: '+ −', tile: 'bg-tint' },
   'big-numbers': { mark: '1 000', tile: 'bg-sky' },
   fractions: { mark: '¾', tile: 'bg-leaf' },
+  conjugation: { mark: 'Aa', tile: 'bg-sun' },
 }

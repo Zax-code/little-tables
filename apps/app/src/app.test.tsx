@@ -31,12 +31,16 @@ const defaultPaths = {
 } as const
 
 /** A server keeping one family in memory. */
-const memoryServer = (childId: string) => {
+const memoryServer = (
+  childId: string,
+  learningPaths: ChildProfile['learningPaths'] = defaultPaths,
+  facts: Bootstrap['snapshot']['facts'] = {},
+) => {
   let onboarded = false
   let child: ChildProfile = {
     avatarId: 'sprout',
     id: childId,
-    learningPaths: defaultPaths,
+    learningPaths,
     name: 'google',
     reminderMinute: 1080,
   }
@@ -55,7 +59,7 @@ const memoryServer = (childId: string) => {
     profile: { ...child, id: profileId },
     rewardedDayKeys: [],
     rewards: [],
-    snapshot: { algorithmVersion: '1', facts: {}, processedEventIds: [] },
+    snapshot: { algorithmVersion: '1', facts, processedEventIds: [] },
   })
   const service = {
     allowedEmails: () => Effect.succeed({ emails: [] }),
@@ -139,9 +143,13 @@ beforeAll(() => {
 afterEach(cleanup)
 
 /** Opens the app on a fresh device and names the first child. */
-const openApp = async (childId: string) => {
+const openApp = async (
+  childId: string,
+  learningPaths?: ChildProfile['learningPaths'],
+  facts?: Bootstrap['snapshot']['facts'],
+) => {
   window.history.replaceState(null, '', '/')
-  const server = memoryServer(childId)
+  const server = memoryServer(childId, learningPaths, facts)
   const runtime = createRuntime(Layer.mergeAll(server.layer, testEngine, LocalStore.layer))
   const user = userEvent.setup()
   render(
@@ -209,6 +217,182 @@ describe('the new app', () => {
     await waitFor(() => expect(server.received.length).toBeGreaterThanOrEqual(5))
     await runtime.dispose()
   }, 30_000)
+
+  it('practises a verb the parent ticked, with word tiles', async () => {
+    const finir: Readonly<Record<string, string>> = {
+      elle: 'finit',
+      elles: 'finissent',
+      il: 'finit',
+      ils: 'finissent',
+      je: 'finis',
+      nous: 'finissons',
+      tu: 'finis',
+      vous: 'finissez',
+    }
+    const { runtime, server, user } = await openApp('conjugation', {
+      ...defaultPaths,
+      conjugation: { focus: null, tenses: ['present'], verbs: ['finir'] },
+    })
+    await user.click(screen.getByRole('button', { name: 'Autres séances' }))
+    await user.click(await screen.findByRole('button', { name: 'finir' }))
+    let verbQuestions = 0
+    for (let index = 0; index < 20; index += 1) {
+      const next = screen.queryByRole('button', { name: 'Suivant' })
+      if (next !== null) {
+        await user.click(next)
+        continue
+      }
+      const spoken = await waitFor(
+        () =>
+          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.getByText(/^(\S+)… finir, au présent$|^\d+ (fois|divisé par) \d+$/),
+        { timeout: 5000 },
+      )
+      if (spoken.textContent === 'Voir mon jardin') break
+      const verb = /^(\S+)… finir/.exec(spoken.textContent)
+      let answer: string
+      if (verb !== null) {
+        verbQuestions += 1
+        answer = finir[verb[1] ?? ''] ?? ''
+        expect(screen.getByText('finir · au présent')).toBeInTheDocument()
+      } else {
+        const [left, word, right] = spoken.textContent.split(' ')
+        answer = String(
+          word === 'fois' ? Number(left) * Number(right) : Number(left) / Number(right),
+        )
+      }
+      const tile = screen.queryByRole('button', { name: answer })
+      if (tile !== null) {
+        await user.click(tile)
+      } else {
+        for (const digit of answer) await user.click(screen.getByRole('button', { name: digit }))
+        await user.click(screen.getByRole('button', { name: 'Valider' }))
+      }
+      expect(await screen.findByRole('button', { name: 'Suivant' })).toBeInTheDocument()
+    }
+    expect(verbQuestions).toBeGreaterThanOrEqual(4)
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await waitFor(() =>
+      expect(server.received.some(({ factKey }) => factKey === 'conj:finir:present')).toBe(true),
+    )
+    expect(
+      server.received
+        .filter(({ factKey }) => factKey === 'conj:finir:present')
+        .every(({ correct }) => correct),
+    ).toBe(true)
+    await runtime.dispose()
+  }, 30_000)
+
+  it('writes a familiar verb with the letter tiles and the keyboard', async () => {
+    const finir: Readonly<Record<string, string>> = {
+      elle: 'finit',
+      elles: 'finissent',
+      il: 'finit',
+      ils: 'finissent',
+      je: 'finis',
+      nous: 'finissons',
+      tu: 'finis',
+      vous: 'finissez',
+    }
+    const day = 86_400_000
+    // Three right answers on three days, as the server would send after them.
+    const familiar = {
+      correctCount: 3,
+      correctStreak: 3,
+      difficulty: 0.44,
+      dueAt: Date.now() - day,
+      lapseCount: 0,
+      lastReviewedAt: Date.now() - 2 * day,
+      lastReviewedDayKey: '2026-10-04',
+      latencyMs: 3000,
+      recallDayKeys: [],
+      stabilityDays: 2.25,
+      state: 'familiar' as const,
+      successfulDayKeys: ['2026-10-02', '2026-10-03', '2026-10-04'],
+    }
+    const { runtime, server, user } = await openApp(
+      'writer',
+      { ...defaultPaths, conjugation: { focus: null, tenses: ['present'], verbs: ['finir'] } },
+      { 'conj:finir:present': familiar },
+    )
+    // The bootstrap brings the familiar verb after the first sync.
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await user.click(screen.getByRole('button', { name: 'Autres séances' }))
+    await user.click(await screen.findByRole('button', { name: 'finir' }))
+    let written = 0
+    for (let index = 0; index < 20; index += 1) {
+      const next = screen.queryByRole('button', { name: 'Suivant' })
+      if (next !== null) {
+        await user.click(next)
+        continue
+      }
+      const spoken = await waitFor(
+        () =>
+          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.getByText(/^(\S+)… finir, au présent$|^\d+ (fois|divisé par) \d+$/),
+        { timeout: 5000 },
+      )
+      if (spoken.textContent === 'Voir mon jardin') break
+      const verb = /^(\S+)… finir/.exec(spoken.textContent)
+      if (verb === null) {
+        const [left, word, right] = spoken.textContent.split(' ')
+        const answer = String(
+          word === 'fois' ? Number(left) * Number(right) : Number(left) / Number(right),
+        )
+        const tile = screen.queryByRole('button', { name: answer })
+        if (tile !== null) await user.click(tile)
+        else {
+          for (const digit of answer) await user.click(screen.getByRole('button', { name: digit }))
+          await user.click(screen.getByRole('button', { name: 'Valider' }))
+        }
+      } else {
+        const form = finir[verb[1] ?? ''] ?? ''
+        // Written, not chosen: no word tile, a group of letter tiles.
+        expect(screen.queryByRole('button', { name: form })).toBeNull()
+        expect(screen.getByRole('group', { name: 'Lettres' })).toBeInTheDocument()
+        expect(screen.getByRole('button', { name: 'Valider' })).toBeDisabled()
+        if (written % 2 === 0) {
+          // One wrong tile, erased, then the form tile by tile.
+          const letters = screen.getByRole('group', { name: 'Lettres' })
+          const spare = [...letters.querySelectorAll('button')].find(
+            (button) =>
+              !button.disabled &&
+              button.getAttribute('aria-label')?.length === 1 &&
+              !form.startsWith(button.getAttribute('aria-label') ?? ''),
+          )
+          if (spare !== undefined) {
+            await user.click(spare)
+            await user.click(screen.getByRole('button', { name: 'Effacer' }))
+          }
+          for (const letter of form) {
+            const tile = screen
+              .getAllByRole('button', { name: letter })
+              .find((button) => !(button as HTMLButtonElement).disabled)
+            if (tile === undefined) throw new Error(`no tile left for ${letter}`)
+            await user.click(tile)
+          }
+          expect(screen.getByText(form, { selector: 'span' })).toBeInTheDocument()
+          await user.click(screen.getByRole('button', { name: 'Valider' }))
+        } else {
+          // An iPad keyboard: letters, the last one erased and typed again, then Enter.
+          await user.keyboard(`${form}{Backspace}${form.slice(-1)}{Enter}`)
+        }
+        written += 1
+        expect(await screen.findByText(`Oui ! ${form} ♡`)).toBeInTheDocument()
+      }
+      expect(await screen.findByRole('button', { name: 'Suivant' })).toBeInTheDocument()
+    }
+    expect(written).toBeGreaterThanOrEqual(2)
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await waitFor(() => {
+      const verbs = server.received.filter(({ factKey }) => factKey === 'conj:finir:present')
+      expect(verbs.length).toBe(written)
+      expect(verbs.every(({ answerMode, correct }) => correct && answerMode === 'keypad')).toBe(
+        true,
+      )
+    })
+    await runtime.dispose()
+  }, 40_000)
 
   it('keeps the parent space behind a code chosen on the first visit', async () => {
     const { runtime, user } = await openApp('parent-code')

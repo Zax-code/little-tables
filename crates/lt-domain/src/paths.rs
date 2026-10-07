@@ -15,10 +15,11 @@ use crate::exercises::{
 };
 use crate::model::{
     ArithmeticBlank, ArithmeticExercise, ArithmeticOperation, ColumnExercise, ColumnOperation,
-    ComparisonSymbol, EqualBlank, Exercise, Facts, Fraction, FractionCompareExercise,
-    FractionEqualExercise, FractionLineExercise, FractionOperationExercise, FractionPickExercise,
-    FractionReadExercise, LearningPathSettings, LineMode, MasteryState, MixedFraction, PathId,
-    PathMode, PracticeAnswer, ReadMode, ReadShape, SkillId,
+    ComparisonSymbol, ConjugationFocus, ConjugationSettings, EqualBlank, Exercise, Facts, Fraction,
+    FractionCompareExercise, FractionEqualExercise, FractionLineExercise,
+    FractionOperationExercise, FractionPickExercise, FractionReadExercise, LearningPathSettings,
+    LineMode, MasteryState, MixedFraction, PathId, PathMode, PracticeAnswer, ReadMode, ReadShape,
+    SkillId, Tense,
 };
 use crate::rng::{Rng, js_round};
 
@@ -29,6 +30,8 @@ pub enum InteractionFamily {
     Column,
     Fractions,
     Numbers,
+    /// Conjugated forms, chosen among words or written with letter tiles.
+    Letters,
 }
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
@@ -287,6 +290,91 @@ pub const LEARNING_SKILLS: [SkillDefinition; 11] = [
     },
 ];
 
+/// The conjugation skill. Its keys come from the parent's verbs (`conjugation_keys`), so it stays
+/// out of `LEARNING_SKILLS` and of the maths paths' progress.
+pub const CONJUGATION_SKILL: SkillDefinition = SkillDefinition {
+    family: InteractionFamily::Letters,
+    gate: LevelGate::All,
+    id: SkillId::Conjugation,
+    path: PathId::Conjugation,
+    weight: 1.0,
+};
+
+/// Written conjugated forms weigh more than chosen ones (CE2 conjugation spec §6.2).
+pub const WRITTEN_FORM_WEIGHT: f64 = 1.5;
+
+/// The conjugation keys of the parent's verbs and tenses: the last verb ticked first, then the
+/// tenses in teaching order. Verbs the engine cannot conjugate are left out.
+pub fn conjugation_keys(settings: &ConjugationSettings) -> Vec<String> {
+    let mut keys = Vec::new();
+    for verb in settings.verbs.iter().rev() {
+        if crate::conjugation::lookup(verb).is_none() {
+            continue;
+        }
+        for tense in Tense::ALL {
+            let key = crate::conjugation::key(verb, tense);
+            if settings.tenses.contains(&tense) && !keys.contains(&key) {
+                keys.push(key);
+            }
+        }
+    }
+    keys
+}
+
+/// The keys a conjugation focus puts forward: one verb, at one tense or at every ticked tense.
+pub fn conjugation_focus_keys(
+    settings: &ConjugationSettings,
+    focus: &ConjugationFocus,
+) -> Vec<String> {
+    Tense::ALL
+        .into_iter()
+        .filter(|tense| {
+            settings.tenses.contains(tense) && focus.tense.is_none_or(|only| only == *tense)
+        })
+        .map(|tense| crate::conjugation::key(&focus.verb, tense))
+        .filter(|_| crate::conjugation::lookup(&focus.verb).is_some())
+        .collect()
+}
+
+/// Whether a parent's settings can be stored: at most eleven maths skills (never conjugation), and
+/// for conjugation at most sixty distinct verbs the engine knows, distinct tenses, and a focus on a
+/// ticked verb and tense.
+pub fn validate_learning_paths(settings: &LearningPathSettings) -> bool {
+    let skills_valid = settings.enabled_skills.len() <= LEARNING_SKILLS.len()
+        && !settings.enabled_skills.contains(&SkillId::Conjugation)
+        && settings.focus_skill != Some(SkillId::Conjugation);
+    let Some(conjugation) = &settings.conjugation else {
+        return skills_valid;
+    };
+    let distinct = |values: &[String]| {
+        values
+            .iter()
+            .enumerate()
+            .all(|(index, value)| !values[..index].contains(value))
+    };
+    let tenses_distinct = conjugation
+        .tenses
+        .iter()
+        .enumerate()
+        .all(|(index, tense)| !conjugation.tenses[..index].contains(tense));
+    let verbs_known = conjugation
+        .verbs
+        .iter()
+        .all(|verb| crate::conjugation::lookup(verb).is_some());
+    let focus_valid = conjugation.focus.as_ref().is_none_or(|focus| {
+        conjugation.verbs.contains(&focus.verb)
+            && focus
+                .tense
+                .is_none_or(|tense| conjugation.tenses.contains(&tense))
+    });
+    skills_valid
+        && conjugation.verbs.len() <= crate::model::MAX_CONJUGATION_VERBS
+        && distinct(&conjugation.verbs)
+        && tenses_distinct
+        && verbs_known
+        && focus_valid
+}
+
 pub const LEARNING_PATH_IDS: [PathId; 3] =
     [PathId::Additions, PathId::BigNumbers, PathId::Fractions];
 
@@ -318,6 +406,7 @@ impl SkillDefinition {
             SkillId::FractionLine => owned(&LINE_KEYS),
             SkillId::FractionCompare => owned(&COMPARE_KEYS),
             SkillId::FractionOperation => owned(&OPERATION_KEYS),
+            SkillId::Conjugation => Vec::new(),
         }
     }
 
@@ -342,11 +431,15 @@ impl SkillDefinition {
             SkillId::ColumnAddition | SkillId::ColumnSubtraction => stable_additions() >= 28,
             SkillId::FractionEqual | SkillId::FractionCompare => any_stable(facts, &READ_KEYS),
             SkillId::FractionLine | SkillId::FractionOperation => any_stable(facts, &EQUAL_KEYS),
+            SkillId::Conjugation => false,
         }
     }
 }
 
 pub fn skill_definition(id: SkillId) -> &'static SkillDefinition {
+    if id == SkillId::Conjugation {
+        return &CONJUGATION_SKILL;
+    }
     LEARNING_SKILLS
         .iter()
         .find(|skill| skill.id == id)
@@ -1575,6 +1668,9 @@ fn generate_fraction_operation(key: &str, context: &mut Context<'_>) -> Exercise
 
 /// Builds one exercise for a skill level. Recall asks the learner to produce the answer.
 pub fn generate_exercise(key: &str, random: &mut Rng, recall: bool) -> Option<Exercise> {
+    if skill_for_key(key)? == SkillId::Conjugation {
+        return crate::conjugation::exercise::generate(key, random, recall);
+    }
     let mut context = Context { random, recall };
     let context = &mut context;
     Some(match skill_for_key(key)? {
@@ -1589,6 +1685,7 @@ pub fn generate_exercise(key: &str, random: &mut Rng, recall: bool) -> Option<Ex
         SkillId::FractionLine => generate_fraction_line(key, context),
         SkillId::FractionCompare => generate_fraction_compare(key, context),
         SkillId::FractionOperation => generate_fraction_operation(key, context),
+        SkillId::Conjugation => return None,
     })
 }
 

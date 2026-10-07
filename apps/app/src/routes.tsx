@@ -47,6 +47,7 @@ const ProgressScreen = lazyRouteComponent(
 )
 const TableScreen = lazyRouteComponent(() => import('./progress/table-screen.js'), 'TableScreen')
 const PathsScreen = lazyRouteComponent(() => import('./progress/paths-screen.js'), 'PathsScreen')
+const VerbsScreen = lazyRouteComponent(() => import('./progress/verbs-screen.js'), 'VerbsScreen')
 const SessionScreen = lazyRouteComponent(
   () => import('./session/session-screen.js'),
   'SessionScreen',
@@ -70,6 +71,10 @@ const NewChildScreen = lazyRouteComponent(
 )
 const ChildScreen = lazyRouteComponent(() => import('./parents/child-screens.js'), 'ChildScreen')
 const SchoolScreen = lazyRouteComponent(() => import('./parents/child-screens.js'), 'SchoolScreen')
+const VerbCatalogueScreen = lazyRouteComponent(
+  () => import('./parents/verbs-screen.js'),
+  'VerbCatalogueScreen',
+)
 const InsightsScreen = lazyRouteComponent(
   () => import('./parents/insights-screen.js'),
   'InsightsScreen',
@@ -110,6 +115,7 @@ const routeTree = root.addChildren([
   route('/progress', ProgressScreen),
   route('/progress/tables/$table', TableScreen),
   route('/progress/paths', PathsScreen),
+  route('/progress/verbs', VerbsScreen),
   route('/session', SessionScreen),
   route('/celebration', CelebrationScreen),
   parents.addChildren([
@@ -119,6 +125,7 @@ const routeTree = root.addChildren([
     parentRoute('/parents/new-child', NewChildScreen),
     parentRoute('/parents/children/$profileId', ChildScreen),
     parentRoute('/parents/children/$profileId/school', SchoolScreen),
+    parentRoute('/parents/children/$profileId/verbs', VerbCatalogueScreen),
     parentRoute('/parents/children/$profileId/insights', InsightsScreen),
   ]),
 ])

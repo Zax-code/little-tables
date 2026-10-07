@@ -127,6 +127,11 @@ struct PathsInput {
 }
 
 #[derive(Deserialize)]
+struct VerbInput {
+    verb: String,
+}
+
+#[derive(Deserialize)]
 struct ExerciseAnswer {
     answer: PracticeAnswer,
     exercise: Exercise,
@@ -147,6 +152,25 @@ fn describe_exercise(exercise: &Exercise) -> Value {
         }
         Exercise::FractionOperation(operation) => {
             description["operationResult"] = json!(fraction_operation_result(operation));
+        }
+        Exercise::Conjugation(conjugation) => {
+            if let (Some(verb), Ok(person)) = (
+                crate::conjugation::lookup(&conjugation.verb),
+                usize::try_from(conjugation.person),
+            ) {
+                description["accepted"] = json!(crate::conjugation::accepted_forms(
+                    &verb,
+                    conjugation.tense,
+                    person
+                ));
+                description["parts"] = json!(crate::conjugation::parts(
+                    &verb,
+                    conjugation.tense,
+                    person,
+                    &conjugation.expected
+                ));
+                description["cousin"] = json!(crate::conjugation::cousin(&verb));
+            }
         }
         _ => {}
     }
@@ -294,6 +318,14 @@ pub fn dispatch(operation: &str, input: Value, day_keys: &dyn DayKeys) -> Result
             }
         }
         "gardenFlowerIds" => output(&garden_flower_ids()),
+        "verbTable" => {
+            let input: VerbInput = parse(input)?;
+            output(&crate::conjugation::verb_table(&input.verb))
+        }
+        "validateLearningPaths" => {
+            let settings: LearningPathSettings = parse(input)?;
+            output(&crate::paths::validate_learning_paths(&settings))
+        }
         "deriveSessionInsight" => {
             let input: InsightInput = parse(input)?;
             output(&derive_session_insight(

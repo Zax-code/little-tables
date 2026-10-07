@@ -34,7 +34,9 @@ export function Screen({ bottom, children, className, top, tone = 'bg' }: Screen
       <main className="flex min-h-0 flex-1 flex-col gap-5 overflow-y-auto overscroll-contain px-4 pb-4">
         {children}
       </main>
-      {bottom === undefined ? null : <div className="safe-bottom px-4 pb-3">{bottom}</div>}
+      {bottom === undefined ? null : (
+        <div className="px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]">{bottom}</div>
+      )}
     </div>
   )
 }

@@ -181,6 +181,8 @@ export const Struggle = Schema.Struct({
   lapses: Int,
   medianLatencyMs: Schema.NullOr(Schema.Number),
   mistakes: Int,
+  /** For a verb: the persons answered wrong, most often first (0 je … 5 ils). */
+  persons: Schema.optional(Schema.Array(Schema.Struct({ mistakes: Int, person: Int }))),
   reasons: Schema.Array(StruggleReason),
   skill: Schema.NullOr(SkillId),
 })

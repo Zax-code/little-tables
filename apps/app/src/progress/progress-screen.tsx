@@ -1,7 +1,7 @@
 /** D5: what is rooted, table by table, with a way to the learning paths. Never a score. */
 import { IconTile, ListGroup, ListRow, Screen } from '@little-tables/ui'
 import { useNavigate } from '@tanstack/react-router'
-import { Route } from 'lucide-react'
+import { CaseLower, Route } from 'lucide-react'
 
 import { useApp } from '../app/app-context.js'
 import { useLearningProgress } from '../app/derived.js'
@@ -94,6 +94,19 @@ function Progress({ state }: Readonly<{ state: ProfileState }>) {
           title={t('progress.paths')}
           trailing="chevron"
         />
+        {(progress.conjugation ?? []).length === 0 ? null : (
+          <ListRow
+            detail={count('verbs.count', progress.conjugation?.length ?? 0)}
+            leading={
+              <IconTile className="bg-sun">
+                <CaseLower aria-hidden />
+              </IconTile>
+            }
+            onClick={() => void navigate({ to: '/progress/verbs' })}
+            title={t('progress.verbs')}
+            trailing="chevron"
+          />
+        )}
       </ListGroup>
     </Screen>
   )

@@ -11,6 +11,7 @@ export const buttonVariants = cva(
     'active:scale-[0.97] disabled:pointer-events-none disabled:opacity-45',
   ],
   {
+    // Filled buttons show keyboard focus as a thin white ring inside rather than the pink outline.
     defaultVariants: { size: 'md', variant: 'primary' },
     variants: {
       size: {
@@ -19,12 +20,15 @@ export const buttonVariants = cva(
         sm: 'min-h-11 px-4 text-subhead',
       },
       variant: {
-        destructive: 'bg-danger text-on-tint',
+        destructive:
+          'bg-danger text-on-tint focus-visible:outline-2 focus-visible:-outline-offset-[5px] focus-visible:outline-white/80',
         gray: 'bg-surface-2 text-label',
         plain: 'bg-transparent text-tint',
         primary:
-          'bg-tint text-on-tint shadow-[0_6px_16px_color-mix(in_srgb,var(--lt-tint)_25%,transparent)]',
-        success: 'bg-leaf text-on-tint',
+          'bg-tint text-on-tint shadow-[0_6px_16px_color-mix(in_srgb,var(--lt-tint)_25%,transparent)]' +
+          ' focus-visible:outline-2 focus-visible:-outline-offset-[5px] focus-visible:outline-white/80',
+        success:
+          'bg-leaf text-on-tint focus-visible:outline-2 focus-visible:-outline-offset-[5px] focus-visible:outline-white/80',
         tinted: 'bg-tint-soft text-tint',
       },
       width: { auto: '', full: 'w-full' },

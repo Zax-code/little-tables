@@ -12,9 +12,13 @@ import { IconTile, ListGroup, ListRow } from './list.js'
 import {
   AnswerTiles,
   CharacterDock,
+  FormBreakdown,
   FractionText,
+  LetterBank,
   NumberPad,
   PinPad,
+  VerbChip,
+  type LetterKey,
   type PadKey,
 } from './practice.js'
 import { NavigationBar, Screen } from './structure.js'
@@ -128,6 +132,32 @@ describe('accessibility', () => {
     ],
     ['fraction', <FractionText denominator={4} numerator={3} />],
     [
+      'letter bank',
+      <LetterBank
+        eraseLabel="Effacer"
+        label="Lettres"
+        letters={['p', 'o', 'u', 'v', ' ', 'n']}
+        onKey={() => undefined}
+        spaceLabel="espace"
+        submitLabel="Valider"
+        used={[0]}
+      />,
+    ],
+    [
+      'verb chip and breakdown',
+      <>
+        <VerbChip tense="au présent" verb="finir" />
+        <FormBreakdown
+          parts={[
+            { role: 'stem', text: 'fin' },
+            { role: 'mark', text: 'iss' },
+            { role: 'ending', text: 'ent' },
+          ]}
+          underline
+        />
+      </>,
+    ],
+    [
       'screen and navigation',
       <Screen
         top={<NavigationBar back={{ label: 'Parents', onBack: () => undefined }} title="Léa" />}
@@ -154,6 +184,48 @@ describe('NumberPad', () => {
   it('can block submitting an empty answer', () => {
     render(<NumberPad label="Pavé numérique" onKey={() => undefined} submitDisabled />)
     expect(screen.getByRole('button', { name: 'Valider' })).toBeDisabled()
+  })
+})
+
+describe('LetterBank', () => {
+  it('sends each tile once, then erases and submits', async () => {
+    const keys: LetterKey[] = []
+    function Bank() {
+      const [used, setUsed] = useState<number[]>([])
+      return (
+        <LetterBank
+          eraseLabel="Effacer"
+          label="Lettres"
+          letters={['f', 'i', 'n', 'i', 's', ' ']}
+          onKey={(key) => {
+            keys.push(key)
+            if (typeof key === 'object') setUsed((current) => [...current, key.index])
+          }}
+          spaceLabel="espace"
+          submitDisabled={used.length === 0}
+          submitLabel="Valider"
+          used={used}
+        />
+      )
+    }
+    const user = userEvent.setup()
+    render(<Bank />)
+    expect(screen.getByRole('button', { name: 'Valider' })).toBeDisabled()
+    await user.click(screen.getByRole('button', { name: 'f' }))
+    expect(screen.getByRole('button', { name: 'f' })).toBeDisabled()
+    const [, secondI] = screen.getAllByRole('button', { name: 'i' })
+    if (secondI === undefined) throw new Error('two i tiles')
+    await user.click(secondI)
+    await user.click(screen.getByRole('button', { name: 'espace' }))
+    await user.click(screen.getByRole('button', { name: 'Effacer' }))
+    await user.click(screen.getByRole('button', { name: 'Valider' }))
+    expect(keys).toEqual([
+      { index: 0, letter: 'f' },
+      { index: 3, letter: 'i' },
+      { index: 5, letter: ' ' },
+      'erase',
+      'submit',
+    ])
   })
 })
 

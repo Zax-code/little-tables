@@ -23,7 +23,7 @@
     "googleClientId": "client.apps.googleusercontent.com",
     "isAdmin": false,
     "onboardingRequired": true,
-    "sessionExpiresAt": 1793829721438
+    "sessionExpiresAt": 1793932446018
   },
   "authStatusSignedOut": {
     "authenticated": false,
@@ -43,14 +43,14 @@
       "catalogVersion": "1",
       "flowerOrder": [
         "rose-lotus",
-        "sunset-zinnia",
-        "blushing-peony",
-        "ivory-magnolia",
-        "blue-wisteria",
         "twilight-lupine",
-        "velvet-foxglove",
         "plum-snapdragon",
-        "ruby-bleeding-heart"
+        "sunset-zinnia",
+        "ruby-bleeding-heart",
+        "velvet-foxglove",
+        "blue-wisteria",
+        "ivory-magnolia",
+        "blushing-peony"
       ],
       "introductionSeen": false
     },
@@ -59,7 +59,7 @@
     ],
     "profile": {
       "avatarId": "fenna-fox",
-      "id": "67a20756-2ba3-45f4-ba81-b22db0a60b0f",
+      "id": "ab5c7523-8d47-4c47-b930-7c9b9d686785",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -104,7 +104,7 @@
   "createProfile": {
     "profile": {
       "avatarId": "malo-bear",
-      "id": "8ebd0291-94d8-46d4-9c95-1b5759ced7b4",
+      "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -177,7 +177,7 @@
     "profiles": [
       {
         "avatarId": "fenna-fox",
-        "id": "67a20756-2ba3-45f4-ba81-b22db0a60b0f",
+        "id": "ab5c7523-8d47-4c47-b930-7c9b9d686785",
         "learningPaths": {
           "enabledSkills": [],
           "focusSkill": null,
@@ -189,14 +189,28 @@
       },
       {
         "avatarId": "malo-bear",
-        "id": "8ebd0291-94d8-46d4-9c95-1b5759ced7b4",
+        "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
         "learningPaths": {
           "enabledSkills": [
             "column-subtraction"
           ],
           "focusSkill": null,
           "mode": "manual",
-          "subtractionMethod": "decomposition"
+          "subtractionMethod": "decomposition",
+          "conjugation": {
+            "focus": {
+              "tense": null,
+              "verb": "finir"
+            },
+            "tenses": [
+              "present",
+              "imperfect"
+            ],
+            "verbs": [
+              "finir",
+              "apercevoir"
+            ]
+          }
         },
         "name": "Tommy",
         "reminderMinute": null
@@ -205,7 +219,7 @@
   },
   "lockedPin": {
     "error": "parent_lock_locked",
-    "lockedUntil": 1791238622518
+    "lockedUntil": 1791341347185
   },
   "logout": {
     "status": "signed-out"
@@ -213,7 +227,7 @@
   "onboarding": {
     "profile": {
       "avatarId": "fenna-fox",
-      "id": "67a20756-2ba3-45f4-ba81-b22db0a60b0f",
+      "id": "ab5c7523-8d47-4c47-b930-7c9b9d686785",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -227,7 +241,7 @@
   "parentLockStatus": {
     "configured": true,
     "lockedUntil": null,
-    "pinSalt": "xSMGbp5/nQD3U3ZYKDdmDQ"
+    "pinSalt": "2nuKnRFoDO5SUoPQRu1VBA"
   },
   "parentLockUnset": {
     "configured": false,
@@ -235,7 +249,7 @@
     "pinSalt": null
   },
   "refresh": {
-    "sessionExpiresAt": 1793829722886,
+    "sessionExpiresAt": 1793932447595,
     "status": "renewed"
   },
   "removeEmail": {
@@ -243,7 +257,7 @@
     "removed": true
   },
   "removeProfile": {
-    "removedProfileId": "8ebd0291-94d8-46d4-9c95-1b5759ced7b4"
+    "removedProfileId": "de51a1f0-c22e-4b4b-b617-bea9f5049e42"
   },
   "resetParentLock": {
     "configured": false,
@@ -255,7 +269,7 @@
       "hash": "SHA-256",
       "iterations": 100000
     },
-    "pinSalt": "xSMGbp5/nQD3U3ZYKDdmDQ"
+    "pinSalt": "2nuKnRFoDO5SUoPQRu1VBA"
   },
   "signIn": {
     "onboardingRequired": true,
@@ -270,14 +284,28 @@
   "updateLearningPaths": {
     "profile": {
       "avatarId": "malo-bear",
-      "id": "8ebd0291-94d8-46d4-9c95-1b5759ced7b4",
+      "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
       "learningPaths": {
         "enabledSkills": [
           "column-subtraction"
         ],
         "focusSkill": null,
         "mode": "manual",
-        "subtractionMethod": "decomposition"
+        "subtractionMethod": "decomposition",
+        "conjugation": {
+          "focus": {
+            "tense": null,
+            "verb": "finir"
+          },
+          "tenses": [
+            "present",
+            "imperfect"
+          ],
+          "verbs": [
+            "finir",
+            "apercevoir"
+          ]
+        }
       },
       "name": "Tommy",
       "reminderMinute": null
@@ -286,7 +314,7 @@
   "updateProfile": {
     "profile": {
       "avatarId": "malo-bear",
-      "id": "8ebd0291-94d8-46d4-9c95-1b5759ced7b4",
+      "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -302,7 +330,7 @@
       "hash": "SHA-256",
       "iterations": 100000
     },
-    "pinSalt": "xSMGbp5/nQD3U3ZYKDdmDQ"
+    "pinSalt": "2nuKnRFoDO5SUoPQRu1VBA"
   },
   "wrongPin": {
     "error": "wrong_pin",
