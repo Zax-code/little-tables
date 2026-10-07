@@ -39,10 +39,18 @@ const notice =
 /** Weather verbs: conjugated with « il » only, kept although the Lefff marks them defective. */
 const impersonal = new Set(['falloir', 'grêler', 'neiger', 'pleuvoir'])
 
+/**
+ * Reviewed corrections to the Lefff, applied before anything is written. The Lefff keeps some
+ * literary forms first; a CE2 child learns the usual one.
+ */
+const corrections: Readonly<Record<string, Partial<Record<'F' | 'I' | 'P', Forms>>>> = {
+  pouvoir: { P: ['peux', 'peux', 'peut', 'pouvons', 'pouvez', 'peuvent'] },
+}
+
 const wellFormed = /^[a-zàâçéèêëîïôûùüÿœæ-]+(er|ir|ïr|re|oir)$/
 
 const complete = (forms: Forms | undefined, length: number): forms is ReadonlyArray<string> =>
-  forms !== undefined && forms.length === length && forms.every((form) => typeof form === 'string')
+  forms?.length === length && forms.every((form) => typeof form === 'string')
 
 export type Group = '1' | '2' | '3' | 'aux'
 
@@ -57,8 +65,9 @@ const groupOf = (verb: string, entry: Entry): Group => {
 type Row = Readonly<{ forms: ReadonlyArray<string | null>; group: Group; verb: string }>
 
 const rows: Row[] = []
-for (const [verb, entry] of Object.entries(lexicon)) {
+for (const [verb, raw] of Object.entries(lexicon)) {
   if (!wellFormed.test(verb)) continue
+  const entry: Entry = { ...raw, ...corrections[verb] }
   const usable = complete(entry.P, 6) && complete(entry.I, 6) && complete(entry.F, 6)
   const participle = entry.K?.[0]
   if (typeof participle !== 'string') continue
@@ -92,13 +101,14 @@ let stale = false
 for (const [path, content] of outputs) {
   const target = join(root, path)
   if (check) {
-    let current: Buffer | null = null
-    try {
-      current = readFileSync(target)
-    } catch {
-      current = null
-    }
-    if (current === null || !current.equals(Buffer.from(content))) {
+    const current = (() => {
+      try {
+        return readFileSync(target)
+      } catch {
+        return null
+      }
+    })()
+    if (!current?.equals(Buffer.from(content))) {
       console.error(`${path} is out of date: run pnpm --filter @little-tables/verbs generate`)
       stale = true
     }

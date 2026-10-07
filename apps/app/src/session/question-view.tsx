@@ -9,16 +9,23 @@ import type {
   PracticeAnswer,
   PracticeQuestion,
 } from '@little-tables/engine/schema'
-import { Button, cn, FractionText } from '@little-tables/ui'
+import { Button, cn, FractionText, LetterBank, VerbChip, type LetterKey } from '@little-tables/ui'
 import { Sprout } from 'lucide-react'
-import { useState, type ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 import { useI18n } from '../i18n/i18n.js'
 import { ColumnGrid } from './column.js'
 import { useColumnEntry } from './column-entry.js'
 import { GardenBed, GardenPot, PlantingBed } from './figures.js'
 import { filledParts } from './fraction-figures.js'
-import { formatFraction, formatNumber, fractionInWords, spokenPrompt } from './format.js'
+import {
+  displayVerb,
+  formatFraction,
+  formatNumber,
+  fractionInWords,
+  spokenPrompt,
+  tenseLabel,
+} from './format.js'
 import { ChoiceTiles, ComparisonTiles, DigitsPad, FractionPad, MultiPick } from './pads.js'
 import { useTypedNumber } from './typed-number.js'
 import { RulerControls, RulerDrawing, RulerSlider } from './ruler.js'
@@ -161,6 +168,8 @@ function ExerciseQuestion(props: ExerciseQuestionProps) {
       return <CompareQuestion {...props} exercise={exercise} />
     case 'fraction-operation':
       return <OperationQuestion {...props} exercise={exercise} />
+    case 'conjugation':
+      return <ConjugationQuestion {...props} exercise={exercise} />
     default:
       return <>{children({ panel: null, prompt: null })}</>
   }
@@ -640,4 +649,129 @@ function OperationQuestion(props: KindProps<'fraction-operation'>) {
       })}
     </>
   )
+}
+
+/* Conjugation (C11 and C12) -------------------------------------------------------------------- */
+
+/** The first tile showing `letter` that is not used yet, appended to the answer. */
+const withLetter = (
+  letters: ReadonlyArray<string>,
+  used: ReadonlyArray<number>,
+  letter: string,
+): ReadonlyArray<number> => {
+  const spent = new Set(used)
+  const index = letters.findIndex(
+    (candidate, position) => candidate === letter && !spent.has(position),
+  )
+  return index < 0 ? used : [...used, index]
+}
+
+/** The letters typed so far, as indexes into the tiles, and the keyboard of an iPad. */
+function useLetters(exercise: Extract<Exercise, { kind: 'conjugation' }>, active: boolean) {
+  const [used, setUsed] = useState<ReadonlyArray<number>>([])
+  const typed = used.map((index) => exercise.letters[index] ?? '').join('')
+  const add = (letter: string) =>
+    setUsed((current) => withLetter(exercise.letters, current, letter))
+  const erase = () => setUsed((current) => current.slice(0, -1))
+  useEffect(() => {
+    if (!active) return undefined
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.metaKey || event.ctrlKey || event.altKey) return
+      if (event.key === 'Backspace') {
+        event.preventDefault()
+        setUsed((current) => current.slice(0, -1))
+      } else if (event.key.length === 1 && event.key !== 'Enter') {
+        const letter = event.key.normalize('NFC').toLowerCase()
+        setUsed((current) => withLetter(exercise.letters, current, letter))
+      }
+    }
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [active, exercise.letters])
+  return { add, erase, typed, used }
+}
+
+function ConjugationQuestion(props: KindProps<'conjugation'>) {
+  const { children, exercise, isCorrect, onAnswer, settled } = props
+  const { language, t } = useI18n()
+  const writing = exercise.choices.length === 0
+  const letters = useLetters(exercise, writing && settled === null)
+  const submit = () => {
+    if (letters.typed.trim() === '') return
+    onAnswer({ response: { type: 'text', value: letters.typed.normalize('NFC') } })
+  }
+  useEffect(() => {
+    if (!writing || settled !== null) return undefined
+    const onEnter = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter' || letters.typed.trim() === '') return
+      event.preventDefault()
+      onAnswer({ response: { type: 'text', value: letters.typed.normalize('NFC') } })
+    }
+    window.addEventListener('keydown', onEnter)
+    return () => window.removeEventListener('keydown', onEnter)
+  }, [letters.typed, onAnswer, settled, writing])
+  const press = (key: LetterKey) => {
+    if (settled !== null) return
+    if (key === 'erase') letters.erase()
+    else if (key === 'submit') submit()
+    else letters.add(key.letter)
+  }
+  const state = settled === null ? 'idle' : settled.correct ? 'correct' : 'wrong'
+  const given = settled?.response?.type === 'text' ? settled.response.value : null
+  const shown =
+    settled === null
+      ? writing
+        ? letters.typed
+        : ''
+      : settled.correct && given !== null
+        ? given
+        : exercise.expected
+  const prompt = (
+    <div className="flex flex-col items-center gap-5">
+      <VerbChip tense={tenseLabel(exercise.tense, language)} verb={displayVerb(exercise.verb)} />
+      <p className="sr-only">{spokenPrompt(exercise, language)}</p>
+      <div
+        aria-hidden
+        className="flex flex-wrap items-end justify-center gap-x-3 gap-y-3"
+        lang="fr"
+      >
+        <span className="text-[3.5rem] leading-none font-black">{exercise.subject}</span>
+        <span className="text-[2.25rem] leading-none font-black">
+          <Blank state={state}>
+            <span className="inline-block min-w-[4.5em] text-center">{shown || '\u00a0'}</span>
+          </Blank>
+        </span>
+      </div>
+      {writing ? (
+        <output aria-live="polite" className="sr-only">
+          {t('conj.answerFor', { question: spokenPrompt(exercise, language) })} {letters.typed}
+        </output>
+      ) : null}
+      <p className="text-callout font-semibold text-label-2">
+        {t(writing ? 'conj.writeForm' : 'conj.touchForm')}
+      </p>
+    </div>
+  )
+  const panel = writing ? (
+    <LetterBank
+      disabled={settled !== null}
+      eraseLabel={t('session.erase')}
+      label={t('conj.letters')}
+      letters={exercise.letters}
+      onKey={press}
+      spaceLabel={t('conj.space')}
+      submitDisabled={letters.typed.trim() === ''}
+      submitLabel={t('session.submit')}
+      used={letters.used}
+    />
+  ) : (
+    <ChoiceTiles
+      chosen={settled?.response ?? null}
+      choices={exercise.choices}
+      isCorrect={(answer) => isCorrect(exercise, answer)}
+      onChoose={(response) => onAnswer({ response })}
+      size="word"
+    />
+  )
+  return <>{children({ panel, prompt })}</>
 }

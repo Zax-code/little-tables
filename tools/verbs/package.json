@@ -6,7 +6,7 @@
   "description": "Builds the verb index and the conjugation test oracle from the Lefff (LGPL-LR).",
   "scripts": {
     "generate": "tsx src/generate.ts",
-    "check": "tsx src/generate.ts --check"
+    "test": "tsx src/generate.ts --check"
   },
   "devDependencies": {
     "french-verbs-lefff": "3.4.0",

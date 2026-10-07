@@ -519,3 +519,35 @@ réglage ne les active).
 7. **Aucun verbe coché par défaut**, pour les nouveaux profils comme pour les existants.
 8. **Écran « Mes verbes »** à part dans Progrès (§4.1), plutôt qu'un groupe de Mes chemins.
 9. **Trois formes témoins** (je, nous, ils au présent) sous chaque ligne du catalogue (§4.4).
+
+---
+
+## 11. Implémentation (7 octobre 2026)
+
+Ce qui a été livré, et les écarts avec les sections précédentes :
+
+- **Données.** `tools/verbs` (`pnpm --filter @little-tables/verbs generate`) écrit l'oracle
+  `lefff-forms.json.gz`, l'index serveur `data/verbs-index.tsv` et l'index du catalogue
+  `apps/app/public/verbs/index.json` (7 768 verbes). L'exemple Rust `extract-irregular-verbs`
+  écrit `data/verbs-irregular.tsv` : les 421 verbes que les règles ne reproduisent pas (9 Ko
+  gzip). Les 7 347 autres se conjuguent par règles. Une table de corrections relues s'applique
+  au Lefff avant tout (aujourd'hui : « je peux » au lieu de « je puis »).
+- **Listes à la main.** Les verbes en être, les h aspirés et les modèles « verbe cousin » sont des
+  constantes de `crates/lt-domain/src/conjugation/mod.rs` ; les sections du catalogue sont dans
+  `apps/app/src/parents/verb-catalogue.ts`. Il n'y a pas de `verbs-lists.json`.
+- **Moteur.** Module `conjugation/` (règles, données, exercice), `SkillId::Conjugation` hors de
+  `LEARNING_SKILLS` (les vecteurs dorés et la progression des maths ne bougent pas), famille
+  d'interaction `Letters`, poids 1,5 en rappel, focus par verbe (`ConjugationFocus`, et
+  `PracticePolicy.focusVerb` pour une séance sur un verbe), `validate_learning_paths` partagée
+  par le serveur et le client, opérations WASM `verbTable` et `validateLearningPaths`.
+- **WebAssembly.** 293 Kio gzip pour un budget de 300 Kio (246 Kio avant). Les données comptent
+  pour 12 Kio, le reste vient surtout de la sérialisation des nouveaux types. Le budget n'a pas
+  été relevé.
+- **Interface.** `LetterBank`, `VerbChip`, `FormBreakdown` et la taille `word` des tuiles dans
+  `packages/ui` ; séance (tuiles, banque de lettres, clavier physique, retour « il manque
+  l'accent », indice en cinq stratégies) ; « À l'école » (groupe Conjugaison, focus par verbe) ;
+  catalogue et fiche verbe (`/parents/children/$profileId/verbs`) ; « Mes verbes »
+  (`/progress/verbs`) et la section de la feuille Autres séances ; personnes fautives dans
+  « Ce qui coince ».
+- **Passé composé.** Cocher ce temps ajoute être et avoir aux verbes cochés ; ils se travaillent
+  ensuite aux temps cochés, comme les autres verbes.

@@ -31,12 +31,15 @@ const defaultPaths = {
 } as const
 
 /** A server keeping one family in memory. */
-const memoryServer = (childId: string) => {
+const memoryServer = (
+  childId: string,
+  learningPaths: ChildProfile['learningPaths'] = defaultPaths,
+) => {
   let onboarded = false
   let child: ChildProfile = {
     avatarId: 'sprout',
     id: childId,
-    learningPaths: defaultPaths,
+    learningPaths,
     name: 'google',
     reminderMinute: 1080,
   }
@@ -139,9 +142,9 @@ beforeAll(() => {
 afterEach(cleanup)
 
 /** Opens the app on a fresh device and names the first child. */
-const openApp = async (childId: string) => {
+const openApp = async (childId: string, learningPaths?: ChildProfile['learningPaths']) => {
   window.history.replaceState(null, '', '/')
-  const server = memoryServer(childId)
+  const server = memoryServer(childId, learningPaths)
   const runtime = createRuntime(Layer.mergeAll(server.layer, testEngine, LocalStore.layer))
   const user = userEvent.setup()
   render(
@@ -207,6 +210,71 @@ describe('the new app', () => {
 
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
     await waitFor(() => expect(server.received.length).toBeGreaterThanOrEqual(5))
+    await runtime.dispose()
+  }, 30_000)
+
+  it('practises a verb the parent ticked, with word tiles', async () => {
+    const finir: Readonly<Record<string, string>> = {
+      elle: 'finit',
+      elles: 'finissent',
+      il: 'finit',
+      ils: 'finissent',
+      je: 'finis',
+      nous: 'finissons',
+      tu: 'finis',
+      vous: 'finissez',
+    }
+    const { runtime, server, user } = await openApp('conjugation', {
+      ...defaultPaths,
+      conjugation: { focus: null, tenses: ['present'], verbs: ['finir'] },
+    })
+    await user.click(screen.getByRole('button', { name: 'Autres séances' }))
+    await user.click(await screen.findByRole('button', { name: 'finir' }))
+    let verbQuestions = 0
+    for (let index = 0; index < 20; index += 1) {
+      const next = screen.queryByRole('button', { name: 'Suivant' })
+      if (next !== null) {
+        await user.click(next)
+        continue
+      }
+      const spoken = await waitFor(
+        () =>
+          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.getByText(/^(\S+)… finir, au présent$|^\d+ (fois|divisé par) \d+$/),
+        { timeout: 5000 },
+      )
+      if (spoken.textContent === 'Voir mon jardin') break
+      const verb = /^(\S+)… finir/.exec(spoken.textContent)
+      let answer: string
+      if (verb !== null) {
+        verbQuestions += 1
+        answer = finir[verb[1] ?? ''] ?? ''
+        expect(screen.getByText('finir · au présent')).toBeInTheDocument()
+      } else {
+        const [left, word, right] = spoken.textContent.split(' ')
+        answer = String(
+          word === 'fois' ? Number(left) * Number(right) : Number(left) / Number(right),
+        )
+      }
+      const tile = screen.queryByRole('button', { name: answer })
+      if (tile !== null) {
+        await user.click(tile)
+      } else {
+        for (const digit of answer) await user.click(screen.getByRole('button', { name: digit }))
+        await user.click(screen.getByRole('button', { name: 'Valider' }))
+      }
+      expect(await screen.findByRole('button', { name: 'Suivant' })).toBeInTheDocument()
+    }
+    expect(verbQuestions).toBeGreaterThanOrEqual(4)
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await waitFor(() =>
+      expect(server.received.some(({ factKey }) => factKey === 'conj:finir:present')).toBe(true),
+    )
+    expect(
+      server.received
+        .filter(({ factKey }) => factKey === 'conj:finir:present')
+        .every(({ correct }) => correct),
+    ).toBe(true)
     await runtime.dispose()
   }, 30_000)
 

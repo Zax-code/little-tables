@@ -43,6 +43,12 @@ export const policies = {
     questionCount: skill === 'column-addition' || skill === 'column-subtraction' ? 9 : 8,
   }),
   table: (table: number): PracticePolicy => ({ focusTable: table, questionCount: 8 }),
+  /** Eight questions: six on the verb at its ticked tenses, two from elsewhere. */
+  verb: (paths: LearningPathSettings, verb: string): PracticePolicy => ({
+    curriculum: { paths },
+    focusVerb: { tense: null, verb },
+    questionCount: 8,
+  }),
 } as const
 
 /** Day keys of events written without one fall back to UTC, as on the server. */

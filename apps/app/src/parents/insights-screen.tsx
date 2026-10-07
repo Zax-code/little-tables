@@ -52,7 +52,22 @@ const struggleCopy = (struggle: ApiSchema.Struggle, translator: Translator) =>
           })
       }
     })
+    .concat(
+      (struggle.persons ?? []).length === 0
+        ? []
+        : [
+            translator.t('hard.persons', {
+              persons: (struggle.persons ?? [])
+                .slice(0, 2)
+                .map(({ person }) => pronouns[person] ?? '')
+                .join(', '),
+            }),
+          ],
+    )
     .join(' · ')
+
+/** The subjects of each person, as French conjugation tables write them. */
+const pronouns: ReadonlyArray<string> = ['je', 'tu', 'il, elle', 'nous', 'vous', 'ils, elles']
 
 export function InsightsScreen() {
   const { profileId } = useParams({ strict: false })

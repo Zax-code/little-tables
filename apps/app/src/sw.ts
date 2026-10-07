@@ -6,7 +6,7 @@
 import { clientsClaim } from 'workbox-core'
 import { precacheAndRoute } from 'workbox-precaching'
 import { registerRoute } from 'workbox-routing'
-import { CacheFirst } from 'workbox-strategies'
+import { CacheFirst, StaleWhileRevalidate } from 'workbox-strategies'
 
 declare const self: ServiceWorkerGlobalScope
 
@@ -114,4 +114,13 @@ registerRoute(
     url.origin === self.location.origin &&
     request.destination === 'image',
   new CacheFirst({ cacheName: 'little-tables-visuals-v3' }),
+)
+
+// The verb index of the parent's catalogue: loaded on demand, kept for offline visits.
+registerRoute(
+  ({ request, url }) =>
+    request.method === 'GET' &&
+    url.origin === self.location.origin &&
+    url.pathname.startsWith('/verbs/'),
+  new StaleWhileRevalidate({ cacheName: 'little-tables-verbs-v1' }),
 )

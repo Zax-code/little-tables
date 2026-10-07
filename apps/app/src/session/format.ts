@@ -3,7 +3,12 @@
  * readers, the statement shown after an answer and the names of skill levels. Ported from the
  * previous app; the answers come from the engine (`describeExercise`).
  */
-import type { Exercise, ExerciseDescription, PracticeAnswer } from '@little-tables/engine/schema'
+import type {
+  Exercise,
+  ExerciseDescription,
+  PracticeAnswer,
+  Tense,
+} from '@little-tables/engine/schema'
 
 import type { Language } from '../data/schema.js'
 import { createTranslator, type MessageKey, type MessageValues } from '../i18n/translator.js'
@@ -14,6 +19,31 @@ const translate = (locale: Language, key: MessageKey, values?: MessageValues) =>
 type Locale = Language
 
 type FractionLike = Readonly<{ denominator: number; numerator: number; whole?: number | undefined }>
+
+/** « connaître » as the catalogue writes it, in the 1990 spelling (« connaitre »). */
+export const displayVerb = (verb: string): string =>
+  verb === 'croître' ? verb : verb.replaceAll('î', 'i')
+
+/** « au présent », « à l’imparfait »… (French in every language). */
+export const tenseLabel = (tense: Tense, locale: Locale): string =>
+  translate(locale, `conj.tense.${tense}`)
+
+/** A subject and a form: « ils finissent », « j’aime ». */
+export const withSubject = (subject: string, form: string): string =>
+  subject.endsWith('’') || subject.endsWith("'") ? `${subject}${form}` : `${subject} ${form}`
+
+/** Letters without their accents, to tell a missing accent from a spelling mistake. */
+export const withoutAccents = (text: string): string =>
+  text.normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+
+/** The child's answer as the engine compares it: one form, single spaces, composed accents. */
+export const normalizeForm = (text: string): string =>
+  text.normalize('NFC').trim().toLowerCase().replace(/[’ʼ`]/g, "'").replace(/\s+/g, ' ')
+
+/** True when a wrong written form only lacks or misplaces accents (« alle » for « allé »). */
+export const onlyAccentsDiffer = (answer: string, expected: string): boolean =>
+  normalizeForm(answer) !== normalizeForm(expected) &&
+  withoutAccents(normalizeForm(answer)) === withoutAccents(normalizeForm(expected))
 
 const intlLocale = (locale: Locale): string => (locale === 'zh-Hans' ? 'zh-CN' : locale)
 
@@ -161,6 +191,8 @@ export const formatAnswer = (answer: PracticeAnswer, locale: Locale): string => 
       return formatFraction(answer)
     case 'comparison':
       return answer.symbol
+    case 'text':
+      return answer.value
     default:
       return ''
   }
@@ -178,6 +210,7 @@ const comparisonText = (
 export const answerWords = (answer: PracticeAnswer, locale: Locale): string => {
   if (answer.type === 'integer') return formatNumber(answer.value, locale)
   if (answer.type === 'fraction') return fractionInWords(answer, locale)
+  if (answer.type === 'text') return answer.value
   if (answer.type === 'comparison') {
     return translate(
       locale,
@@ -219,6 +252,9 @@ export const isEquivalentForm = (
   response: PracticeAnswer,
 ): boolean => {
   const expected = description.expected
+  if (expected.type === 'text' && response.type === 'text') {
+    return normalizeForm(expected.value) !== normalizeForm(response.value)
+  }
   return (
     expected.type === 'fraction' &&
     response.type === 'fraction' &&
@@ -288,6 +324,8 @@ export const exerciseStatement = (
     }
     case 'fraction-operation':
       return `${formatFraction(exercise.left)} ${operatorSymbol(exercise.operation)} ${formatFraction(exercise.right)} = ${formatFraction(description.operationResult ?? { denominator: 1, numerator: 0 })}`
+    case 'conjugation':
+      return withSubject(exercise.subject, exercise.expected)
   }
 }
 
@@ -357,12 +395,25 @@ export const spokenPrompt = (exercise: Exercise, locale: Locale): string => {
       return t('say.compare', { left: words(exercise.left), right: words(exercise.right) })
     case 'fraction-operation':
       return `${words(exercise.left)} ${t(exercise.operation === 'add' ? 'say.plus' : 'say.minus')} ${words(exercise.right)} ${t('say.equals')} ${t('say.blank')}`
+    case 'conjugation':
+      return t('conj.say', {
+        subject: exercise.subject.replace('’', 'e'),
+        tense: tenseLabel(exercise.tense, locale),
+        verb: displayVerb(exercise.verb),
+      })
   }
 }
 
 /** A short, friendly name for a skill level, used in stats and celebration insights. */
 export const levelLabel = (factKey: string, locale: Locale): string => {
   const t = (key: MessageKey, values?: MessageValues) => translate(locale, key, values)
+  const verb = /^conj:([^:]+):(present|imperfect|future|compound-past)$/.exec(factKey)
+  if (verb !== null) {
+    return t('conj.level', {
+      tense: tenseLabel(verb[2] as Tense, locale),
+      verb: displayVerb(verb[1] ?? ''),
+    })
+  }
   const addition = /^add:(\d+):(\d+)$/.exec(factKey)
   if (addition !== null) return `${addition[1]} + ${addition[2]}`
   const subtraction = /^sub:(\d+):(\d+)$/.exec(factKey)

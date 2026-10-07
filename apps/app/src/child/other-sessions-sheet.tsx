@@ -8,6 +8,7 @@ import type { ProfileState } from '../data/schema.js'
 import { policies } from '../data/practice.js'
 import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
+import { displayVerb } from '../session/format.js'
 import { weakerBonusTable } from './bonus-table.js'
 import { useLaunch } from './launch.js'
 import { pathStyle } from './path-style.js'
@@ -106,6 +107,35 @@ export function OtherSessionsSheet({ onOpenChange, open, state }: OtherSessionsS
               </div>
             </div>
           ))}
+        </section>
+      )}
+
+      {(progress.conjugation ?? []).length === 0 ? null : (
+        <section className="flex flex-col gap-2">
+          <h3 className="px-1 text-footnote font-extrabold tracking-wide text-label-2 uppercase">
+            {t('otherSessions.verbs')}
+          </h3>
+          <div className="flex items-stretch gap-2">
+            <span
+              aria-hidden
+              className={`flex w-12 shrink-0 items-center justify-center rounded-control text-footnote font-black text-on-tint ${pathStyle.conjugation.tile}`}
+            >
+              {pathStyle.conjugation.mark}
+            </span>
+            <div className="flex flex-1 flex-wrap gap-2">
+              {(progress.conjugation ?? []).map(({ verb }) => (
+                <Chip
+                  className="min-h-11 text-subhead"
+                  disabled={launch.pending}
+                  key={verb}
+                  lang="fr"
+                  onClick={() => start(policies.verb(paths, verb))}
+                >
+                  {displayVerb(verb)}
+                </Chip>
+              ))}
+            </div>
+          </div>
         </section>
       )}
 

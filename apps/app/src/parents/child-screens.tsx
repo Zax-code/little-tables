@@ -1,6 +1,12 @@
 /** E3, E4, E6 and E9: one child's profile, their school, a new child, removing a child. */
 import type { ChildProfile, ProfileChanges } from '@little-tables/api-contract'
-import type { LearningPathSettings, SkillId } from '@little-tables/engine/schema'
+import {
+  maxConjugationVerbs,
+  tenses,
+  type ConjugationSettings,
+  type SkillId,
+  type Tense,
+} from '@little-tables/engine/schema'
 import {
   Alert,
   Button,
@@ -17,8 +23,8 @@ import {
   toast,
 } from '@little-tables/ui'
 import { useQueryClient } from '@tanstack/react-query'
-import { useNavigate, useParams } from '@tanstack/react-router'
-import { Bell, School, Sprout } from 'lucide-react'
+import { useNavigate } from '@tanstack/react-router'
+import { Bell, CaseLower, School, Sprout } from 'lucide-react'
 import { Effect } from 'effect'
 import { useId, useState, type SyntheticEvent } from 'react'
 
@@ -37,7 +43,9 @@ import { LocalStore } from '../data/local-store.js'
 import { emptyState } from '../data/local-store.js'
 import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
+import { displayVerb } from '../session/format.js'
 import { failureCode, useApi } from './api.js'
+import { noConjugation, useChild, usePathSettings } from './learning-paths.js'
 import { DEFAULT_REMINDER_MINUTE, ReminderTimeSheet } from './reminder-time-sheet.js'
 import {
   disableReminders,
@@ -45,13 +53,6 @@ import {
   remindedProfile,
   remindersSupported,
 } from './reminders.js'
-
-/** The family's child named in the path, or `null` once removed. */
-function useChild(): ChildProfile | null {
-  const { profileId } = useParams({ strict: false })
-  const { family } = useApp()
-  return family.profiles.find(({ id }) => id === profileId) ?? null
-}
 
 /** Replaces one child in the family after the server answered. */
 function useReplaceChild() {
@@ -355,10 +356,8 @@ function SchoolSettings({ child }: Readonly<{ child: ChildProfile }>) {
   const { activeProfile } = useApp()
   const { t } = useI18n()
   const navigate = useNavigate()
-  const api = useApi()
-  const replace = useReplaceChild()
   const state = useProfileState()
-  const [settings, setSettings] = useState<LearningPathSettings>(child.learningPaths)
+  const [settings, persist] = usePathSettings(child)
   // The skills come from the engine, grouped by path; the active child's snapshot is enough.
   const progress = useLearningProgress(
     child.id === activeProfile.id ? (state.data ?? emptyState()) : emptyState(),
@@ -366,23 +365,50 @@ function SchoolSettings({ child }: Readonly<{ child: ChildProfile }>) {
   )
 
   const enabled = new Set(settings.enabledSkills)
+  const conjugation = settings.conjugation ?? noConjugation
+  const verbFocus = conjugation.focus
 
-  const persist = (next: LearningPathSettings) => {
-    const previous = settings
-    setSettings(next)
-    void api((client) => client.updateLearningPaths(child.id, next))
-      .then(({ profile }) => replace(profile))
-      .catch(() => {
-        setSettings(previous)
-        toast.error(t('child.saveFailed'))
-      })
-  }
   const toggle = (skill: SkillId) =>
     persist({
       ...settings,
       enabledSkills: settings.enabledSkills.includes(skill)
         ? settings.enabledSkills.filter((current) => current !== skill)
         : [...settings.enabledSkills, skill],
+    })
+  const setConjugation = (next: ConjugationSettings) => persist({ ...settings, conjugation: next })
+  const ticked = new Set(conjugation.tenses)
+  const toggleTense = (tense: Tense) => {
+    const on = !ticked.has(tense)
+    const chosen = on
+      ? tenses.filter((candidate) => candidate === tense || ticked.has(candidate))
+      : conjugation.tenses.filter((candidate) => candidate !== tense)
+    // The compound past is half auxiliary: être and avoir come with it.
+    const auxiliaries =
+      on && tense === 'compound-past'
+        ? ['être', 'avoir'].filter((verb) => !conjugation.verbs.includes(verb))
+        : []
+    const verbs = [...conjugation.verbs, ...auxiliaries].slice(0, maxConjugationVerbs)
+    const focus =
+      verbFocus?.tense !== null &&
+      verbFocus?.tense !== undefined &&
+      !chosen.includes(verbFocus.tense)
+        ? { ...verbFocus, tense: null }
+        : verbFocus
+    setConjugation({ focus, tenses: chosen, verbs })
+  }
+  const focusOn = (skill: SkillId | null) =>
+    persist({
+      ...settings,
+      focusSkill: skill,
+      ...(settings.conjugation === undefined
+        ? {}
+        : { conjugation: { ...conjugation, focus: null } }),
+    })
+  const focusVerb = (verb: string) =>
+    persist({
+      ...settings,
+      conjugation: { ...conjugation, focus: { tense: null, verb } },
+      focusSkill: null,
     })
   const skills = progress.paths.flatMap((path) =>
     path.skills.map((skill) => ({ path: path.id, skill: skill.id })),
@@ -437,18 +463,75 @@ function SchoolSettings({ child }: Readonly<{ child: ChildProfile }>) {
         ))}
       </ListGroup>
 
+      <ListGroup footer={t('school.conjugationCopy')} title={t('school.conjugation')}>
+        <ListRow
+          detail={
+            conjugation.verbs.length === 0
+              ? t('school.verbsNone')
+              : String(conjugation.verbs.length)
+          }
+          leading={
+            <IconTile className="bg-sun">
+              <CaseLower aria-hidden />
+            </IconTile>
+          }
+          onClick={() =>
+            void navigate({
+              params: { profileId: child.id },
+              to: '/parents/children/$profileId/verbs',
+            })
+          }
+          title={t('school.verbs')}
+          trailing="chevron"
+          {...(conjugation.verbs.length === 0
+            ? {}
+            : {
+                subtitle: [...conjugation.verbs].reverse().slice(0, 5).map(displayVerb).join(', '),
+              })}
+        />
+        {tenses.map((tense) => (
+          <ListRow
+            accessory={
+              <Switch
+                aria-label={t(`conj.tenseTitle.${tense}`)}
+                checked={ticked.has(tense)}
+                onCheckedChange={() => toggleTense(tense)}
+              />
+            }
+            key={tense}
+            title={t(`conj.tenseTitle.${tense}`)}
+          />
+        ))}
+      </ListGroup>
+
       <ListGroup footer={t('school.focusCopy')} title={t('school.focus')}>
         <ListRow
-          onClick={() => persist({ ...settings, focusSkill: null })}
+          onClick={() => focusOn(null)}
           title={t('school.focusNone')}
-          {...(settings.focusSkill === null ? { trailing: 'check' as const } : {})}
+          {...(settings.focusSkill === null && verbFocus === null
+            ? { trailing: 'check' as const }
+            : {})}
         />
         {skills.map(({ skill }) => (
           <ListRow
             key={skill}
-            onClick={() => persist({ ...settings, focusSkill: skill })}
+            onClick={() => focusOn(skill)}
             title={t(`skill.${skill}`)}
-            {...(settings.focusSkill === skill ? { trailing: 'check' as const } : {})}
+            {...(settings.focusSkill === skill && verbFocus === null
+              ? { trailing: 'check' as const }
+              : {})}
+          />
+        ))}
+        {conjugation.verbs.map((verb) => (
+          <ListRow
+            key={verb}
+            onClick={() => focusVerb(verb)}
+            title={
+              verbFocus?.verb === verb && verbFocus.tense !== null
+                ? `${displayVerb(verb)} · ${t(`conj.tenseTitle.${verbFocus.tense}`)}`
+                : displayVerb(verb)
+            }
+            {...(verbFocus?.verb === verb ? { trailing: 'check' as const } : {})}
           />
         ))}
       </ListGroup>

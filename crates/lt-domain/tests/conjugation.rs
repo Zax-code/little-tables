@@ -101,6 +101,7 @@ fn the_verbs_a_parent_asked_for() {
         ("apprendre", 0, Tense::CompoundPast, "ai appris"),
         ("aller", 3, Tense::CompoundPast, "sommes allés"),
         ("falloir", 2, Tense::Future, "faudra"),
+        ("pouvoir", 0, Tense::Present, "peux"),
     ] {
         assert_eq!(reference_of(verb, tense, person), expected, "{verb}");
     }

@@ -27,7 +27,13 @@ import { answerQuestion, completeSession, continueSession } from '../data/practi
 import type { ProfileState } from '../data/schema.js'
 import { useI18n } from '../i18n/i18n.js'
 import { firstWrongColumn } from './column-entry.js'
-import { exerciseStatement, expectedAnswerText, formatAnswer, isEquivalentForm } from './format.js'
+import {
+  exerciseStatement,
+  expectedAnswerText,
+  formatAnswer,
+  isEquivalentForm,
+  onlyAccentsDiffer,
+} from './format.js'
 import { ExerciseHint, FactRescue } from './hints.js'
 import { QuestionView, type Response, type Settled } from './question-view.js'
 import { playChime, prepareChime, tap } from './sound.js'
@@ -209,7 +215,11 @@ function Session({ initial, state }: Readonly<{ initial: PracticeSession; state:
     ) : (
       <span className="flex flex-col">
         <strong className="text-callout font-extrabold">
-          {t('session.bubbleAlmost', { answer: answerText })}
+          {exercise?.kind === 'conjugation' &&
+          settled.response?.type === 'text' &&
+          onlyAccentsDiffer(settled.response.value, exercise.expected)
+            ? t('conj.accent', { answer: answerText })
+            : t('session.bubbleAlmost', { answer: answerText })}
         </strong>
         <span className="text-footnote font-semibold text-label-2">
           {t('session.lookTogether')}
@@ -286,6 +296,7 @@ function Session({ initial, state }: Readonly<{ initial: PracticeSession; state:
                       description={description}
                       exercise={exercise}
                       method={activeProfile.learningPaths.subtractionMethod}
+                      response={settled.response}
                       wrongColumn={wrongColumn}
                     />
                   )
