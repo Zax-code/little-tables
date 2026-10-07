@@ -41,7 +41,8 @@ dans `tools/verbs/`) :
 Conclusion : il n'y a pas besoin d'embarquer les formes. Le moteur embarque un **conjugueur par
 règles** et un **petit jeu de données** (3e groupe explicite, exceptions, listes), et le Lefff
 devient un **oracle de test** : le conjugueur doit reproduire ses 7 771 × 4 temps × 6 personnes
-formes, à l'exception des variantes documentées (§1.4).
+formes dans leur orthographe traditionnelle ; la forme de référence, rectifiée (1990), en est
+dérivée par les règles de §1.4.
 
 ### 1.3 Ce que le moteur embarque
 
@@ -66,17 +67,27 @@ spec fonctionnelle est mise à jour en ce sens (son §3.2 et sa décision 8).
 
 Le Lefff suit l'orthographe traditionnelle. L'école enseigne parfois l'orthographe rectifiée de
 1990 (le programme 2025 la donne comme référence), et les manuels de CE2 écrivent _j'essaie_.
-Règle : **la forme de référence est celle du Lefff**, et les formes suivantes sont **acceptées**
-comme justes, avec le retour « oui ! » et, en sous-titre, la forme de référence :
+Décision (6 octobre 2026) : **la forme de référence est l'orthographe rectifiée de 1990**, et les
+formes traditionnelles sont **acceptées** comme justes, avec le retour « oui ! » et, en sous-titre,
+la forme de référence. Le conjugueur produit d'abord la forme traditionnelle (celle du Lefff), puis
+lui applique quatre règles déterministes (`rectify`) :
 
-| Famille                                                                           | Référence (Lefff)       | Variante acceptée            |
-| --------------------------------------------------------------------------------- | ----------------------- | ---------------------------- |
-| _-ayer_ (29 verbes)                                                               | j'essaye, j'essayerai   | j'essaie, j'essaierai        |
-| _-eler_ / _-eter_ qui doublent hors _appeler_, _jeter_ et composés (≈ 100 verbes) | j'épelle, je feuillette | j'épèle, je feuillète (1990) |
-| _é_er_ au futur (224 verbes)                                                      | j'espérerai             | j'espèrerai (1990)           |
-| participe avec _être_, sujets _je, tu, nous, vous_                                | allé                    | allée, allés, allées         |
+| Règle (1990)                                                                              | Référence                                   | Variante acceptée (Lefff)       |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------- |
+| _-eler_ / _-eter_ : `è` partout, sauf _appeler_, _jeter_ et leurs composés (qui doublent) | j'épèle, je feuillète ; j'appelle, je jette | j'épelle, je feuillette         |
+| _é_er_ au futur : `è`                                                                     | j'espèrerai                                 | j'espérerai                     |
+| accent circonflexe sur `i` dans les formes verbales, sauf _croître_ et ses composés       | il connait, il parait, il nait, il plait    | il connaît, il paraît, il plaît |
+| _-ayer_ : 1990 laisse les deux ; les manuels écrivent `i`                                 | j'essaie, j'essaierai                       | j'essaye, j'essayerai           |
 
-Les variantes sont calculées par le conjugueur (`accepted_forms`), jamais stockées.
+S'y ajoute l'accord du participe avec _être_ pour _je, tu, nous, vous_ (_allée, allés, allées_
+acceptés, _allé_ en référence). Les **infinitifs** suivent la même règle dans le catalogue
+(_connaitre, paraitre, naitre, assoir_) ; la fiche verbe indique « aussi écrit _connaître_ » et
+la recherche, sans accents, trouve les deux graphies. L'identifiant de clé reste l'infinitif
+traditionnel du Lefff (`conj:connaître:present`), pour ne dépendre d'aucune règle.
+
+Les variantes sont calculées par le conjugueur (`accepted_forms`), jamais stockées. `rectify` est
+testée sur une liste à la main (épeler, feuilleter, appeler, jeter, espérer, connaître, croître,
+plaire, essayer) et sur l'ensemble du lexique par le fixture de §7.1, qui porte les deux formes.
 
 ### 1.5 L'index des verbes (recherche et validation)
 
@@ -325,8 +336,13 @@ futur `finir` · `` · `ont`, pour le 3e groupe le radical est la partie commune
 
 ### 4.1 Flux de données
 
-- `useLearningProgress(state, paths)` lit `progress.conjugation` pour D7, la feuille Autres séances
-  et l'écran parent. Rien à charger de plus : le moteur connaît les verbes cochés via `paths`.
+- `useLearningProgress(state, paths)` lit `progress.conjugation` pour l'écran Mes verbes (D7), la
+  feuille Autres séances et l'écran parent. Rien à charger de plus : le moteur connaît les verbes
+  cochés via `paths`.
+- Route `/progress/verbs` (`progress/verbs-screen.tsx`) : un tableau verbes × temps cochés, une
+  pastille par case (`MasteryState`), le toucher d'une ligne lance `policies.verb`. L'onglet
+  Progrès (`progress-screen.tsx`) montre une carte « mes verbes » dès qu'un verbe est coché ;
+  « Mes chemins » reste réservé aux sentiers de maths.
 - Nouvelle politique dans `data/practice.ts` : `policies.verb(paths, verb)` = 8 questions,
   `focus: { verb, tense: null }`, 2 questions d'ailleurs (règle `focusTable`). Le `PracticePolicy`
   gagne `focusVerb?: { verb, tense }` (hors arrosage, comme `focusSkill`).
@@ -465,7 +481,7 @@ futur `finir` · `` · `ont`, pour le 3e groupe le radical est la partie commune
 | --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------- |
 | C0  | `tools/verbs`, données de §1.3 et §1.5, `THIRD_PARTY_NOTICES.md`, module `conjugation/` (lexique, familles, règles, variantes, normalisation), oracle Lefff, opérations `conjugate` / `verbInfo`                    | moteur vert, aucun changement visible |
 | C1  | Types (`Tense`, `ConjugationSettings`, `Exercise::Conjugation`, `PracticeAnswer::Text`), `skill_for_key`, clés et vivier, générateur en **découverte** (tuiles, leurres), validation, contrat, schémas TS, fixtures | moteur et serveur prêts               |
-| C2  | Espace parent : groupe Conjugaison, catalogue, fiche verbe, focus ; `VerbChip` ; `ConjugationQuestion` en tuiles ; retour ; `levelLabel` ; D7 ; Autres séances ; i18n                                               | **première version utilisable**       |
+| C2  | Espace parent : groupe Conjugaison, catalogue, fiche verbe, focus ; `VerbChip` ; `ConjugationQuestion` en tuiles ; retour ; `levelLabel` ; écran Mes verbes (D7) ; Autres séances ; i18n                            | **première version utilisable**       |
 | C3  | `LetterBank`, génération en rappel, variantes acceptées et `accentOnly`, indices avec `FormBreakdown`, `persons` dans Ce qui coince                                                                                 | parité avec la spec fonctionnelle     |
 | C4  | « quel temps ? », étiquettes (fonctionnelle §4.4), rappels Web Push neutres                                                                                                                                         | plus tard                             |
 
@@ -480,23 +496,26 @@ réglage ne les active).
 | ----------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
 | Conjugueur par règles faux sur un verbe rare                | l'oracle Lefff couvre tous les verbes ; une divergence est un test rouge, pas un bug en production                                |
 | Budget WASM                                                 | données ≈ 12 Ko gzip ; mesure au lot C0, marge de 50 Kio                                                                          |
-| Désaccord école / référence (1990, _essaie_)                | variantes acceptées (§1.4) ; la forme de l'école n'est jamais comptée fausse                                                      |
+| Désaccord école / référence (1990, _essaie_)                | référence 1990 et formes traditionnelles acceptées (§1.4) ; la forme de l'école n'est jamais comptée fausse                       |
 | Liste des verbes en être, h aspiré, impersonnels incomplète | listes à la main relues ; le fichier est une donnée, une correction est une PR d'une ligne                                        |
 | Index 20 Ko sur mobile parent                               | chargé à la demande, en cache SWR ; recherche en mémoire                                                                          |
 | Réglage avec un verbe retiré du catalogue                   | le serveur refuse les nouveaux réglages inconnus ; les clés déjà apprises restent dans le snapshot et sont ignorées par le vivier |
 
 ---
 
-## 10. Points ouverts (valeur par défaut)
+## 10. Décisions (6 octobre 2026)
 
-1. **Focus par verbe plutôt que par couple verbe · temps** dans l'arrosage : retenu (§2.5) ; la
-   fiche verbe permet tout de même de préciser un temps, qui filtre les clés mises en avant.
-2. **Référence Lefff + variantes acceptées** plutôt que référence rectifiée 1990 : retenu (§1.4),
-   une seule source de vérité ; à revoir si une école impose 1990 dans les retours.
+1. **Focus par verbe, temps facultatif** dans l'arrosage (§2.5) ; la fiche verbe permet de
+   préciser un temps, qui filtre les clés mises en avant.
+2. **Référence rectifiée 1990, formes traditionnelles acceptées** (§1.4) : le Lefff reste l'oracle
+   de la forme traditionnelle, `rectify` dérive la référence.
 3. **Pronom _on_** : non (fonctionnelle §12).
 4. **Verbes en être à la 3e personne** : masculin seulement ; si l'on veut _elle est allée_ plus
    tard, c'est une donnée (`subjects`) et non une règle à changer.
-5. **Index hors WASM** : retenu ; l'alternative (36 Ko gzip dans le moteur) reste possible si le
-   chargement à la demande gêne.
-6. **Limite de 60 verbes cochés** : par profil ; au-delà, le catalogue affiche « retire un verbe
+5. **Index hors WASM**, chargé à la demande ; l'alternative (36 Ko gzip dans le moteur) reste
+   possible si le chargement à la demande gêne.
+6. **Limite de 60 verbes cochés** par profil ; au-delà, le catalogue affiche « retire un verbe
    d'abord ».
+7. **Aucun verbe coché par défaut**, pour les nouveaux profils comme pour les existants.
+8. **Écran « Mes verbes »** à part dans Progrès (§4.1), plutôt qu'un groupe de Mes chemins.
+9. **Trois formes témoins** (je, nous, ils au présent) sous chaque ligne du catalogue (§4.4).

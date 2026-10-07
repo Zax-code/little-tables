@@ -1,6 +1,6 @@
 # Conjugaison du CE2 : verbes du 2e et du 3e groupe — spécification produit
 
-Statut : révision 2 (6 octobre 2026) : périmètre validé, catalogue exhaustif et 1er groupe
+Statut : révision 3 (6 octobre 2026) : points ouverts tranchés (§12), périmètre validé, catalogue exhaustif et 1er groupe
 ajoutés avec la spec technique `docs/conjugation/TECHNICAL_SPEC.md`  
 Date : 2026-10-06  
 Périmètre : ajouter à little tables un sentier « conjugaison » que le parent compose à partir d’un
@@ -157,6 +157,9 @@ mais ne sont plus proposées.
 - **Correction** : comparaison **exacte** après normalisation de la casse, des apostrophes
   typographiques et des espaces. Les accents comptent : _allé_ et _alle_ ne sont pas la même forme.
   Au passé composé, la réponse est « auxiliaire + participe » (« ai fini », « sont allés »).
+  La **forme de référence** suit l’orthographe rectifiée de 1990, celle du programme 2025 (_il
+  épèle_, _j’espèrerai_, _il connait_) ; la forme traditionnelle (_il épelle_, _il connaît_) et
+  _j’essaye_ à côté de _j’essaie_ sont acceptées comme justes (spec technique §1.4).
 - **Retour** : « oui ! finissent ♡ » ou « presque — c’était finissent ». Deux retours précisés :
   - seule une lettre accentuée diffère : « presque — il manque l’accent : allé » ;
   - au passé composé avec être, pour je / tu / nous / vous, les formes accordées au féminin ou au
@@ -271,14 +274,15 @@ Le planificateur existant s’applique. Ce qui change :
 Écrire un mot lettre à lettre prend plus de temps qu’un chiffre ; le poids garde la séance autour
 de 90 secondes.
 
-### 6.3 « Autres séances » et « Mes chemins »
+### 6.3 « Autres séances » et « Mes verbes »
 
 - La feuille **Autres séances** reçoit une section « la conjugaison » avec une puce par verbe coché.
   Une séance de verbe compte 8 questions sur ce verbe, dans les temps cochés, entrelacées de 2
   questions d’ailleurs (règle de `focusTable`).
-- L’écran **Mes chemins** (D7) reçoit un groupe « la conjugaison » : une ligne par verbe, les temps
-  cochés en sous-titre, la barre bien ancré / en train de pousser / à découvrir sur les temps
-  cochés, et le lancement d’une séance de verbe.
+- L’onglet **Progrès** reçoit une carte « mes verbes » dès qu’un verbe est coché. Elle ouvre
+  l’écran **Mes verbes** (D7) : un tableau verbes × temps cochés, une pastille par case (bien
+  ancré / en train de pousser / à découvrir), et le lancement d’une séance de verbe au toucher
+  d’une ligne. « Mes chemins » reste réservé aux sentiers de maths.
 
 ## 7. Progrès, jardin et textes
 
@@ -327,7 +331,7 @@ Minuscules, douceur, jardin, « ♡ ». Exemples :
 | C11   | Séance, découverte : étiquette « finir · au présent », pronom « ils », trou, 4 tuiles (finissent, finisent, finissez, finissaient)                    |
 | C12   | Séance, rappel : « nous », case de saisie « pouv▏ », banque de lettres (p o u v o n s + e z t a i), ⌫ et ✓                                            |
 | C13   | Retour encourageant : bulle « Hmm… c’était finissent », indice « la marque de ils, c’est -ent » avec `fin · iss · ent`, Autre astuce, À moi d’essayer |
-| D7    | Mes chemins : groupe « la conjugaison », une ligne par verbe avec temps, barre et compteur, légende, puis les sentiers de maths                       |
+| D7    | Mes verbes : tableau verbes × temps cochés, une pastille par case, légende, séance de verbe au toucher d’une ligne                                    |
 
 Restent à dessiner pendant l’implémentation : la question au passé composé (tuile espace), le
 retour juste, la section conjugaison de la feuille Autres séances, « Ce qui coince » avec les
@@ -410,7 +414,7 @@ personnes, les états vides (aucun verbe coché), les versions sombres et la lar
 | Phase | Contenu                                                                                                                                                | Visible ? |
 | ----- | ------------------------------------------------------------------------------------------------------------------------------------------------------ | --------- |
 | 0     | Catalogue de verbes (données, script, tests), dérivation des temps, variantes `Exercise` / `PracticeAnswer`, réglage `conjugation`, validation serveur | non       |
-| 1     | Écrans parent (P1, P2, P3), sentier dans l’arrosage, exercice en **tuiles**, leurres, retour et indices, Mes chemins, Autres séances, Ce qui coince    | oui       |
+| 1     | Écrans parent (P1, P2, P3), sentier dans l’arrosage, exercice en **tuiles**, leurres, retour et indices, Mes verbes, Autres séances, Ce qui coince     | oui       |
 | 2     | **Banque de lettres**, mode rappel, accents et accord acceptés, insights par personne                                                                  | oui       |
 | 3     | « quel temps ? » et les étiquettes                                                                                                                     | oui       |
 
@@ -433,7 +437,7 @@ la banque de lettres n’existe pas (comme une compétence de comparaison).
 
 ## 12. Décisions proposées et questions ouvertes
 
-### Décisions proposées (à confirmer)
+### Décisions proposées (confirmées le 6 octobre 2026)
 
 1. **Clé par verbe et par temps**, personne tirée à chaque question (§3.3).
 2. **Banque de lettres** plutôt que clavier système pour le rappel (§5.1).
@@ -450,16 +454,18 @@ la banque de lettres n’existe pas (comme une compétence de comparaison).
 9. **Pas de récompense dédiée** ; les clés comptent dans les portes du jardin (§7.2).
 10. **Aucune ouverture automatique** : le sentier n’existe que par le parent (§3.1).
 
-### Questions ouvertes
+### Questions ouvertes, tranchées le 6 octobre 2026
 
-- **Le pronom _on_** : fréquent à l’oral, absent de la plupart des tableaux de CE2. Proposition :
-  non, sauf demande.
-- **Les formes témoins** dans le catalogue : trois (je, nous, ils) suffisent-elles au parent pour
-  reconnaître le verbe, ou faut-il la fiche systématiquement ?
-- **Verbes cochés par défaut à la création d’un enfant** : rien, ou les huit du programme ?
-  Proposition : rien, conformément au principe « le parent compose ».
-- **Place dans Progrès** : un groupe dans « Mes chemins » (D7) ou un onglet à part « Mes verbes » ?
-  Proposition : le groupe, pour ne pas ajouter d’onglet.
+- **Focus** : un verbe, avec un temps facultatif qui filtre (spec technique §2.5).
+- **Orthographe de référence** : la rectifiée de 1990, comme le programme 2025 ; les formes
+  traditionnelles sont acceptées (§4.1, spec technique §1.4).
+- **Le pronom _on_** : non. **Verbes en être au passé composé** : _il_ / _ils_ à la 3e personne.
+- **Index des verbes** : hors du moteur WASM, chargé à la demande par le catalogue.
+- **Verbes cochés par défaut** : aucun, conformément au principe « le parent compose ».
+- **Place dans Progrès** : un écran à part « Mes verbes » (D7), ouvert depuis une carte de
+  l’onglet Progrès.
+- **Limite** : 60 verbes cochés par enfant.
+- **Formes témoins** : trois par ligne du catalogue (je, nous, ils au présent).
 
 ### Sources
 
