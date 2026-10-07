@@ -280,7 +280,7 @@ function Session({ initial, state }: Readonly<{ initial: PracticeSession; state:
               />
               <section
                 className={cn(
-                  'relative flex max-h-[62dvh] flex-col gap-3 overflow-y-auto rounded-t-[2rem] px-4 pt-4 pb-3 safe-bottom transition-colors',
+                  'relative flex max-h-[62dvh] flex-col gap-3 overflow-y-auto rounded-t-[2rem] px-4 pt-4 pb-[max(0.75rem,env(safe-area-inset-bottom))] transition-colors',
                   settled === null
                     ? 'bg-surface-2'
                     : settled.correct

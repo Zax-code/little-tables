@@ -173,7 +173,7 @@ function Celebration({
           </div>
         ) : null}
       </main>
-      <div className="relative px-4 pb-3 safe-bottom">
+      <div className="relative px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <Button
           autoFocus
           icon={<Sprout aria-hidden className="size-5" />}

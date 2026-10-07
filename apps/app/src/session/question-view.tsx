@@ -718,6 +718,9 @@ function ConjugationQuestion(props: KindProps<'conjugation'>) {
   }
   const state = settled === null ? 'idle' : settled.correct ? 'correct' : 'wrong'
   const given = settled?.response?.type === 'text' ? settled.response.value : null
+  // The answer is as big as its subject; long forms (« finissaient ») shrink both together.
+  const size =
+    exercise.subject.length + exercise.expected.length > 13 ? 'text-[2.75rem]' : 'text-[3.5rem]'
   const shown =
     settled === null
       ? writing
@@ -735,10 +738,10 @@ function ConjugationQuestion(props: KindProps<'conjugation'>) {
         className="flex flex-wrap items-end justify-center gap-x-3 gap-y-3"
         lang="fr"
       >
-        <span className="text-[3.5rem] leading-none font-black">{exercise.subject}</span>
-        <span className="text-[2.25rem] leading-none font-black">
+        <span className={cn('leading-none font-black', size)}>{exercise.subject}</span>
+        <span className={cn('leading-none font-black', size)}>
           <Blank state={state}>
-            <span className="inline-block min-w-[4.5em] text-center">{shown || '\u00a0'}</span>
+            <span className="inline-block min-w-[3.5em] text-center">{shown || '\u00a0'}</span>
           </Blank>
         </span>
       </div>
