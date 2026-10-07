@@ -1,10 +1,11 @@
 # Conjugaison du CE2 : verbes du 2e et du 3e groupe — spécification produit
 
-Statut : proposition (révision 1), à valider avant implémentation  
+Statut : révision 2 (6 octobre 2026) : périmètre validé, catalogue exhaustif et 1er groupe
+ajoutés avec la spec technique `docs/conjugation/TECHNICAL_SPEC.md`  
 Date : 2026-10-06  
 Périmètre : ajouter à little tables un sentier « conjugaison » que le parent compose à partir d’un
-catalogue de verbes du 2e et du 3e groupe (plus les auxiliaires être et avoir), aux quatre temps du
-programme de CE2.
+catalogue de verbes, d’abord ceux du 2e et du 3e groupe (plus les auxiliaires être et avoir), aux
+quatre temps du programme de CE2.
 
 Ce document suit le modèle de `CE2_MATH_EXPANSION_SPEC.md` et reste compatible avec
 `docs/rewrite/TECHNICAL_SPEC.md` (moteur partagé Rust, `/api/v2`, hors-ligne d’abord) et avec les
@@ -101,20 +102,22 @@ Un seul écran, derrière le code parent, avec :
   la terminaison en rose, un sélecteur des quatre temps, l’interrupteur « dans l’arrosage de
   {name} » et le bouton « en ce moment en classe ». La fiche sert aussi au parent pour les devoirs.
 
-**Périmètre du catalogue.** « Tous les verbes du 2e et du 3e groupe », ce sont plus de six cents
-verbes, dont la plupart n’ont rien à faire dans un cahier de CE2. On livre un **catalogue choisi**
-d’environ cent verbes (annexe A), construit à partir des manuels et des listes de fréquence du
-cycle 2 : les huit verbes du programme et leur famille (revenir, devenir, tenir, apprendre,
-comprendre, refaire, revoir), les verbes du 2e groupe les plus fréquents en classe, les verbes du
-3e groupe courants (partir, sortir, dormir, lire, écrire, mettre, boire, savoir, devoir, croire,
-vivre, ouvrir, offrir, attendre, entendre, répondre, perdre, connaître, courir, rire, suivre,
-recevoir…) et deux impersonnels (falloir, pleuvoir, conjugués à _il_ seulement). Ajouter un verbe
-revient à ajouter une ligne de données (§9.1) : un verbe manquant est une petite PR, pas une
-fonctionnalité.
+**Périmètre du catalogue** (révision 2). La **recherche couvre tout le lexique** : les 7 771
+verbes non défectifs du Lefff (voir `docs/conjugation/TECHNICAL_SPEC.md` §1), ce qui règle les
+demandes au cas par cas (_apercevoir, sourire, essayer, servir, comprendre, apprendre_…). Les
+**sections** du catalogue, elles, n’affichent que des listes relues (annexe A) : les huit verbes du
+programme et leur famille (revenir, devenir, tenir, apprendre, comprendre, refaire, revoir), les
+verbes du 2e groupe les plus fréquents en classe, les verbes du 3e groupe courants (partir,
+sortir, dormir, lire, écrire, mettre, boire, savoir, devoir, croire, vivre, ouvrir, offrir,
+attendre, entendre, répondre, perdre, connaître, courir, rire, suivre, recevoir…), les verbes du
+1er groupe courants, et deux impersonnels (falloir, pleuvoir, conjugués à _il_ seulement). Un
+verbe trouvé par la recherche mais absent des sections apparaît sous « Autres verbes » une fois
+coché.
 
-Le 1er groupe (-er) est **hors périmètre** de cette spec, puisque la demande porte sur les 2e et
-3e groupes. Son ajout serait surtout une question de données (familles orthographiques : -ger,
--cer, -eler, -eter, -yer) et profiterait du même catalogue.
+Le 1er groupe (-er) **entre aussi dans le catalogue** (révision 2) : la spec technique montre qu’il
+se conjugue entièrement par règles depuis l’infinitif, donc sans données à embarquer, et des
+parents demandent déjà _essayer_. Il n’a pas de section mise en avant au-delà de « 1er groupe ·
+courants » : on le trouve par la recherche.
 
 ### 3.3 L’item d’apprentissage : un verbe à un temps
 
@@ -409,7 +412,7 @@ personnes, les états vides (aucun verbe coché), les versions sombres et la lar
 | 0     | Catalogue de verbes (données, script, tests), dérivation des temps, variantes `Exercise` / `PracticeAnswer`, réglage `conjugation`, validation serveur | non       |
 | 1     | Écrans parent (P1, P2, P3), sentier dans l’arrosage, exercice en **tuiles**, leurres, retour et indices, Mes chemins, Autres séances, Ce qui coince    | oui       |
 | 2     | **Banque de lettres**, mode rappel, accents et accord acceptés, insights par personne                                                                  | oui       |
-| 3     | « quel temps ? », les étiquettes, puis le 1er groupe dans le catalogue                                                                                 | oui       |
+| 3     | « quel temps ? » et les étiquettes                                                                                                                     | oui       |
 
 Chaque phase est une PR, vérifiée par `pnpm check` et `pnpm doctor`. La phase 1 est utilisable
 seule : les tuiles suffisent pour découvrir, et la clé plafonne à « en train de pousser » tant que
@@ -440,9 +443,10 @@ la banque de lettres n’existe pas (comme une compétence de comparaison).
    CM2 ; on ne le note pas en CE2.
 5. **Cocher le passé composé coche être et avoir au présent** (§3.1).
 6. **Latence ignorée** pour la conjugaison (§4.1).
-7. **Catalogue choisi d’environ cent verbes**, avec recherche, plutôt que les six cents verbes des
-   dictionnaires (§3.2). Un verbe manquant s’ajoute par une PR de données.
-8. **1er groupe hors périmètre** de cette spec (§3.2).
+7. **Catalogue exhaustif derrière la recherche, sections choisies devant** (§3.2, révision 2) :
+   tous les verbes du Lefff se trouvent par la recherche ; les sections n’affichent que les listes
+   relues (programme, verbes courants de chaque groupe).
+8. **1er groupe inclus**, conjugué par règles (§3.2, révision 2 ; spec technique §1.3).
 9. **Pas de récompense dédiée** ; les clés comptent dans les portes du jardin (§7.2).
 10. **Aucune ouverture automatique** : le sentier n’existe que par le parent (§3.1).
 
