@@ -28,7 +28,6 @@ export function NewPathsSheet({ paths, tablesAcquired }: NewPathsSheetProps) {
   }
   return (
     <Sheet
-      closeLabel={t('home.newPathDismiss')}
       onOpenChange={(next) => {
         if (!next) dismiss()
       }}

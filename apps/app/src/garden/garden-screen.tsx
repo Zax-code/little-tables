@@ -183,12 +183,7 @@ function RulesSheet({
 }: Readonly<{ onOpenChange: (open: boolean) => void; open: boolean }>) {
   const { t } = useI18n()
   return (
-    <Sheet
-      closeLabel={t('common.close')}
-      onOpenChange={onOpenChange}
-      open={open}
-      title={t('rules.title')}
-    >
+    <Sheet onOpenChange={onOpenChange} open={open} title={t('rules.title')}>
       <ul className="flex flex-col gap-4">
         {rules.map(({ copy, icon: Icon, tile, title }) => (
           <li className="flex items-start gap-3" key={title}>

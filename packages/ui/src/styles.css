@@ -183,18 +183,29 @@
  * Bottom sheets glide up from the bottom edge and settle without vaul's long crawl, then leave
  * a little faster, gathering speed. Outside the layers and one attribute more specific than
  * vaul's own rules, which it adds to the page after this sheet.
+ *
+ * The entrances fill backwards only: a filled end frame would outrank the inline transform and
+ * opacity vaul writes while a finger drags the sheet, pinning it in place and reporting a zero
+ * swipe on release. The exit fills forwards so the sheet stays off-screen until it unmounts.
  */
+.lt-sheet {
+  will-change: transform;
+  backface-visibility: hidden;
+}
+.lt-sheet-overlay {
+  will-change: opacity;
+}
 .lt-sheet[data-vaul-drawer][data-vaul-drawer-direction='bottom'][data-vaul-snap-points='false'][data-state='open'] {
-  animation: lt-sheet-in 0.46s cubic-bezier(0.25, 0.8, 0.3, 1) both;
+  animation: lt-sheet-in 0.46s cubic-bezier(0.25, 0.8, 0.3, 1) backwards;
 }
 .lt-sheet[data-vaul-drawer][data-vaul-drawer-direction='bottom'][data-vaul-snap-points='false'][data-state='closed'] {
-  animation: lt-sheet-out 0.3s cubic-bezier(0.45, 0, 0.8, 0.4) both;
+  animation: lt-sheet-out 0.3s cubic-bezier(0.45, 0, 0.8, 0.4) forwards;
 }
 .lt-sheet-overlay[data-vaul-overlay][data-vaul-snap-points='false'][data-state='open'] {
-  animation: lt-sheet-fade-in 0.46s ease-out both;
+  animation: lt-sheet-fade-in 0.46s ease-out backwards;
 }
 .lt-sheet-overlay[data-vaul-overlay][data-vaul-snap-points='false'][data-state='closed'] {
-  animation: lt-sheet-fade-out 0.3s ease-in both;
+  animation: lt-sheet-fade-out 0.3s ease-in forwards;
 }
 @keyframes lt-sheet-in {
   from {

@@ -13,12 +13,7 @@ export function InstallSteps({
 }: Readonly<{ onOpenChange: (open: boolean) => void; open: boolean }>) {
   const { t } = useI18n()
   return (
-    <Sheet
-      closeLabel={t('common.close')}
-      onOpenChange={onOpenChange}
-      open={open}
-      title={t('install.title')}
-    >
+    <Sheet onOpenChange={onOpenChange} open={open} title={t('install.title')}>
       <p className="flex items-center gap-2 text-body text-label-2">
         <Share aria-hidden className="size-5 shrink-0 text-sky" />
         {t('install.ios')}

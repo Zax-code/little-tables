@@ -1,6 +1,6 @@
 import * as AlertDialogPrimitive from '@radix-ui/react-alert-dialog'
 import { Slot } from '@radix-ui/react-slot'
-import { ChevronLeft, X } from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { cloneElement, isValidElement, type ComponentPropsWithRef, type ReactNode } from 'react'
 import { Toaster as SonnerToaster } from 'sonner'
 
@@ -124,45 +124,35 @@ function withContent(link: ReactNode, icon: ReactNode, label: string): ReactNode
 
 export type SheetProps = Readonly<{
   children: ReactNode
-  closeLabel?: string
   description?: ReactNode
   onOpenChange: (open: boolean) => void
   open: boolean
   title: ReactNode
 }>
 
-/** A bottom sheet with a grabber, a title and a close button; swipe down to dismiss. */
-export function Sheet({
-  children,
-  closeLabel = 'Fermer',
-  description,
-  onOpenChange,
-  open,
-  title,
-}: SheetProps) {
+/**
+ * A bottom sheet with a grabber and a title. No close button: a tap on the scrim, Escape, or a
+ * swipe down from the grabber or the title closes it; the body swipes too once scrolled to the top.
+ */
+export function Sheet({ children, description, onOpenChange, open, title }: SheetProps) {
   return (
     <Drawer.Root onOpenChange={onOpenChange} open={open}>
       <Drawer.Portal>
         <Drawer.Overlay className="lt-sheet-overlay fixed inset-0 z-40 bg-scrim" />
         <Drawer.Content className="lt-sheet fixed inset-x-0 bottom-0 z-50 mx-auto flex max-h-[92dvh] max-w-lg flex-col rounded-t-sheet bg-bg outline-none safe-bottom">
-          <div aria-hidden className="mx-auto mt-2.5 mb-1 h-1.25 w-10 rounded-full bg-label-3" />
-          <div className="flex items-start justify-between gap-3 px-4 pt-2 pb-3">
-            <div className="flex flex-col gap-0.5">
-              <Drawer.Title className="text-title-2 font-extrabold">{title}</Drawer.Title>
-              {description === undefined ? (
-                <Drawer.Description className="sr-only">{title}</Drawer.Description>
-              ) : (
-                <Drawer.Description className="text-subhead font-semibold text-label-2">
-                  {description}
-                </Drawer.Description>
-              )}
-            </div>
-            <Drawer.Close
-              aria-label={closeLabel}
-              className="flex size-9 items-center justify-center rounded-full bg-surface-2 text-label-2"
-            >
-              <X aria-hidden className="size-4.5" />
-            </Drawer.Close>
+          <div
+            aria-hidden
+            className="mx-auto mt-2.5 mb-1 h-1.25 w-10 shrink-0 rounded-full bg-label-3"
+          />
+          <div className="flex shrink-0 flex-col gap-0.5 px-4 pt-2 pb-3">
+            <Drawer.Title className="text-title-2 font-extrabold">{title}</Drawer.Title>
+            {description === undefined ? (
+              <Drawer.Description className="sr-only">{title}</Drawer.Description>
+            ) : (
+              <Drawer.Description className="text-subhead font-semibold text-label-2">
+                {description}
+              </Drawer.Description>
+            )}
           </div>
           <div className="flex flex-col gap-4 overflow-y-auto px-4 pb-6">{children}</div>
         </Drawer.Content>

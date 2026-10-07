@@ -36,7 +36,6 @@ export function OtherSessionsSheet({ onOpenChange, open, state }: OtherSessionsS
 
   return (
     <Sheet
-      closeLabel={t('common.close')}
       description={t('otherSessions.description')}
       onOpenChange={onOpenChange}
       open={open}
