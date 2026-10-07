@@ -5,9 +5,9 @@
   "type": "module",
   "description": "Agentic end-to-end tests of the PWA with e2e (tester.army), run against the Vite app and the Rust server without Google sign-in.",
   "scripts": {
-    "e2e": "e2e run",
-    "explore": "e2e explore",
-    "e2e:login": "e2e login openai",
+    "e2e": "bash scripts/e2e.sh run",
+    "e2e:login": "bash scripts/e2e.sh login openai",
+    "explore": "bash scripts/e2e.sh explore",
     "typecheck": "tsc -p tsconfig.json"
   },
   "devDependencies": {

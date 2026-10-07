@@ -6,10 +6,10 @@ verified goals are replayed from `.e2e/cache/` without calling the model again.
 
 ## Running
 
-e2e needs Node 24.8 or newer (or 22.22.3 on Node 22); `apps/e2e/.nvmrc` pins 24.
+e2e needs Node 24.8 or newer (or 22.22.3 on Node 22). `scripts/e2e.sh` switches to the Node of
+`apps/e2e/.nvmrc` through nvm when the current one is older (`nvm install 24` once).
 
 ```sh
-nvm use 24                                          # or any Node >= 24.8
 corepack pnpm e2e:login                             # once: sign in with ChatGPT Plus or Pro
 corepack pnpm e2e                                   # run every test in apps/e2e/tests
 corepack pnpm e2e --headed                          # watch the browser
