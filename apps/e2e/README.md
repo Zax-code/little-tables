@@ -10,7 +10,7 @@ e2e needs Node 24.8 or newer (or 22.22.3 on Node 22); `apps/e2e/.nvmrc` pins 24.
 
 ```sh
 nvm use 24                                          # or any Node >= 24.8
-corepack pnpm --filter @little-tables/e2e login     # once: sign in with ChatGPT Plus or Pro
+corepack pnpm e2e:login                             # once: sign in with ChatGPT Plus or Pro
 corepack pnpm e2e                                   # run every test in apps/e2e/tests
 corepack pnpm e2e --headed                          # watch the browser
 corepack pnpm --filter @little-tables/e2e explore 'add a second child'

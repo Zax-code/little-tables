@@ -7,7 +7,7 @@
   "scripts": {
     "e2e": "e2e run",
     "explore": "e2e explore",
-    "login": "e2e login openai",
+    "e2e:login": "e2e login openai",
     "typecheck": "tsc -p tsconfig.json"
   },
   "devDependencies": {

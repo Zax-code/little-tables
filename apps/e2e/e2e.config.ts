@@ -2,7 +2,7 @@ import type { E2EConfig } from 'e2e'
 import { chatgpt } from 'e2e/oauth/chatgpt'
 import { web } from '@e2e-dev/web'
 
-// The agent steps run on a ChatGPT Plus or Pro subscription: sign in once with `pnpm login`.
+// The agent steps run on a ChatGPT Plus or Pro subscription: sign in once with `corepack pnpm e2e:login`.
 export default {
   agents: {
     default: {
