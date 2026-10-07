@@ -44,12 +44,11 @@ The restricted deployment key can only send a release (`deploy-release <commit> 
 the service status or check public health; the VPS verifies the checksum, backs up, migrates,
 switches and rolls back if the new release is unhealthy.
 
-**Current state.** Deploying on merge is paused while the rewrite runs in pre-production
-(`https://math-preprod.leaetzak.love`, see [`deploy/preprod/`](./deploy/preprod/)): set the
-repository variable `DEPLOY_ON_MERGE` to `true` to resume it. Production still runs the previous
-Node server and MongoDB until the switch described in
-[`deploy/RUST_CUTOVER_RUNBOOK.md`](./deploy/RUST_CUTOVER_RUNBOOK.md); its Quadlet sources stay in
-`deploy/` until then.
+**Current state.** Production runs the Rust server and deploys on merge (repository variable
+`DEPLOY_ON_MERGE`). The previous Node server, its MongoDB and their Quadlets are retired; the
+switch is recorded in [`deploy/RUST_CUTOVER_RUNBOOK.md`](./deploy/RUST_CUTOVER_RUNBOOK.md).
+Pre-production (`https://math-preprod.leaetzak.love`, see [`deploy/preprod/`](./deploy/preprod/))
+can run a release beside production.
 
 `.env.example` lists the server's variables. Production refuses to start without
 `SESSION_SECRET`, `GOOGLE_CLIENT_ID`, the VAPID keys, `ADMIN_EMAILS` and `PUBLIC_ORIGIN`.

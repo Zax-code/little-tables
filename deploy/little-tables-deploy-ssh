@@ -4,16 +4,6 @@ set -euo pipefail
 readonly command=${SSH_ORIGINAL_COMMAND:-}
 
 case "$command" in
-  registry-login\ *)
-    user=${command#registry-login }
-    [[ $user =~ ^[A-Za-z0-9-]{1,39}$ ]] || exit 2
-    exec sudo /usr/bin/podman login ghcr.io --authfile /etc/little-tables/ghcr-auth.json --username "$user" --password-stdin
-    ;;
-  deploy\ ghcr.io/zax-code/little-tables:*)
-    image=${command#deploy }
-    [[ $image =~ ^ghcr\.io/zax-code/little-tables:[0-9a-f]{40}$ ]] || exit 2
-    exec sudo /usr/local/sbin/deploy-little-tables "$image"
-    ;;
   deploy-release\ *)
     # deploy-release <commit> <sha256>, with the release archive on standard input.
     read -r _ revision checksum extra <<<"$command"

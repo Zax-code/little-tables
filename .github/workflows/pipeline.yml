@@ -7,28 +7,34 @@ on:
   workflow_dispatch:
 
 concurrency:
-  group: little-tables-${{ github.workflow }}-${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: read
 
 env:
-  PNPM_VERSION: 11.2.2
+  CARGO_INCREMENTAL: 0
+  CARGO_TERM_COLOR: always
 
 jobs:
-  verify:
-    name: Verify
+  # The web app and the TypeScript packages, with the engine compiled to WebAssembly.
+  web:
+    name: Web app
     runs-on: ubuntu-24.04
-    timeout-minutes: 45
+    timeout-minutes: 20
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # The artwork sources (assets/generated, a quarter of a gigabyte) take no part in the checks.
+          sparse-checkout: |
+            /*
+            !/assets/generated/
+          sparse-checkout-cone-mode: false
 
       - name: Install pnpm
-        uses: pnpm/action-setup@0977fd99725f1db4007ccb2928dbb4e90d06cc86 # v6.0.10
-        with:
-          version: ${{ env.PNPM_VERSION }}
+        uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
@@ -41,19 +47,13 @@ jobs:
 
       - name: Set up Rust
         run: |
-          rustup toolchain install stable --profile minimal --component rustfmt,clippy --target wasm32-unknown-unknown
+          rustup toolchain install stable --profile minimal --target wasm32-unknown-unknown
           rustup default stable
 
       - name: Cache Cargo
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
         with:
-          path: |
-            ~/.cargo/registry/index
-            ~/.cargo/registry/cache
-            ~/.cargo/git/db
-            target
-          key: cargo-${{ runner.os }}-${{ hashFiles('Cargo.lock') }}
-          restore-keys: cargo-${{ runner.os }}-
+          cache-on-failure: true
 
       - name: Install WebAssembly tools
         # Downloads stay outside the checkout, where formatting and linting would see them.
@@ -77,12 +77,123 @@ jobs:
           tar -xzf "${binaryen}-x86_64-linux.tar.gz"
           sudo install -m 0755 "${binaryen}/bin/wasm-opt" /usr/local/bin/wasm-opt
 
-      - name: Run checks and build
-        run: pnpm check
+      - name: Build the WebAssembly engine
+        run: pnpm --filter @little-tables/engine build:wasm
 
-      # One archive per commit: the Rust server and the web app, as production runs them.
+      - name: Check formatting
+        run: pnpm format:check
+
+      - name: Lint
+        run: pnpm lint
+
+      - name: Typecheck
+        run: pnpm typecheck
+
+      - name: Test
+        run: pnpm test
+
+      - name: Build
+        run: pnpm build
+
+      - name: Upload web app build
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: web-dist
+          path: apps/app/dist/
+          if-no-files-found: error
+          retention-days: 1
+
+  rust:
+    name: Rust checks
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: crates
+
+      - name: Set up Rust
+        run: |
+          rustup toolchain install stable --profile minimal --component rustfmt,clippy
+          rustup default stable
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          cache-on-failure: true
+
+      - name: Check formatting
+        run: cargo fmt --all --check
+
+      - name: Lint
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+
+      - name: Test
+        run: cargo test --workspace --locked
+
+  # The production binary, as deploy/deploy-little-tables-release.sh runs it.
+  server:
+    name: Server binary
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: crates
+
+      - name: Set up Rust
+        run: |
+          rustup toolchain install stable --profile minimal
+          rustup default stable
+
+      - name: Cache Cargo
+        uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          cache-on-failure: true
+
+      - name: Build release binary
+        env:
+          APP_REVISION: ${{ github.sha }}
+        run: cargo build --release --locked -p lt-server
+
+      - name: Upload server binary
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: server-binary
+          path: target/release/little-tables
+          if-no-files-found: error
+          retention-days: 1
+
+  # One archive per commit: the Rust server and the web app, as production runs them.
+  release:
+    name: Release archive
+    needs: [web, server]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: tools
+
+      - name: Download web app build
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: web-dist
+          path: apps/app/dist
+
+      - name: Download server binary
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: server-binary
+          path: ${{ runner.temp }}/server
+
       - name: Package server release
         id: release
+        env:
+          LT_SERVER_BINARY: ${{ runner.temp }}/server/little-tables
         run: |
           archive=$(tools/package-release.sh "$GITHUB_SHA" target/release-archive | tail -n 1)
           echo "archive=$archive" >>"$GITHUB_OUTPUT"
@@ -91,7 +202,9 @@ jobs:
         run: tools/smoke-release.sh "${{ steps.release.outputs.archive }}" "$GITHUB_SHA"
 
       - name: Upload server release
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        # Pull requests are smoke-tested but keep no archive; main commits are what gets deployed.
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
         with:
           name: little-tables-${{ github.sha }}
           path: target/release-archive/
@@ -100,13 +213,12 @@ jobs:
 
   deploy:
     name: Deploy production
-    # Paused while the rewrite runs in pre-production: merges are verified but not deployed.
-    # Set the repository variable DEPLOY_ON_MERGE to `true` to deploy again, once production runs
-    # the Rust server (deploy/RUST_CUTOVER_RUNBOOK.md).
+    # Merges deploy only while the repository variable DEPLOY_ON_MERGE is `true`
+    # (deploy/RUST_CUTOVER_RUNBOOK.md).
     if: >-
       github.ref == 'refs/heads/main' && github.event_name != 'pull_request' &&
       vars.DEPLOY_ON_MERGE == 'true'
-    needs: verify
+    needs: [rust, release]
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     permissions:
@@ -116,7 +228,7 @@ jobs:
       url: https://math.leaetzak.love
     steps:
       - name: Download server release
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
         with:
           name: little-tables-${{ github.sha }}
           path: release

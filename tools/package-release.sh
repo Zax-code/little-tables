@@ -4,7 +4,8 @@
 #   tools/package-release.sh <commit> [output directory]
 #
 # Writes little-tables-<commit>.tar.gz and its .sha256 next to it. The archive holds, under
-# little-tables-<commit>/, the binary and the web app in web/.
+# little-tables-<commit>/, the binary and the web app in web/. LT_SERVER_BINARY names a binary
+# already built with APP_REVISION=<commit> (CI builds it in its own job); otherwise it is built here.
 set -euo pipefail
 
 readonly revision=${1:?usage: tools/package-release.sh <commit> [output directory]}
@@ -18,13 +19,18 @@ if [[ ! -f apps/app/dist/index.html ]]; then
   exit 2
 fi
 
-APP_REVISION=$revision cargo build --release --locked -p lt-server
+if [[ -n ${LT_SERVER_BINARY:-} ]]; then
+  binary=$LT_SERVER_BINARY
+else
+  APP_REVISION=$revision cargo build --release --locked -p lt-server
+  binary=target/release/little-tables
+fi
 
 staging=$(mktemp -d)
 trap 'rm -rf "$staging"' EXIT
 readonly release=$staging/little-tables-$revision
 mkdir -p "$release"
-install -m 0755 target/release/little-tables "$release/little-tables"
+install -m 0755 "$binary" "$release/little-tables"
 cp -R apps/app/dist "$release/web"
 
 mkdir -p "$output"

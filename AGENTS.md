@@ -10,8 +10,9 @@ A Rust workspace (`crates/`) and a pnpm workspace:
 - `apps/e2e/`: agentic end-to-end tests with e2e (tester.army) against the built app and the server without sign-in; see its README.
 - `packages/engine/`, `packages/api-contract/`, `packages/ui/`: the engine facade, the `/api/v2` client and the design system.
 - `tools/golden/`: the frozen TypeScript engine that produced the golden vectors; `assets/`: artwork sources.
-- `deploy/`: the systemd release units, deployment and backup scripts, Caddy fragments, the pre-production setup, and the Quadlets production runs until the switch.
-- `.github/workflows/pipeline.yml`: CI, release archives and (paused) production deployment.
+- `deploy/`: the systemd release units, deployment and backup scripts, Caddy fragments and the pre-production setup.
+- `.github/workflows/pipeline.yml`: CI in parallel jobs (web app, Rust checks, server binary), the
+  smoke-tested release archive and production deployment.
 
 Keep tests beside their implementation as `*.test.ts`. Do not edit generated `dist/` output.
 
@@ -40,11 +41,12 @@ TypeScript is strict and ESM-only. Prettier and ESLint enforce formatting, React
 
 ## Testing Guidelines
 
-Vitest covers the TypeScript packages and the app (happy-dom, fake IndexedDB, the real WebAssembly engine); `cargo test` covers the crates, with proptest for engine properties and recorded responses for the `/api/v2` contract. Add focused tests for behavior changes, especially learning rules, persistence, sync, authentication, scheduling, and service-worker logic. Run `corepack pnpm check` before pushing; CI repeats it from a clean checkout.
+Vitest covers the TypeScript packages and the app (happy-dom, fake IndexedDB, the real WebAssembly engine); `cargo test` covers the crates, with proptest for engine properties and recorded responses for the `/api/v2` contract. Add focused tests for behavior changes, especially learning rules, persistence, sync, authentication, scheduling, and service-worker logic. Run `corepack pnpm check` before pushing; CI repeats its steps from a clean checkout, in
+parallel jobs. End-to-end tests run locally only.
 
 ## Commit & Pull Request Guidelines
 
-History follows Conventional Commit-style subjects such as `feat:`, `fix:`, and `build:`. Keep commits scoped and imperative. Pull requests should explain user impact, list verification performed, link relevant issues, and include screenshots for visible PWA changes. All CI checks must pass before merge. Merging to `main` deploys production only when the repository variable `DEPLOY_ON_MERGE` is `true`; it is paused during the rewrite.
+History follows Conventional Commit-style subjects such as `feat:`, `fix:`, and `build:`. Keep commits scoped and imperative. Pull requests should explain user impact, list verification performed, link relevant issues, and include screenshots for visible PWA changes. All CI checks must pass before merge. Merging to `main` deploys production while the repository variable `DEPLOY_ON_MERGE` is `true`.
 
 When finishing any feature or fix, always commit and push the completed work on a branch and open a pull request. Do not stop with uncommitted local changes.
 

@@ -5,8 +5,10 @@ SQLite file and the new app. This runbook moves production once; it needs an app
 window and must not touch other workloads or the Mongo volume. Pre-production
 (`preprod/PREPROD_RUNBOOK.md`) rehearses the same export and import beside production.
 
-Until it is done, deploying on merge stays paused (repository variable `DEPLOY_ON_MERGE`). Every
-CI run builds and smoke-tests the release (`little-tables-<commit>` artifact).
+**Done.** Production runs the Rust server and deploys on merge (repository variable
+`DEPLOY_ON_MERGE`). The Quadlets, the image deployer and their validation left the repository
+afterwards; this runbook stays as the record of the move. The exporter and the MongoDB it reads
+no longer exist, so the steps below cannot be replayed as written.
 
 ## What changes
 
