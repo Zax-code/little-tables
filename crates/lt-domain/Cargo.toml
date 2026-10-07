@@ -8,7 +8,9 @@ publish.workspace = true
 rust-version.workspace = true
 
 [features]
-default = ["tz"]
+default = ["tz", "lexicon"]
+# The full verb index, to check a parent's verbs. The WebAssembly build leaves it out.
+lexicon = []
 # Day keys from IANA time zones. The WebAssembly build leaves it out and asks the browser instead.
 tz = ["dep:chrono-tz"]
 

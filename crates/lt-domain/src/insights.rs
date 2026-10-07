@@ -49,6 +49,42 @@ pub struct Struggle {
     pub reasons: Vec<StruggleReason>,
     /// The skill of a generated exercise; `None` for multiplication and division facts.
     pub skill: Option<SkillId>,
+    /// For a verb: the persons answered wrong, most often first (0 je … 5 ils).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub persons: Vec<PersonMistakes>,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct PersonMistakes {
+    pub mistakes: i64,
+    pub person: i64,
+}
+
+/// The persons of the conjugation questions answered wrong, most often first.
+fn person_mistakes(answers: &[&AttemptEvent]) -> Vec<PersonMistakes> {
+    let mut counts: Vec<PersonMistakes> = Vec::new();
+    for attempt in answers.iter().filter(|attempt| !attempt.correct) {
+        let Some(crate::model::Exercise::Conjugation(exercise)) = &attempt.exercise else {
+            continue;
+        };
+        match counts
+            .iter_mut()
+            .find(|count| count.person == exercise.person)
+        {
+            Some(count) => count.mistakes += 1,
+            None => counts.push(PersonMistakes {
+                mistakes: 1,
+                person: exercise.person,
+            }),
+        }
+    }
+    counts.sort_by(|left, right| {
+        right
+            .mistakes
+            .cmp(&left.mistakes)
+            .then(left.person.cmp(&right.person))
+    });
+    counts
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -218,6 +254,7 @@ pub fn derive_insights(input: &InsightsInput<'_>) -> Insights {
                 mistakes: mistakes as i64,
                 reasons,
                 skill: skill_for_key(key),
+                persons: person_mistakes(answers),
             })
         })
         .collect();

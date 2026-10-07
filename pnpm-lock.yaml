@@ -246,6 +246,15 @@ importers:
         specifier: ^4.23.1
         version: 4.23.1
 
+  tools/verbs:
+    devDependencies:
+      french-verbs-lefff:
+        specifier: 3.4.0
+        version: 3.4.0
+      tsx:
+        specifier: ^4.23.1
+        version: 4.23.1
+
 packages:
 
   '@adobe/css-tools@4.5.0':
@@ -3524,6 +3533,10 @@ packages:
         optional: true
       react-dom:
         optional: true
+
+  french-verbs-lefff@3.4.0:
+    resolution: {integrity: sha512-fHpP4sewTSJ4GYxKpIuUhJq/5F1x7Giyw3Tq4hxHumlNaAgF1Jz9T97AYsHo/LejDbTQaTGaX3jppkvIhgId0w==}
+    deprecated: Package no longer supported. Contact Support at https://www.npmjs.com/support for more info.
 
   fresh@0.5.2:
     resolution: {integrity: sha512-zJ2mQYM18rEFOudeV4GShTGIQ7RbzA7ozbU9I/XBpm7kqgMywgmylMwXHxZJmkVoYkna9d2pVXVXPdYTP9ej8Q==}
@@ -8824,6 +8837,8 @@ snapshots:
     optionalDependencies:
       react: 19.2.7
       react-dom: 19.2.7(react@19.2.7)
+
+  french-verbs-lefff@3.4.0: {}
 
   fresh@0.5.2: {}
 

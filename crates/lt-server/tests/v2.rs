@@ -10,6 +10,9 @@ use std::collections::BTreeMap;
 
 use axum::http::{Method, StatusCode, header};
 use common::{OWNER, Reply, Server, identity, server};
+use lt_domain::model::Exercise;
+use lt_domain::paths::generate_exercise;
+use lt_domain::rng::Rng;
 use serde_json::{Map, Value, json};
 
 const ORIGIN: &str = "http://little-tables.test";
@@ -203,9 +206,71 @@ async fn serves_the_new_app_contract() {
             Some(json!({
                 "enabledSkills": ["column-subtraction"], "focusSkill": null,
                 "mode": "manual", "subtractionMethod": "decomposition",
+                "conjugation": {
+                    "verbs": ["finir", "apercevoir"], "tenses": ["present", "imperfect"],
+                    "focus": { "verb": "finir", "tense": null },
+                },
             })),
         )
         .await;
+    // A verb the catalogue does not offer, a focus on an unticked tense, or the conjugation skill
+    // among the maths skills are refused.
+    for conjugation in [
+        json!({ "verbs": ["chantonnaillerer"], "tenses": ["present"], "focus": null }),
+        json!({ "verbs": ["finir"], "tenses": ["present"], "focus": { "verb": "finir", "tense": "future" } }),
+    ] {
+        let refused = client
+            .call(
+                Method::PUT,
+                &format!("/api/v2/family/profiles/{tom}/learning-paths"),
+                Some(json!({
+                    "enabledSkills": [], "focusSkill": null, "mode": "manual",
+                    "subtractionMethod": "compensation", "conjugation": conjugation,
+                })),
+            )
+            .await;
+        assert_eq!(refused.status, StatusCode::BAD_REQUEST);
+    }
+    let conjugation_attempts: Vec<Value> = [(false, 5), (true, 9)]
+        .into_iter()
+        .enumerate()
+        .map(|(sequence, (recall, seed))| {
+            let Some(Exercise::Conjugation(exercise)) =
+                generate_exercise("conj:finir:present", &mut Rng::new(seed), recall)
+            else {
+                panic!("a conjugation exercise");
+            };
+            json!({
+                "answerMode": if recall { "keypad" } else { "choice" },
+                "answeredAt": 1_785_000_000_000_i64 + sequence as i64 * 4_000,
+                "choices": [], "correct": true, "eventId": format!("c{sequence}"),
+                "exercise": Exercise::Conjugation(exercise.clone()),
+                "factKey": "conj:finir:present", "latencyMs": 3000,
+                "learningDayKey": "2026-07-25", "left": 0, "operation": "multiply",
+                "questionCount": 2, "response": { "type": "text", "value": exercise.expected },
+                "right": 0, "selected": 0, "sequence": sequence, "sessionId": "c",
+                "sessionKind": "extra-practice",
+            })
+        })
+        .collect();
+    let mut forged = conjugation_attempts[1].clone();
+    forged["eventId"] = json!("c-forged");
+    forged["sessionId"] = json!("forged");
+    forged["exercise"]["expected"] = json!("finisons");
+    forged["response"]["value"] = json!("finisons");
+    let synced_verbs = client
+        .call(
+            Method::POST,
+            &format!("/api/v2/profiles/{tom}/attempts"),
+            Some(json!({ "attempts": [conjugation_attempts[0], conjugation_attempts[1], forged] })),
+        )
+        .await;
+    assert_eq!(synced_verbs.status, StatusCode::OK);
+    assert_eq!(synced_verbs.body["accepted"], json!(["c0", "c1"]));
+    assert_eq!(
+        synced_verbs.body["rejected"],
+        json!([{ "eventId": "c-forged", "reason": "inconsistent_attempt" }])
+    );
     let profiles = client
         .record("listProfiles", Method::GET, "/api/v2/family/profiles", None)
         .await;

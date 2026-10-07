@@ -129,6 +129,9 @@ export type EngineApi = Readonly<{
   >
   reduce: Operation<ReduceInput, S.LearningSnapshot>
   validateExerciseAttempt: Operation<S.AttemptEvent, boolean>
+  validateLearningPaths: Operation<S.LearningPathSettings, boolean>
+  /** A verb at the four tenses, or `null` when the engine does not know it. */
+  verbTable: Operation<Readonly<{ verb: string }>, S.VerbTable | null>
 }>
 
 export const makeEngine = (module: EngineModule): EngineApi => {
@@ -157,6 +160,8 @@ export const makeEngine = (module: EngineModule): EngineApi => {
     mergeGardenRewardLedgers: operation('mergeGardenRewardLedgers', S.GardenRewardLedger),
     reduce: operation('reduce', S.LearningSnapshot),
     validateExerciseAttempt: operation('validateExerciseAttempt', Schema.Boolean),
+    validateLearningPaths: operation('validateLearningPaths', Schema.Boolean),
+    verbTable: operation('verbTable', Schema.NullOr(S.VerbTable)),
   }
 }
 

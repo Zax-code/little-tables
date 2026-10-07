@@ -8,7 +8,7 @@ export const Millis = Schema.Number.pipe(Schema.int())
 const Int = Schema.Number.pipe(Schema.int())
 const DayKey = Schema.String
 
-export const PathId = Schema.Literal('additions', 'big-numbers', 'fractions')
+export const PathId = Schema.Literal('additions', 'big-numbers', 'fractions', 'conjugation')
 export type PathId = typeof PathId.Type
 
 export const SkillId = Schema.Literal(
@@ -23,14 +23,39 @@ export const SkillId = Schema.Literal(
   'fraction-line',
   'fraction-compare',
   'fraction-operation',
+  'conjugation',
 )
 export type SkillId = typeof SkillId.Type
+
+/** The four tenses of the CE2 programme, in teaching order. */
+export const Tense = Schema.Literal('present', 'imperfect', 'future', 'compound-past')
+export type Tense = typeof Tense.Type
+export const tenses: ReadonlyArray<Tense> = ['present', 'imperfect', 'future', 'compound-past']
+
+/** At most this many verbs ticked for one child. */
+export const maxConjugationVerbs = 60
+
+export const ConjugationFocus = Schema.Struct({
+  tense: Schema.NullOr(Tense),
+  verb: Schema.NonEmptyString,
+})
+export type ConjugationFocus = typeof ConjugationFocus.Type
+
+/** The verbs and tenses a parent ticked in the catalogue. */
+export const ConjugationSettings = Schema.Struct({
+  focus: Schema.NullOr(ConjugationFocus),
+  tenses: Schema.Array(Tense).pipe(Schema.maxItems(4)),
+  verbs: Schema.Array(Schema.NonEmptyString).pipe(Schema.maxItems(maxConjugationVerbs)),
+})
+export type ConjugationSettings = typeof ConjugationSettings.Type
 
 export const LearningPathSettings = Schema.Struct({
   enabledSkills: Schema.Array(SkillId).pipe(Schema.maxItems(11)),
   focusSkill: Schema.NullOr(SkillId),
   mode: Schema.Literal('automatic', 'manual'),
   subtractionMethod: Schema.Literal('compensation', 'decomposition'),
+  /** Absent, the conjugation path is closed. */
+  conjugation: Schema.optional(ConjugationSettings),
 })
 export type LearningPathSettings = typeof LearningPathSettings.Type
 
@@ -55,6 +80,7 @@ export const PracticeAnswer = Schema.Union(
   Schema.Struct({ symbol: ComparisonSymbol, type: Schema.Literal('comparison') }),
   Schema.Struct({ index: Int, type: Schema.Literal('tick') }),
   Schema.Struct({ ids: Schema.Array(Int), type: Schema.Literal('selection') }),
+  Schema.Struct({ type: Schema.Literal('text'), value: Schema.String }),
 )
 export type PracticeAnswer = typeof PracticeAnswer.Type
 
@@ -123,6 +149,24 @@ export const FractionOperationExercise = Schema.Struct({
   story: Schema.Boolean,
 })
 
+export const ConjugationExercise = Schema.Struct({
+  /** Four forms while discovering; empty when the child writes the form. */
+  choices: Choices,
+  /** The form expected, without the subject. */
+  expected: Schema.String,
+  kind: Schema.Literal('conjugation'),
+  /** Letter tiles to write the form with; empty while discovering. */
+  letters: Schema.Array(Schema.String),
+  /** 0 to 5: je, tu, il or elle, nous, vous, ils or elles. */
+  person: Int,
+  skill: SkillId,
+  /** The subject shown, elided when needed (« j’ »). */
+  subject: Schema.String,
+  tense: Tense,
+  verb: Schema.String,
+})
+export type ConjugationExercise = typeof ConjugationExercise.Type
+
 export const Exercise = Schema.Union(
   ArithmeticExercise,
   ColumnExercise,
@@ -132,12 +176,26 @@ export const Exercise = Schema.Union(
   FractionLineExercise,
   FractionCompareExercise,
   FractionOperationExercise,
+  ConjugationExercise,
 )
 export type Exercise = typeof Exercise.Type
 
 /** What an exercise screen needs besides its prompt (`describeExercise`). */
+/** A part of a written form: « fin · iss · ent », or « ont · fini ». */
+export const FormPart = Schema.Struct({
+  role: Schema.Literal('auxiliary', 'ending', 'mark', 'stem'),
+  text: Schema.String,
+})
+export type FormPart = typeof FormPart.Type
+
 export const ExerciseDescription = Schema.Struct({
+  /** Conjugation: every form counted right, the reference first. */
+  accepted: Schema.optional(Schema.Array(Schema.String)),
   columnResult: Schema.optional(Int),
+  /** Conjugation: a well-known verb conjugated the same way, for hints. */
+  cousin: Schema.optional(Schema.NullOr(Schema.String)),
+  /** Conjugation: the parts of the expected form. */
+  parts: Schema.optional(Schema.Array(FormPart)),
   equalOptions: Schema.optional(Schema.Array(Int)),
   expected: PracticeAnswer,
   operationResult: Schema.optional(Fraction),
@@ -241,6 +299,8 @@ export const PracticePolicy = Schema.Struct({
   curriculum: Schema.optional(CurriculumPolicy),
   focusSkill: Schema.optional(SkillId),
   focusTable: Schema.optional(Int),
+  /** A session on one verb, outside the daily watering. */
+  focusVerb: Schema.optional(ConjugationFocus),
   kind: Schema.optional(SessionKind),
   questionCount: Schema.optional(Int),
 })
@@ -295,7 +355,19 @@ export const OpenSkill = Schema.Struct({
 })
 export type OpenSkill = typeof OpenSkill.Type
 
+export const VerbGroup = Schema.Literal('first', 'second', 'third', 'auxiliary')
+export type VerbGroup = typeof VerbGroup.Type
+
+export const VerbProgress = Schema.Struct({
+  group: VerbGroup,
+  tenses: Schema.Array(Schema.Struct({ state: MasteryState, tense: Tense })),
+  verb: Schema.String,
+})
+export type VerbProgress = typeof VerbProgress.Type
+
 export const LearningProgress = Schema.Struct({
+  /** The verbs a parent ticked, in the order ticked; absent without any. */
+  conjugation: Schema.optional(Schema.Array(VerbProgress)),
   divisionFacts: Counts,
   facts: Counts,
   packs: CurriculumPackProgress,
@@ -411,3 +483,28 @@ export const RescueStrategy = Schema.Union(
   }),
 )
 export type RescueStrategy = typeof RescueStrategy.Type
+
+/** A verb conjugated at the four tenses, for the parent's verb sheet (`verbTable`). */
+export const VerbTable = Schema.Struct({
+  auxiliary: Schema.Literal('avoir', 'etre'),
+  cousin: Schema.NullOr(Schema.String),
+  /** The infinitive in the 1990 spelling (« connaitre »). */
+  display: Schema.String,
+  group: VerbGroup,
+  impersonal: Schema.Boolean,
+  tenses: Schema.Array(
+    Schema.Struct({
+      rows: Schema.Array(
+        Schema.Struct({
+          form: Schema.String,
+          parts: Schema.Array(FormPart),
+          person: Int,
+          subjects: Schema.Array(Schema.String),
+        }),
+      ),
+      tense: Tense,
+    }),
+  ),
+  verb: Schema.String,
+})
+export type VerbTable = typeof VerbTable.Type

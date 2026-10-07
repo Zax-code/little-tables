@@ -17,8 +17,9 @@ use crate::model::{
     PracticeQuestion, PracticeSession, QuestionOperation, SessionKind, SkillId,
 };
 use crate::paths::{
-    InteractionFamily, PathProgress, derive_open_skills, derive_path_progress, generate_exercise,
-    interaction_family, skill_definition, skill_weight,
+    InteractionFamily, PathProgress, WRITTEN_FORM_WEIGHT, conjugation_focus_keys, conjugation_keys,
+    derive_open_skills, derive_path_progress, generate_exercise, interaction_family,
+    skill_definition, skill_weight,
 };
 use crate::rng::{Rng, js_round};
 
@@ -518,6 +519,54 @@ pub struct LearningProgress {
     pub packs: CurriculumPackProgress,
     pub paths: Vec<PathProgress>,
     pub tables: Vec<TableLearningProgress>,
+    /// The verbs a parent ticked, in the order ticked; absent without any.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub conjugation: Vec<VerbProgress>,
+}
+
+/// How rooted each ticked tense of a verb is.
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct VerbProgress {
+    pub group: crate::conjugation::VerbGroup,
+    pub tenses: Vec<TenseProgress>,
+    pub verb: String,
+}
+
+#[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
+pub struct TenseProgress {
+    pub state: MasteryState,
+    pub tense: crate::model::Tense,
+}
+
+fn conjugation_progress(
+    snapshot: &LearningSnapshot,
+    curriculum: Option<&CurriculumPolicy>,
+) -> Vec<VerbProgress> {
+    let Some(settings) = curriculum
+        .and_then(|curriculum| curriculum.paths.as_ref())
+        .and_then(|paths| paths.conjugation.as_ref())
+    else {
+        return Vec::new();
+    };
+    settings
+        .verbs
+        .iter()
+        .filter_map(|verb| {
+            let group = crate::conjugation::lookup(verb)?.group;
+            Some(VerbProgress {
+                group,
+                tenses: crate::model::Tense::ALL
+                    .into_iter()
+                    .filter(|tense| settings.tenses.contains(tense))
+                    .map(|tense| TenseProgress {
+                        state: state_of(&snapshot.facts, &crate::conjugation::key(verb, tense)),
+                        tense,
+                    })
+                    .collect(),
+                verb: verb.clone(),
+            })
+        })
+        .collect()
 }
 
 fn counts_for_keys(facts: &Facts, keys: &[String]) -> FactProgressCounts {
@@ -567,6 +616,7 @@ pub fn derive_learning_progress(
         .collect();
 
     LearningProgress {
+        conjugation: conjugation_progress(snapshot, curriculum),
         division_facts: counts_for_keys(&snapshot.facts, &division_keys),
         facts: counts_for_keys(&snapshot.facts, &all_keys),
         paths: curriculum
@@ -616,6 +666,15 @@ impl Candidate {
     }
 
     fn weight(&self) -> f64 {
+        // A form written with letter tiles takes longer than a chosen one.
+        if self.fact.skill == Some(SkillId::Conjugation)
+            && self
+                .mastery
+                .as_ref()
+                .is_some_and(|mastery| mastery.state.is_stable())
+        {
+            return WRITTEN_FORM_WEIGHT;
+        }
         skill_weight(self.key())
     }
 
@@ -1003,10 +1062,26 @@ pub fn create_session(
                 tables: Vec::new(),
             })
     });
+    let conjugation_settings = path_settings.and_then(|settings| settings.conjugation.as_ref());
+    let conjugation_curriculum = conjugation_settings
+        .map(conjugation_keys)
+        .unwrap_or_default()
+        .into_iter()
+        .enumerate()
+        .map(|(skill_index, key)| CurriculumFact {
+            fact_key: key,
+            left: 0,
+            operation: QuestionOperation::Multiply,
+            right: 0,
+            skill: Some(SkillId::Conjugation),
+            skill_index: Some(skill_index),
+            tables: Vec::new(),
+        });
     let curriculum: Vec<CurriculumFact> = multiplication
         .into_iter()
         .chain(division)
         .chain(path_curriculum)
+        .chain(conjugation_curriculum)
         .collect();
 
     let mut candidates: Vec<Candidate> = curriculum
@@ -1073,17 +1148,33 @@ pub fn create_session(
     });
     let all: Vec<&Candidate> = candidates.iter().collect();
 
-    let focus_skill = if daily {
+    // A verb « en ce moment en classe » puts its keys forward, and wins over a maths skill.
+    let conjugation_focus = if daily {
+        conjugation_settings.and_then(|settings| settings.focus.as_ref())
+    } else {
+        policy.focus_verb.as_ref()
+    };
+    let focus_keys: Option<Vec<String>> = conjugation_settings
+        .zip(conjugation_focus)
+        .map(|(settings, focus)| conjugation_focus_keys(settings, focus))
+        .filter(|keys| !keys.is_empty());
+    let focus_skill = if focus_keys.is_some() {
+        Some(SkillId::Conjugation)
+    } else if daily {
         path_settings.and_then(|settings| settings.focus_skill)
     } else {
         policy.focus_skill
     };
+    let in_focus = |candidate: &Candidate| match &focus_keys {
+        Some(keys) => keys.iter().any(|key| key == candidate.key()),
+        None => candidate.fact.skill == focus_skill,
+    };
     let focus_candidates: Vec<&Candidate> = match focus_skill {
         None => Vec::new(),
-        Some(skill) => all
+        Some(_) => all
             .iter()
             .copied()
-            .filter(|candidate| candidate.fact.skill == Some(skill))
+            .filter(|candidate| in_focus(candidate))
             .collect(),
     };
     let focus_family = match focus_skill {
@@ -1100,7 +1191,7 @@ pub fn create_session(
     let unfocused: Vec<&Candidate> = all
         .iter()
         .copied()
-        .filter(|candidate| candidate.fact.skill != focus_skill)
+        .filter(|candidate| !in_focus(candidate))
         .collect();
     let column_focus = focus_family == Some(InteractionFamily::Column);
 
@@ -1347,6 +1438,11 @@ pub fn validate_exercise_attempt(attempt: &AttemptEvent) -> bool {
         return false;
     }
     if !is_exercise_well_formed(exercise) {
+        return false;
+    }
+    if let Exercise::Conjugation(conjugation) = exercise
+        && attempt.fact_key != crate::conjugation::key(&conjugation.verb, conjugation.tense)
+    {
         return false;
     }
     if let Exercise::Arithmetic(arithmetic) = exercise {

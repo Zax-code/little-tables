@@ -6,6 +6,7 @@
 //! previous TypeScript engine bit for bit (see `tests/golden.rs`).
 
 pub mod api;
+pub mod conjugation;
 pub mod day_key;
 pub mod engine;
 pub mod exercises;

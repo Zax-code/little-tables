@@ -1,6 +1,7 @@
 //! Exercise answers and checks: what the expected answer is, whether an answer is right, whether
 //! the learner produced it, and whether an exercise is well formed.
 
+use crate::conjugation;
 use crate::model::{
     ArithmeticBlank, ArithmeticExercise, ArithmeticOperation, ColumnExercise, ColumnOperation,
     ComparisonSymbol, EqualBlank, Exercise, Fraction, FractionLineExercise,
@@ -64,6 +65,7 @@ pub fn skill_for_key(key: &str) -> Option<SkillId> {
         ["frac", "add" | "sub" | "complement", level] if letters_dash(level) => {
             Some(SkillId::FractionOperation)
         }
+        ["conj", ..] if conjugation::parse_key(key).is_some() => Some(SkillId::Conjugation),
         _ => None,
     }
 }
@@ -209,6 +211,9 @@ pub fn expected_answer(exercise: &Exercise) -> PracticeAnswer {
                 whole: 0,
             }
         }
+        Exercise::Conjugation(exercise) => PracticeAnswer::Text {
+            value: exercise.expected.clone(),
+        },
     }
 }
 
@@ -219,6 +224,9 @@ fn distinct_ids(ids: &[i64]) -> bool {
 }
 
 pub fn is_exercise_answer_correct(exercise: &Exercise, answer: &PracticeAnswer) -> bool {
+    if let Exercise::Conjugation(conjugation) = exercise {
+        return conjugation::exercise::is_correct(conjugation, answer);
+    }
     if let Exercise::FractionRead(read) = exercise
         && read.mode == ReadMode::Build
     {
@@ -287,6 +295,7 @@ pub fn is_production_exercise(exercise: &Exercise) -> bool {
         Exercise::Arithmetic(arithmetic) => arithmetic.choices.is_empty(),
         Exercise::FractionEqual(equal) => equal.choices.is_empty(),
         Exercise::FractionOperation(operation) => operation.choices.is_empty(),
+        Exercise::Conjugation(conjugation) => conjugation.choices.is_empty(),
     }
 }
 
@@ -370,6 +379,7 @@ fn kind_matches_skill(exercise: &Exercise) -> bool {
         Exercise::FractionLine(line) => line.skill == SkillId::FractionLine,
         Exercise::FractionCompare(compare) => compare.skill == SkillId::FractionCompare,
         Exercise::FractionOperation(operation) => operation.skill == SkillId::FractionOperation,
+        Exercise::Conjugation(conjugation) => conjugation.skill == SkillId::Conjugation,
     }
 }
 
@@ -448,5 +458,6 @@ pub fn is_exercise_well_formed(exercise: &Exercise) -> bool {
             let result = fraction_operation_result(operation);
             result.numerator >= 0 && result.numerator <= result.denominator
         }
+        Exercise::Conjugation(conjugation) => conjugation::exercise::is_well_formed(conjugation),
     }
 }

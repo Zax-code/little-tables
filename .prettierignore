@@ -9,3 +9,4 @@ packages/engine/wasm
 packages/ui/build
 design/exports
 crates/lt-server/tests/fixtures/
+apps/app/public/verbs
