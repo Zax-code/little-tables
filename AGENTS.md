@@ -7,6 +7,7 @@ A Rust workspace (`crates/`) and a pnpm workspace:
 - `crates/lt-domain/`: the learning engine (bit-exact golden vectors, property tests); `lt-domain-wasm` compiles it for the browser.
 - `crates/lt-server/`: the axum server, `/api/v2`, Google sessions, daily Web Push reminders and admin commands; `lt-store` (SQLite), `lt-auth` and `lt-push` support it.
 - `apps/app/`: the React/Vite PWA (screens, offline data, sync, `src/sw.ts`); `apps/app/public/` holds icons, manifests, screenshots and character artwork.
+- `apps/e2e/`: agentic end-to-end tests with e2e (tester.army) against the built app and the server without sign-in; see its README.
 - `packages/engine/`, `packages/api-contract/`, `packages/ui/`: the engine facade, the `/api/v2` client and the design system.
 - `tools/golden/`: the frozen TypeScript engine that produced the golden vectors; `assets/`: artwork sources.
 - `deploy/`: the systemd release units, deployment and backup scripts, Caddy fragments, the pre-production setup, and the Quadlets production runs until the switch.
@@ -25,6 +26,7 @@ corepack pnpm dev:server     # start the Rust server on port 3000, without Googl
 corepack pnpm check          # format, lint, typecheck, Rust and TypeScript tests, and build
 corepack pnpm doctor         # run the full React Doctor audit for the app
 corepack pnpm build          # create all production bundles
+corepack pnpm e2e            # run the end-to-end tests (Node 24, ChatGPT login; see apps/e2e)
 corepack pnpm smoke:release  # probe a release archive: tools/smoke-release.sh <archive> <commit>
 ```
 

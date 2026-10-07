@@ -1,0 +1,22 @@
+{
+  "name": "@little-tables/e2e",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Agentic end-to-end tests of the PWA with e2e (tester.army), run against the Vite app and the Rust server without Google sign-in.",
+  "scripts": {
+    "e2e": "bash scripts/e2e.sh run",
+    "e2e:login": "bash scripts/e2e.sh login openai",
+    "explore": "bash scripts/e2e.sh explore",
+    "typecheck": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@ai-sdk/openai": "^4.0.84",
+    "@e2e-dev/web": "^0.13.0",
+    "@types/node": "^26.1.1",
+    "ai": "^7.0.128",
+    "e2e": "^0.18.0",
+    "typescript": "^6.0.3",
+    "zod": "^4.4.3"
+  }
+}

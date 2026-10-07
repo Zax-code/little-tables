@@ -10,3 +10,4 @@ packages/ui/build
 design/exports
 crates/lt-server/tests/fixtures/
 apps/app/public/verbs
+.agents/skills/e2e

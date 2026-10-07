@@ -14,6 +14,8 @@
     "dev": "pnpm --filter @little-tables/app dev",
     "dev:server": "AUTH_MODE=disabled cargo run -p lt-server -- serve",
     "doctor": "react-doctor apps/app --yes",
+    "e2e": "pnpm --filter @little-tables/e2e e2e",
+    "e2e:login": "pnpm --filter @little-tables/e2e e2e:login",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "pnpm --filter @little-tables/engine build:wasm && eslint .",
