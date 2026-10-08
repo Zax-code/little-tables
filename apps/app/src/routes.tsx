@@ -76,6 +76,10 @@ const VerbCatalogueScreen = lazyRouteComponent(
   () => import('./parents/verbs-screen.js'),
   'VerbCatalogueScreen',
 )
+const ConjugationScreen = lazyRouteComponent(
+  () => import('./parents/verbs-screen.js'),
+  'ConjugationScreen',
+)
 const InsightsScreen = lazyRouteComponent(
   () => import('./parents/insights-screen.js'),
   'InsightsScreen',
@@ -128,6 +132,7 @@ const routeTree = root.addChildren([
     parentRoute('/parents/children/$profileId', ChildScreen),
     parentRoute('/parents/children/$profileId/school', SchoolScreen),
     parentRoute('/parents/children/$profileId/verbs', VerbCatalogueScreen),
+    parentRoute('/parents/children/$profileId/conjugation', ConjugationScreen),
     parentRoute('/parents/children/$profileId/insights', InsightsScreen),
   ]),
 ])

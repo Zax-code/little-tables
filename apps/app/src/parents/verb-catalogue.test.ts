@@ -6,7 +6,7 @@ import { Effect } from 'effect'
 import { describe, expect, it } from 'vitest'
 
 import { testEngine } from '../test/engine.js'
-import { searchKey, searchVerbs, sections, type VerbIndex } from './verb-catalogue.js'
+import { searchKey, searchVerbs, sections, toggleTense, type VerbIndex } from './verb-catalogue.js'
 
 const index = (
   JSON.parse(readFileSync(join(import.meta.dirname, '../../public/verbs/index.json'), 'utf8')) as {
@@ -44,5 +44,20 @@ describe('the verb catalogue', () => {
     expect(searchVerbs(index, 'aperc')[0]).toBe('apercevoir')
     expect(searchVerbs(index, '')).toEqual([])
     expect(searchVerbs(index, 'er').length).toBe(20)
+  })
+
+  it('ticks the tenses in their order, with the auxiliaries for the compound past', () => {
+    const ticked = toggleTense(
+      { focus: { tense: 'present', verb: 'finir' }, tenses: ['future'], verbs: ['finir', 'avoir'] },
+      'present',
+    )
+    expect(ticked.tenses).toEqual(['present', 'future'])
+    expect(toggleTense(ticked, 'compound-past').verbs).toEqual(['finir', 'avoir', 'être'])
+    // The verb put forward stays so, at every tense, once its tense is unticked.
+    expect(toggleTense(ticked, 'present')).toEqual({
+      focus: { tense: null, verb: 'finir' },
+      tenses: ['future'],
+      verbs: ['finir', 'avoir'],
+    })
   })
 })
