@@ -4,14 +4,14 @@
  */
 import { Schema } from 'effect'
 
-export const Millis = Schema.Number.pipe(Schema.int())
-const Int = Schema.Number.pipe(Schema.int())
+export const Millis = Schema.Int
+const Int = Schema.Int
 const DayKey = Schema.String
 
-export const PathId = Schema.Literal('additions', 'big-numbers', 'fractions', 'conjugation')
+export const PathId = Schema.Literals(['additions', 'big-numbers', 'fractions', 'conjugation'])
 export type PathId = typeof PathId.Type
 
-export const SkillId = Schema.Literal(
+export const SkillId = Schema.Literals([
   'addition-facts',
   'subtraction-facts',
   'numeration',
@@ -24,11 +24,11 @@ export const SkillId = Schema.Literal(
   'fraction-compare',
   'fraction-operation',
   'conjugation',
-)
+])
 export type SkillId = typeof SkillId.Type
 
 /** The four tenses of the CE2 programme, in teaching order. */
-export const Tense = Schema.Literal('present', 'imperfect', 'future', 'compound-past')
+export const Tense = Schema.Literals(['present', 'imperfect', 'future', 'compound-past'])
 export type Tense = typeof Tense.Type
 export const tenses: ReadonlyArray<Tense> = ['present', 'imperfect', 'future', 'compound-past']
 
@@ -44,16 +44,18 @@ export type ConjugationFocus = typeof ConjugationFocus.Type
 /** The verbs and tenses a parent ticked in the catalogue. */
 export const ConjugationSettings = Schema.Struct({
   focus: Schema.NullOr(ConjugationFocus),
-  tenses: Schema.Array(Tense).pipe(Schema.maxItems(4)),
-  verbs: Schema.Array(Schema.NonEmptyString).pipe(Schema.maxItems(maxConjugationVerbs)),
+  tenses: Schema.Array(Tense).pipe(Schema.check(Schema.isMaxLength(4))),
+  verbs: Schema.Array(Schema.NonEmptyString).pipe(
+    Schema.check(Schema.isMaxLength(maxConjugationVerbs)),
+  ),
 })
 export type ConjugationSettings = typeof ConjugationSettings.Type
 
 export const LearningPathSettings = Schema.Struct({
-  enabledSkills: Schema.Array(SkillId).pipe(Schema.maxItems(11)),
+  enabledSkills: Schema.Array(SkillId).pipe(Schema.check(Schema.isMaxLength(11))),
   focusSkill: Schema.NullOr(SkillId),
-  mode: Schema.Literal('automatic', 'manual'),
-  subtractionMethod: Schema.Literal('compensation', 'decomposition'),
+  mode: Schema.Literals(['automatic', 'manual']),
+  subtractionMethod: Schema.Literals(['compensation', 'decomposition']),
   /** Absent, the conjugation path is closed. */
   conjugation: Schema.optional(ConjugationSettings),
 })
@@ -72,33 +74,33 @@ export type Fraction = typeof Fraction.Type
 export const MixedFraction = Schema.Struct({ denominator: Int, numerator: Int, whole: Int })
 export type MixedFraction = typeof MixedFraction.Type
 
-export const ComparisonSymbol = Schema.Literal('<', '=', '>')
+export const ComparisonSymbol = Schema.Literals(['<', '=', '>'])
 
-export const PracticeAnswer = Schema.Union(
+export const PracticeAnswer = Schema.Union([
   Schema.Struct({ type: Schema.Literal('integer'), value: Int }),
   Schema.Struct({ denominator: Int, numerator: Int, type: Schema.Literal('fraction'), whole: Int }),
   Schema.Struct({ symbol: ComparisonSymbol, type: Schema.Literal('comparison') }),
   Schema.Struct({ index: Int, type: Schema.Literal('tick') }),
   Schema.Struct({ ids: Schema.Array(Int), type: Schema.Literal('selection') }),
   Schema.Struct({ type: Schema.Literal('text'), value: Schema.String }),
-)
+])
 export type PracticeAnswer = typeof PracticeAnswer.Type
 
 const Choices = Schema.Array(PracticeAnswer)
 
 export const ArithmeticExercise = Schema.Struct({
-  blank: Schema.Literal('result', 'left', 'right'),
+  blank: Schema.Literals(['result', 'left', 'right']),
   choices: Choices,
   kind: Schema.Literal('arithmetic'),
   left: Int,
-  operation: Schema.Literal('add', 'subtract', 'double', 'half'),
+  operation: Schema.Literals(['add', 'subtract', 'double', 'half']),
   resultFirst: Schema.Boolean,
   right: Int,
   skill: SkillId,
 })
 export const ColumnExercise = Schema.Struct({
   kind: Schema.Literal('column'),
-  operation: Schema.Literal('add', 'subtract'),
+  operation: Schema.Literals(['add', 'subtract']),
   skill: SkillId,
   terms: Schema.Array(Int),
 })
@@ -106,12 +108,12 @@ export const FractionReadExercise = Schema.Struct({
   choices: Choices,
   fraction: Fraction,
   kind: Schema.Literal('fraction-read'),
-  mode: Schema.Literal('read', 'build'),
-  shape: Schema.Literal('bed', 'pot'),
+  mode: Schema.Literals(['read', 'build']),
+  shape: Schema.Literals(['bed', 'pot']),
   skill: SkillId,
 })
 export const FractionEqualExercise = Schema.Struct({
-  blank: Schema.Literal('numerator', 'denominator'),
+  blank: Schema.Literals(['numerator', 'denominator']),
   choices: Choices,
   kind: Schema.Literal('fraction-equal'),
   known: Fraction,
@@ -127,7 +129,7 @@ export const FractionPickExercise = Schema.Struct({
 export const FractionLineExercise = Schema.Struct({
   choices: Choices,
   kind: Schema.Literal('fraction-line'),
-  mode: Schema.Literal('place', 'read'),
+  mode: Schema.Literals(['place', 'read']),
   skill: SkillId,
   target: MixedFraction,
   ticks: Int,
@@ -143,7 +145,7 @@ export const FractionOperationExercise = Schema.Struct({
   choices: Choices,
   kind: Schema.Literal('fraction-operation'),
   left: Fraction,
-  operation: Schema.Literal('add', 'subtract'),
+  operation: Schema.Literals(['add', 'subtract']),
   right: Fraction,
   skill: SkillId,
   story: Schema.Boolean,
@@ -167,7 +169,7 @@ export const ConjugationExercise = Schema.Struct({
 })
 export type ConjugationExercise = typeof ConjugationExercise.Type
 
-export const Exercise = Schema.Union(
+export const Exercise = Schema.Union([
   ArithmeticExercise,
   ColumnExercise,
   FractionReadExercise,
@@ -177,13 +179,13 @@ export const Exercise = Schema.Union(
   FractionCompareExercise,
   FractionOperationExercise,
   ConjugationExercise,
-)
+])
 export type Exercise = typeof Exercise.Type
 
 /** What an exercise screen needs besides its prompt (`describeExercise`). */
 /** A part of a written form: « fin · iss · ent », or « ont · fini ». */
 export const FormPart = Schema.Struct({
-  role: Schema.Literal('auxiliary', 'ending', 'mark', 'stem'),
+  role: Schema.Literals(['auxiliary', 'ending', 'mark', 'stem']),
   text: Schema.String,
 })
 export type FormPart = typeof FormPart.Type
@@ -204,7 +206,7 @@ export const ExerciseDescription = Schema.Struct({
 })
 export type ExerciseDescription = typeof ExerciseDescription.Type
 
-export const MasteryState = Schema.Literal('unseen', 'learning', 'familiar', 'fluent')
+export const MasteryState = Schema.Literals(['unseen', 'learning', 'familiar', 'fluent'])
 export type MasteryState = typeof MasteryState.Type
 
 export const FactMastery = Schema.Struct({
@@ -225,14 +227,14 @@ export type FactMastery = typeof FactMastery.Type
 
 export const LearningSnapshot = Schema.Struct({
   algorithmVersion: Schema.String,
-  facts: Schema.Record({ key: Schema.String, value: FactMastery }),
+  facts: Schema.Record(Schema.String, FactMastery),
   processedEventIds: Schema.Array(Schema.String),
 })
 export type LearningSnapshot = typeof LearningSnapshot.Type
 
-export const AnswerMode = Schema.Literal('choice', 'keypad')
-export const QuestionOperation = Schema.Literal('divide', 'multiply')
-export const SessionKind = Schema.Literal('daily-watering', 'extra-practice', 'meadow-watering')
+export const AnswerMode = Schema.Literals(['choice', 'keypad'])
+export const QuestionOperation = Schema.Literals(['divide', 'multiply'])
+export const SessionKind = Schema.Literals(['daily-watering', 'extra-practice', 'meadow-watering'])
 export type SessionKind = typeof SessionKind.Type
 
 export const PracticeQuestion = Schema.Struct({
@@ -284,7 +286,7 @@ export const AttemptEvent = Schema.Struct({
 })
 export type AttemptEvent = typeof AttemptEvent.Type
 
-export const CurriculumPack = Schema.Literal('core', 'bonus-11-12', 'inverse-division')
+export const CurriculumPack = Schema.Literals(['core', 'bonus-11-12', 'inverse-division'])
 export type CurriculumPack = typeof CurriculumPack.Type
 
 export const CurriculumPolicy = Schema.Struct({
@@ -298,7 +300,7 @@ export const PracticePolicy = Schema.Struct({
    * `'2'` caps a daily watering at two new items; `'3'` also leaves the verbs to the meadow's
    * watering. Absent, sessions follow version 1.
    */
-  algorithmVersion: Schema.optional(Schema.Literal('1', '2', '3')),
+  algorithmVersion: Schema.optional(Schema.Literals(['1', '2', '3'])),
   curriculum: Schema.optional(CurriculumPolicy),
   focusSkill: Schema.optional(SkillId),
   focusTable: Schema.optional(Int),
@@ -320,7 +322,7 @@ const Counts = Schema.Struct({ familiar: Int, fluent: Int, growing: Int, total: 
 
 const PackUnlock = Schema.Struct({
   current: Int,
-  reason: Schema.NullOr(Schema.Literal('core-not-stable', 'no-fluent-family')),
+  reason: Schema.NullOr(Schema.Literals(['core-not-stable', 'no-fluent-family'])),
   required: Int,
   unlocked: Schema.Boolean,
 })
@@ -358,7 +360,7 @@ export const OpenSkill = Schema.Struct({
 })
 export type OpenSkill = typeof OpenSkill.Type
 
-export const VerbGroup = Schema.Literal('first', 'second', 'third', 'auxiliary')
+export const VerbGroup = Schema.Literals(['first', 'second', 'third', 'auxiliary'])
 export type VerbGroup = typeof VerbGroup.Type
 
 export const VerbProgress = Schema.Struct({
@@ -380,7 +382,7 @@ export const LearningProgress = Schema.Struct({
 export type LearningProgress = typeof LearningProgress.Type
 
 export const PracticeRhythm = Schema.Struct({
-  comeback: Schema.Literal('long', 'none', 'short'),
+  comeback: Schema.Literals(['long', 'none', 'short']),
   dailyWateringDone: Schema.Boolean,
   petalCount: Int,
   totalRewardedDays: Int,
@@ -401,7 +403,7 @@ export type GardenRewardLedger = typeof GardenRewardLedger.Type
 
 export const GardenReward = Schema.Struct({
   id: Schema.String,
-  kind: Schema.Literal('background', 'flower', 'pot', 'sparkle'),
+  kind: Schema.Literals(['background', 'flower', 'pot', 'sparkle']),
   label: Schema.String,
 })
 export type GardenReward = typeof GardenReward.Type
@@ -417,7 +419,7 @@ export const GardenPlantProgress = Schema.Struct({
   masteryRequired: Int,
   matureAt: Int,
   name: Schema.String,
-  stage: Schema.Literal('dormant', 'growing', 'locked', 'mature'),
+  stage: Schema.Literals(['dormant', 'growing', 'locked', 'mature']),
   startAt: Int,
 })
 export type GardenPlantProgress = typeof GardenPlantProgress.Type
@@ -431,7 +433,7 @@ export const GardenProgress = Schema.Struct({
       matureAt: Int,
       name: Schema.String,
       plants: Schema.Array(GardenPlantProgress),
-      stage: Schema.Literal('complete', 'growing', 'locked'),
+      stage: Schema.Literals(['complete', 'growing', 'locked']),
       startAt: Int,
       totalCount: Int,
     }),
@@ -446,7 +448,7 @@ export const GardenProgress = Schema.Struct({
       plant: GardenPlantProgress,
       practiceDaysRemaining: Int,
       targetAt: Int,
-      targetStage: Schema.Literal('growing', 'mature'),
+      targetStage: Schema.Literals(['growing', 'mature']),
       unlocksPot: Schema.Boolean,
     }),
   ),
@@ -459,20 +461,20 @@ export const SessionInsight = Schema.NullOr(
   Schema.Struct({
     count: Int,
     factKeys: Schema.Array(Schema.String),
-    kind: Schema.Literal(
+    kind: Schema.Literals([
       'facts-became-familiar',
       'facts-became-fluent',
       'facts-practised',
       'keypad-recalls',
       'mistakes-recovered',
-    ),
+    ]),
   }),
 )
 export type SessionInsight = typeof SessionInsight.Type
 
 const BridgeFact = Schema.Struct({ factKey: Schema.String, factor: Int, product: Int })
 
-export const RescueStrategy = Schema.Union(
+export const RescueStrategy = Schema.Union([
   Schema.Struct({ columns: Int, kind: Schema.Literal('array'), rows: Int, total: Int }),
   Schema.Struct({ kind: Schema.Literal('commutative-flip'), left: Int, right: Int, total: Int }),
   Schema.Struct({
@@ -480,16 +482,16 @@ export const RescueStrategy = Schema.Union(
     anchor: BridgeFact,
     commonFactor: Int,
     kind: Schema.Literal('known-fact-bridge'),
-    operator: Schema.Literal('add', 'subtract'),
+    operator: Schema.Literals(['add', 'subtract']),
     targetFactor: Int,
     total: Int,
   }),
-)
+])
 export type RescueStrategy = typeof RescueStrategy.Type
 
 /** A verb conjugated at the four tenses, for the parent's verb sheet (`verbTable`). */
 export const VerbTable = Schema.Struct({
-  auxiliary: Schema.Literal('avoir', 'etre'),
+  auxiliary: Schema.Literals(['avoir', 'etre']),
   cousin: Schema.NullOr(Schema.String),
   /** The infinitive in the 1990 spelling (« connaitre »). */
   display: Schema.String,
@@ -513,7 +515,7 @@ export const VerbTable = Schema.Struct({
 export type VerbTable = typeof VerbTable.Type
 
 /** The shape of a verb's flower in the meadow, drawn from its group's family. */
-export const MeadowSilhouette = Schema.Literal(
+export const MeadowSilhouette = Schema.Literals([
   'sunflower',
   'tulip',
   'daisy',
@@ -523,10 +525,10 @@ export const MeadowSilhouette = Schema.Literal(
   'dahlia',
   'poppy',
   'anemone',
-)
+])
 export type MeadowSilhouette = typeof MeadowSilhouette.Type
 
-export const MeadowPalette = Schema.Literal(
+export const MeadowPalette = Schema.Literals([
   'gold',
   'rose',
   'indigo',
@@ -537,10 +539,10 @@ export const MeadowPalette = Schema.Literal(
   'white',
   'peach',
   'lavender',
-)
+])
 export type MeadowPalette = typeof MeadowPalette.Type
 
-export const MeadowStage = Schema.Literal('seed', 'growing', 'mature')
+export const MeadowStage = Schema.Literals(['seed', 'growing', 'mature'])
 export type MeadowStage = typeof MeadowStage.Type
 
 export const MeadowVerb = Schema.Struct({

@@ -4,7 +4,7 @@
  */
 import { ApiSchema, type ChildProfile } from '@little-tables/api-contract'
 import { LearningPathSettings, defaultLearningPathSettings } from '@little-tables/engine/schema'
-import { Either, Schema } from 'effect'
+import { Result, Schema } from 'effect'
 
 import { createParentCode } from '../parents/parent-code.js'
 import {
@@ -61,12 +61,12 @@ const write = (key: string, value: string | null, storage: Storage | null) => {
   }
 }
 
-const readJson = <A, I>(schema: Schema.Schema<A, I>, key: string, storage: Storage | null) => {
+const readJson = <A>(schema: Schema.Decoder<A>, key: string, storage: Storage | null) => {
   const text = read(key, storage)
   if (text === null) return null
   try {
-    const decoded = Schema.decodeUnknownEither(schema)(JSON.parse(text))
-    return Either.isRight(decoded) ? decoded.right : null
+    const decoded = Schema.decodeUnknownResult(schema)(JSON.parse(text))
+    return Result.isSuccess(decoded) ? decoded.success : null
   } catch {
     return null
   }

@@ -4,7 +4,7 @@
  * it offline. Five wrong codes lock it for fifteen minutes here too, and an opened parent space
  * stays open five minutes or until the child space shows again.
  */
-import { Either, Schema } from 'effect'
+import { Result, Schema } from 'effect'
 
 export const MAX_FAILURES = 5
 export const LOCK_MS = 15 * 60_000
@@ -66,8 +66,8 @@ export const createParentCode = (storage: Storage | null = defaultStorage()) => 
     try {
       const text = storage?.getItem(storageKey) ?? null
       if (text === null) return empty
-      const decoded = Schema.decodeUnknownEither(DeviceCode)(JSON.parse(text))
-      return Either.isRight(decoded) ? decoded.right : empty
+      const decoded = Schema.decodeUnknownResult(DeviceCode)(JSON.parse(text))
+      return Result.isSuccess(decoded) ? decoded.success : empty
     } catch {
       return empty
     }

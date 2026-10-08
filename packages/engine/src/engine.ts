@@ -19,11 +19,11 @@ export type EngineModule = Readonly<{
 
 type Result = Readonly<{ error?: string; ok?: unknown }>
 
-const call = <A, I>(
+const call = <A>(
   module: EngineModule,
   operation: string,
   input: unknown,
-  schema: Schema.Schema<A, I>,
+  schema: Schema.Decoder<A>,
 ): Effect.Effect<A, EngineError> =>
   Effect.try({
     catch: (cause) => new EngineError({ message: String(cause), operation }),
@@ -32,7 +32,7 @@ const call = <A, I>(
   }).pipe(
     Effect.flatMap((result) =>
       result.error === undefined
-        ? Schema.decodeUnknown(schema)(result.ok).pipe(
+        ? Schema.decodeUnknownEffect(schema)(result.ok).pipe(
             Effect.mapError((error) => new EngineError({ message: error.message, operation })),
           )
         : Effect.fail(new EngineError({ message: result.error, operation })),
@@ -148,7 +148,7 @@ export type EngineApi = Readonly<{
 
 export const makeEngine = (module: EngineModule): EngineApi => {
   const operation =
-    <In, A, I>(name: string, schema: Schema.Schema<A, I>): Operation<In, A> =>
+    <In, A>(name: string, schema: Schema.Decoder<A>): Operation<In, A> =>
     (input) =>
       call(module, name, input, schema)
   return {
@@ -181,7 +181,7 @@ export const makeEngine = (module: EngineModule): EngineApi => {
 }
 
 /** The learning engine, loaded once per runtime. */
-export class Engine extends Context.Tag('@little-tables/engine/Engine')<Engine, EngineApi>() {
+export class Engine extends Context.Service<Engine, EngineApi>()('@little-tables/engine/Engine') {
   /** Loads the module with `load`, typically the WebAssembly initialiser of the current platform. */
   static readonly layer = (load: () => Promise<EngineModule>): Layer.Layer<Engine, EngineError> =>
     Layer.effect(

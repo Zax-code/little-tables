@@ -9,7 +9,7 @@
 import type { AttemptEvent, LearningSnapshot } from '@little-tables/engine/schema'
 import { AttemptEvent as AttemptEventSchema } from '@little-tables/engine/schema'
 import Dexie from 'dexie'
-import { Effect, Either, Schema } from 'effect'
+import { Effect, Result, Schema } from 'effect'
 
 import { LocalStore, StoreError } from './local-store.js'
 import { emptyState } from './local-store.js'
@@ -34,12 +34,12 @@ export const millis = (value: unknown): number | null => {
   return null
 }
 
-const decodeEvent = Schema.decodeUnknownEither(AttemptEventSchema)
+const decodeEvent = Schema.decodeUnknownResult(AttemptEventSchema)
 
 export const convertLegacyEvent = (raw: unknown): AttemptEvent | null => {
   if (!isRecord(raw)) return null
   const decoded = decodeEvent({ ...raw, answeredAt: millis(raw.answeredAt) })
-  return Either.isRight(decoded) ? decoded.right : null
+  return Result.isSuccess(decoded) ? decoded.success : null
 }
 
 const convertSnapshot = (raw: unknown): LearningSnapshot | null => {
@@ -73,7 +73,7 @@ const convertSession = (raw: unknown): unknown => {
   }
 }
 
-const decodeCompletion = Schema.decodeUnknownEither(SessionCompletion)
+const decodeCompletion = Schema.decodeUnknownResult(SessionCompletion)
 
 const convertCompletion = (raw: unknown): unknown => {
   if (!isRecord(raw)) return null
@@ -94,10 +94,10 @@ const convertCompletion = (raw: unknown): unknown => {
     totalAnswers: raw.totalAnswers,
   })
   // A summary that cannot be read only costs the last celebration screen.
-  return Either.isRight(decoded) ? decoded.right : null
+  return Result.isSuccess(decoded) ? decoded.success : null
 }
 
-const decodeState = Schema.decodeUnknownEither(ProfileState)
+const decodeState = Schema.decodeUnknownResult(ProfileState)
 
 /** The previous app's state, or `null` when it cannot be read. */
 export const convertLegacyState = (raw: unknown): State | null => {
@@ -128,7 +128,7 @@ export const convertLegacyState = (raw: unknown): State | null => {
         : convertSnapshot(raw.sessionStartSnapshot),
     snapshot,
   })
-  return Either.isRight(decoded) ? decoded.right : null
+  return Result.isSuccess(decoded) ? decoded.success : null
 }
 
 type LegacyContent = Readonly<{

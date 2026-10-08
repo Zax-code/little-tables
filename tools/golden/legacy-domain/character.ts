@@ -6,14 +6,14 @@ import {
   type SelectableChildAvatarId,
 } from './family-profile.js'
 
-export const CharacterIdSchema = Schema.Literal(
+export const CharacterIdSchema = Schema.Literals([
   'miffy',
   'malo-bear',
   'fenna-fox',
   'mina-cat',
   'paco-dog',
   'colin-mallard',
-)
+])
 export type CharacterId = typeof CharacterIdSchema.Type
 
 const avatarCharacters = {

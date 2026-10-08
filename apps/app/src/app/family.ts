@@ -37,7 +37,7 @@ const grantFrom = (status: AuthStatus) =>
 const migrate = (device: Device, profiles: ReadonlyArray<ChildProfile>) =>
   migrateLegacyDatabases(profiles.map(({ id }) => id)).pipe(
     Effect.tap(() => Effect.sync(() => device.markCardSeen('migrated'))),
-    Effect.catchAll((failure) => Effect.logWarning('previous data could not be copied', failure)),
+    Effect.catch((failure) => Effect.logWarning('previous data could not be copied', failure)),
   )
 
 /** Decides what the app opens on. */
@@ -45,9 +45,9 @@ export const openApp = (device: Device) =>
   Effect.gen(function* () {
     device.adoptLegacyKeys()
     const api = yield* ApiClient
-    const status = yield* api.authStatus().pipe(Effect.either)
-    if (status._tag === 'Left') {
-      if (status.left._tag !== 'NetworkError') return yield* Effect.fail(status.left)
+    const status = yield* api.authStatus().pipe(Effect.result)
+    if (status._tag === 'Failure') {
+      if (status.failure._tag !== 'NetworkError') return yield* Effect.fail(status.failure)
       const grant = device.authGrant()
       if (grant === null) return { kind: 'offline' } satisfies Access
       const family: Family = {
@@ -60,21 +60,21 @@ export const openApp = (device: Device) =>
         ? ({ family, kind: 'onboarding' } satisfies Access)
         : ({ family, kind: 'ready' } satisfies Access)
     }
-    if (!status.right.authenticated) {
+    if (!status.success.authenticated) {
       device.setAuthGrant(null)
-      return { googleClientId: status.right.googleClientId, kind: 'signed-out' } satisfies Access
+      return { googleClientId: status.success.googleClientId, kind: 'signed-out' } satisfies Access
     }
-    device.setAuthGrant(grantFrom(status.right))
+    device.setAuthGrant(grantFrom(status.success))
     const { profiles } = yield* api.profiles()
     device.setProfiles(profiles)
     yield* migrate(device, profiles)
     const family: Family = {
-      email: status.right.email,
-      isAdmin: status.right.isAdmin,
+      email: status.success.email,
+      isAdmin: status.success.isAdmin,
       offline: false,
       profiles,
     }
-    return status.right.onboardingRequired
+    return status.success.onboardingRequired
       ? ({ family, kind: 'onboarding' } satisfies Access)
       : ({ family, kind: 'ready' } satisfies Access)
   })

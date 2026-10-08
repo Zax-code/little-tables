@@ -48,7 +48,7 @@ export function App({ device, runtime }: Readonly<{ device: Device; runtime: App
 
   const access = useQuery({
     // The engine is loaded first: screens derive their values from it synchronously.
-    queryFn: () => runtime.runPromise(Effect.zipRight(Engine, openApp(device))),
+    queryFn: () => runtime.runPromise(Effect.andThen(Engine, openApp(device))),
     queryKey: ['open', opening],
     staleTime: Number.POSITIVE_INFINITY,
   })

@@ -2,7 +2,7 @@ import { Schema } from 'effect'
 
 import { LearningPathSettingsSchema } from './exercises.js'
 
-export const ChildAvatarIdSchema = Schema.Literal(
+export const ChildAvatarIdSchema = Schema.Literals([
   'sprout',
   'malo-bear',
   'fenna-fox',
@@ -12,22 +12,24 @@ export const ChildAvatarIdSchema = Schema.Literal(
   'sunbeam',
   'bluebell',
   'berry',
-)
+])
 export type ChildAvatarId = typeof ChildAvatarIdSchema.Type
-export const SelectableChildAvatarIdSchema = Schema.Literal(
+export const SelectableChildAvatarIdSchema = Schema.Literals([
   'sprout',
   'malo-bear',
   'fenna-fox',
   'mina-cat',
   'paco-dog',
   'colin-mallard',
-)
+])
 export type SelectableChildAvatarId = typeof SelectableChildAvatarIdSchema.Type
 
-export const ChildProfileNameSchema = Schema.NonEmptyTrimmedString.pipe(
-  Schema.filter((name) => Array.from(name).length <= 40, {
-    message: () => 'Family member names must contain at most 40 characters',
-  }),
+export const ChildProfileNameSchema = Schema.Trimmed.check(
+  Schema.isNonEmpty(),
+  Schema.makeFilter(
+    (name) =>
+      Array.from(name).length <= 40 || 'Family member names must contain at most 40 characters',
+  ),
 )
 export type ChildProfileName = typeof ChildProfileNameSchema.Type
 
