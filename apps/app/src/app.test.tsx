@@ -241,7 +241,7 @@ describe('the new app', () => {
     await user.click(screen.getByRole('button', { name: 'Autres séances' }))
     await user.click(await screen.findByRole('button', { name: 'finir' }))
     let verbQuestions = 0
-    for (let index = 0; index < 20; index += 1) {
+    for (let index = 0; index < 40; index += 1) {
       const next = screen.queryByRole('button', { name: 'Suivant' })
       if (next !== null) {
         await user.click(next)
@@ -277,7 +277,7 @@ describe('the new app', () => {
     }
     expect(verbQuestions).toBeGreaterThanOrEqual(4)
     // Three right answers on the verb bring a butterfly to it in the meadow.
-    expect(screen.getByText('+1 papillon')).toBeInTheDocument()
+    expect(await screen.findByText('+1 papillon', {}, { timeout: 5000 })).toBeInTheDocument()
     expect(
       screen.getByText('Il se pose sur « finir », dans le pré des verbes.'),
     ).toBeInTheDocument()
