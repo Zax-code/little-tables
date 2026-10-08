@@ -21,7 +21,7 @@
     "dexie": "^4.4.6",
     "effect": "^3.22.2",
     "lucide-react": "^1.52.0",
-    "motion": "^12.43.0",
+    "motion": "^14.0.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
     "workbox-window": "^7.4.1"
@@ -39,6 +39,7 @@
     "tailwindcss": "^4.3.3",
     "vite": "^8.3.3",
     "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.0.3",
     "workbox-core": "^7.4.1",
     "workbox-precaching": "^7.4.1",
     "workbox-routing": "^7.4.1",

@@ -25,5 +25,8 @@
   },
   "dependencies": {
     "effect": "^3.22.2"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.3"
   }
 }

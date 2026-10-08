@@ -18,5 +18,8 @@
     "@effect/platform": "^0.96.3",
     "@little-tables/engine": "workspace:*",
     "effect": "^3.22.2"
+  },
+  "devDependencies": {
+    "vitest": "^5.0.3"
   }
 }
