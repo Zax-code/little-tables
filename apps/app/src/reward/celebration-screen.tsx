@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
 import { useProfileState } from '../app/profile-state.js'
-import { useGarden, useMeadow } from '../app/derived.js'
+import { todayKey, useGarden, useMeadow } from '../app/derived.js'
 import { characterNames, characterOf } from '../characters/characters.js'
 import { Sprite } from '../characters/sprite.js'
 import type { ProfileState, SessionCompletion } from '../data/schema.js'
@@ -19,6 +19,7 @@ import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey, Translator } from '../i18n/translator.js'
 import { Butterfly } from '../meadow/butterfly.js'
 import { MeadowPlant } from '../meadow/meadow-plant.js'
+import { listVerbs, verbsOfToday } from '../meadow/meadow-verbs.js'
 import { displayVerb, formatAnswer, formatNumber } from '../session/format.js'
 import { insightCopy } from './insight.js'
 
@@ -33,13 +34,14 @@ export function CelebrationScreen() {
   return <Celebration completion={completion} state={state.data} />
 }
 
+/** In the margins beside the character, clear of the title, the copy and the reward card. */
 const petals = [
-  { left: '12%', top: '14%', tone: 'var(--garden-bloom-pink)' },
-  { left: '82%', top: '18%', tone: 'var(--garden-bloom-gold)' },
-  { left: '8%', top: '44%', tone: 'var(--garden-leaf-light)' },
-  { left: '86%', top: '40%', tone: 'var(--garden-bloom-lavender)' },
-  { left: '20%', top: '30%', tone: 'var(--garden-bloom-gold)' },
-  { left: '74%', top: '52%', tone: 'var(--garden-bloom-pink)' },
+  { left: '3%', top: '21%', tone: 'var(--garden-bloom-pink)' },
+  { left: '89%', top: '21%', tone: 'var(--garden-bloom-gold)' },
+  { left: '4%', top: '29%', tone: 'var(--garden-bloom-gold)' },
+  { left: '90%', top: '29%', tone: 'var(--garden-bloom-pink)' },
+  { left: '3%', top: '37%', tone: 'var(--garden-leaf-light)' },
+  { left: '89%', top: '37%', tone: 'var(--garden-bloom-lavender)' },
 ] as const
 
 function Petals() {
@@ -114,6 +116,8 @@ function Celebration({
   const insight =
     completion.learningInsight === null ? null : insightCopy(completion.learningInsight, translator)
   const visit = completion.meadowVisit ?? null
+  const meadowWatering = completion.sessionKind === 'meadow-watering'
+  const toMeadow = meadowWatering || visit !== null
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[linear-gradient(180deg,var(--lt-tint-soft),var(--lt-bg)_55%)] safe-top">
@@ -130,7 +134,11 @@ function Celebration({
           motion="celebration"
         />
         <section className="flex w-full max-w-md flex-col gap-2 rounded-card bg-surface p-4 text-left shadow-[0_4px_16px_var(--lt-shadow)]">
-          {visit === null ? null : <MeadowVisit state={state} verb={visit} />}
+          {meadowWatering ? (
+            <MeadowWatering completion={completion} state={state} />
+          ) : visit === null ? null : (
+            <MeadowVisit state={state} verb={visit} />
+          )}
           {completion.gardenBloomEarned && plant !== null ? (
             <div className="flex items-center gap-3">
               <Plant className="h-20 w-auto shrink-0" plant={plant} />
@@ -156,9 +164,9 @@ function Celebration({
                 </p>
               </div>
             </div>
-          ) : visit === null ? (
+          ) : toMeadow ? null : (
             <p className="text-subhead font-semibold text-label-2">{t('celebration.extraCopy')}</p>
-          ) : null}
+          )}
           {insight === null || !perfect ? null : (
             <p className="flex items-start gap-1.5 text-footnote font-bold text-tint">
               <Sparkles aria-hidden className="mt-0.5 size-3.5 shrink-0" />
@@ -181,17 +189,23 @@ function Celebration({
         <Button
           autoFocus
           icon={
-            visit === null ? (
+            !toMeadow ? (
               <Sprout aria-hidden className="size-5" />
             ) : (
               <Flower aria-hidden className="size-5" />
             )
           }
-          onClick={() => void navigate({ to: visit === null ? '/garden' : '/garden/meadow' })}
+          onClick={() => void navigate({ to: toMeadow ? '/garden/meadow' : '/garden' })}
           size="lg"
           width="full"
         >
-          {t(visit === null ? 'celebration.seeGarden' : 'celebration.seeMeadow')}
+          {t(
+            meadowWatering
+              ? 'celebration.seeMyMeadow'
+              : visit === null
+                ? 'celebration.seeGarden'
+                : 'celebration.seeMeadow',
+          )}
         </Button>
       </div>
     </div>
@@ -206,12 +220,12 @@ function MeadowVisit({ state, verb }: Readonly<{ state: ProfileState; verb: stri
   const flower = meadow.verbs.find((candidate) => candidate.verb === verb)
   return (
     <div className="flex items-center gap-3" data-meadow-visit={verb}>
-      <div className="relative shrink-0 pr-4">
+      <div className="relative shrink-0 pr-6">
         <MeadowPlant
           className="h-20 w-auto"
           verb={flower ?? { palette: 'red', silhouette: 'poppy', stage: 'mature' }}
         />
-        <Butterfly className="absolute -top-2 -right-2" />
+        <Butterfly className="absolute -top-2 -right-1" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
         <Badge tone="sun">
@@ -224,6 +238,50 @@ function MeadowVisit({ state, verb }: Readonly<{ state: ProfileState; verb: stri
         </p>
         <p className="text-footnote font-semibold text-label-2">
           {count('celebration.butterflyWeek', meadow.butterfliesThisWeek)}
+        </p>
+      </div>
+    </div>
+  )
+}
+
+/** D11 of the two gardens: the meadow's watering, the verbs it reached and its blooms. */
+function MeadowWatering({
+  completion,
+  state,
+}: Readonly<{ completion: SessionCompletion; state: ProfileState }>) {
+  const { activeProfile } = useApp()
+  const { count, language, t } = useI18n()
+  const meadow = useMeadow(state, activeProfile.learningPaths)
+  const visit = completion.meadowVisit ?? null
+  const watered = verbsOfToday(meadow.verbs, todayKey()).verbs
+  const flower = meadow.verbs.find((candidate) => candidate.verb === visit) ?? watered[0] ?? null
+  const verbs = listVerbs(watered, language)
+  const character = characterNames[characterOf(activeProfile.avatarId)]
+  return (
+    <div className="flex items-center gap-3" data-meadow-watering="">
+      {flower === null ? null : (
+        <div className="relative shrink-0 pr-6">
+          <MeadowPlant className="h-20 w-auto" verb={flower} />
+          {visit === null ? null : <Butterfly className="absolute -top-2 -right-1" />}
+        </div>
+      )}
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+        {completion.meadowBloomEarned === true ? (
+          <>
+            <Badge tone="sun">
+              <Droplets aria-hidden className="size-3.5" />
+              {t('celebration.meadowWatering')}
+            </Badge>
+            <h2 className="text-body font-extrabold">{t('celebration.meadowBloomed')}</h2>
+          </>
+        ) : null}
+        {watered.length === 0 ? null : (
+          <p className="text-subhead font-semibold">
+            {t('celebration.meadowWatered', { character, verbs })}
+          </p>
+        )}
+        <p className="text-footnote font-semibold text-label-2">
+          {count('today.meadowBlooms', state.meadowBloomCount ?? 0)}
         </p>
       </div>
     </div>

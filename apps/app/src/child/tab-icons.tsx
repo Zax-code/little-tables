@@ -1,6 +1,7 @@
 /**
  * The tab bar's drawings, kept from the previous app: a little house, a sprout in its pot and a
- * row of growing flowers. Lines follow the tab's colour; the fills are the garden's.
+ * row of growing flowers, with the meadow's flower beside them. Lines follow the tab's colour; the
+ * fills are the garden's and the meadow's.
  */
 const pinkFill = 'fill-[var(--garden-bloom-pink)]'
 const softFill = 'fill-[var(--garden-bloom-soft-pink)]'
@@ -14,7 +15,16 @@ const petals = [
   [18.3, 7.6],
 ] as const
 
-export type TabIconName = 'garden' | 'home' | 'progress'
+/** Five petals around (14, 9.2), as for the progress tab's flower. */
+const meadowPetals = [
+  [14, 5.6],
+  [17.4, 8.1],
+  [16.1, 12.1],
+  [11.9, 12.1],
+  [10.6, 8.1],
+] as const
+
+export type TabIconName = 'garden' | 'home' | 'meadow' | 'progress'
 
 export function TabIcon({ name }: Readonly<{ name: TabIconName }>) {
   return (
@@ -42,6 +52,33 @@ export function TabIcon({ name }: Readonly<{ name: TabIconName }>) {
             strokeWidth={1.45}
           />
           <circle className="fill-current stroke-none" cx="18.25" cy="18.25" r=".55" />
+        </>
+      ) : name === 'meadow' ? (
+        <>
+          <path d="M6.5 23.3h15" />
+          <path d="M14 23.3v-9.6" strokeWidth={1.7} />
+          <path
+            className={mintFill}
+            d="M13.9 20.6c-3 .1-4.8-1.3-5-3.8 3-.2 4.8 1.3 5 3.8Z"
+            strokeWidth={1.35}
+          />
+          {meadowPetals.map(([cx, cy]) => (
+            <circle
+              className="fill-[var(--meadow-gold-petal)]"
+              cx={cx}
+              cy={cy}
+              key={`${cx}-${cy}`}
+              r="2.4"
+              strokeWidth={1.1}
+            />
+          ))}
+          <circle
+            className="fill-[var(--meadow-coral-petal)]"
+            cx="14"
+            cy="9.2"
+            r="1.9"
+            strokeWidth={1.1}
+          />
         </>
       ) : name === 'garden' ? (
         <>
