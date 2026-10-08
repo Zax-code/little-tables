@@ -58,6 +58,53 @@
   --garden-lock-ink: #c8c1a6;
 }
 
+/* The verb meadow: brighter than the garden, one palette per flower (`PRE_DES_VERBES.md` §3.2). */
+:root {
+  --meadow-gold-petal: #ffc21c;
+  --meadow-gold-accent: #ffe27a;
+  --meadow-gold-center: #7a4a2e;
+  --meadow-gold-pot: #e8b04a;
+  --meadow-rose-petal: #f2688f;
+  --meadow-rose-accent: #ffb3c6;
+  --meadow-rose-center: #fff1c2;
+  --meadow-rose-pot: #f08a9b;
+  --meadow-indigo-petal: #5b5bd6;
+  --meadow-indigo-accent: #a98bf0;
+  --meadow-indigo-center: #fff1c2;
+  --meadow-indigo-pot: #7c7fd1;
+  --meadow-coral-petal: #ff5a47;
+  --meadow-coral-accent: #ff9a5c;
+  --meadow-coral-center: #ffd33d;
+  --meadow-coral-pot: #e8955e;
+  --meadow-violet-petal: #9b4dd6;
+  --meadow-violet-accent: #a98bf0;
+  --meadow-violet-center: #ffd33d;
+  --meadow-violet-pot: #b48bd9;
+  --meadow-mint-petal: #4cc48f;
+  --meadow-mint-accent: #ffffff;
+  --meadow-mint-center: #ffd33d;
+  --meadow-mint-pot: #6fc79a;
+  --meadow-red-petal: #f0362b;
+  --meadow-red-accent: #ff5a47;
+  --meadow-red-center: #7a4a2e;
+  --meadow-red-pot: #f08a9b;
+  --meadow-white-petal: #ffffff;
+  --meadow-white-accent: #ffe27a;
+  --meadow-white-center: #ffd33d;
+  --meadow-white-pot: #b48bd9;
+  --meadow-peach-petal: #ff9a5c;
+  --meadow-peach-accent: #ffb3c6;
+  --meadow-peach-center: #7a4a2e;
+  --meadow-peach-pot: #e8955e;
+  --meadow-lavender-petal: #a98bf0;
+  --meadow-lavender-accent: #e6dcff;
+  --meadow-lavender-center: #ffd33d;
+  --meadow-lavender-pot: #7c7fd1;
+  --meadow-leaf-light: #6fae4a;
+  --meadow-leaf-deep: #4f9a3c;
+  --meadow-heart: #5a3a24;
+}
+
 html,
 body,
 #root {

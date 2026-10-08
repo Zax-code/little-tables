@@ -1,0 +1,146 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`the meadow flowers > draws the anemone head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-accent)",
+  "path var(--ink-primary)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the bellflower head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-accent)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the cornflower head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-accent)",
+  "path var(--meadow-rose-center)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the cosmos head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-accent)",
+  "path var(--meadow-rose-center)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the dahlia head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-accent)",
+  "path var(--meadow-rose-center)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the daisy head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-center)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the poppy head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--ink-primary)",
+  "path var(--meadow-rose-center)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the sunflower head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-center)",
+  "path var(--meadow-heart)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > draws the tulip head in the verb’s palette 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-petal)",
+  "path var(--meadow-rose-accent)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;
+
+exports[`the meadow flowers > shares one bud and one seed between every family 1`] = `
+[
+  "path none",
+  "path var(--meadow-leaf-light)",
+  "path var(--meadow-leaf-deep)",
+  "ellipse var(--garden-soil)",
+  "path var(--meadow-rose-pot)",
+  "rect var(--meadow-rose-pot)",
+  "path none",
+]
+`;

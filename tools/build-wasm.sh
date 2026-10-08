@@ -7,8 +7,8 @@ root="$(cd "$(dirname "$0")/.." && pwd)"
 out="$root/packages/engine/wasm"
 budget_bytes=$((300 * 1024))
 
-cargo build --manifest-path "$root/Cargo.toml" -p lt-domain-wasm --target wasm32-unknown-unknown --release
-input="$root/target/wasm32-unknown-unknown/release/lt_domain_wasm.wasm"
+cargo build --manifest-path "$root/Cargo.toml" -p lt-domain-wasm --target wasm32-unknown-unknown --profile wasm-release
+input="$root/target/wasm32-unknown-unknown/wasm-release/lt_domain_wasm.wasm"
 
 checksum() {
   if command -v sha256sum >/dev/null; then sha256sum "$1"; else shasum -a 256 "$1"; fi | cut -d ' ' -f 1

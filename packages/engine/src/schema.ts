@@ -508,3 +508,57 @@ export const VerbTable = Schema.Struct({
   verb: Schema.String,
 })
 export type VerbTable = typeof VerbTable.Type
+
+/** The shape of a verb's flower in the meadow, drawn from its group's family. */
+export const MeadowSilhouette = Schema.Literal(
+  'sunflower',
+  'tulip',
+  'daisy',
+  'cosmos',
+  'bellflower',
+  'cornflower',
+  'dahlia',
+  'poppy',
+  'anemone',
+)
+export type MeadowSilhouette = typeof MeadowSilhouette.Type
+
+export const MeadowPalette = Schema.Literal(
+  'gold',
+  'rose',
+  'indigo',
+  'coral',
+  'violet',
+  'mint',
+  'red',
+  'white',
+  'peach',
+  'lavender',
+)
+export type MeadowPalette = typeof MeadowPalette.Type
+
+export const MeadowStage = Schema.Literal('seed', 'growing', 'mature')
+export type MeadowStage = typeof MeadowStage.Type
+
+export const MeadowVerb = Schema.Struct({
+  /** The days of the last seven when a butterfly landed on the verb, oldest first. */
+  butterflyDayKeys: Schema.Array(Schema.String),
+  group: VerbGroup,
+  palette: MeadowPalette,
+  silhouette: MeadowSilhouette,
+  stage: MeadowStage,
+  /** The ticked tenses, in the parent's order. */
+  tenses: Schema.Array(Schema.Struct({ state: MasteryState, tense: Tense })),
+  verb: Schema.String,
+})
+export type MeadowVerb = typeof MeadowVerb.Type
+
+/** The verb meadow (`deriveMeadow`), derived from the snapshot and the parent's verbs. */
+export const MeadowProgress = Schema.Struct({
+  butterfliesThisWeek: Int,
+  /** The verb to water when no ticked verb was seen for three days; `null` otherwise. */
+  thirst: Schema.NullOr(Schema.Struct({ daysSince: Int, verb: Schema.String })),
+  /** Auxiliaries, then the first, second and third groups; the parent's order within a group. */
+  verbs: Schema.Array(MeadowVerb),
+})
+export type MeadowProgress = typeof MeadowProgress.Type

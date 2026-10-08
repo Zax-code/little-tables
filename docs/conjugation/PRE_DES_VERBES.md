@@ -15,13 +15,13 @@ Un parent rapporte que sa fille ne choisit que les maths. Deux causes dans l'app
 
 ## 2. Les trois mécaniques retenues
 
-| Écran | Mécanique | Export |
-| --- | --- | --- |
-| A7 · Aujourd'hui | **Tes verbes ont soif** : carte d'invitation quand aucun verbe n'a été arrosé depuis 3 jours, avec un verbe nommé et un bouton qui lance sa séance. | `A7-aujourdhui-verbes-ont-soif.png` |
-| D2b · Jardin | Une ligne **Le pré des verbes · n papillons** dans les liens du jardin, et le « moment du jour » peut annoncer un papillon. | `D2b-jardin-entree-du-pre.png` |
+| Écran                  | Mécanique                                                                                                                                                                                                                                                     | Export                                             |
+| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| A7 · Aujourd'hui       | **Tes verbes ont soif** : carte d'invitation quand aucun verbe n'a été arrosé depuis 3 jours, avec un verbe nommé et un bouton qui lance sa séance.                                                                                                           | `A7-aujourdhui-verbes-ont-soif.png`                |
+| D2b · Jardin           | Une ligne **Le pré des verbes · n papillons** dans les liens du jardin, et le « moment du jour » peut annoncer un papillon.                                                                                                                                   | `D2b-jardin-entree-du-pre.png`                     |
 | D8 · Le pré des verbes | **Un second jardin**, écran à part, trié par groupe de verbes, trois cartes par rangée, qui défile (jusqu'à 60 verbes). Une fleur par verbe coché, son nom, un point par temps coché avec son état. Un papillon posé sur les verbes travaillés cette semaine. | `D8-le-pre-des-verbes.png`, `R7-fleurs-du-pre.png` |
-| D11 · Célébration | Après une séance de verbe : chip **+1 papillon**, le verbe visité, et un insight en conjugaison. | `D11-celebration-seance-de-verbes.png` |
-| D12 · Feuille | **Comment pousse un verbe** : quatre règles. | `D12-feuille-comment-pousse-un-verbe.png` |
+| D11 · Célébration      | Après une séance de verbe : chip **+1 papillon**, le verbe visité, et un insight en conjugaison.                                                                                                                                                              | `D11-celebration-seance-de-verbes.png`             |
+| D12 · Feuille          | **Comment pousse un verbe** : quatre règles.                                                                                                                                                                                                                  | `D12-feuille-comment-pousse-un-verbe.png`          |
 
 Invariants : le ledger des floraisons (`gardenBloomCount`, `rewardedDayKeys`) et la règle « une
 floraison par jour » ne changent pas. Le pré n'ajoute **aucun état persistant** : tout se dérive du
@@ -83,12 +83,12 @@ Déterministes à partir du verbe, calculées une seule fois en Rust :
 fn verb_hash(verb: &str) -> u32 // FNV-1a 32 bits sur les octets UTF-8 de l'infinitif
 ```
 
-| Groupe | Famille de silhouettes (`verb_hash % n`) |
-| --- | --- |
-| auxiliary (être, avoir) | `sunflower`, `tulip` |
-| first | `daisy`, `cosmos`, `bellflower` |
-| second | `cornflower`, `dahlia` |
-| third | `poppy`, `anemone` |
+| Groupe                  | Famille de silhouettes (`verb_hash % n`) |
+| ----------------------- | ---------------------------------------- |
+| auxiliary (être, avoir) | `sunflower`, `tulip`                     |
+| first                   | `daisy`, `cosmos`, `bellflower`          |
+| second                  | `cornflower`, `dahlia`                   |
+| third                   | `poppy`, `anemone`                       |
 
 Palette = `MEADOW_PALETTES[verb_hash / 7 % 10]` (diviser avant le modulo pour découpler de la
 silhouette). Deux verbes d'un groupe partagent une famille, jamais la même paire
@@ -98,17 +98,17 @@ au-delà sont acceptées.
 Les palettes, plus vives que celles du jardin, deviennent des jetons CSS `--meadow-*` dans
 `apps/app/src/styles.css` (même nom en mode sombre, valeurs à ajuster) :
 
-| Nom | Pétales | Accent | Cœur | Pot |
-| --- | --- | --- | --- | --- |
-| gold | `#FFC21C` | `#FFE27A` | `#7A4A2E` | `#E8B04A` |
-| rose | `#F2688F` | `#FFB3C6` | `#FFF1C2` | `#F08A9B` |
-| indigo | `#5B5BD6` | `#A98BF0` | `#FFF1C2` | `#7C7FD1` |
-| coral | `#FF5A47` | `#FF9A5C` | `#FFD33D` | `#E8955E` |
-| violet | `#9B4DD6` | `#A98BF0` | `#FFD33D` | `#B48BD9` |
-| mint | `#4CC48F` | `#FFFFFF` | `#FFD33D` | `#6FC79A` |
-| red | `#F0362B` | `#FF5A47` | `#7A4A2E` | `#F08A9B` |
-| white | `#FFFFFF` | `#FFE27A` | `#FFD33D` | `#B48BD9` |
-| peach | `#FF9A5C` | `#FFB3C6` | `#7A4A2E` | `#E8955E` |
+| Nom      | Pétales   | Accent    | Cœur      | Pot       |
+| -------- | --------- | --------- | --------- | --------- |
+| gold     | `#FFC21C` | `#FFE27A` | `#7A4A2E` | `#E8B04A` |
+| rose     | `#F2688F` | `#FFB3C6` | `#FFF1C2` | `#F08A9B` |
+| indigo   | `#5B5BD6` | `#A98BF0` | `#FFF1C2` | `#7C7FD1` |
+| coral    | `#FF5A47` | `#FF9A5C` | `#FFD33D` | `#E8955E` |
+| violet   | `#9B4DD6` | `#A98BF0` | `#FFD33D` | `#B48BD9` |
+| mint     | `#4CC48F` | `#FFFFFF` | `#FFD33D` | `#6FC79A` |
+| red      | `#F0362B` | `#FF5A47` | `#7A4A2E` | `#F08A9B` |
+| white    | `#FFFFFF` | `#FFE27A` | `#FFD33D` | `#B48BD9` |
+| peach    | `#FF9A5C` | `#FFB3C6` | `#7A4A2E` | `#E8955E` |
 | lavender | `#A98BF0` | `#E6DCFF` | `#FFD33D` | `#7C7FD1` |
 
 Feuilles : `#6FAE4A` et `#4F9A3C`. Contour : `--ink-primary`. Terre et liseré du pot : les jetons
@@ -167,7 +167,7 @@ pot, `gardenPlantViewBox = "0 0 112 152"`, `scale(.8)`) et `garden-plant-rendere
 - Papillon : un petit SVG dessiné en code (`apps/app/src/meadow/butterfly.tsx`), ailes jaune pâle
   `#FFF3B0`, taches `#FFC21C`, contour `--ink-primary`, environ 42 × 36.
 - `apps/app/src/reward/celebration-screen.tsx` : `SessionCompletion` gagne `meadowVisit:
-  string | null` (le verbe, calculé dans `completeSession` avec `engine.meadowVisit(events)`).
+string | null` (le verbe, calculé dans `completeSession` avec `engine.meadowVisit(events)`).
   Avec une visite, la carte de récompense montre le coquelicot (ou la fleur du verbe) et le
   papillon, chip `+1 papillon` sur `sun-soft`, titre « Papillon citron », « Il se pose sur
   « aller », dans le pré des verbes. », puis « n papillons dans le pré cette semaine ». Le CTA

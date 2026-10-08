@@ -92,6 +92,12 @@ export type GardenInput = Readonly<{
   snapshot: S.LearningSnapshot
 }>
 
+export type MeadowInput = Readonly<{
+  settings?: S.ConjugationSettings
+  snapshot: S.LearningSnapshot
+  todayKey: string
+}>
+
 export type EngineApi = Readonly<{
   answer: Operation<AnswerInput, S.AnswerOutcome>
   correctAnswer: Operation<S.PracticeQuestion, number>
@@ -102,6 +108,8 @@ export type EngineApi = Readonly<{
     Readonly<{ curriculum?: S.CurriculumPolicy; snapshot: S.LearningSnapshot }>,
     S.LearningProgress
   >
+  /** The verb meadow: a flower per ticked verb, the week's butterflies and the thirst. */
+  deriveMeadow: Operation<MeadowInput, S.MeadowProgress>
   deriveOpenSkills: Operation<PathsInput, ReadonlyArray<S.OpenSkill>>
   derivePathProgress: Operation<PathsInput, ReadonlyArray<S.PathProgress>>
   derivePracticeRhythm: Operation<RhythmInput, S.PracticeRhythm>
@@ -119,6 +127,8 @@ export type EngineApi = Readonly<{
     boolean
   >
   isProductionExercise: Operation<S.Exercise, boolean>
+  /** The verb a session's three correct answers brought a butterfly to, or `null`. */
+  meadowVisit: Operation<Readonly<{ attempts: ReadonlyArray<S.AttemptEvent> }>, string | null>
   mergeGardenRewardLedgers: Operation<
     Readonly<{
       ledgers: ReadonlyArray<
@@ -146,6 +156,7 @@ export const makeEngine = (module: EngineModule): EngineApi => {
     deriveGardenProgress: operation('deriveGardenProgress', S.GardenProgress),
     deriveGardenRewardLedger: operation('deriveGardenRewardLedger', S.GardenRewardLedger),
     deriveLearningProgress: operation('deriveLearningProgress', S.LearningProgress),
+    deriveMeadow: operation('deriveMeadow', S.MeadowProgress),
     deriveOpenSkills: operation('deriveOpenSkills', Schema.Array(S.OpenSkill)),
     derivePathProgress: operation('derivePathProgress', Schema.Array(S.PathProgress)),
     derivePracticeRhythm: operation('derivePracticeRhythm', S.PracticeRhythm),
@@ -157,6 +168,7 @@ export const makeEngine = (module: EngineModule): EngineApi => {
     expectedAnswer: operation('expectedAnswer', S.PracticeAnswer),
     isExerciseAnswerCorrect: operation('isExerciseAnswerCorrect', Schema.Boolean),
     isProductionExercise: operation('isProductionExercise', Schema.Boolean),
+    meadowVisit: operation('meadowVisit', Schema.NullOr(Schema.String)),
     mergeGardenRewardLedgers: operation('mergeGardenRewardLedgers', S.GardenRewardLedger),
     reduce: operation('reduce', S.LearningSnapshot),
     validateExerciseAttempt: operation('validateExerciseAttempt', Schema.Boolean),
