@@ -36,6 +36,7 @@ const memoryServer = (
   childId: string,
   learningPaths: ChildProfile['learningPaths'] = defaultPaths,
   facts: Bootstrap['snapshot']['facts'] = {},
+  completedSessions = 0,
 ) => {
   let onboarded = false
   let child: ChildProfile = {
@@ -53,7 +54,7 @@ const memoryServer = (
     pinSalt: `salt-${pin}`,
   })
   const bootstrap = (profileId: string): Bootstrap => ({
-    completedSessions: 0,
+    completedSessions,
     gardenBloomCount: 0,
     gardenCollection: emptyState().gardenCollection,
     practiceDayKeys: [],
@@ -148,9 +149,10 @@ const openApp = async (
   childId: string,
   learningPaths?: ChildProfile['learningPaths'],
   facts?: Bootstrap['snapshot']['facts'],
+  completedSessions?: number,
 ) => {
   window.history.replaceState(null, '', '/')
-  const server = memoryServer(childId, learningPaths, facts)
+  const server = memoryServer(childId, learningPaths, facts, completedSessions)
   const runtime = createRuntime(Layer.mergeAll(server.layer, testEngine, LocalStore.layer))
   const user = userEvent.setup()
   render(
@@ -239,7 +241,7 @@ describe('the new app', () => {
     await user.click(screen.getByRole('button', { name: 'Autres séances' }))
     await user.click(await screen.findByRole('button', { name: 'finir' }))
     let verbQuestions = 0
-    for (let index = 0; index < 20; index += 1) {
+    for (let index = 0; index < 40; index += 1) {
       const next = screen.queryByRole('button', { name: 'Suivant' })
       if (next !== null) {
         await user.click(next)
@@ -247,11 +249,11 @@ describe('the new app', () => {
       }
       const spoken = await waitFor(
         () =>
-          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.queryByRole('button', { name: 'Voir le pré des verbes' }) ??
           screen.getByText(/^(\S+)… finir, au présent$|^\d+ (fois|divisé par) \d+$/),
         { timeout: 5000 },
       )
-      if (spoken.textContent === 'Voir mon jardin') break
+      if (spoken.textContent === 'Voir le pré des verbes') break
       const verb = /^(\S+)… finir/.exec(spoken.textContent)
       let answer: string
       if (verb !== null) {
@@ -274,6 +276,11 @@ describe('the new app', () => {
       expect(await screen.findByRole('button', { name: 'Suivant' })).toBeInTheDocument()
     }
     expect(verbQuestions).toBeGreaterThanOrEqual(4)
+    // Three right answers on the verb bring a butterfly to it in the meadow.
+    expect(await screen.findByText('+1 papillon', {}, { timeout: 5000 })).toBeInTheDocument()
+    expect(
+      screen.getByText('Il se pose sur « finir », dans le pré des verbes.'),
+    ).toBeInTheDocument()
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
     await waitFor(() =>
       expect(server.received.some(({ factKey }) => factKey === 'conj:finir:present')).toBe(true),
@@ -331,11 +338,11 @@ describe('the new app', () => {
       }
       const spoken = await waitFor(
         () =>
-          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.queryByRole('button', { name: 'Voir le pré des verbes' }) ??
           screen.getByText(/^(\S+)… finir, au présent$|^\d+ (fois|divisé par) \d+$/),
         { timeout: 5000 },
       )
-      if (spoken.textContent === 'Voir mon jardin') break
+      if (spoken.textContent === 'Voir le pré des verbes') break
       const verb = /^(\S+)… finir/.exec(spoken.textContent)
       if (verb === null) {
         const [left, word, right] = spoken.textContent.split(' ')
@@ -396,6 +403,45 @@ describe('the new app', () => {
     })
     await runtime.dispose()
   }, 40_000)
+
+  it('invites to water a thirsty verb, but not on the first visit', async () => {
+    const day = 86_400_000
+    const verbs = {
+      ...defaultPaths,
+      conjugation: { focus: null, tenses: ['present' as const], verbs: ['aller', 'finir'] },
+    }
+    const first = await openApp('first-visit', verbs)
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    expect(screen.queryByText('Tes verbes ont soif')).toBeNull()
+    await first.runtime.dispose()
+    cleanup()
+
+    const lastSeen = learningDayKey(Date.now() - 4 * day, deviceTimeZone())
+    const seen = {
+      correctCount: 2,
+      correctStreak: 1,
+      difficulty: 0.5,
+      dueAt: null,
+      lapseCount: 0,
+      lastReviewedAt: Date.now() - 4 * day,
+      lastReviewedDayKey: lastSeen,
+      latencyMs: 3000,
+      recallDayKeys: [],
+      stabilityDays: 1,
+      state: 'learning' as const,
+      successfulDayKeys: [lastSeen],
+    }
+    const { runtime } = await openApp('thirsty', verbs, { 'conj:finir:present': seen }, 3)
+    expect(
+      await screen.findByText('Tes verbes ont soif', {}, { timeout: 5000 }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: '« finir » attend depuis 4 jours' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Arroser « finir »' })).toBeEnabled()
+    expect(screen.getByText('8 questions')).toBeInTheDocument()
+    await runtime.dispose()
+  }, 30_000)
 
   it('sorts the verb meadow by group, with a butterfly on the verbs worked this week', async () => {
     const today = learningDayKey(Date.now(), deviceTimeZone())
