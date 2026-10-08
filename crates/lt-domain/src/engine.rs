@@ -877,6 +877,16 @@ fn fill_focus<'a>(
 
 /// At most this many items a learner has never seen enter one daily watering (version 2).
 const MAX_NEW_ITEMS: usize = 2;
+/// A meadow watering asks at least this many questions, coming back to its verbs at other persons.
+const MEADOW_MIN_QUESTIONS: usize = 5;
+
+/// Repeats `selection` in order until it holds `minimum` questions; an empty one stays empty.
+fn repeat_to<'a>(selection: Vec<&'a Candidate>, minimum: usize) -> Vec<&'a Candidate> {
+    if selection.is_empty() || selection.len() >= minimum {
+        return selection;
+    }
+    selection.iter().copied().cycle().take(minimum).collect()
+}
 
 /// The distinct items in `selection` the learner has never seen.
 fn new_items(selection: &[&Candidate]) -> usize {
@@ -1244,7 +1254,12 @@ pub fn create_session(
                 )
             }
         };
-        group_by_family(&picked)
+        let grouped = group_by_family(&picked);
+        if meadow {
+            repeat_to(grouped, MEADOW_MIN_QUESTIONS)
+        } else {
+            grouped
+        }
     } else if focus_family.is_some() {
         let mut picked = fill_focus(
             &focus_candidates,
