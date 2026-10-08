@@ -21,8 +21,14 @@ import type { Device } from './data/device.js'
 import type { Preferences } from './data/schema.js'
 import { I18nProvider } from './i18n/i18n.js'
 import { reloadWithLatestServiceWorker, shareLanguage } from './service-worker-client.js'
-import { router } from './routes.js'
+import { createAppRouter } from './routes.js'
 import type { AppRuntime } from './runtime.js'
+
+/** The screens of the family's space, with a router of their own. */
+function AppRouter() {
+  const [router] = useState(createAppRouter)
+  return <RouterProvider router={router} />
+}
 
 /** Opens the app: sign-in, the first child's name, no connection, or the family's space. */
 export function App({ device, runtime }: Readonly<{ device: Device; runtime: AppRuntime }>) {
@@ -42,7 +48,7 @@ export function App({ device, runtime }: Readonly<{ device: Device; runtime: App
 
   const access = useQuery({
     // The engine is loaded first: screens derive their values from it synchronously.
-    queryFn: () => runtime.runPromise(Effect.zipRight(Engine, openApp(device))),
+    queryFn: () => runtime.runPromise(Effect.andThen(Engine, openApp(device))),
     queryKey: ['open', opening],
     staleTime: Number.POSITIVE_INFINITY,
   })
@@ -81,7 +87,7 @@ export function App({ device, runtime }: Readonly<{ device: Device; runtime: App
             setPreferences={setPreferences}
           >
             <SyncManager>
-              <RouterProvider router={router} />
+              <AppRouter />
             </SyncManager>
           </AppProvider>
         )

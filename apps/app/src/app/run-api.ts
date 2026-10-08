@@ -1,6 +1,6 @@
 /** One call of the v2 API as a promise that rejects with the tagged failure itself. */
 import { ApiClient, type ApiClientService, type ApiFailure } from '@little-tables/api-contract'
-import { Effect, Either } from 'effect'
+import { Effect, Result } from 'effect'
 
 import type { AppRuntime } from '../runtime.js'
 
@@ -10,5 +10,5 @@ export const runApi = <A>(
   call: (api: ApiClientService) => Effect.Effect<A, ApiFailure>,
 ): Promise<A> =>
   runtime
-    .runPromise(Effect.either(Effect.flatMap(ApiClient, call)))
-    .then((result) => (Either.isLeft(result) ? Promise.reject(result.left) : result.right))
+    .runPromise(Effect.result(Effect.flatMap(ApiClient, call)))
+    .then((result) => (Result.isFailure(result) ? Promise.reject(result.failure) : result.success))

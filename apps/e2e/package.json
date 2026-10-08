@@ -11,12 +11,12 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "devDependencies": {
-    "@ai-sdk/openai": "^4.0.84",
+    "@ai-sdk/openai": "^4.0.87",
     "@e2e-dev/web": "^0.13.0",
-    "@types/node": "^26.1.1",
-    "ai": "^7.0.128",
+    "@types/node": "^26.6.4",
+    "ai": "^7.0.131",
     "e2e": "^0.18.0",
     "typescript": "^6.0.3",
-    "zod": "^4.4.3"
+    "zod": "^4.6.5"
   }
 }

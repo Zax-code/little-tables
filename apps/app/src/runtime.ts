@@ -3,12 +3,12 @@
  * the learning engine in WebAssembly and the device's stores. Tests build their own runtime
  * with doubles.
  */
-import { FetchHttpClient } from '@effect/platform'
 import { ApiClient } from '@little-tables/api-contract'
 import { Engine } from '@little-tables/engine'
 import init, { run } from '@little-tables/engine/wasm/lt_domain_wasm.js'
 import wasmUrl from '@little-tables/engine/wasm/lt_domain_wasm_bg.wasm?url'
 import { Layer, ManagedRuntime } from 'effect'
+import { FetchHttpClient } from 'effect/http'
 
 import { LocalStore } from './data/local-store.js'
 

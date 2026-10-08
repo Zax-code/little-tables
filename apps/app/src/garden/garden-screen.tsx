@@ -1,5 +1,5 @@
 /** D2: the garden, one corner per page of one continuous world, with the herbarium and how it grows (D3, D4). */
-import { Button, cn, IconTile, ListGroup, ListRow, Screen, Sheet } from '@little-tables/ui'
+import { cn, IconTile, ListGroup, ListRow, Screen } from '@little-tables/ui'
 import { useQueryClient } from '@tanstack/react-query'
 import { useNavigate } from '@tanstack/react-router'
 import { BookOpen, Bug, Droplets, Flower2, Heart, HelpCircle, Sparkles } from 'lucide-react'
@@ -16,6 +16,7 @@ import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
 import { Effect } from 'effect'
 import { GardenWorld } from './garden-scene.js'
+import { type Rule, RulesSheet } from './rules-sheet.js'
 
 const ambient = [
   'ambient.bird',
@@ -164,42 +165,15 @@ function Garden({ state }: Readonly<{ state: ProfileState }>) {
         />
       </ListGroup>
 
-      <RulesSheet onOpenChange={closeRules} open={rules} />
+      <RulesSheet onOpenChange={closeRules} open={rules} rules={gardenRules} title="rules.title" />
     </Screen>
   )
 }
 
-const rules = [
+/** D4: how the garden grows, shown once on the first visit and on request. */
+const gardenRules: readonly Rule[] = [
   { copy: 'rules.dailyCopy', icon: Droplets, tile: 'bg-sky', title: 'rules.daily' },
   { copy: 'rules.flowerCopy', icon: Flower2, tile: 'bg-tint', title: 'rules.flower' },
   { copy: 'rules.specialCopy', icon: Sparkles, tile: 'bg-sun', title: 'rules.special' },
   { copy: 'rules.restCopy', icon: Heart, tile: 'bg-leaf', title: 'rules.rest' },
-] as const
-
-/** D4: how the garden grows, shown once on the first visit and on request. */
-function RulesSheet({
-  onOpenChange,
-  open,
-}: Readonly<{ onOpenChange: (open: boolean) => void; open: boolean }>) {
-  const { t } = useI18n()
-  return (
-    <Sheet onOpenChange={onOpenChange} open={open} title={t('rules.title')}>
-      <ul className="flex flex-col gap-4">
-        {rules.map(({ copy, icon: Icon, tile, title }) => (
-          <li className="flex items-start gap-3" key={title}>
-            <IconTile className={tile}>
-              <Icon aria-hidden />
-            </IconTile>
-            <div className="flex flex-col">
-              <h3 className="text-body font-extrabold">{t(title)}</h3>
-              <p className="text-subhead text-label-2">{t(copy)}</p>
-            </div>
-          </li>
-        ))}
-      </ul>
-      <Button onClick={() => onOpenChange(false)} variant="tinted" width="full">
-        {t('rules.done')}
-      </Button>
-    </Sheet>
-  )
-}
+]

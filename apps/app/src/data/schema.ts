@@ -12,7 +12,7 @@ import {
 } from '@little-tables/engine/schema'
 import { Schema } from 'effect'
 
-const Int = Schema.Number.pipe(Schema.int())
+const Int = Schema.Int
 const Millis = Int
 
 export const SessionCompletion = Schema.Struct({
@@ -20,7 +20,7 @@ export const SessionCompletion = Schema.Struct({
   completedAt: Millis,
   correctAnswers: Int,
   /** The answer to the last question: a number for facts, any answer for exercises. */
-  finalExpected: Schema.Union(Schema.Number, PracticeAnswer),
+  finalExpected: Schema.Union([Schema.Number, PracticeAnswer]),
   finalCorrect: Schema.Boolean,
   gardenBloomEarned: Schema.Boolean,
   learningDayKey: Schema.String,
@@ -71,14 +71,14 @@ export const emptyMeta: SyncMeta = {
   rejectedCount: 0,
 }
 
-export const Language = Schema.Literal('fr', 'en', 'zh-Hans')
+export const Language = Schema.Literals(['fr', 'en', 'zh-Hans'])
 export type Language = typeof Language.Type
 
 export const Preferences = Schema.Struct({
-  appearance: Schema.Literal('system', 'light', 'dark'),
+  appearance: Schema.Literals(['system', 'light', 'dark']),
   language: Language,
   sound: Schema.Boolean,
-  textSize: Schema.Literal('default', 'large', 'larger'),
+  textSize: Schema.Literals(['default', 'large', 'larger']),
 })
 export type Preferences = typeof Preferences.Type
 

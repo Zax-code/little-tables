@@ -49,8 +49,11 @@ export function SyncManager({ children }: Readonly<{ children: ReactNode }>) {
     () =>
       runtime.runPromise(
         Effect.flatMap(LocalStore, (store) =>
-          Effect.reduce(latest.current.family.profiles, 0, (total, profile) =>
-            Effect.map(store.pendingCount(profile.id), (count) => total + count),
+          Effect.reduce(
+            latest.current.family.profiles,
+            () => 0,
+            (total, profile) =>
+              Effect.map(store.pendingCount(profile.id), (count) => total + count),
           ),
         ),
       ),
@@ -78,11 +81,11 @@ export function SyncManager({ children }: Readonly<{ children: ReactNode }>) {
             }),
           ).pipe(Effect.map(({ lock, profiles }) => ({ lock, profiles, result }))),
         ),
-        Effect.either,
+        Effect.result,
       ),
     )
-    if (outcome._tag === 'Left') {
-      if (outcome.left._tag === 'SignedOut') {
+    if (outcome._tag === 'Failure') {
+      if (outcome.failure._tag === 'SignedOut') {
         device.setAuthGrant(null)
         reopen()
         return
@@ -90,7 +93,7 @@ export function SyncManager({ children }: Readonly<{ children: ReactNode }>) {
       setState({ kind: 'error', pending: await countPending() })
       return
     }
-    const { lock, profiles, result } = outcome.right
+    const { lock, profiles, result } = outcome.success
     if (lock._tag === 'Some') device.parentCode.reconcile(lock.value.pinSalt)
     await Promise.all(
       result.gone.map((gone) =>

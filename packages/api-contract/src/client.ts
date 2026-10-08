@@ -2,15 +2,9 @@
  * The Effect client of `/api/v2`. Every response is decoded with the contract schemas; failures
  * are tagged so callers can tell a refusal (`ApiError`) from a lost connection (`NetworkError`).
  */
-import {
-  HttpClient,
-  HttpClientRequest,
-  HttpClientResponse,
-  type HttpClientError,
-} from '@effect/platform'
 import type { AttemptEvent, LearningPathSettings } from '@little-tables/engine/schema'
 import { Context, Data, Effect, Layer, Schema } from 'effect'
-import type { ParseError } from 'effect/ParseResult'
+import { HttpClient, HttpClientRequest, type HttpClientError } from 'effect/http'
 
 import {
   AllowedEmails,
@@ -52,7 +46,7 @@ export class NetworkError extends Data.TaggedError('NetworkError')<{ readonly ca
 
 /** The server answered a body that does not match the contract. */
 export class ContractError extends Data.TaggedError('ContractError')<{
-  readonly cause: ParseError
+  readonly cause: Schema.SchemaError
 }> {}
 
 export type ApiFailure = ApiError | ContractError | NetworkError
@@ -74,8 +68,8 @@ const make = (baseUrl: string) =>
   Effect.gen(function* () {
     const http = yield* HttpClient.HttpClient
 
-    const call = <A, I>(
-      schema: Schema.Schema<A, I>,
+    const call = <A>(
+      schema: Schema.Decoder<A>,
       request: HttpClientRequest.HttpClientRequest,
     ): Effect.Effect<A, ApiFailure> =>
       http
@@ -87,39 +81,42 @@ const make = (baseUrl: string) =>
           ),
         )
         .pipe(
-          Effect.mapError((cause: HttpClientError.HttpClientError) => new NetworkError({ cause })),
-          Effect.flatMap((response): Effect.Effect<A, ApiFailure> =>
-            response.status >= 200 && response.status < 300
-              ? HttpClientResponse.schemaBodyJson(schema)(response).pipe(
-                  Effect.catchTags({
-                    ParseError: (cause) => Effect.fail(new ContractError({ cause })),
-                    ResponseError: (cause) => Effect.fail(new NetworkError({ cause })),
-                  }),
-                )
-              : HttpClientResponse.schemaBodyJson(ErrorBody)(response).pipe(
-                  Effect.orElseSucceed((): typeof ErrorBody.Type => ({})),
-                  Effect.flatMap((body) =>
-                    Effect.fail(
-                      new ApiError({
-                        code: body.error ?? 'unknown',
-                        message: body.message ?? '',
-                        status: response.status,
-                        ...(body.lockedUntil === undefined
-                          ? {}
-                          : { lockedUntil: body.lockedUntil }),
-                        ...(body.remainingAttempts === undefined
-                          ? {}
-                          : { remainingAttempts: body.remainingAttempts }),
-                      }),
+          Effect.flatMap(
+            (response): Effect.Effect<A, ApiFailure | HttpClientError.HttpClientError> =>
+              response.status >= 200 && response.status < 300
+                ? response.json.pipe(
+                    Effect.flatMap((body) =>
+                      Schema.decodeUnknownEffect(schema)(body).pipe(
+                        Effect.mapError((cause) => new ContractError({ cause })),
+                      ),
+                    ),
+                  )
+                : response.json.pipe(
+                    Effect.flatMap(Schema.decodeUnknownEffect(ErrorBody)),
+                    Effect.orElseSucceed((): typeof ErrorBody.Type => ({})),
+                    Effect.flatMap((body) =>
+                      Effect.fail(
+                        new ApiError({
+                          code: body.error ?? 'unknown',
+                          message: body.message ?? '',
+                          status: response.status,
+                          ...(body.lockedUntil === undefined
+                            ? {}
+                            : { lockedUntil: body.lockedUntil }),
+                          ...(body.remainingAttempts === undefined
+                            ? {}
+                            : { remainingAttempts: body.remainingAttempts }),
+                        }),
+                      ),
                     ),
                   ),
-                ),
           ),
-          Effect.scoped,
+          // Unreachable, or an unreadable body: the request did not get through.
+          Effect.catchTag('HttpClientError', (cause) => Effect.fail(new NetworkError({ cause }))),
         )
 
     const json = (request: HttpClientRequest.HttpClientRequest, body: unknown) =>
-      HttpClientRequest.bodyUnsafeJson(request, body)
+      HttpClientRequest.bodyJsonUnsafe(request, body)
 
     const profilePath = (profileId: string) => `/api/v2/profiles/${encodeURIComponent(profileId)}`
     const familyPath = (profileId: string) =>
@@ -157,7 +154,7 @@ const make = (baseUrl: string) =>
       resetParentLock: (credential: string | null) =>
         call(
           ParentLockStatus,
-          json(HttpClientRequest.del('/api/v2/family/parent-lock'), { credential }),
+          json(HttpClientRequest.delete('/api/v2/family/parent-lock'), { credential }),
         ),
       /** Sets the code, or changes it with the current one. */
       setParentLock: (pin: string, currentPin?: string) =>
@@ -178,10 +175,10 @@ const make = (baseUrl: string) =>
       removeEmail: (email: string) =>
         call(
           EmailRemoved,
-          HttpClientRequest.del(`/api/v2/admin/allowed-emails/${encodeURIComponent(email)}`),
+          HttpClientRequest.delete(`/api/v2/admin/allowed-emails/${encodeURIComponent(email)}`),
         ),
       removeProfile: (profileId: string) =>
-        call(RemovedProfile, HttpClientRequest.del(familyPath(profileId))),
+        call(RemovedProfile, HttpClientRequest.delete(familyPath(profileId))),
       signIn: (credential: string) =>
         call(SignIn, json(HttpClientRequest.post('/api/v2/auth/google'), { credential })),
       subscribe: (profileId: string, subscription: PushSubscriptionInput) =>
@@ -200,7 +197,7 @@ const make = (baseUrl: string) =>
       unsubscribe: (profileId: string, endpoint: string) =>
         call(
           Unsubscribed,
-          HttpClientRequest.del(`${profilePath(profileId)}/notifications/subscriptions`).pipe(
+          HttpClientRequest.delete(`${profilePath(profileId)}/notifications/subscriptions`).pipe(
             HttpClientRequest.setUrlParam('endpoint', endpoint),
           ),
         ),
@@ -214,12 +211,11 @@ const make = (baseUrl: string) =>
     } as const
   })
 
-export type ApiClientService = Effect.Effect.Success<ReturnType<typeof make>>
+export type ApiClientService = Effect.Success<ReturnType<typeof make>>
 
-export class ApiClient extends Context.Tag('@little-tables/ApiClient')<
-  ApiClient,
-  ApiClientService
->() {
+export class ApiClient extends Context.Service<ApiClient, ApiClientService>()(
+  '@little-tables/ApiClient',
+) {
   /** The client for the server at `baseUrl` (the page's origin in the app). */
   static readonly layer = (baseUrl: string) => Layer.effect(ApiClient, make(baseUrl))
 }

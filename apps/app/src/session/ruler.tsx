@@ -185,7 +185,8 @@ export function RulerSlider({
         onPointerMove={(event) => {
           if (dragging.current && !settled) moveTo(event)
         }}
-        onPointerUp={() => {
+        onLostPointerCapture={() => {
+          // Pointer up, a cancelled touch (scroll, app switch, rotation): the drag ends either way.
           dragging.current = false
         }}
         role="slider"

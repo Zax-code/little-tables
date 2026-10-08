@@ -1,10 +1,10 @@
-import { HttpClient, HttpClientResponse } from '@effect/platform'
-import { Effect, Either, Layer, Schema } from 'effect'
+import { Effect, Layer, Result, Schema } from 'effect'
+import { HttpClient, HttpClientError, HttpClientResponse } from 'effect/http'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 import { describe, expect, it } from 'vitest'
 
-import { ApiClient, ApiError, ContractError } from './client.js'
+import { ApiClient, ApiError, ContractError, NetworkError } from './client.js'
 import { responses } from './schema.js'
 
 /** Responses recorded from the Rust server by `crates/lt-server/tests/v2.rs`. */
@@ -23,10 +23,10 @@ describe('the /api/v2 contract', () => {
   })
 
   it.each(Object.entries(responses))('decodes %s strictly', (name, schema) => {
-    const decoded = Schema.decodeUnknownEither(schema as Schema.Schema<unknown, unknown>, {
+    const decoded = Schema.decodeUnknownResult(schema, {
       onExcessProperty: 'error',
     })(recorded[name])
-    if (Either.isLeft(decoded)) throw new Error(String(decoded.left))
+    if (Result.isFailure(decoded)) throw new Error(String(decoded.failure))
   })
 })
 
@@ -36,10 +36,8 @@ const clientAnswering = (status: number, body: unknown, seen: Request[] = []) =>
     Layer.provide(
       Layer.succeed(
         HttpClient.HttpClient,
-        HttpClient.make((request) =>
+        HttpClient.make((request, url) =>
           Effect.sync(() => {
-            const url = new URL(request.url)
-            for (const [key, value] of request.urlParams) url.searchParams.append(key, value)
             const web = new Request(url, {
               headers: request.headers,
               method: request.method,
@@ -85,6 +83,39 @@ describe('ApiClient', () => {
       ),
     )
     expect(drifted).toBeInstanceOf(ContractError)
+  })
+
+  it('tells a lost connection from a refusal', async () => {
+    const failure = (http: HttpClient.HttpClient) =>
+      Effect.runPromise(
+        Effect.flatMap(ApiClient, (client) => client.authStatus()).pipe(
+          Effect.flip,
+          Effect.provide(
+            ApiClient.layer('https://math.example').pipe(
+              Layer.provide(Layer.succeed(HttpClient.HttpClient, http)),
+            ),
+          ),
+        ),
+      )
+    const replying = (body: string, status: number) =>
+      HttpClient.make((request) =>
+        Effect.succeed(HttpClientResponse.fromWeb(request, new Response(body, { status }))),
+      )
+
+    const unreachable = await failure(
+      HttpClient.make((request) =>
+        Effect.fail(
+          new HttpClientError.HttpClientError({
+            reason: new HttpClientError.TransportError({ request }),
+          }),
+        ),
+      ),
+    )
+    expect(unreachable).toBeInstanceOf(NetworkError)
+    expect(await failure(replying('<html>', 200))).toBeInstanceOf(NetworkError)
+    expect(await failure(replying('<html>', 502))).toEqual(
+      new ApiError({ code: 'unknown', message: '', status: 502 }),
+    )
   })
 
   it('puts the subscription endpoint in the query', async () => {

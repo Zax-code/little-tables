@@ -1,9 +1,9 @@
 import { Schema } from 'effect'
 
-export const PathIdSchema = Schema.Literal('additions', 'big-numbers', 'fractions')
+export const PathIdSchema = Schema.Literals(['additions', 'big-numbers', 'fractions'])
 export type PathId = typeof PathIdSchema.Type
 
-export const SkillIdSchema = Schema.Literal(
+export const SkillIdSchema = Schema.Literals([
   'addition-facts',
   'subtraction-facts',
   'numeration',
@@ -15,16 +15,16 @@ export const SkillIdSchema = Schema.Literal(
   'fraction-line',
   'fraction-compare',
   'fraction-operation',
-)
+])
 export type SkillId = typeof SkillIdSchema.Type
 
-export const SubtractionMethodSchema = Schema.Literal('compensation', 'decomposition')
+export const SubtractionMethodSchema = Schema.Literals(['compensation', 'decomposition'])
 export type SubtractionMethod = typeof SubtractionMethodSchema.Type
 
 export const LearningPathSettingsSchema = Schema.Struct({
-  enabledSkills: Schema.Array(SkillIdSchema).pipe(Schema.maxItems(11)),
+  enabledSkills: Schema.Array(SkillIdSchema).pipe(Schema.check(Schema.isMaxLength(11))),
   focusSkill: Schema.NullOr(SkillIdSchema),
-  mode: Schema.Literal('automatic', 'manual'),
+  mode: Schema.Literals(['automatic', 'manual']),
   subtractionMethod: SubtractionMethodSchema,
 })
 export type LearningPathSettings = typeof LearningPathSettingsSchema.Type
@@ -40,73 +40,81 @@ export const defaultLearningPathSettings: LearningPathSettings = {
 export const MAX_WHOLE_NUMBER = 10_000
 export const MAX_DENOMINATOR = 12
 
-const WholeNumberSchema = Schema.Int.pipe(Schema.between(0, MAX_WHOLE_NUMBER))
-const DenominatorSchema = Schema.Int.pipe(Schema.between(1, MAX_DENOMINATOR))
+const WholeNumberSchema = Schema.Int.check(
+  Schema.isBetween({ maximum: MAX_WHOLE_NUMBER, minimum: 0 }),
+)
+const DenominatorSchema = Schema.Int.check(
+  Schema.isBetween({ maximum: MAX_DENOMINATOR, minimum: 1 }),
+)
 
 export const FractionSchema = Schema.Struct({
   denominator: DenominatorSchema,
-  numerator: Schema.Int.pipe(Schema.between(0, MAX_DENOMINATOR)),
+  numerator: Schema.Int.check(Schema.isBetween({ maximum: MAX_DENOMINATOR, minimum: 0 })),
 })
 export type Fraction = typeof FractionSchema.Type
 
 export const MixedFractionSchema = Schema.Struct({
   denominator: DenominatorSchema,
-  numerator: Schema.Int.pipe(Schema.between(0, MAX_DENOMINATOR)),
-  whole: Schema.Int.pipe(Schema.between(0, 2)),
+  numerator: Schema.Int.check(Schema.isBetween({ maximum: MAX_DENOMINATOR, minimum: 0 })),
+  whole: Schema.Int.check(Schema.isBetween({ maximum: 2, minimum: 0 })),
 })
 export type MixedFraction = typeof MixedFractionSchema.Type
 
-export const PracticeAnswerSchema = Schema.Union(
+export const PracticeAnswerSchema = Schema.Union([
   Schema.Struct({ type: Schema.Literal('integer'), value: WholeNumberSchema }),
   Schema.Struct({
-    denominator: Schema.Int.pipe(Schema.between(1, 99)),
-    numerator: Schema.Int.pipe(Schema.between(0, 99)),
+    denominator: Schema.Int.check(Schema.isBetween({ maximum: 99, minimum: 1 })),
+    numerator: Schema.Int.check(Schema.isBetween({ maximum: 99, minimum: 0 })),
     type: Schema.Literal('fraction'),
-    whole: Schema.Int.pipe(Schema.between(0, 2)),
+    whole: Schema.Int.check(Schema.isBetween({ maximum: 2, minimum: 0 })),
   }),
-  Schema.Struct({ symbol: Schema.Literal('<', '=', '>'), type: Schema.Literal('comparison') }),
-  Schema.Struct({ index: Schema.Int.pipe(Schema.between(0, 48)), type: Schema.Literal('tick') }),
+  Schema.Struct({ symbol: Schema.Literals(['<', '=', '>']), type: Schema.Literal('comparison') }),
   Schema.Struct({
-    ids: Schema.Array(Schema.Int.pipe(Schema.between(0, 24))).pipe(Schema.maxItems(24)),
+    index: Schema.Int.check(Schema.isBetween({ maximum: 48, minimum: 0 })),
+    type: Schema.Literal('tick'),
+  }),
+  Schema.Struct({
+    ids: Schema.Array(Schema.Int.check(Schema.isBetween({ maximum: 24, minimum: 0 }))).pipe(
+      Schema.check(Schema.isMaxLength(24)),
+    ),
     type: Schema.Literal('selection'),
   }),
-)
+])
 export type PracticeAnswer = typeof PracticeAnswerSchema.Type
 
-const ChoicesSchema = Schema.Array(PracticeAnswerSchema).pipe(Schema.maxItems(6))
+const ChoicesSchema = Schema.Array(PracticeAnswerSchema).pipe(Schema.check(Schema.isMaxLength(6)))
 
 const ArithmeticExerciseSchema = Schema.Struct({
-  blank: Schema.Literal('result', 'left', 'right'),
+  blank: Schema.Literals(['result', 'left', 'right']),
   choices: ChoicesSchema,
   kind: Schema.Literal('arithmetic'),
   left: WholeNumberSchema,
-  operation: Schema.Literal('add', 'subtract', 'double', 'half'),
+  operation: Schema.Literals(['add', 'subtract', 'double', 'half']),
   resultFirst: Schema.Boolean,
   right: WholeNumberSchema,
-  skill: Schema.Literal('addition-facts', 'subtraction-facts', 'numeration', 'near-ten'),
+  skill: Schema.Literals(['addition-facts', 'subtraction-facts', 'numeration', 'near-ten']),
 })
 
 const ColumnExerciseSchema = Schema.Struct({
   kind: Schema.Literal('column'),
-  operation: Schema.Literal('add', 'subtract'),
-  skill: Schema.Literal('column-addition', 'column-subtraction'),
-  terms: Schema.Array(Schema.Int.pipe(Schema.between(1, MAX_WHOLE_NUMBER))).pipe(
-    Schema.minItems(2),
-    Schema.maxItems(3),
-  ),
+  operation: Schema.Literals(['add', 'subtract']),
+  skill: Schema.Literals(['column-addition', 'column-subtraction']),
+  terms: Schema.Array(
+    Schema.Int.check(Schema.isBetween({ maximum: MAX_WHOLE_NUMBER, minimum: 1 })),
+  ).pipe(Schema.check(Schema.isMinLength(2), Schema.isMaxLength(3))),
 })
 
 const FractionReadExerciseSchema = Schema.Struct({
   choices: ChoicesSchema,
   fraction: FractionSchema,
   kind: Schema.Literal('fraction-read'),
-  mode: Schema.Literal('read', 'build'),
-  shape: Schema.Literal('bed', 'pot'),
+  mode: Schema.Literals(['read', 'build']),
+  shape: Schema.Literals(['bed', 'pot']),
   skill: Schema.Literal('fraction-read'),
 })
 
 const FractionEqualExerciseSchema = Schema.Struct({
-  blank: Schema.Literal('numerator', 'denominator'),
+  blank: Schema.Literals(['numerator', 'denominator']),
   choices: ChoicesSchema,
   kind: Schema.Literal('fraction-equal'),
   known: FractionSchema,
@@ -116,7 +124,9 @@ const FractionEqualExerciseSchema = Schema.Struct({
 
 const FractionPickExerciseSchema = Schema.Struct({
   kind: Schema.Literal('fraction-pick'),
-  options: Schema.Array(FractionSchema).pipe(Schema.minItems(3), Schema.maxItems(6)),
+  options: Schema.Array(FractionSchema).pipe(
+    Schema.check(Schema.isMinLength(3), Schema.isMaxLength(6)),
+  ),
   reference: FractionSchema,
   skill: Schema.Literal('fraction-equal'),
 })
@@ -124,11 +134,11 @@ const FractionPickExerciseSchema = Schema.Struct({
 const FractionLineExerciseSchema = Schema.Struct({
   choices: ChoicesSchema,
   kind: Schema.Literal('fraction-line'),
-  mode: Schema.Literal('place', 'read'),
+  mode: Schema.Literals(['place', 'read']),
   skill: Schema.Literal('fraction-line'),
   target: MixedFractionSchema,
   ticks: DenominatorSchema,
-  units: Schema.Literal(1, 2),
+  units: Schema.Literals([1, 2]),
 })
 
 const FractionCompareExerciseSchema = Schema.Struct({
@@ -142,13 +152,13 @@ const FractionOperationExerciseSchema = Schema.Struct({
   choices: ChoicesSchema,
   kind: Schema.Literal('fraction-operation'),
   left: FractionSchema,
-  operation: Schema.Literal('add', 'subtract'),
+  operation: Schema.Literals(['add', 'subtract']),
   right: FractionSchema,
   skill: Schema.Literal('fraction-operation'),
   story: Schema.Boolean,
 })
 
-export const ExerciseSchema = Schema.Union(
+export const ExerciseSchema = Schema.Union([
   ArithmeticExerciseSchema,
   ColumnExerciseSchema,
   FractionReadExerciseSchema,
@@ -157,7 +167,7 @@ export const ExerciseSchema = Schema.Union(
   FractionLineExerciseSchema,
   FractionCompareExerciseSchema,
   FractionOperationExerciseSchema,
-)
+])
 export type Exercise = typeof ExerciseSchema.Type
 export type ArithmeticExercise = typeof ArithmeticExerciseSchema.Type
 export type ColumnExercise = typeof ColumnExerciseSchema.Type

@@ -14,10 +14,10 @@ import {
 } from '@little-tables/engine/schema'
 import { Schema } from 'effect'
 
-const Int = Schema.Number.pipe(Schema.int())
-const DayKey = Schema.String.pipe(Schema.pattern(/^\d{4}-\d{2}-\d{2}$/))
+const Int = Schema.Int
+const DayKey = Schema.String.check(Schema.isPattern(/^\d{4}-\d{2}-\d{2}$/))
 
-export const AvatarId = Schema.Literal(
+export const AvatarId = Schema.Literals([
   'sprout',
   'malo-bear',
   'fenna-fox',
@@ -27,28 +27,26 @@ export const AvatarId = Schema.Literal(
   'sunbeam',
   'bluebell',
   'berry',
-)
+])
 export type AvatarId = typeof AvatarId.Type
 
 /** The characters a parent can choose; the others are kept for older profiles. */
-export const SelectableAvatarId = Schema.Literal(
+export const SelectableAvatarId = Schema.Literals([
   'sprout',
   'malo-bear',
   'fenna-fox',
   'mina-cat',
   'paco-dog',
   'colin-mallard',
-)
+])
 export type SelectableAvatarId = typeof SelectableAvatarId.Type
 
-export const ChildName = Schema.Trim.pipe(
-  Schema.nonEmptyString(),
-  Schema.filter((name) => Array.from(name).length <= 40, {
-    message: () => 'A name has at most 40 characters',
-  }),
+export const ChildName = Schema.Trim.check(
+  Schema.isNonEmpty(),
+  Schema.makeFilter((name) => Array.from(name).length <= 40 || 'A name has at most 40 characters'),
 )
 
-export const ReminderLocale = Schema.Literal('en', 'fr', 'zh-Hans')
+export const ReminderLocale = Schema.Literals(['en', 'fr', 'zh-Hans'])
 export type ReminderLocale = typeof ReminderLocale.Type
 
 export const AuthStatus = Schema.Struct({
@@ -112,12 +110,12 @@ export const Bootstrap = Schema.Struct({
 })
 export type Bootstrap = typeof Bootstrap.Type
 
-export const RejectionReason = Schema.Literal(
+export const RejectionReason = Schema.Literals([
   'duplicate_in_batch',
   'duplicate_sequence',
   'inconsistent_attempt',
   'invalid_answer',
-)
+])
 
 export const SyncResult = Schema.Struct({
   accepted: Schema.Array(Schema.String),
@@ -127,7 +125,7 @@ export const SyncResult = Schema.Struct({
 export type SyncResult = typeof SyncResult.Type
 
 export const AttemptBatch = Schema.Struct({
-  attempts: Schema.Array(AttemptEvent).pipe(Schema.maxItems(100)),
+  attempts: Schema.Array(AttemptEvent).pipe(Schema.check(Schema.isMaxLength(100))),
 })
 
 export const IntroductionSeen = Schema.Struct({ introductionSeen: Schema.Literal(true) })
@@ -174,7 +172,7 @@ export const LockedPin = Schema.Struct({
   lockedUntil: Millis,
 })
 
-export const StruggleReason = Schema.Literal('mistakes', 'lapses', 'slow')
+export const StruggleReason = Schema.Literals(['mistakes', 'lapses', 'slow'])
 export type StruggleReason = typeof StruggleReason.Type
 
 export const Struggle = Schema.Struct({

@@ -219,9 +219,8 @@ const make = () => {
 
 export type LocalStoreService = ReturnType<typeof make>
 
-export class LocalStore extends Context.Tag('@little-tables/app/LocalStore')<
-  LocalStore,
-  LocalStoreService
->() {
+export class LocalStore extends Context.Service<LocalStore, LocalStoreService>()(
+  '@little-tables/app/LocalStore',
+) {
   static readonly layer = Layer.sync(LocalStore, make)
 }
