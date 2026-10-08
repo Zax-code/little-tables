@@ -25,6 +25,8 @@ export const SessionCompletion = Schema.Struct({
   gardenBloomEarned: Schema.Boolean,
   learningDayKey: Schema.String,
   learningInsight: SessionInsight,
+  /** The verb the session brought a butterfly to; absent on summaries written before. */
+  meadowVisit: Schema.optional(Schema.NullOr(Schema.String)),
   sessionId: Schema.String,
   sessionKind: SessionKind,
   totalAnswers: Int,
