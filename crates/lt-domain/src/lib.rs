@@ -12,6 +12,7 @@ pub mod engine;
 pub mod exercises;
 pub mod garden;
 pub mod insights;
+pub mod meadow;
 pub mod model;
 pub mod paths;
 pub mod rhythm;

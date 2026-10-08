@@ -10,6 +10,7 @@ import {
   type Bootstrap,
   type ChildProfile,
 } from '@little-tables/api-contract'
+import { deviceTimeZone, learningDayKey } from '@little-tables/engine'
 import type { AttemptEvent } from '@little-tables/engine/schema'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
@@ -35,6 +36,7 @@ const memoryServer = (
   childId: string,
   learningPaths: ChildProfile['learningPaths'] = defaultPaths,
   facts: Bootstrap['snapshot']['facts'] = {},
+  completedSessions = 0,
 ) => {
   let onboarded = false
   let child: ChildProfile = {
@@ -52,7 +54,7 @@ const memoryServer = (
     pinSalt: `salt-${pin}`,
   })
   const bootstrap = (profileId: string): Bootstrap => ({
-    completedSessions: 0,
+    completedSessions,
     gardenBloomCount: 0,
     gardenCollection: emptyState().gardenCollection,
     practiceDayKeys: [],
@@ -147,9 +149,10 @@ const openApp = async (
   childId: string,
   learningPaths?: ChildProfile['learningPaths'],
   facts?: Bootstrap['snapshot']['facts'],
+  completedSessions?: number,
 ) => {
   window.history.replaceState(null, '', '/')
-  const server = memoryServer(childId, learningPaths, facts)
+  const server = memoryServer(childId, learningPaths, facts, completedSessions)
   const runtime = createRuntime(Layer.mergeAll(server.layer, testEngine, LocalStore.layer))
   const user = userEvent.setup()
   render(
@@ -212,6 +215,8 @@ describe('the new app', () => {
     // happy-dom never ends the sheet's closing animation; its state is enough here.
     await waitFor(() => expect(rules).toHaveAttribute('data-state', 'closed'))
     expect(screen.getByRole('heading', { hidden: true, name: 'Mon jardin' })).toBeInTheDocument()
+    // Without a ticked verb, the garden has no meadow.
+    expect(screen.queryByRole('button', { hidden: true, name: /Le pré des verbes/ })).toBeNull()
 
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
     await waitFor(() => expect(server.received.length).toBeGreaterThanOrEqual(5))
@@ -236,7 +241,7 @@ describe('the new app', () => {
     await user.click(screen.getByRole('button', { name: 'Autres séances' }))
     await user.click(await screen.findByRole('button', { name: 'finir' }))
     let verbQuestions = 0
-    for (let index = 0; index < 20; index += 1) {
+    for (let index = 0; index < 40; index += 1) {
       const next = screen.queryByRole('button', { name: 'Suivant' })
       if (next !== null) {
         await user.click(next)
@@ -244,11 +249,11 @@ describe('the new app', () => {
       }
       const spoken = await waitFor(
         () =>
-          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.queryByRole('button', { name: 'Voir le pré des verbes' }) ??
           screen.getByText(/^(\S+)… finir, au présent$|^\d+ (fois|divisé par) \d+$/),
         { timeout: 5000 },
       )
-      if (spoken.textContent === 'Voir mon jardin') break
+      if (spoken.textContent === 'Voir le pré des verbes') break
       const verb = /^(\S+)… finir/.exec(spoken.textContent)
       let answer: string
       if (verb !== null) {
@@ -271,6 +276,11 @@ describe('the new app', () => {
       expect(await screen.findByRole('button', { name: 'Suivant' })).toBeInTheDocument()
     }
     expect(verbQuestions).toBeGreaterThanOrEqual(4)
+    // Three right answers on the verb bring a butterfly to it in the meadow.
+    expect(await screen.findByText('+1 papillon', {}, { timeout: 5000 })).toBeInTheDocument()
+    expect(
+      screen.getByText('Il se pose sur « finir », dans le pré des verbes.'),
+    ).toBeInTheDocument()
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
     await waitFor(() =>
       expect(server.received.some(({ factKey }) => factKey === 'conj:finir:present')).toBe(true),
@@ -328,11 +338,11 @@ describe('the new app', () => {
       }
       const spoken = await waitFor(
         () =>
-          screen.queryByRole('button', { name: 'Voir mon jardin' }) ??
+          screen.queryByRole('button', { name: 'Voir le pré des verbes' }) ??
           screen.getByText(/^(\S+)… finir, au présent$|^\d+ (fois|divisé par) \d+$/),
         { timeout: 5000 },
       )
-      if (spoken.textContent === 'Voir mon jardin') break
+      if (spoken.textContent === 'Voir le pré des verbes') break
       const verb = /^(\S+)… finir/.exec(spoken.textContent)
       if (verb === null) {
         const [left, word, right] = spoken.textContent.split(' ')
@@ -393,6 +403,112 @@ describe('the new app', () => {
     })
     await runtime.dispose()
   }, 40_000)
+
+  it('invites to water a thirsty verb, but not on the first visit', async () => {
+    const day = 86_400_000
+    const verbs = {
+      ...defaultPaths,
+      conjugation: { focus: null, tenses: ['present' as const], verbs: ['aller', 'finir'] },
+    }
+    const first = await openApp('first-visit', verbs)
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    expect(screen.queryByText('Tes verbes ont soif')).toBeNull()
+    await first.runtime.dispose()
+    cleanup()
+
+    const lastSeen = learningDayKey(Date.now() - 4 * day, deviceTimeZone())
+    const seen = {
+      correctCount: 2,
+      correctStreak: 1,
+      difficulty: 0.5,
+      dueAt: null,
+      lapseCount: 0,
+      lastReviewedAt: Date.now() - 4 * day,
+      lastReviewedDayKey: lastSeen,
+      latencyMs: 3000,
+      recallDayKeys: [],
+      stabilityDays: 1,
+      state: 'learning' as const,
+      successfulDayKeys: [lastSeen],
+    }
+    const { runtime } = await openApp('thirsty', verbs, { 'conj:finir:present': seen }, 3)
+    expect(
+      await screen.findByText('Tes verbes ont soif', {}, { timeout: 5000 }),
+    ).toBeInTheDocument()
+    expect(
+      screen.getByRole('heading', { name: '« finir » attend depuis 4 jours' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Arroser « finir »' })).toBeEnabled()
+    expect(screen.getByText('8 questions')).toBeInTheDocument()
+    await runtime.dispose()
+  }, 30_000)
+
+  it('sorts the verb meadow by group, with a butterfly on the verbs worked this week', async () => {
+    const today = learningDayKey(Date.now(), deviceTimeZone())
+    const rooted = {
+      correctCount: 6,
+      correctStreak: 3,
+      difficulty: 0.3,
+      dueAt: null,
+      lapseCount: 0,
+      lastReviewedAt: Date.now(),
+      lastReviewedDayKey: today,
+      latencyMs: 2000,
+      recallDayKeys: [],
+      stabilityDays: 8,
+      state: 'fluent' as const,
+      successfulDayKeys: [today],
+    }
+    const { runtime, user } = await openApp(
+      'meadow',
+      {
+        ...defaultPaths,
+        conjugation: {
+          focus: null,
+          tenses: ['present'],
+          verbs: ['venir', 'finir', 'chanter', 'être', 'danser', 'avoir'],
+        },
+      },
+      { 'conj:finir:present': rooted },
+    )
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await user.click(screen.getByRole('link', { name: 'Jardin' }))
+    const rules = await screen.findByRole(
+      'dialog',
+      { name: 'Comment ça pousse' },
+      { timeout: 5000 },
+    )
+    await user.click(screen.getByRole('button', { name: 'J’ai compris' }))
+    await waitFor(() => expect(rules).toHaveAttribute('data-state', 'closed'))
+    expect(screen.getByText('Un papillon t’attend dans le pré des verbes')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { hidden: true, name: /Le pré des verbes/ }))
+
+    expect(
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: 'Le pré des verbes' },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText('1 papillon est venu cette semaine')).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map(({ textContent }) => textContent),
+    ).toEqual(['Être et avoir', '1er groupe', '2e groupe', '3e groupe'])
+    const cards = screen.getAllByRole('button', { name: /^\S+ : Présent/ })
+    expect(cards.map((card) => card.getAttribute('aria-label')?.split(' : ')[0])).toEqual([
+      'être',
+      'avoir',
+      'chanter',
+      'danser',
+      'finir',
+      'venir',
+    ])
+    const finir = cards[4]
+    expect(finir?.getAttribute('aria-label')).toMatch(/un papillon est venu$/)
+    expect(finir?.getAttribute('data-stage')).toBe('mature')
+    expect(cards[0]?.getAttribute('data-stage')).toBe('seed')
+    await runtime.dispose()
+  }, 30_000)
 
   it('keeps the parent space behind a code chosen on the first visit', async () => {
     const { runtime, user } = await openApp('parent-code')

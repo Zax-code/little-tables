@@ -1,8 +1,8 @@
 /** One thing that went well in a session, written for the child. */
-import type { SessionInsight } from '@little-tables/engine/schema'
+import { tenses, type SessionInsight, type Tense } from '@little-tables/engine/schema'
 
 import type { Translator } from '../i18n/translator.js'
-import { levelLabel } from '../session/format.js'
+import { displayVerb, levelLabel, tenseLabel } from '../session/format.js'
 
 /** A fact as the child writes it: 7 × 8, 56 ÷ 7, or the name of a skill level. */
 export const displayFact = (factKey: string, translator: Translator) => {
@@ -14,10 +14,33 @@ export const displayFact = (factKey: string, translator: Translator) => {
     : `${multiplication[1]} × ${multiplication[2]}`
 }
 
+/** The verb and tenses when every key is a tense of one verb (`conj:aller:future`). */
+const oneVerb = (factKeys: ReadonlyArray<string>) => {
+  const parsed = factKeys.map((key) => /^conj:([^:]+):([a-z-]+)$/.exec(key))
+  const verbs = new Set(parsed.map((match) => match?.[1]))
+  const verb = parsed[0]?.[1]
+  if (verb === undefined || verbs.size !== 1 || parsed.some((match) => match === null)) return null
+  const keyTenses = new Set(parsed.map((match) => match?.[2]))
+  return { tenses: tenses.filter((tense) => keyTenses.has(tense)), verb }
+}
+
+const rootedCopy = (factKeys: ReadonlyArray<string>, count: number, translator: Translator) => {
+  const conjugated = oneVerb(factKeys)
+  if (conjugated === null) return translator.count('insight.rooted', count)
+  const verb = displayVerb(conjugated.verb)
+  const [tense]: ReadonlyArray<Tense> = conjugated.tenses
+  return conjugated.tenses.length === 1 && tense !== undefined
+    ? translator.t('insight.verbRootedTense', {
+        tense: tenseLabel(tense, translator.language),
+        verb,
+      })
+    : translator.t('insight.verbRooted', { verb })
+}
+
 export const insightCopy = (insight: NonNullable<SessionInsight>, translator: Translator) => {
   switch (insight.kind) {
     case 'facts-became-fluent':
-      return translator.count('insight.rooted', insight.count)
+      return rootedCopy(insight.factKeys, insight.count, translator)
     case 'facts-became-familiar':
       return translator.count('insight.familiar', insight.count)
     case 'keypad-recalls':

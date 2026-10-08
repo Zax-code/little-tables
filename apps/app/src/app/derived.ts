@@ -60,6 +60,22 @@ export function useGarden(state: ProfileState) {
   )
 }
 
+/** The verb meadow: a flower per ticked verb, the week's butterflies and the thirst. */
+export function useMeadow(state: ProfileState, paths: LearningPathSettings) {
+  const { runtime } = useApp()
+  return useMemo(
+    () =>
+      derive(runtime, (engine) =>
+        engine.deriveMeadow({
+          ...(paths.conjugation === undefined ? {} : { settings: paths.conjugation }),
+          snapshot: state.snapshot,
+          todayKey: todayKey(),
+        }),
+      ),
+    [paths.conjugation, runtime, state.snapshot],
+  )
+}
+
 /** Tables, packs and learning paths of the child. */
 export function useLearningProgress(state: ProfileState, paths: LearningPathSettings) {
   const { runtime } = useApp()

@@ -161,4 +161,20 @@ describe('WebAssembly engine', () => {
     expect(line.tickIndex).toBe(3)
     expect(line.expected).toEqual({ index: 3, type: 'tick' })
   })
+
+  it('derives the verb meadow and the visit of a session', () => {
+    const meadow = runSync(
+      engine.deriveMeadow({
+        settings: { focus: null, tenses: ['present'], verbs: ['aller', 'être'] },
+        snapshot: engine.emptySnapshot,
+        todayKey: '2026-10-08',
+      }),
+    )
+    expect(meadow.verbs.map((verb) => [verb.verb, verb.silhouette, verb.stage])).toEqual([
+      ['être', 'tulip', 'seed'],
+      ['aller', 'anemone', 'seed'],
+    ])
+    expect(meadow.thirst).toEqual({ daysSince: 0, verb: 'aller' })
+    expect(runSync(engine.meadowVisit({ attempts: [] }))).toBeNull()
+  })
 })

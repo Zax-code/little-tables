@@ -2,13 +2,13 @@
 import type { GardenProgress } from '@little-tables/engine/schema'
 import { Badge, Button, ProgressBar } from '@little-tables/ui'
 import { useNavigate } from '@tanstack/react-router'
-import { Droplets, Sparkles, Sprout } from 'lucide-react'
+import { Droplets, Flower, Sparkles, Sprout } from 'lucide-react'
 import { m, useReducedMotion } from 'motion/react'
 import { useEffect, useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
 import { useProfileState } from '../app/profile-state.js'
-import { useGarden } from '../app/derived.js'
+import { useGarden, useMeadow } from '../app/derived.js'
 import { characterNames, characterOf } from '../characters/characters.js'
 import { Sprite } from '../characters/sprite.js'
 import type { ProfileState, SessionCompletion } from '../data/schema.js'
@@ -17,7 +17,9 @@ import { InstallCard } from '../install.js'
 import { isInstalled } from '../install-prompt.js'
 import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey, Translator } from '../i18n/translator.js'
-import { formatAnswer, formatNumber } from '../session/format.js'
+import { Butterfly } from '../meadow/butterfly.js'
+import { MeadowPlant } from '../meadow/meadow-plant.js'
+import { displayVerb, formatAnswer, formatNumber } from '../session/format.js'
 import { insightCopy } from './insight.js'
 
 export function CelebrationScreen() {
@@ -111,6 +113,7 @@ function Celebration({
     : t('celebration.doneTitle')
   const insight =
     completion.learningInsight === null ? null : insightCopy(completion.learningInsight, translator)
+  const visit = completion.meadowVisit ?? null
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[linear-gradient(180deg,var(--lt-tint-soft),var(--lt-bg)_55%)] safe-top">
@@ -127,6 +130,7 @@ function Celebration({
           motion="celebration"
         />
         <section className="flex w-full max-w-md flex-col gap-2 rounded-card bg-surface p-4 text-left shadow-[0_4px_16px_var(--lt-shadow)]">
+          {visit === null ? null : <MeadowVisit state={state} verb={visit} />}
           {completion.gardenBloomEarned && plant !== null ? (
             <div className="flex items-center gap-3">
               <Plant className="h-20 w-auto shrink-0" plant={plant} />
@@ -152,9 +156,9 @@ function Celebration({
                 </p>
               </div>
             </div>
-          ) : (
+          ) : visit === null ? (
             <p className="text-subhead font-semibold text-label-2">{t('celebration.extraCopy')}</p>
-          )}
+          ) : null}
           {insight === null || !perfect ? null : (
             <p className="flex items-start gap-1.5 text-footnote font-bold text-tint">
               <Sparkles aria-hidden className="mt-0.5 size-3.5 shrink-0" />
@@ -176,13 +180,51 @@ function Celebration({
       <div className="relative px-4 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
         <Button
           autoFocus
-          icon={<Sprout aria-hidden className="size-5" />}
-          onClick={() => void navigate({ to: '/garden' })}
+          icon={
+            visit === null ? (
+              <Sprout aria-hidden className="size-5" />
+            ) : (
+              <Flower aria-hidden className="size-5" />
+            )
+          }
+          onClick={() => void navigate({ to: visit === null ? '/garden' : '/garden/meadow' })}
           size="lg"
           width="full"
         >
-          {t('celebration.seeGarden')}
+          {t(visit === null ? 'celebration.seeGarden' : 'celebration.seeMeadow')}
         </Button>
+      </div>
+    </div>
+  )
+}
+
+/** D11: a « Mes verbes » session brought a butterfly to its verb, in the meadow. */
+function MeadowVisit({ state, verb }: Readonly<{ state: ProfileState; verb: string }>) {
+  const { activeProfile } = useApp()
+  const { count, t } = useI18n()
+  const meadow = useMeadow(state, activeProfile.learningPaths)
+  const flower = meadow.verbs.find((candidate) => candidate.verb === verb)
+  return (
+    <div className="flex items-center gap-3" data-meadow-visit={verb}>
+      <div className="relative shrink-0 pr-4">
+        <MeadowPlant
+          className="h-20 w-auto"
+          verb={flower ?? { palette: 'red', silhouette: 'poppy', stage: 'mature' }}
+        />
+        <Butterfly className="absolute -top-2 -right-2" />
+      </div>
+      <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
+        <Badge tone="sun">
+          <Sparkles aria-hidden className="size-3.5" />
+          {t('celebration.butterfly')}
+        </Badge>
+        <h2 className="text-body font-extrabold">{t('celebration.butterflyName')}</h2>
+        <p className="text-subhead font-semibold">
+          {t('celebration.butterflyWhere', { verb: displayVerb(verb) })}
+        </p>
+        <p className="text-footnote font-semibold text-label-2">
+          {count('celebration.butterflyWeek', meadow.butterfliesThisWeek)}
+        </p>
       </div>
     </div>
   )

@@ -33064,7 +33064,7 @@
                           "id": "zpjVz",
                           "name": "Titre groupe",
                           "fill": "$label-2",
-                          "content": "EN CE MOMENT EN CLASSE · ENVIRON LA MOITIÉ DE L'ARROSAGE",
+                          "content": "EN CE MOMENT EN CLASSE",
                           "fontFamily": "$font",
                           "fontSize": 13,
                           "fontWeight": "800",
@@ -36304,10 +36304,10 @@
                   "id": "W2ui1",
                   "name": "Rebord Miffy",
                   "width": "fill_container",
-                  "gap": 10,
+                  "gap": 6,
                   "padding": [
                     0,
-                    22
+                    16
                   ],
                   "justifyContent": "end",
                   "alignItems": "center",
@@ -36339,7 +36339,7 @@
                           "fill": "$sun",
                           "content": "Hmm… c'était finissent",
                           "fontFamily": "$font",
-                          "fontSize": 20,
+                          "fontSize": 18,
                           "fontWeight": "900"
                         },
                         {
@@ -36349,7 +36349,7 @@
                           "fill": "$label-2",
                           "content": "On regarde ensemble ?",
                           "fontFamily": "$font",
-                          "fontSize": 16,
+                          "fontSize": 14,
                           "fontWeight": "700"
                         }
                       ]
@@ -36358,8 +36358,8 @@
                       "type": "frame",
                       "id": "I2TFA",
                       "name": "Personnage",
-                      "width": 118,
-                      "height": 140,
+                      "width": 96,
+                      "height": 114,
                       "fill": {
                         "type": "image",
                         "enabled": true,
@@ -36635,7 +36635,7 @@
                       "enabled": false
                     },
                     "RhCo2": {
-                      "content": "Mes chemins"
+                      "content": "Mes verbes"
                     }
                   }
                 },
@@ -36656,548 +36656,762 @@
                   "children": [
                     {
                       "type": "frame",
-                      "id": "EA14x",
-                      "name": "Groupe La conjugaison",
+                      "id": "GMKuR",
+                      "name": "Tableau verbes × temps",
+                      "clip": true,
                       "width": "fill_container",
+                      "fill": "$surface",
+                      "cornerRadius": 16,
                       "layout": "vertical",
-                      "gap": 6,
                       "children": [
                         {
-                          "type": "text",
-                          "id": "S159t9",
-                          "name": "Titre groupe",
-                          "fill": "$label-2",
-                          "content": "LA CONJUGAISON",
-                          "fontFamily": "$font",
-                          "fontSize": 13,
-                          "fontWeight": "800",
-                          "letterSpacing": 0.6
+                          "type": "frame",
+                          "id": "sjZAU",
+                          "name": "En-tête",
+                          "width": "fill_container",
+                          "height": 40,
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "yHHKT",
+                              "name": "Verbe",
+                              "fill": "$label-2",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "800"
+                            },
+                            {
+                              "type": "text",
+                              "id": "k2CMZO",
+                              "name": "Col prés.",
+                              "fill": "$label-2",
+                              "textGrowth": "fixed-width",
+                              "width": 52,
+                              "content": "prés.",
+                              "textAlign": "center",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "800"
+                            },
+                            {
+                              "type": "text",
+                              "id": "qcGQa",
+                              "name": "Col imp.",
+                              "fill": "$label-2",
+                              "textGrowth": "fixed-width",
+                              "width": 52,
+                              "content": "imp.",
+                              "textAlign": "center",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "800"
+                            },
+                            {
+                              "type": "text",
+                              "id": "S0zdGL",
+                              "name": "Col fut.",
+                              "fill": "$label-2",
+                              "textGrowth": "fixed-width",
+                              "width": 52,
+                              "content": "fut.",
+                              "textAlign": "center",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "800"
+                            },
+                            {
+                              "type": "text",
+                              "id": "i3adSh",
+                              "name": "Col p. c.",
+                              "fill": "$label-2",
+                              "textGrowth": "fixed-width",
+                              "width": 52,
+                              "content": "p. c.",
+                              "textAlign": "center",
+                              "fontFamily": "$font",
+                              "fontSize": 13,
+                              "fontWeight": "800"
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "aSMSz",
+                          "name": "Séparateur",
+                          "fill": "$separator",
+                          "width": "fill_container",
+                          "height": 1
                         },
                         {
                           "type": "frame",
-                          "id": "l5Ezo",
-                          "name": "Liste",
-                          "clip": true,
+                          "id": "JJypH",
+                          "name": "Ligne finir",
                           "width": "fill_container",
-                          "fill": "$surface",
-                          "cornerRadius": 16,
-                          "layout": "vertical",
+                          "height": 52,
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "alignItems": "center",
                           "children": [
                             {
-                              "type": "frame",
-                              "id": "U2fHmH",
-                              "name": "Ligne finir",
+                              "type": "text",
+                              "id": "e4szJU",
+                              "name": "Verbe",
+                              "fill": "$label",
+                              "textGrowth": "fixed-width",
                               "width": "fill_container",
-                              "height": 64,
-                              "gap": 14,
-                              "padding": [
-                                0,
-                                16
-                              ],
+                              "content": "finir",
+                              "fontFamily": "$font",
+                              "fontSize": 17,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "tIowf",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "uHqyQ",
-                                  "name": "Texte",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
-                                  "gap": 5,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "ZF8qP",
-                                      "name": "Titre et temps",
-                                      "width": "fill_container",
-                                      "gap": 8,
-                                      "alignItems": "end",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "SkMRr",
-                                          "name": "Titre",
-                                          "fill": "$label",
-                                          "content": "finir",
-                                          "fontFamily": "$font",
-                                          "fontSize": 17,
-                                          "fontWeight": "700"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "N6GuOk",
-                                          "name": "Temps",
-                                          "fill": "$label-2",
-                                          "content": "présent · imparfait",
-                                          "fontFamily": "$font",
-                                          "fontSize": 13,
-                                          "fontWeight": "600"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "frame",
-                                      "id": "a1ywR4",
-                                      "name": "Barre",
-                                      "clip": true,
-                                      "width": "fill_container",
-                                      "height": 8,
-                                      "fill": "$separator",
-                                      "cornerRadius": 4,
-                                      "gap": 2,
-                                      "children": [
-                                        {
-                                          "type": "rectangle",
-                                          "id": "oV3Mu",
-                                          "name": "Bien ancré",
-                                          "fill": "$leaf",
-                                          "width": 120,
-                                          "height": 8
-                                        },
-                                        {
-                                          "type": "rectangle",
-                                          "id": "bMNRu",
-                                          "name": "En train de pousser",
-                                          "fill": "$sun",
-                                          "width": 60,
-                                          "height": 8
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "Vu2ZV",
-                                  "name": "Détail",
-                                  "fill": "$label-2",
-                                  "content": "2/4",
-                                  "fontFamily": "$font",
-                                  "fontSize": 17,
-                                  "fontWeight": "500"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "BR7To",
-                                  "name": "Chevron",
-                                  "width": 20,
-                                  "height": 20,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$label-3"
+                                  "type": "ellipse",
+                                  "id": "o92TP",
+                                  "name": "Pastille",
+                                  "fill": "$leaf",
+                                  "width": 16,
+                                  "height": 16
                                 }
                               ]
                             },
                             {
-                              "type": "rectangle",
-                              "id": "C4g2c",
-                              "name": "Séparateur",
-                              "fill": "$separator",
-                              "width": "fill_container",
-                              "height": 1
-                            },
-                            {
                               "type": "frame",
-                              "id": "T6ArOM",
-                              "name": "Ligne grandir",
-                              "width": "fill_container",
-                              "height": 64,
-                              "gap": 14,
-                              "padding": [
-                                0,
-                                16
-                              ],
+                              "id": "GBoUl",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "HvQCt",
-                                  "name": "Texte",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
-                                  "gap": 5,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "MSZ46",
-                                      "name": "Titre et temps",
-                                      "width": "fill_container",
-                                      "gap": 8,
-                                      "alignItems": "end",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "MU6SV",
-                                          "name": "Titre",
-                                          "fill": "$label",
-                                          "content": "grandir",
-                                          "fontFamily": "$font",
-                                          "fontSize": 17,
-                                          "fontWeight": "700"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "QWDsk",
-                                          "name": "Temps",
-                                          "fill": "$label-2",
-                                          "content": "présent · imparfait",
-                                          "fontFamily": "$font",
-                                          "fontSize": 13,
-                                          "fontWeight": "600"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "frame",
-                                      "id": "sNOoO",
-                                      "name": "Barre",
-                                      "clip": true,
-                                      "width": "fill_container",
-                                      "height": 8,
-                                      "fill": "$separator",
-                                      "cornerRadius": 4,
-                                      "gap": 2,
-                                      "children": [
-                                        {
-                                          "type": "rectangle",
-                                          "id": "ySUvZ",
-                                          "name": "Bien ancré",
-                                          "fill": "$leaf",
-                                          "width": 60,
-                                          "height": 8
-                                        },
-                                        {
-                                          "type": "rectangle",
-                                          "id": "Dx1fv",
-                                          "name": "En train de pousser",
-                                          "fill": "$sun",
-                                          "width": 60,
-                                          "height": 8
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "UeLaq",
-                                  "name": "Détail",
-                                  "fill": "$label-2",
-                                  "content": "1/4",
-                                  "fontFamily": "$font",
-                                  "fontSize": 17,
-                                  "fontWeight": "500"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "DK9y3",
-                                  "name": "Chevron",
-                                  "width": 20,
-                                  "height": 20,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$label-3"
+                                  "type": "ellipse",
+                                  "id": "QE6pI",
+                                  "name": "Pastille",
+                                  "fill": "$sun",
+                                  "width": 16,
+                                  "height": 16
                                 }
                               ]
                             },
                             {
-                              "type": "rectangle",
-                              "id": "iyqD8",
-                              "name": "Séparateur",
-                              "fill": "$separator",
-                              "width": "fill_container",
-                              "height": 1
-                            },
-                            {
                               "type": "frame",
-                              "id": "QSdez",
-                              "name": "Ligne aller",
-                              "width": "fill_container",
-                              "height": 64,
-                              "gap": 14,
-                              "padding": [
-                                0,
-                                16
-                              ],
+                              "id": "Zqaur",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "MfAz7",
-                                  "name": "Texte",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
-                                  "gap": 5,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "b5mbZU",
-                                      "name": "Titre et temps",
-                                      "width": "fill_container",
-                                      "gap": 8,
-                                      "alignItems": "end",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "O8XDUC",
-                                          "name": "Titre",
-                                          "fill": "$label",
-                                          "content": "aller",
-                                          "fontFamily": "$font",
-                                          "fontSize": 17,
-                                          "fontWeight": "700"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "RTk83",
-                                          "name": "Temps",
-                                          "fill": "$label-2",
-                                          "content": "présent · imparfait",
-                                          "fontFamily": "$font",
-                                          "fontSize": 13,
-                                          "fontWeight": "600"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "frame",
-                                      "id": "jkE8D",
-                                      "name": "Barre",
-                                      "clip": true,
-                                      "width": "fill_container",
-                                      "height": 8,
-                                      "fill": "$separator",
-                                      "cornerRadius": 4,
-                                      "gap": 2,
-                                      "children": [
-                                        {
-                                          "type": "rectangle",
-                                          "id": "L478v",
-                                          "name": "En train de pousser",
-                                          "fill": "$sun",
-                                          "width": 120,
-                                          "height": 8
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "TH02I",
-                                  "name": "Détail",
-                                  "fill": "$label-2",
-                                  "content": "0/4",
-                                  "fontFamily": "$font",
-                                  "fontSize": 17,
-                                  "fontWeight": "500"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "i8izP",
-                                  "name": "Chevron",
-                                  "width": 20,
-                                  "height": 20,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$label-3"
+                                  "type": "ellipse",
+                                  "id": "aPB3t",
+                                  "name": "Pastille",
+                                  "fill": "$separator",
+                                  "width": 16,
+                                  "height": 16
                                 }
                               ]
                             },
                             {
-                              "type": "rectangle",
-                              "id": "zkoqU",
-                              "name": "Séparateur",
-                              "fill": "$separator",
-                              "width": "fill_container",
-                              "height": 1
-                            },
-                            {
                               "type": "frame",
-                              "id": "EPm0k",
-                              "name": "Ligne faire",
-                              "width": "fill_container",
-                              "height": 64,
-                              "gap": 14,
-                              "padding": [
-                                0,
-                                16
-                              ],
+                              "id": "OfYpp",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "e1sjz",
-                                  "name": "Texte",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
-                                  "gap": 5,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "f2Shzl",
-                                      "name": "Titre et temps",
-                                      "width": "fill_container",
-                                      "gap": 8,
-                                      "alignItems": "end",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "sc9Vj",
-                                          "name": "Titre",
-                                          "fill": "$label",
-                                          "content": "faire",
-                                          "fontFamily": "$font",
-                                          "fontSize": 17,
-                                          "fontWeight": "700"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "N0wk7",
-                                          "name": "Temps",
-                                          "fill": "$label-2",
-                                          "content": "présent · imparfait",
-                                          "fontFamily": "$font",
-                                          "fontSize": 13,
-                                          "fontWeight": "600"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "frame",
-                                      "id": "Ne0g3",
-                                      "name": "Barre",
-                                      "clip": true,
-                                      "width": "fill_container",
-                                      "height": 8,
-                                      "fill": "$separator",
-                                      "cornerRadius": 4,
-                                      "gap": 2,
-                                      "children": [
-                                        {
-                                          "type": "rectangle",
-                                          "id": "v8leJE",
-                                          "name": "En train de pousser",
-                                          "fill": "$sun",
-                                          "width": 60,
-                                          "height": 8
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
                                   "type": "text",
-                                  "id": "Q3fd8z",
-                                  "name": "Détail",
-                                  "fill": "$label-2",
-                                  "content": "0/4",
+                                  "id": "reKwi",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
                                   "fontFamily": "$font",
                                   "fontSize": 17,
-                                  "fontWeight": "500"
-                                },
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "sPMM1",
+                          "name": "Séparateur",
+                          "fill": "$separator",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "lErE3",
+                          "name": "Ligne grandir",
+                          "width": "fill_container",
+                          "height": 52,
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "k6HFHX",
+                              "name": "Verbe",
+                              "fill": "$label",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "grandir",
+                              "fontFamily": "$font",
+                              "fontSize": 17,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "sRRNk",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
                                 {
-                                  "type": "icon",
-                                  "id": "R2tHe",
-                                  "name": "Chevron",
-                                  "width": 20,
-                                  "height": 20,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$label-3"
+                                  "type": "ellipse",
+                                  "id": "aIoy0",
+                                  "name": "Pastille",
+                                  "fill": "$sun",
+                                  "width": 16,
+                                  "height": 16
                                 }
                               ]
                             },
                             {
-                              "type": "rectangle",
-                              "id": "eUx9q",
-                              "name": "Séparateur",
-                              "fill": "$separator",
-                              "width": "fill_container",
-                              "height": 1
-                            },
-                            {
                               "type": "frame",
-                              "id": "q6JOi",
-                              "name": "Ligne venir",
-                              "width": "fill_container",
-                              "height": 64,
-                              "gap": 14,
-                              "padding": [
-                                0,
-                                16
-                              ],
+                              "id": "L6uER",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
                               "alignItems": "center",
                               "children": [
                                 {
-                                  "type": "frame",
-                                  "id": "dniWm",
-                                  "name": "Texte",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
-                                  "gap": 5,
-                                  "children": [
-                                    {
-                                      "type": "frame",
-                                      "id": "W4E8t",
-                                      "name": "Titre et temps",
-                                      "width": "fill_container",
-                                      "gap": 8,
-                                      "alignItems": "end",
-                                      "children": [
-                                        {
-                                          "type": "text",
-                                          "id": "e1qcw",
-                                          "name": "Titre",
-                                          "fill": "$label",
-                                          "content": "venir",
-                                          "fontFamily": "$font",
-                                          "fontSize": 17,
-                                          "fontWeight": "700"
-                                        },
-                                        {
-                                          "type": "text",
-                                          "id": "bOvCG",
-                                          "name": "Temps",
-                                          "fill": "$label-2",
-                                          "content": "présent · imparfait",
-                                          "fontFamily": "$font",
-                                          "fontSize": 13,
-                                          "fontWeight": "600"
-                                        }
-                                      ]
-                                    },
-                                    {
-                                      "type": "frame",
-                                      "id": "v0V0eY",
-                                      "name": "Barre",
-                                      "clip": true,
-                                      "width": "fill_container",
-                                      "height": 8,
-                                      "fill": "$separator",
-                                      "cornerRadius": 4,
-                                      "gap": 2
-                                    }
-                                  ]
-                                },
+                                  "type": "ellipse",
+                                  "id": "YmuVx",
+                                  "name": "Pastille",
+                                  "fill": "$sun",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "a57lgl",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "F9pjX",
+                                  "name": "Pastille",
+                                  "fill": "$separator",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "MkXhe",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
                                 {
                                   "type": "text",
-                                  "id": "kf8kv",
-                                  "name": "Détail",
-                                  "fill": "$label-2",
-                                  "content": "0/4",
+                                  "id": "UyAYu",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
                                   "fontFamily": "$font",
                                   "fontSize": 17,
-                                  "fontWeight": "500"
-                                },
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "QVsNK",
+                          "name": "Séparateur",
+                          "fill": "$separator",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "VqSem",
+                          "name": "Ligne aller",
+                          "width": "fill_container",
+                          "height": 52,
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "CA2SC",
+                              "name": "Verbe",
+                              "fill": "$label",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "aller",
+                              "fontFamily": "$font",
+                              "fontSize": 17,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "hHh75",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
                                 {
-                                  "type": "icon",
-                                  "id": "JhbPy",
-                                  "name": "Chevron",
-                                  "width": 20,
-                                  "height": 20,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$label-3"
+                                  "type": "ellipse",
+                                  "id": "ioW1h",
+                                  "name": "Pastille",
+                                  "fill": "$leaf",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "x8auC",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "uuNzE",
+                                  "name": "Pastille",
+                                  "fill": "$leaf",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "eoM4g",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "q5K9v",
+                                  "name": "Pastille",
+                                  "fill": "$sun",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "BhKfo",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "q6EqRO",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
+                                  "fontFamily": "$font",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "z2eZj",
+                          "name": "Séparateur",
+                          "fill": "$separator",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "kUZV7",
+                          "name": "Ligne faire",
+                          "width": "fill_container",
+                          "height": 52,
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "mJ4xa",
+                              "name": "Verbe",
+                              "fill": "$label",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "faire",
+                              "fontFamily": "$font",
+                              "fontSize": 17,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "tcbr5",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "FzNbX",
+                                  "name": "Pastille",
+                                  "fill": "$sun",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "edaL5",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "eLlPa",
+                                  "name": "Pastille",
+                                  "fill": "$separator",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "nrnUD",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "b5J1O",
+                                  "name": "Pastille",
+                                  "fill": "$separator",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "y3VBE",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "FQgdQ",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
+                                  "fontFamily": "$font",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "p7lXs",
+                          "name": "Séparateur",
+                          "fill": "$separator",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "HBmXM",
+                          "name": "Ligne venir",
+                          "width": "fill_container",
+                          "height": 52,
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "U0G4h",
+                              "name": "Verbe",
+                              "fill": "$label",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "venir",
+                              "fontFamily": "$font",
+                              "fontSize": 17,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "GENZn",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "cnT99",
+                                  "name": "Pastille",
+                                  "fill": "$separator",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "W3Nfkp",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "WfOe6",
+                                  "name": "Pastille",
+                                  "fill": "$separator",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "mkcNJ",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "uWm8Q",
+                                  "name": "Pastille",
+                                  "fill": "$separator",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "G7dow",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "uTUzG",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
+                                  "fontFamily": "$font",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "rectangle",
+                          "id": "F1znBP",
+                          "name": "Séparateur",
+                          "fill": "$separator",
+                          "width": "fill_container",
+                          "height": 1
+                        },
+                        {
+                          "type": "frame",
+                          "id": "LvCrY",
+                          "name": "Ligne apprendre",
+                          "width": "fill_container",
+                          "height": 52,
+                          "padding": [
+                            0,
+                            16
+                          ],
+                          "alignItems": "center",
+                          "children": [
+                            {
+                              "type": "text",
+                              "id": "UIDIa",
+                              "name": "Verbe",
+                              "fill": "$label",
+                              "textGrowth": "fixed-width",
+                              "width": "fill_container",
+                              "content": "apprendre",
+                              "fontFamily": "$font",
+                              "fontSize": 17,
+                              "fontWeight": "700"
+                            },
+                            {
+                              "type": "frame",
+                              "id": "smfOO",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "ellipse",
+                                  "id": "i0KUL",
+                                  "name": "Pastille",
+                                  "fill": "$sun",
+                                  "width": 16,
+                                  "height": 16
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "WX05D",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "bttCL",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
+                                  "fontFamily": "$font",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "T6z7ZF",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "XZ6yd",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
+                                  "fontFamily": "$font",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
+                                }
+                              ]
+                            },
+                            {
+                              "type": "frame",
+                              "id": "KfEXF",
+                              "name": "Case",
+                              "width": 52,
+                              "height": 52,
+                              "justifyContent": "center",
+                              "alignItems": "center",
+                              "children": [
+                                {
+                                  "type": "text",
+                                  "id": "hr5Fv",
+                                  "name": "Vide",
+                                  "fill": "$label-3",
+                                  "content": "·",
+                                  "fontFamily": "$font",
+                                  "fontSize": 17,
+                                  "fontWeight": "700"
                                 }
                               ]
                             }
@@ -37207,7 +37421,7 @@
                     },
                     {
                       "type": "frame",
-                      "id": "E1dfG9",
+                      "id": "tB2Sb",
                       "name": "Légende",
                       "width": "fill_container",
                       "gap": 14,
@@ -37219,14 +37433,14 @@
                       "children": [
                         {
                           "type": "frame",
-                          "id": "w2IDH",
+                          "id": "T025K",
                           "name": "bien ancré",
                           "gap": 6,
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "ellipse",
-                              "id": "TOpCk",
+                              "id": "ccLxW",
                               "name": "Point",
                               "fill": "$leaf",
                               "width": 10,
@@ -37234,7 +37448,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "bCQA5",
+                              "id": "QGPc0",
                               "name": "L",
                               "fill": "$label-2",
                               "content": "bien ancré",
@@ -37246,14 +37460,14 @@
                         },
                         {
                           "type": "frame",
-                          "id": "eWhN0",
+                          "id": "aOxet",
                           "name": "en train de pousser",
                           "gap": 6,
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "ellipse",
-                              "id": "ZPS18",
+                              "id": "MgkKk",
                               "name": "Point",
                               "fill": "$sun",
                               "width": 10,
@@ -37261,7 +37475,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "R5Nuw",
+                              "id": "j2n6B0",
                               "name": "L",
                               "fill": "$label-2",
                               "content": "en train de pousser",
@@ -37273,14 +37487,14 @@
                         },
                         {
                           "type": "frame",
-                          "id": "F1LjV",
+                          "id": "rvIBy",
                           "name": "à découvrir",
                           "gap": 6,
                           "alignItems": "center",
                           "children": [
                             {
                               "type": "ellipse",
-                              "id": "c1wdG",
+                              "id": "zkspU",
                               "name": "Point",
                               "fill": "$separator",
                               "width": 10,
@@ -37288,7 +37502,7 @@
                             },
                             {
                               "type": "text",
-                              "id": "XNbY4",
+                              "id": "G14Bor",
                               "name": "L",
                               "fill": "$label-2",
                               "content": "à découvrir",
@@ -37301,134 +37515,29 @@
                       ]
                     },
                     {
-                      "type": "frame",
-                      "id": "A8L3f9",
-                      "name": "Groupe Les petites additions",
-                      "width": "fill_container",
-                      "layout": "vertical",
-                      "gap": 6,
-                      "children": [
-                        {
-                          "type": "text",
-                          "id": "qQSD2",
-                          "name": "Titre groupe",
-                          "fill": "$label-2",
-                          "content": "LES PETITES ADDITIONS",
-                          "fontFamily": "$font",
-                          "fontSize": 13,
-                          "fontWeight": "800",
-                          "letterSpacing": 0.6
-                        },
-                        {
-                          "type": "frame",
-                          "id": "ygmc1",
-                          "name": "Liste",
-                          "clip": true,
-                          "width": "fill_container",
-                          "fill": "$surface",
-                          "cornerRadius": 16,
-                          "layout": "vertical",
-                          "children": [
-                            {
-                              "type": "frame",
-                              "id": "r4CU1y",
-                              "name": "Ligne Tables d'addition",
-                              "width": "fill_container",
-                              "height": 64,
-                              "gap": 14,
-                              "padding": [
-                                0,
-                                16
-                              ],
-                              "alignItems": "center",
-                              "children": [
-                                {
-                                  "type": "frame",
-                                  "id": "gSTDU",
-                                  "name": "Texte",
-                                  "width": "fill_container",
-                                  "layout": "vertical",
-                                  "gap": 5,
-                                  "children": [
-                                    {
-                                      "type": "text",
-                                      "id": "OguPt",
-                                      "name": "Titre",
-                                      "fill": "$label",
-                                      "content": "tables d'addition",
-                                      "fontFamily": "$font",
-                                      "fontSize": 17,
-                                      "fontWeight": "700"
-                                    },
-                                    {
-                                      "type": "frame",
-                                      "id": "vX0oH",
-                                      "name": "Barre",
-                                      "clip": true,
-                                      "width": "fill_container",
-                                      "height": 8,
-                                      "fill": "$separator",
-                                      "cornerRadius": 4,
-                                      "gap": 2,
-                                      "children": [
-                                        {
-                                          "type": "rectangle",
-                                          "id": "SrzGA",
-                                          "name": "Bien ancré",
-                                          "fill": "$leaf",
-                                          "width": 131,
-                                          "height": 8
-                                        },
-                                        {
-                                          "type": "rectangle",
-                                          "id": "TqTCS",
-                                          "name": "En train de pousser",
-                                          "fill": "$sun",
-                                          "width": 52,
-                                          "height": 8
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "type": "text",
-                                  "id": "uIZnl",
-                                  "name": "Détail",
-                                  "fill": "$label-2",
-                                  "content": "30/55",
-                                  "fontFamily": "$font",
-                                  "fontSize": 17,
-                                  "fontWeight": "500"
-                                },
-                                {
-                                  "type": "icon",
-                                  "id": "cHJF6",
-                                  "name": "Chevron",
-                                  "width": 20,
-                                  "height": 20,
-                                  "icon": "chevron-right",
-                                  "library": "lucide",
-                                  "fill": "$label-3"
-                                }
-                              ]
-                            }
-                          ]
-                        }
-                      ]
-                    },
-                    {
                       "type": "text",
-                      "id": "W709X2",
+                      "id": "nCB5W",
                       "name": "Note",
                       "fill": "$label-2",
                       "textGrowth": "fixed-width",
                       "width": "fill_container",
-                      "content": "Touche un verbe pour une petite séance rien que sur lui, dans les temps cochés par tes parents.",
+                      "content": "Les colonnes sont les temps cochés par tes parents ; un point gris, c’est un temps pas encore vu. Touche un verbe pour une petite séance rien que sur lui.",
                       "lineHeight": 1.35,
                       "fontFamily": "$font",
                       "fontSize": 13,
                       "fontWeight": "600"
+                    },
+                    {
+                      "id": "SYxzH",
+                      "type": "ref",
+                      "ref": "MKTK1",
+                      "name": "Bouton Mes chemins",
+                      "width": "fill_container",
+                      "descendants": {
+                        "m3OhML": {
+                          "content": "Mes chemins (les maths)"
+                        }
+                      }
                     }
                   ]
                 }
