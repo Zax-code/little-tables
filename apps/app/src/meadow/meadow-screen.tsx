@@ -87,7 +87,7 @@ function Meadow({ state }: Readonly<{ state: ProfileState }>) {
                 {count('meadow.verbsCount', verbs.length)}
               </span>
             </header>
-            <ul className="grid grid-cols-3 gap-2">
+            <ul className="grid grid-cols-3 gap-x-2 gap-y-4">
               {verbs.map((verb) => (
                 <li key={verb.verb}>
                   <MeadowCard
@@ -138,7 +138,7 @@ function MeadowCard({
         ...(butterfly ? [t('meadow.butterflyHere')] : []),
       ].join(', ')}
       className={cn(
-        'relative flex w-full flex-col items-center gap-1.5 rounded-card px-2 pt-3 pb-3 active:opacity-80 disabled:opacity-60',
+        'relative flex w-full flex-col items-center gap-1.5 rounded-card px-2 pt-4 pb-3 active:opacity-80 disabled:opacity-60',
         seed ? 'bg-surface-2' : 'bg-surface',
       )}
       data-stage={verb.stage}
@@ -147,7 +147,7 @@ function MeadowCard({
       type="button"
     >
       <MeadowPlant className="h-24 w-auto" verb={verb} />
-      {butterfly ? <Butterfly className="absolute top-2 right-0" /> : null}
+      {butterfly ? <Butterfly className="absolute -top-3 -right-1.5 h-7 w-8" /> : null}
       <span
         className={cn('text-body font-extrabold', seed ? 'text-label-2' : 'text-label')}
         lang="fr"

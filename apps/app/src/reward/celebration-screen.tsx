@@ -34,13 +34,14 @@ export function CelebrationScreen() {
   return <Celebration completion={completion} state={state.data} />
 }
 
+/** In the margins beside the character, clear of the title, the copy and the reward card. */
 const petals = [
-  { left: '12%', top: '14%', tone: 'var(--garden-bloom-pink)' },
-  { left: '82%', top: '18%', tone: 'var(--garden-bloom-gold)' },
-  { left: '8%', top: '44%', tone: 'var(--garden-leaf-light)' },
-  { left: '86%', top: '40%', tone: 'var(--garden-bloom-lavender)' },
-  { left: '20%', top: '30%', tone: 'var(--garden-bloom-gold)' },
-  { left: '74%', top: '52%', tone: 'var(--garden-bloom-pink)' },
+  { left: '3%', top: '21%', tone: 'var(--garden-bloom-pink)' },
+  { left: '89%', top: '21%', tone: 'var(--garden-bloom-gold)' },
+  { left: '4%', top: '29%', tone: 'var(--garden-bloom-gold)' },
+  { left: '90%', top: '29%', tone: 'var(--garden-bloom-pink)' },
+  { left: '3%', top: '37%', tone: 'var(--garden-leaf-light)' },
+  { left: '89%', top: '37%', tone: 'var(--garden-bloom-lavender)' },
 ] as const
 
 function Petals() {
@@ -219,12 +220,12 @@ function MeadowVisit({ state, verb }: Readonly<{ state: ProfileState; verb: stri
   const flower = meadow.verbs.find((candidate) => candidate.verb === verb)
   return (
     <div className="flex items-center gap-3" data-meadow-visit={verb}>
-      <div className="relative shrink-0 pr-4">
+      <div className="relative shrink-0 pr-6">
         <MeadowPlant
           className="h-20 w-auto"
           verb={flower ?? { palette: 'red', silhouette: 'poppy', stage: 'mature' }}
         />
-        <Butterfly className="absolute -top-2 -right-2" />
+        <Butterfly className="absolute -top-2 -right-1" />
       </div>
       <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
         <Badge tone="sun">
@@ -259,9 +260,9 @@ function MeadowWatering({
   return (
     <div className="flex items-center gap-3" data-meadow-watering="">
       {flower === null ? null : (
-        <div className="relative shrink-0 pr-4">
+        <div className="relative shrink-0 pr-6">
           <MeadowPlant className="h-20 w-auto" verb={flower} />
-          {visit === null ? null : <Butterfly className="absolute -top-2 -right-2" />}
+          {visit === null ? null : <Butterfly className="absolute -top-2 -right-1" />}
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col items-start gap-1">

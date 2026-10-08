@@ -111,29 +111,38 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
       </Button>
     )
 
+  const actions = (
+    <div className="flex flex-col gap-2.5">
+      {session === null && !twoGardens ? (
+        <p className="text-center text-footnote font-semibold text-label-2">
+          {rhythm.dailyWateringDone
+            ? t('today.bonusCaption')
+            : count('today.questions', questions, { minutes })}
+        </p>
+      ) : null}
+      {primary}
+      {session === null && twoGardens ? <MeadowButton done={meadowDone} /> : null}
+      {session === null ? (
+        <Button
+          onClick={() => setChoosing(true)}
+          size={twoGardens ? 'sm' : 'md'}
+          variant="tinted"
+          width="full"
+        >
+          {t('today.otherSessions')}
+        </Button>
+      ) : null}
+    </div>
+  )
+  // With two gardens the waterings scroll with their cards, so nothing slides under them on a
+  // small phone; otherwise the watering stays at hand above the tab bar.
+  const inline = session === null && twoGardens
+
   return (
     <Screen
       bottom={
         <div className="flex flex-col gap-2.5">
-          {session === null && !twoGardens ? (
-            <p className="text-center text-footnote font-semibold text-label-2">
-              {rhythm.dailyWateringDone
-                ? t('today.bonusCaption')
-                : count('today.questions', questions, { minutes })}
-            </p>
-          ) : null}
-          {primary}
-          {session === null && twoGardens ? <MeadowButton done={meadowDone} /> : null}
-          {session === null ? (
-            <Button
-              onClick={() => setChoosing(true)}
-              size={twoGardens ? 'sm' : 'md'}
-              variant="tinted"
-              width="full"
-            >
-              {t('today.otherSessions')}
-            </Button>
-          ) : null}
+          {inline ? null : actions}
           <div className="pt-1">
             <ChildTabBar />
           </div>
@@ -178,6 +187,7 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
       {session === null && twoGardens ? (
         <MeadowCard blooms={state.meadowBloomCount ?? 0} done={meadowDone} meadow={meadow} />
       ) : null}
+      {inline ? actions : null}
       <WeekStrip
         days={weekDays(rhythm, translator)}
         status={
