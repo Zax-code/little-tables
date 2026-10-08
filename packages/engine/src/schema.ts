@@ -232,7 +232,7 @@ export type LearningSnapshot = typeof LearningSnapshot.Type
 
 export const AnswerMode = Schema.Literal('choice', 'keypad')
 export const QuestionOperation = Schema.Literal('divide', 'multiply')
-export const SessionKind = Schema.Literal('daily-watering', 'extra-practice')
+export const SessionKind = Schema.Literal('daily-watering', 'extra-practice', 'meadow-watering')
 export type SessionKind = typeof SessionKind.Type
 
 export const PracticeQuestion = Schema.Struct({
@@ -294,8 +294,11 @@ export const CurriculumPolicy = Schema.Struct({
 export type CurriculumPolicy = typeof CurriculumPolicy.Type
 
 export const PracticePolicy = Schema.Struct({
-  /** `'2'` caps a daily watering at two new items; absent, sessions follow version 1. */
-  algorithmVersion: Schema.optional(Schema.Literal('1', '2')),
+  /**
+   * `'2'` caps a daily watering at two new items; `'3'` also leaves the verbs to the meadow's
+   * watering. Absent, sessions follow version 1.
+   */
+  algorithmVersion: Schema.optional(Schema.Literal('1', '2', '3')),
   curriculum: Schema.optional(CurriculumPolicy),
   focusSkill: Schema.optional(SkillId),
   focusTable: Schema.optional(Int),

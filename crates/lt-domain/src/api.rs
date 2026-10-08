@@ -19,7 +19,8 @@ use crate::exercises::{
 };
 use crate::garden::{
     GardenInput, LedgerTotals, SessionCompletionDay, derive_garden_progress,
-    derive_garden_reward_ledger, derive_rewards, garden_flower_ids, merge_garden_reward_ledgers,
+    derive_garden_reward_ledger, derive_meadow_reward_ledger, derive_rewards, garden_flower_ids,
+    merge_garden_reward_ledgers,
 };
 use crate::meadow::{MeadowInput, derive_meadow, meadow_visit};
 use crate::model::{
@@ -309,6 +310,14 @@ pub fn dispatch(operation: &str, input: Value, day_keys: &dyn DayKeys) -> Result
         "deriveGardenRewardLedger" => {
             let input: LedgerInput = parse(input)?;
             output(&derive_garden_reward_ledger(
+                &input.completions,
+                input.garden_bloom_count.unwrap_or(0.0),
+                &input.rewarded_day_keys,
+            ))
+        }
+        "deriveMeadowRewardLedger" => {
+            let input: LedgerInput = parse(input)?;
+            output(&derive_meadow_reward_ledger(
                 &input.completions,
                 input.garden_bloom_count.unwrap_or(0.0),
                 &input.rewarded_day_keys,

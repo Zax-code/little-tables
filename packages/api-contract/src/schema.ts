@@ -101,6 +101,9 @@ export const Bootstrap = Schema.Struct({
   completedSessions: Int,
   gardenBloomCount: Int,
   gardenCollection: GardenCollection,
+  /** The meadow's blooms, one per day with a meadow watering; absent from older servers. */
+  meadowBloomCount: Schema.optional(Int),
+  meadowRewardedDayKeys: Schema.optional(Schema.Array(DayKey)),
   practiceDayKeys: Schema.Array(DayKey),
   profile: ChildProfile,
   rewardedDayKeys: Schema.Array(DayKey),
