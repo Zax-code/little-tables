@@ -326,9 +326,21 @@ fn the_meadow_watering_asks_only_the_ticked_verbs() {
         let watering = session(&snapshot, &policy, seed);
         assert_eq!(watering.kind, SessionKind::MeadowWatering);
         let count = watering.questions.len();
-        assert!((1..=8).contains(&count), "seed {seed}: {count}");
+        assert!((5..=8).contains(&count), "seed {seed}: {count}");
         assert_eq!(conjugation_questions(&watering), count, "seed {seed}");
     }
+    // One verb at one tense still makes a watering, at several persons.
+    let one = session(
+        &snapshot,
+        &meadow(settings(&["aller"], &[Tense::Present], None)),
+        2,
+    );
+    assert_eq!(one.questions.len(), 5);
+    assert!(
+        one.questions
+            .iter()
+            .all(|question| question.fact_key == "conj:aller:present")
+    );
     // A child without verbs has no meadow watering.
     let empty = session(&snapshot, &meadow(LearningPathSettings::default()), 1);
     assert!(empty.questions.is_empty());
