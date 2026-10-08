@@ -177,4 +177,31 @@ describe('WebAssembly engine', () => {
     expect(meadow.thirst).toEqual({ daysSince: 0, verb: 'aller' })
     expect(runSync(engine.meadowVisit({ attempts: [] }))).toBeNull()
   })
+
+  it('composes the meadow watering and counts its blooms', () => {
+    const paths = {
+      conjugation: { focus: null, tenses: ['present' as const], verbs: ['aller', 'finir'] },
+      enabledSkills: [],
+      focusSkill: null,
+      mode: 'automatic' as const,
+      subtractionMethod: 'compensation' as const,
+    }
+    const meadow = runSync(
+      engine.createSession({
+        now: 1_790_000_000_000,
+        policy: { algorithmVersion: '3', curriculum: { paths }, kind: 'meadow-watering' },
+        seed: 4,
+        snapshot: engine.emptySnapshot,
+        timeZone: 'UTC',
+      }),
+    )
+    expect(meadow.kind).toBe('meadow-watering')
+    expect(meadow.questions.every(({ factKey }) => factKey.startsWith('conj:'))).toBe(true)
+    const ledger = runSync(
+      engine.deriveMeadowRewardLedger({
+        completions: [{ learningDayKey: '2026-10-08', sessionKind: 'meadow-watering' }],
+      }),
+    )
+    expect(ledger.gardenBloomCount).toBe(1)
+  })
 })

@@ -1012,7 +1012,10 @@ pub fn create_session(
         time_zone,
     } = *input;
     let mut random = Rng::new(seed);
-    let daily = policy.is_daily();
+    let meadow = policy.is_meadow();
+    // The meadow's watering is composed like the daily one, on the verbs alone.
+    let daily = policy.is_daily() || meadow;
+    let maths_only = policy.is_daily() && policy.separates_gardens();
     let today_key = day_keys.day_key(now, time_zone);
     let packs = packs_of(policy.curriculum.as_ref());
     let pack_progress = derive_curriculum_pack_progress(snapshot);
@@ -1146,10 +1149,22 @@ pub fn create_session(
             .partial_cmp(&first.score)
             .unwrap_or(Ordering::Equal)
     });
-    let all: Vec<&Candidate> = candidates.iter().collect();
+    let is_verb = |candidate: &Candidate| candidate.fact.skill == Some(SkillId::Conjugation);
+    let all: Vec<&Candidate> = candidates
+        .iter()
+        .filter(|candidate| {
+            if meadow {
+                is_verb(candidate)
+            } else {
+                !(maths_only && is_verb(candidate))
+            }
+        })
+        .collect();
 
     // A verb « en ce moment en classe » puts its keys forward, and wins over a maths skill.
-    let conjugation_focus = if daily {
+    let conjugation_focus = if maths_only {
+        None
+    } else if daily {
         conjugation_settings.and_then(|settings| settings.focus.as_ref())
     } else {
         policy.focus_verb.as_ref()
@@ -1160,6 +1175,8 @@ pub fn create_session(
         .filter(|keys| !keys.is_empty());
     let focus_skill = if focus_keys.is_some() {
         Some(SkillId::Conjugation)
+    } else if meadow {
+        None
     } else if daily {
         path_settings.and_then(|settings| settings.focus_skill)
     } else {
@@ -1325,7 +1342,9 @@ pub fn create_session(
         current_question_started_at: now,
         current_index: 0,
         id: format!("session-{now}-{seed}"),
-        kind: if daily {
+        kind: if meadow {
+            SessionKind::MeadowWatering
+        } else if daily {
             SessionKind::DailyWatering
         } else {
             SessionKind::ExtraPractice

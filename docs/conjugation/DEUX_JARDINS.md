@@ -18,7 +18,8 @@ Sans verbe coché, rien ne change : 3 onglets, un seul arrosage.
 ## 2. Règles
 
 - **Deux arrosages du jour.** L'arrosage des maths ne pose plus de clé `conj:`. L'arrosage du pré ne
-  pose que les verbes et temps cochés, 6 questions, avec le même algorithme de répétition espacée.
+  pose que les verbes et temps cochés, composé comme l'arrosage des maths (5 à 8 questions, deux
+  nouveautés au plus, le verbe « en ce moment en classe » mis en avant).
 - **Deux floraisons, une par jour chacune.** Le jardin garde son registre (`gardenBloomCount`,
   `rewardedDayKeys`), seulement nourri par l'arrosage des maths. Le pré gagne le sien
   (`meadowBloomCount`, `meadowRewardedDayKeys`), nourri par l'arrosage du pré.
@@ -30,14 +31,17 @@ Sans verbe coché, rien ne change : 3 onglets, un seul arrosage.
 
 ## 3. Moteur et serveur
 
-- `SessionKind` gagne `meadow-watering` ; `PracticePolicy` sait composer un arrosage du pré
-  (clés de `conjugation_keys` seulement) et un arrosage des maths sans clés `conj:`.
-- `derive_garden_reward_ledger` ne compte que `daily-watering` ; un `derive_meadow_reward_ledger`
-  compte `meadow-watering`, mêmes règles (une floraison par jour).
-- `lt-store` : migration `0002` qui ajoute `meadow_bloom_count` et `meadow_rewarded_day_keys` à
-  `garden_collections` ; le serveur les dérive des événements comme le jardin et les renvoie dans le
-  bootstrap (`/api/v2`, champs optionnels pour les anciens clients).
-- Rappel du soir : il nomme l'arrosage qui manque (maths, verbes ou les deux).
+- `SessionKind` gagne `meadow-watering`. L'algorithme de composition `3` (`ALGORITHM_VERSION_3`)
+  garde la règle de la version 2 et sépare les jardins : son arrosage du jour n'a plus de clé
+  `conj:`, et `kind: meadow-watering` compose l'arrosage du pré sur ces seules clés. Les versions 1
+  et 2 ne changent pas (anciens clients, vecteurs golden).
+- `derive_garden_reward_ledger` ignore `extra-practice` et `meadow-watering` ;
+  `derive_meadow_reward_ledger` ne compte que `meadow-watering`, une floraison par jour.
+- Pas de migration : le pré n'a pas d'historique importé à préserver, le serveur dérive son
+  registre des événements et l'ajoute au bootstrap (`meadowBloomCount`, `meadowRewardedDayKeys`,
+  optionnels pour les anciens clients). `lt-store` relit `meadow-watering` (sinon une séance sans
+  type compterait comme un arrosage du jardin).
+- Le rappel du soir ne change pas : il se tait dès que l'enfant a pratiqué dans la journée.
 
 ## 4. App
 
@@ -50,12 +54,14 @@ Sans verbe coché, rien ne change : 3 onglets, un seul arrosage.
 
 ## 5. Questions ouvertes
 
-1. Que débloquent les floraisons du pré, ou restent-elles un compte ?
-2. Le parent peut-il désactiver l'un des deux arrosages ?
-3. Ordre des boutons : maths d'abord (proposé), ou le moins récent d'abord ?
+Choix par défaut retenus pour ce lot, à revoir plus tard :
+
+1. Les floraisons du pré restent un compte (rien à débloquer).
+2. Le parent ne désactive pas un arrosage ; sans verbe coché, il n'y a qu'un arrosage.
+3. Les maths d'abord.
 
 ## 6. Découpage proposé
 
 1. `feat(domain): water the meadow` — `meadow-watering`, composition, registre du pré, tests.
-2. `feat(server): store the meadow blooms` — migration, bootstrap, contrat, rappel.
+2. `feat(server): serve the meadow blooms` — bootstrap, contrat `/api/v2`.
 3. `feat(app): two gardens` — onglet, scène, accueil, célébration, textes, tests.

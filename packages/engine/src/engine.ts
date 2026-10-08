@@ -110,6 +110,8 @@ export type EngineApi = Readonly<{
   >
   /** The verb meadow: a flower per ticked verb, the week's butterflies and the thirst. */
   deriveMeadow: Operation<MeadowInput, S.MeadowProgress>
+  /** The meadow's blooms: one per learning day with a meadow watering. */
+  deriveMeadowRewardLedger: Operation<LedgerInput, S.GardenRewardLedger>
   deriveOpenSkills: Operation<PathsInput, ReadonlyArray<S.OpenSkill>>
   derivePathProgress: Operation<PathsInput, ReadonlyArray<S.PathProgress>>
   derivePracticeRhythm: Operation<RhythmInput, S.PracticeRhythm>
@@ -157,6 +159,7 @@ export const makeEngine = (module: EngineModule): EngineApi => {
     deriveGardenRewardLedger: operation('deriveGardenRewardLedger', S.GardenRewardLedger),
     deriveLearningProgress: operation('deriveLearningProgress', S.LearningProgress),
     deriveMeadow: operation('deriveMeadow', S.MeadowProgress),
+    deriveMeadowRewardLedger: operation('deriveMeadowRewardLedger', S.GardenRewardLedger),
     deriveOpenSkills: operation('deriveOpenSkills', Schema.Array(S.OpenSkill)),
     derivePathProgress: operation('derivePathProgress', Schema.Array(S.PathProgress)),
     derivePracticeRhythm: operation('derivePracticeRhythm', S.PracticeRhythm),

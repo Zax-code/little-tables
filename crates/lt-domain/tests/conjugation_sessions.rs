@@ -8,10 +8,13 @@ use lt_domain::engine::{
     validate_exercise_attempt,
 };
 use lt_domain::exercises::expected_answer;
+use lt_domain::garden::{
+    SessionCompletionDay, derive_garden_reward_ledger, derive_meadow_reward_ledger,
+};
 use lt_domain::model::{
-    ALGORITHM_VERSION_2, AnswerMode, ConjugationFocus, ConjugationSettings, CurriculumPolicy,
-    Exercise, FactMastery, LearningPathSettings, LearningSnapshot, MasteryState, PathMode,
-    PracticeAnswer, PracticePolicy, PracticeSession, SessionKind, Tense,
+    ALGORITHM_VERSION_2, ALGORITHM_VERSION_3, AnswerMode, ConjugationFocus, ConjugationSettings,
+    CurriculumPolicy, Exercise, FactMastery, LearningPathSettings, LearningSnapshot, MasteryState,
+    PathMode, PracticeAnswer, PracticePolicy, PracticeSession, SessionKind, Tense,
 };
 use lt_domain::paths::validate_learning_paths;
 use proptest::prelude::*;
@@ -265,6 +268,128 @@ fn settings_are_checked() {
         &[Tense::Present],
         None
     )));
+}
+
+fn version_3(policy: PracticePolicy) -> PracticePolicy {
+    PracticePolicy {
+        algorithm_version: Some(ALGORITHM_VERSION_3.to_owned()),
+        ..policy
+    }
+}
+
+fn meadow(paths: LearningPathSettings) -> PracticePolicy {
+    PracticePolicy {
+        kind: Some(SessionKind::MeadowWatering),
+        ..version_3(daily(paths))
+    }
+}
+
+#[test]
+fn with_two_gardens_the_daily_watering_leaves_the_verbs_to_the_meadow() {
+    let snapshot = practised();
+    let paths = settings(
+        &["finir", "aller"],
+        &[Tense::Present, Tense::Imperfect],
+        None,
+    );
+    let focus = ConjugationFocus {
+        tense: None,
+        verb: "aller".to_owned(),
+    };
+    let in_class = settings(&["finir", "aller"], &[Tense::Present], Some(focus));
+    for seed in 0..60 {
+        for policy in [
+            version_3(daily(paths.clone())),
+            version_3(daily(in_class.clone())),
+        ] {
+            let watering = session(&snapshot, &policy, seed);
+            assert_eq!(watering.kind, SessionKind::DailyWatering);
+            assert!(!watering.questions.is_empty(), "seed {seed}");
+            assert_eq!(conjugation_questions(&watering), 0, "seed {seed}");
+        }
+    }
+}
+
+#[test]
+fn the_meadow_watering_asks_only_the_ticked_verbs() {
+    let mut snapshot = practised();
+    snapshot.facts.insert(
+        "conj:finir:present".to_owned(),
+        mastery(MasteryState::Familiar),
+    );
+    let policy = meadow(settings(
+        &["finir", "aller", "venir"],
+        &[Tense::Present, Tense::Future],
+        None,
+    ));
+    for seed in 0..60 {
+        let watering = session(&snapshot, &policy, seed);
+        assert_eq!(watering.kind, SessionKind::MeadowWatering);
+        let count = watering.questions.len();
+        assert!((1..=8).contains(&count), "seed {seed}: {count}");
+        assert_eq!(conjugation_questions(&watering), count, "seed {seed}");
+    }
+    // A child without verbs has no meadow watering.
+    let empty = session(&snapshot, &meadow(LearningPathSettings::default()), 1);
+    assert!(empty.questions.is_empty());
+}
+
+#[test]
+fn the_meadow_watering_puts_the_verb_in_class_forward() {
+    let mut snapshot = practised();
+    for verb in ["venir", "faire"] {
+        snapshot.facts.insert(
+            format!("conj:{verb}:present"),
+            mastery(MasteryState::Learning),
+        );
+    }
+    let focus = ConjugationFocus {
+        tense: None,
+        verb: "venir".to_owned(),
+    };
+    let policy = meadow(settings(
+        &["venir", "faire"],
+        &[Tense::Present],
+        Some(focus),
+    ));
+    for seed in 0..40 {
+        let watering = session(&snapshot, &policy, seed);
+        assert!(
+            watering
+                .questions
+                .iter()
+                .any(|question| question.fact_key == "conj:venir:present"),
+            "seed {seed}"
+        );
+    }
+}
+
+#[test]
+fn each_garden_blooms_once_a_day_from_its_own_watering() {
+    let day = |key: &str, kind: SessionKind| SessionCompletionDay {
+        learning_day_key: key.to_owned(),
+        session_kind: Some(kind),
+    };
+    let completions = [
+        day("2026-10-06", SessionKind::DailyWatering),
+        day("2026-10-06", SessionKind::MeadowWatering),
+        day("2026-10-07", SessionKind::MeadowWatering),
+        day("2026-10-07", SessionKind::MeadowWatering),
+        day("2026-10-08", SessionKind::ExtraPractice),
+    ];
+    let garden = derive_garden_reward_ledger(&completions, 0.0, &[]);
+    assert_eq!(garden.garden_bloom_count, 1);
+    assert_eq!(garden.rewarded_day_keys, ["2026-10-06"]);
+    let meadow = derive_meadow_reward_ledger(&completions, 0.0, &[]);
+    assert_eq!(meadow.garden_bloom_count, 2);
+    assert_eq!(meadow.rewarded_day_keys, ["2026-10-06", "2026-10-07"]);
+    // On the device, a new completion adds to what is known.
+    let next = derive_meadow_reward_ledger(
+        &[day("2026-10-08", SessionKind::MeadowWatering)],
+        2.0,
+        &meadow.rewarded_day_keys,
+    );
+    assert_eq!((next.garden_bloom_count, next.garden_blooms_earned), (3, 1));
 }
 
 proptest! {

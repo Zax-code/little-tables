@@ -466,6 +466,8 @@ pub struct PracticeQuestion {
 pub enum SessionKind {
     DailyWatering,
     ExtraPractice,
+    /// The meadow's own watering: the ticked verbs only, its own daily bloom.
+    MeadowWatering,
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
@@ -559,14 +561,28 @@ pub struct PracticePolicy {
 
 /// The version whose daily watering adds at most two new items.
 pub const ALGORITHM_VERSION_2: &str = "2";
+/// Version 2, with two gardens: the daily watering leaves the verbs to the meadow's watering.
+pub const ALGORITHM_VERSION_3: &str = "3";
 
 impl PracticePolicy {
     pub fn is_daily(&self) -> bool {
         self.kind == Some(SessionKind::DailyWatering)
     }
 
+    pub fn is_meadow(&self) -> bool {
+        self.kind == Some(SessionKind::MeadowWatering)
+    }
+
     /// Whether new items are capped at two per daily watering.
     pub fn caps_new_items(&self) -> bool {
-        self.algorithm_version.as_deref() == Some(ALGORITHM_VERSION_2)
+        matches!(
+            self.algorithm_version.as_deref(),
+            Some(ALGORITHM_VERSION_2 | ALGORITHM_VERSION_3)
+        )
+    }
+
+    /// Whether the daily watering leaves the conjugation keys to the meadow's watering.
+    pub fn separates_gardens(&self) -> bool {
+        self.algorithm_version.as_deref() == Some(ALGORITHM_VERSION_3)
     }
 }

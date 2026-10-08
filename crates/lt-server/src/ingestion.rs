@@ -121,9 +121,11 @@ pub fn decode_attempt(value: Value) -> Result<AttemptEvent, String> {
     });
     Ok(AttemptEvent {
         // The rules that composed the session; anything unknown is not kept.
-        algorithm_version: wire
-            .algorithm_version
-            .filter(|version| version == "1" || version == lt_domain::model::ALGORITHM_VERSION_2),
+        algorithm_version: wire.algorithm_version.filter(|version| {
+            version == "1"
+                || version == lt_domain::model::ALGORITHM_VERSION_2
+                || version == lt_domain::model::ALGORITHM_VERSION_3
+        }),
         answer_mode: wire.answer_mode,
         answered_at,
         choices: wire.choices,

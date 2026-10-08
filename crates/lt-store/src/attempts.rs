@@ -43,6 +43,7 @@ fn session_kind_text(kind: Option<SessionKind>) -> Option<&'static str> {
     kind.map(|kind| match kind {
         SessionKind::DailyWatering => "daily-watering",
         SessionKind::ExtraPractice => "extra-practice",
+        SessionKind::MeadowWatering => "meadow-watering",
     })
 }
 
@@ -355,6 +356,7 @@ impl Store {
                     session_kind: match kind.as_deref() {
                         Some("daily-watering") => Some(SessionKind::DailyWatering),
                         Some("extra-practice") => Some(SessionKind::ExtraPractice),
+                        Some("meadow-watering") => Some(SessionKind::MeadowWatering),
                         _ => None,
                     },
                 })
