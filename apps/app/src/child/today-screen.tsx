@@ -6,7 +6,14 @@ import { useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
 import { useProfileState } from '../app/profile-state.js'
-import { useDailyQuestionCount, useGarden, useLearningProgress, useRhythm } from '../app/derived.js'
+import {
+  todayKey,
+  useDailyQuestionCount,
+  useGarden,
+  useLearningProgress,
+  useMeadow,
+  useRhythm,
+} from '../app/derived.js'
 import { CharacterImage } from '../characters/character-image.js'
 import { characterNames, characterOf } from '../characters/characters.js'
 import type { ProfileState } from '../data/schema.js'
@@ -18,7 +25,7 @@ import { ChildTabBar, ChildTopBar } from './chrome.js'
 import { useLaunch } from './launch.js'
 import { NewPathsSheet } from './new-paths-sheet.js'
 import { OtherSessionsSheet } from './other-sessions-sheet.js'
-import { ThirstCard } from './thirst-card.js'
+import { MeadowButton, MeadowCard } from './meadow-card.js'
 import { weekDays } from './week.js'
 
 export function TodayScreen() {
@@ -38,6 +45,10 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
   const launch = useLaunch()
   const [choosing, setChoosing] = useState(false)
   const progress = useLearningProgress(state, activeProfile.learningPaths)
+  const meadow = useMeadow(state, activeProfile.learningPaths)
+  // With a ticked verb, two gardens: maths first, then the meadow.
+  const twoGardens = meadow.verbs.length > 0
+  const meadowDone = (state.meadowRewardedDayKeys ?? []).includes(todayKey())
   const name = activeProfile.name
   const session = state.activeSession
   const firstVisit = state.snapshot.processedEventIds.length === 0 && state.completedSessions === 0
@@ -96,7 +107,7 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
         size="lg"
         width="full"
       >
-        {t('today.water')}
+        {t(twoGardens ? 'today.waterMaths' : 'today.water')}
       </Button>
     )
 
@@ -104,7 +115,7 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
     <Screen
       bottom={
         <div className="flex flex-col gap-2.5">
-          {session === null ? (
+          {session === null && !twoGardens ? (
             <p className="text-center text-footnote font-semibold text-label-2">
               {rhythm.dailyWateringDone
                 ? t('today.bonusCaption')
@@ -112,8 +123,14 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
             </p>
           ) : null}
           {primary}
+          {session === null && twoGardens ? <MeadowButton done={meadowDone} /> : null}
           {session === null ? (
-            <Button onClick={() => setChoosing(true)} variant="tinted" width="full">
+            <Button
+              onClick={() => setChoosing(true)}
+              size={twoGardens ? 'sm' : 'md'}
+              variant="tinted"
+              width="full"
+            >
               {t('today.otherSessions')}
             </Button>
           ) : null}
@@ -128,9 +145,6 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
         <h1 className="text-large-title font-extrabold text-balance">{heading}</h1>
         <p className="text-callout text-label-2 text-pretty">{t(copyKey)}</p>
       </header>
-      {session === null && !firstVisit ? (
-        <ThirstCard paths={activeProfile.learningPaths} state={state} />
-      ) : null}
       {session !== null ? (
         <section className="flex items-center gap-4 rounded-card bg-surface p-4">
           <ProgressRing
@@ -157,9 +171,13 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
         <PlantCard
           allBlooming={garden.collection.complete}
           done={rhythm.dailyWateringDone}
+          eyebrow={t(twoGardens ? 'today.mathsEyebrow' : 'today.plantInProgress')}
           plant={garden.nextStep?.plant ?? garden.featuredPlant}
         />
       )}
+      {session === null && twoGardens ? (
+        <MeadowCard blooms={state.meadowBloomCount ?? 0} done={meadowDone} meadow={meadow} />
+      ) : null}
       <WeekStrip
         days={weekDays(rhythm, translator)}
         status={
@@ -201,10 +219,11 @@ function FirstVisitCard() {
 type PlantCardProps = Readonly<{
   allBlooming: boolean
   done: boolean
+  eyebrow: string
   plant: GardenPlantProgress | null
 }>
 
-function PlantCard({ allBlooming, done, plant }: PlantCardProps) {
+function PlantCard({ allBlooming, done, eyebrow, plant }: PlantCardProps) {
   const { count, t } = useI18n()
   if (plant === null || allBlooming) {
     return (
@@ -219,9 +238,7 @@ function PlantCard({ allBlooming, done, plant }: PlantCardProps) {
   return (
     <section className="flex items-center gap-3 rounded-card bg-leaf-soft p-4">
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <p className="text-caption font-black tracking-wider text-leaf uppercase">
-          {t('today.plantInProgress')}
-        </p>
+        <p className="text-caption font-black tracking-wider text-leaf uppercase">{eyebrow}</p>
         <h2 className="text-title-3 font-extrabold">{name}</h2>
         <p className="text-footnote font-semibold text-label-2">
           {count('today.waterings', earned, { total: plant.bloomsRequired })}

@@ -6,7 +6,7 @@
 import type { GardenProgress } from '@little-tables/engine/schema'
 import { cn } from '@little-tables/ui'
 import { m, useReducedMotion } from 'motion/react'
-import { useEffect, useState, type Ref, type UIEventHandler } from 'react'
+import { useEffect, useState, type ReactNode, type Ref, type UIEventHandler } from 'react'
 
 import { characterNames, type CharacterId } from '../characters/characters.js'
 import { Sprite } from '../characters/sprite.js'
@@ -67,35 +67,56 @@ type Walk = Readonly<{ ms: number; towardsLeft: boolean }>
 const motionOf = (walk: Walk | null, reduced: boolean) =>
   reduced || walk === null ? { duration: 0 } : { duration: walk.ms / 1000, ease: 'linear' as const }
 
-type GardenWorldProps = Readonly<{
-  chapters: ReadonlyArray<Chapter>
-  character: CharacterId
-  /** The corner the world opens on. */
-  initialChapter: number
-  onScroll: UIEventHandler<HTMLDivElement>
-  scrollerRef: Ref<HTMLDivElement>
+/** A pot of a corner: its drawing, given whether it is drinking, and whether it can be watered. */
+export type WorldPot = Readonly<{
+  id: string
+  render: (className: string) => ReactNode
+  watered: boolean
 }>
 
-export function GardenWorld({
-  chapters,
+/** One corner of a world: three pot places, a caption and, when locked, a line over it. */
+export type WorldCorner = Readonly<{
+  caption: ReactNode
+  id: string
+  label: string
+  notice?: ReactNode
+  pots: ReadonlyArray<WorldPot>
+}>
+
+type PlantWorldProps = Readonly<{
+  caretaker: string
+  character: CharacterId
+  className?: string
+  corners: ReadonlyArray<WorldCorner>
+  /** The corner the world opens on. */
+  initialCorner?: number
+  onScroll?: UIEventHandler<HTMLDivElement>
+  scrollerRef?: Ref<HTMLDivElement>
+  /** The ground's colour class. */
+  soil?: string
+}>
+
+/** Corners side by side and the child's character walking from one watered pot to another. */
+export function PlantWorld({
+  caretaker,
   character,
-  initialChapter,
+  className,
+  corners,
+  initialCorner = 0,
   onScroll,
   scrollerRef,
-}: GardenWorldProps) {
-  const { t } = useI18n()
+  soil = 'bg-soil',
+}: PlantWorldProps) {
   const reduced = useReducedMotion() === true
-  const count = chapters.length
-  const stops: ReadonlyArray<Stop> = chapters.flatMap((chapter, index) =>
-    chapter.plants.flatMap((plant, position) =>
-      plant.stage === 'locked' ? [] : [{ chapter: index, position }],
-    ),
+  const count = corners.length
+  const stops: ReadonlyArray<Stop> = corners.flatMap((corner, index) =>
+    corner.pots.flatMap((pot, position) => (pot.watered ? [{ chapter: index, position }] : [])),
   )
-  // Starts by a plant of the corner the garden opens on.
+  // Starts by a plant of the corner the world opens on.
   const [stop, setStop] = useState(() =>
     Math.max(
       0,
-      stops.findIndex(({ chapter }) => chapter === initialChapter),
+      stops.findIndex(({ chapter }) => chapter === initialCorner),
     ),
   )
   const [walk, setWalk] = useState<Walk | null>(null)
@@ -128,57 +149,48 @@ export function GardenWorld({
 
   return (
     <div
-      className="relative aspect-[4/3] overflow-x-auto overflow-y-hidden rounded-card snap-x snap-mandatory scroll-smooth [scrollbar-width:none]"
+      className={cn(
+        'relative aspect-[4/3] overflow-x-auto overflow-y-hidden rounded-card snap-x snap-mandatory scroll-smooth [scrollbar-width:none]',
+        className,
+      )}
       onScroll={onScroll}
       ref={scrollerRef}
     >
-      <div className="relative flex h-full bg-surface" style={{ width: `${count * 100}%` }}>
-        <div aria-hidden className="absolute inset-x-0 bottom-0 h-[24%] bg-soil" />
-        {chapters.map((chapter, index) => {
-          const name = t(`chapter.${chapter.id}` as MessageKey)
-          return (
-            <figure
-              aria-label={t('chapter.label', { name, number: index + 1 })}
-              className="relative h-full shrink-0 snap-center"
-              key={chapter.id}
-              style={{ width: `${100 / count}%` }}
-            >
-              <figcaption className="absolute inset-x-0 top-0 z-30 flex justify-between px-4 pt-3 text-footnote font-extrabold text-label-2">
-                <span>{t('chapter.label', { name, number: index + 1 })}</span>
-                <span aria-hidden>
-                  {index + 1}/{count}
-                </span>
-              </figcaption>
-              <ol className="absolute inset-x-0 bottom-[8%] z-20 grid grid-cols-3">
-                {chapter.plants.map((plant, position) => (
-                  <li className="flex justify-center" key={plant.id}>
-                    <Plant
-                      className={cn(
-                        'h-auto w-[80%]',
-                        walk === null &&
-                          target?.chapter === index &&
-                          target.position === position &&
-                          !reduced &&
-                          'plant-drink',
-                      )}
-                      label={
-                        plant.stage === 'locked'
-                          ? t('herbarium.mystery')
-                          : `${t(`plant.${plant.id}` as MessageKey)}, ${t(plant.stage === 'mature' ? 'herbarium.inBloom' : 'herbarium.growing')}`
-                      }
-                      plant={plant}
-                    />
-                  </li>
-                ))}
-              </ol>
-              {chapter.stage === 'locked' ? (
-                <p className="absolute inset-x-0 top-1/3 z-30 text-center text-subhead font-extrabold text-label-2">
-                  {t('garden.lockedChapter')}
-                </p>
-              ) : null}
-            </figure>
-          )
-        })}
+      <div className="relative flex h-full" style={{ width: `${count * 100}%` }}>
+        <div aria-hidden className={cn('absolute inset-x-0 bottom-0 h-[24%]', soil)} />
+        {corners.map((corner, index) => (
+          <figure
+            aria-label={corner.label}
+            className="relative h-full shrink-0 snap-center"
+            key={corner.id}
+            style={{ width: `${100 / count}%` }}
+          >
+            <figcaption className="absolute inset-x-0 top-0 z-30 flex justify-between px-4 pt-3 text-footnote font-extrabold text-label-2">
+              {corner.caption}
+            </figcaption>
+            <ol className="absolute inset-x-0 bottom-[8%] z-20 grid grid-cols-3">
+              {corner.pots.map((pot, position) => (
+                <li className="flex justify-center" key={pot.id}>
+                  {pot.render(
+                    cn(
+                      'h-auto w-[80%]',
+                      walk === null &&
+                        target?.chapter === index &&
+                        target.position === position &&
+                        !reduced &&
+                        'plant-drink',
+                    ),
+                  )}
+                </li>
+              ))}
+            </ol>
+            {corner.notice === undefined ? null : (
+              <p className="absolute inset-x-0 top-1/3 z-30 text-center text-subhead font-extrabold text-label-2">
+                {corner.notice}
+              </p>
+            )}
+          </figure>
+        ))}
         {target === undefined ? null : (
           // The track spans the whole world, so moving it by a percentage of its width moves the
           // character by the same share of the world, with a transform rather than a layout change.
@@ -198,7 +210,7 @@ export function GardenWorld({
               <Sprite
                 character={character}
                 flipped={walk === null ? facesLeft(target) : walk.towardsLeft}
-                label={t('garden.caretaker', { character: characterNames[character] })}
+                label={caretaker}
                 motion={walk === null ? 'water' : 'walk'}
               />
             </m.div>
@@ -206,5 +218,69 @@ export function GardenWorld({
         )}
       </div>
     </div>
+  )
+}
+
+type GardenWorldProps = Readonly<{
+  chapters: ReadonlyArray<Chapter>
+  character: CharacterId
+  /** The corner the world opens on. */
+  initialChapter: number
+  onScroll: UIEventHandler<HTMLDivElement>
+  scrollerRef: Ref<HTMLDivElement>
+}>
+
+/** The garden's corners, one per chapter. */
+export function GardenWorld({
+  chapters,
+  character,
+  initialChapter,
+  onScroll,
+  scrollerRef,
+}: GardenWorldProps) {
+  const { t } = useI18n()
+  const count = chapters.length
+  const corners: ReadonlyArray<WorldCorner> = chapters.map((chapter, index) => {
+    const name = t(`chapter.${chapter.id}` as MessageKey)
+    const label = t('chapter.label', { name, number: index + 1 })
+    return {
+      caption: (
+        <>
+          <span>{label}</span>
+          <span aria-hidden>
+            {index + 1}/{count}
+          </span>
+        </>
+      ),
+      id: chapter.id,
+      label,
+      notice: chapter.stage === 'locked' ? t('garden.lockedChapter') : undefined,
+      pots: chapter.plants.map((plant) => ({
+        id: plant.id,
+        render: (className: string) => (
+          <Plant
+            className={className}
+            label={
+              plant.stage === 'locked'
+                ? t('herbarium.mystery')
+                : `${t(`plant.${plant.id}` as MessageKey)}, ${t(plant.stage === 'mature' ? 'herbarium.inBloom' : 'herbarium.growing')}`
+            }
+            plant={plant}
+          />
+        ),
+        watered: plant.stage !== 'locked',
+      })),
+    }
+  })
+  return (
+    <PlantWorld
+      caretaker={t('garden.caretaker', { character: characterNames[character] })}
+      character={character}
+      className="bg-surface"
+      corners={corners}
+      initialCorner={initialChapter}
+      onScroll={onScroll}
+      scrollerRef={scrollerRef}
+    />
   )
 }

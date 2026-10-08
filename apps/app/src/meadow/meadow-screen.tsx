@@ -3,14 +3,15 @@
  * a row; a dot per ticked tense; a butterfly on the verbs worked this week. Never a score.
  */
 import type { MasteryState, MeadowVerb, VerbGroup } from '@little-tables/engine/schema'
-import { cn, IconTile, ListGroup, ListRow, NavigationBar, Screen } from '@little-tables/ui'
-import { useNavigate } from '@tanstack/react-router'
+import { cn, IconTile, ListGroup, ListRow, Screen } from '@little-tables/ui'
 import { HelpCircle, Sparkles } from 'lucide-react'
 import { useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
-import { useMeadow } from '../app/derived.js'
+import { todayKey, useMeadow } from '../app/derived.js'
 import { useProfileState } from '../app/profile-state.js'
+import { characterOf } from '../characters/characters.js'
+import { ChildTabBar } from '../child/chrome.js'
 import { useLaunch } from '../child/launch.js'
 import { policies } from '../data/practice.js'
 import type { ProfileState } from '../data/schema.js'
@@ -20,6 +21,7 @@ import { displayVerb } from '../session/format.js'
 import { Butterfly } from './butterfly.js'
 import { MeadowHelpSheet } from './meadow-help-sheet.js'
 import { MeadowPlant } from './meadow-plant.js'
+import { MeadowScene } from './meadow-scene.js'
 
 /** The same dots as « Mes verbes ». */
 const tenseDot: Readonly<Record<MasteryState, string>> = {
@@ -40,32 +42,33 @@ const groups: ReadonlyArray<VerbGroup> = ['auxiliary', 'first', 'second', 'third
 
 export function MeadowScreen() {
   const state = useProfileState()
-  if (state.data === undefined) return <Screen>{null}</Screen>
+  if (state.data === undefined) return <Screen bottom={<ChildTabBar />}>{null}</Screen>
   return <Meadow state={state.data} />
 }
 
 function Meadow({ state }: Readonly<{ state: ProfileState }>) {
   const { activeProfile } = useApp()
   const { count, t } = useI18n()
-  const navigate = useNavigate()
   const launch = useLaunch()
   const paths = activeProfile.learningPaths
   const meadow = useMeadow(state, paths)
   const [help, setHelp] = useState(false)
 
   return (
-    <Screen
-      top={
-        <NavigationBar
-          back={{ label: t('meadow.back'), onBack: () => void navigate({ to: '/garden' }) }}
-          title={t('meadow.title')}
-        />
-      }
-    >
-      <p className="flex items-center gap-1.5 self-start rounded-full bg-surface px-3 py-1 text-footnote font-semibold text-label-2">
-        <Sparkles aria-hidden className="size-3.5 text-sun" />
-        {count('meadow.butterfliesWeek', meadow.butterfliesThisWeek)}
-      </p>
+    <Screen bottom={<ChildTabBar />}>
+      <header className="flex flex-col gap-2 px-1 pt-4">
+        <h1 className="text-large-title font-extrabold">{t('meadow.title')}</h1>
+        <p className="flex items-center gap-1.5 self-start rounded-full bg-surface px-3 py-1 text-footnote font-semibold text-label-2">
+          <Sparkles aria-hidden className="size-3.5 text-sun" />
+          {count('meadow.butterfliesWeek', meadow.butterfliesThisWeek)}
+        </p>
+      </header>
+
+      <MeadowScene
+        character={characterOf(activeProfile.avatarId)}
+        todayKey={todayKey()}
+        verbs={meadow.verbs}
+      />
 
       {groups.map((group) => {
         const verbs = meadow.verbs.filter((verb) => verb.group === group)

@@ -82,10 +82,10 @@ describe('practice on the device', () => {
       }),
     )
     expect(outcome.pendingBefore).toBe(outcome.session.questions.length)
-    // The daily watering follows version 2 of the composition rules, and its answers say so.
-    expect(outcome.session.algorithmVersion).toBe('2')
+    // The daily watering follows version 3 of the composition rules, and its answers say so.
+    expect(outcome.session.algorithmVersion).toBe('3')
     expect(outcome.events.map(({ algorithmVersion }) => algorithmVersion)).toEqual(
-      outcome.session.questions.map(() => '2'),
+      outcome.session.questions.map(() => '3'),
     )
     expect(outcome.completion).toMatchObject({
       bloomNumber: 1,
@@ -452,6 +452,17 @@ describe('synchronisation', () => {
     )
     expect(merged.completedSessions).toBe(9)
     expect(merged.gardenBloomCount).toBe(7)
+  })
+
+  it('merges the meadow blooms, which an older server does not send', () => {
+    const local = { ...emptyState(), meadowBloomCount: 2, meadowRewardedDayKeys: ['a', 'b'] }
+    const older = mergeServerState(local, bootstrapFor('x', {}))
+    expect([older.meadowBloomCount, older.meadowRewardedDayKeys]).toEqual([2, ['a', 'b']])
+    const newer = mergeServerState(
+      local,
+      bootstrapFor('x', { meadowBloomCount: 3, meadowRewardedDayKeys: ['a', 'c'] }),
+    )
+    expect([newer.meadowBloomCount, newer.meadowRewardedDayKeys]).toEqual([3, ['a', 'b', 'c']])
   })
 })
 

@@ -404,15 +404,19 @@ describe('the new app', () => {
     await runtime.dispose()
   }, 40_000)
 
-  it('invites to water a thirsty verb, but not on the first visit', async () => {
+  it('offers the two gardens on Today, with the verb that waited longest', async () => {
     const day = 86_400_000
     const verbs = {
       ...defaultPaths,
       conjugation: { focus: null, tenses: ['present' as const], verbs: ['aller', 'finir'] },
     }
     const first = await openApp('first-visit', verbs)
-    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
-    expect(screen.queryByText('Tes verbes ont soif')).toBeNull()
+    expect(screen.getByRole('button', { name: 'Arroser le jardin des maths' })).toBeEnabled()
+    expect(screen.getByRole('button', { name: 'Arroser le pré des verbes' })).toBeEnabled()
+    expect(
+      screen.getByRole('heading', { name: '« aller » attend son premier arrosage' }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Pré' })).toBeInTheDocument()
     await first.runtime.dispose()
     cleanup()
 
@@ -433,15 +437,76 @@ describe('the new app', () => {
     }
     const { runtime } = await openApp('thirsty', verbs, { 'conj:finir:present': seen }, 3)
     expect(
-      await screen.findByText('Tes verbes ont soif', {}, { timeout: 5000 }),
+      await screen.findByRole('heading', { name: '« finir » a soif' }, { timeout: 5000 }),
     ).toBeInTheDocument()
-    expect(
-      screen.getByRole('heading', { name: '« finir » attend depuis 4 jours' }),
-    ).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: 'Arroser « finir »' })).toBeEnabled()
-    expect(screen.getByText('8 questions')).toBeInTheDocument()
+    expect(screen.getByText('Pas d’arrosage depuis 4 jours')).toBeInTheDocument()
     await runtime.dispose()
   }, 30_000)
+
+  it('waters the verb meadow, which blooms on its own', async () => {
+    const finir: Readonly<Record<string, string>> = {
+      elle: 'finit',
+      elles: 'finissent',
+      il: 'finit',
+      ils: 'finissent',
+      je: 'finis',
+      nous: 'finissons',
+      tu: 'finis',
+      vous: 'finissez',
+    }
+    const { runtime, server, user } = await openApp('meadow-watering', {
+      ...defaultPaths,
+      conjugation: { focus: null, tenses: ['present'], verbs: ['finir'] },
+    })
+    await user.click(screen.getByRole('button', { name: 'Arroser le pré des verbes' }))
+    let questions = 0
+    for (let index = 0; index < 40; index += 1) {
+      const next = screen.queryByRole('button', { name: 'Suivant' })
+      if (next !== null) {
+        await user.click(next)
+        continue
+      }
+      const spoken = await waitFor(
+        () =>
+          screen.queryByRole('button', { name: 'Voir mon pré' }) ??
+          screen.getByText(/^(\S+)… finir, au présent$/),
+        { timeout: 5000 },
+      )
+      if (spoken.textContent === 'Voir mon pré') break
+      const subject = /^(\S+)…/.exec(spoken.textContent)?.[1] ?? ''
+      questions += 1
+      await user.click(screen.getByRole('button', { name: finir[subject] ?? '' }))
+      expect(await screen.findByRole('button', { name: 'Suivant' })).toBeInTheDocument()
+    }
+    expect(questions).toBe(5)
+    expect(await screen.findByText('+1 arrosage du pré', {}, { timeout: 5000 })).toBeInTheDocument()
+    expect(screen.getByText('Le pré a fleuri')).toBeInTheDocument()
+    expect(screen.getByText('1 floraison dans le pré')).toBeInTheDocument()
+    // The garden did not bloom: only the maths watering waters it.
+    expect(screen.queryByText('+1 arrosage')).toBeNull()
+    await user.click(screen.getByRole('button', { name: 'Voir mon pré' }))
+    expect(
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: 'Le pré des verbes' },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument()
+    // The memory server's bootstrap keeps its own snapshot, so the scene may show the verbs to water.
+    expect(screen.getByRole('figure')).toBeInTheDocument()
+    await user.click(screen.getByRole('link', { name: 'Aujourd’hui' }))
+    expect(
+      await screen.findByRole('button', { name: 'Encore un peu de verbes' }, { timeout: 5000 }),
+    ).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Pré arrosé ♡' })).toBeInTheDocument()
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await waitFor(() =>
+      expect(
+        server.received.filter(({ sessionKind }) => sessionKind === 'meadow-watering'),
+      ).toHaveLength(5),
+    )
+    await runtime.dispose()
+  }, 40_000)
 
   it('sorts the verb meadow by group, with a butterfly on the verbs worked this week', async () => {
     const today = learningDayKey(Date.now(), deviceTimeZone())
@@ -472,16 +537,7 @@ describe('the new app', () => {
       { 'conj:finir:present': rooted },
     )
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
-    await user.click(screen.getByRole('link', { name: 'Jardin' }))
-    const rules = await screen.findByRole(
-      'dialog',
-      { name: 'Comment ça pousse' },
-      { timeout: 5000 },
-    )
-    await user.click(screen.getByRole('button', { name: 'J’ai compris' }))
-    await waitFor(() => expect(rules).toHaveAttribute('data-state', 'closed'))
-    expect(screen.getByText('Un papillon t’attend dans le pré des verbes')).toBeInTheDocument()
-    await user.click(screen.getByRole('button', { hidden: true, name: /Le pré des verbes/ }))
+    await user.click(screen.getByRole('link', { name: 'Pré' }))
 
     expect(
       await screen.findByRole(
