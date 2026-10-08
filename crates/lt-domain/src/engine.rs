@@ -881,7 +881,7 @@ const MAX_NEW_ITEMS: usize = 2;
 const MEADOW_MIN_QUESTIONS: usize = 5;
 
 /// Repeats `selection` in order until it holds `minimum` questions; an empty one stays empty.
-fn repeat_to<'a>(selection: Vec<&'a Candidate>, minimum: usize) -> Vec<&'a Candidate> {
+fn repeat_to(selection: Vec<&Candidate>, minimum: usize) -> Vec<&Candidate> {
     if selection.is_empty() || selection.len() >= minimum {
         return selection;
     }
