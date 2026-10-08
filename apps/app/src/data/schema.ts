@@ -25,6 +25,8 @@ export const SessionCompletion = Schema.Struct({
   gardenBloomEarned: Schema.Boolean,
   learningDayKey: Schema.String,
   learningInsight: SessionInsight,
+  /** Whether this meadow watering was the meadow's bloom of the day; absent before the meadow. */
+  meadowBloomEarned: Schema.optional(Schema.Boolean),
   /** The verb the session brought a butterfly to; absent on summaries written before. */
   meadowVisit: Schema.optional(Schema.NullOr(Schema.String)),
   sessionId: Schema.String,
@@ -39,6 +41,9 @@ export const ProfileState = Schema.Struct({
   gardenBloomCount: Int,
   gardenCollection: ApiSchema.GardenCollection,
   lastCompletion: Schema.NullOr(SessionCompletion),
+  /** The meadow's blooms, one per day with a meadow watering; absent on states saved before. */
+  meadowBloomCount: Schema.optional(Int),
+  meadowRewardedDayKeys: Schema.optional(Schema.Array(Schema.String)),
   practiceDayKeys: Schema.Array(Schema.String),
   rewardedDayKeys: Schema.Array(Schema.String),
   /** The snapshot when the active session started, to describe what it changed. */

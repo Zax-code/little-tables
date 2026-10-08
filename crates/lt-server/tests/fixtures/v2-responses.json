@@ -23,7 +23,7 @@
     "googleClientId": "client.apps.googleusercontent.com",
     "isAdmin": false,
     "onboardingRequired": true,
-    "sessionExpiresAt": 1793932446018
+    "sessionExpiresAt": 1794061137470
   },
   "authStatusSignedOut": {
     "authenticated": false,
@@ -35,7 +35,7 @@
     "sessionExpiresAt": null
   },
   "bootstrap": {
-    "completedSessions": 1,
+    "completedSessions": 2,
     "gardenBloomCount": 1,
     "gardenCollection": {
       "awardedFlowerIds": [],
@@ -43,23 +43,28 @@
       "catalogVersion": "1",
       "flowerOrder": [
         "rose-lotus",
-        "twilight-lupine",
-        "plum-snapdragon",
         "sunset-zinnia",
+        "blushing-peony",
+        "plum-snapdragon",
         "ruby-bleeding-heart",
-        "velvet-foxglove",
-        "blue-wisteria",
         "ivory-magnolia",
-        "blushing-peony"
+        "twilight-lupine",
+        "velvet-foxglove",
+        "blue-wisteria"
       ],
       "introductionSeen": false
     },
+    "meadowBloomCount": 1,
+    "meadowRewardedDayKeys": [
+      "2026-07-14"
+    ],
     "practiceDayKeys": [
+      "2026-07-14",
       "2026-07-25"
     ],
     "profile": {
       "avatarId": "fenna-fox",
-      "id": "ab5c7523-8d47-4c47-b930-7c9b9d686785",
+      "id": "61111b6b-b9d1-4fa5-9e6d-bec3a4588122",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -77,25 +82,29 @@
       "algorithmVersion": "1",
       "facts": {
         "7:8": {
-          "correctCount": 1,
-          "correctStreak": 1,
-          "difficulty": 0.48,
-          "dueAt": 1785086400000,
+          "correctCount": 2,
+          "correctStreak": 2,
+          "difficulty": 0.45999999999999996,
+          "dueAt": 1785172800000,
           "lastReviewedAt": 1785000004000,
           "lastReviewedDayKey": "2026-07-25",
           "lapseCount": 0,
           "latencyMs": 1500.0,
           "recallDayKeys": [
+            "2026-07-14",
             "2026-07-25"
           ],
           "successfulDayKeys": [
+            "2026-07-14",
             "2026-07-25"
           ],
-          "stabilityDays": 1.0,
+          "stabilityDays": 2.0,
           "state": "learning"
         }
       },
       "processedEventIds": [
+        "m0",
+        "m1",
         "a1",
         "a2"
       ]
@@ -104,7 +113,7 @@
   "createProfile": {
     "profile": {
       "avatarId": "malo-bear",
-      "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
+      "id": "9c54c7ea-bd54-4088-bacd-6f8da9b9f004",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -177,7 +186,7 @@
     "profiles": [
       {
         "avatarId": "fenna-fox",
-        "id": "ab5c7523-8d47-4c47-b930-7c9b9d686785",
+        "id": "61111b6b-b9d1-4fa5-9e6d-bec3a4588122",
         "learningPaths": {
           "enabledSkills": [],
           "focusSkill": null,
@@ -189,7 +198,7 @@
       },
       {
         "avatarId": "malo-bear",
-        "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
+        "id": "9c54c7ea-bd54-4088-bacd-6f8da9b9f004",
         "learningPaths": {
           "enabledSkills": [
             "column-subtraction"
@@ -219,7 +228,7 @@
   },
   "lockedPin": {
     "error": "parent_lock_locked",
-    "lockedUntil": 1791341347185
+    "lockedUntil": 1791470038621
   },
   "logout": {
     "status": "signed-out"
@@ -227,7 +236,7 @@
   "onboarding": {
     "profile": {
       "avatarId": "fenna-fox",
-      "id": "ab5c7523-8d47-4c47-b930-7c9b9d686785",
+      "id": "61111b6b-b9d1-4fa5-9e6d-bec3a4588122",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -241,7 +250,7 @@
   "parentLockStatus": {
     "configured": true,
     "lockedUntil": null,
-    "pinSalt": "2nuKnRFoDO5SUoPQRu1VBA"
+    "pinSalt": "rkjMnHggIkaOUxwCutabAA"
   },
   "parentLockUnset": {
     "configured": false,
@@ -249,7 +258,7 @@
     "pinSalt": null
   },
   "refresh": {
-    "sessionExpiresAt": 1793932447595,
+    "sessionExpiresAt": 1794061139024,
     "status": "renewed"
   },
   "removeEmail": {
@@ -257,7 +266,7 @@
     "removed": true
   },
   "removeProfile": {
-    "removedProfileId": "de51a1f0-c22e-4b4b-b617-bea9f5049e42"
+    "removedProfileId": "9c54c7ea-bd54-4088-bacd-6f8da9b9f004"
   },
   "resetParentLock": {
     "configured": false,
@@ -269,7 +278,7 @@
       "hash": "SHA-256",
       "iterations": 100000
     },
-    "pinSalt": "2nuKnRFoDO5SUoPQRu1VBA"
+    "pinSalt": "rkjMnHggIkaOUxwCutabAA"
   },
   "signIn": {
     "onboardingRequired": true,
@@ -284,7 +293,7 @@
   "updateLearningPaths": {
     "profile": {
       "avatarId": "malo-bear",
-      "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
+      "id": "9c54c7ea-bd54-4088-bacd-6f8da9b9f004",
       "learningPaths": {
         "enabledSkills": [
           "column-subtraction"
@@ -314,7 +323,7 @@
   "updateProfile": {
     "profile": {
       "avatarId": "malo-bear",
-      "id": "de51a1f0-c22e-4b4b-b617-bea9f5049e42",
+      "id": "9c54c7ea-bd54-4088-bacd-6f8da9b9f004",
       "learningPaths": {
         "enabledSkills": [],
         "focusSkill": null,
@@ -330,7 +339,7 @@
       "hash": "SHA-256",
       "iterations": 100000
     },
-    "pinSalt": "2nuKnRFoDO5SUoPQRu1VBA"
+    "pinSalt": "rkjMnHggIkaOUxwCutabAA"
   },
   "wrongPin": {
     "error": "wrong_pin",

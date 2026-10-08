@@ -7,7 +7,7 @@ import { useRef, useState } from 'react'
 
 import { useApp } from '../app/app-context.js'
 import { profileStateKey, useProfileState } from '../app/profile-state.js'
-import { todayKey, useGarden, useMeadow } from '../app/derived.js'
+import { todayKey, useGarden } from '../app/derived.js'
 import { characterOf } from '../characters/characters.js'
 import { ChildTabBar } from '../child/chrome.js'
 import { LocalStore } from '../data/local-store.js'
@@ -49,8 +49,6 @@ function Garden({ state }: Readonly<{ state: ProfileState }>) {
   const navigate = useNavigate()
   const queryClient = useQueryClient()
   const garden = useGarden(state)
-  const meadow = useMeadow(state, activeProfile.learningPaths)
-  const butterflies = meadow.butterfliesThisWeek
   const character = characterOf(activeProfile.avatarId)
   const pages = useRef<HTMLDivElement>(null)
   const [page, setPage] = useState(() =>
@@ -93,17 +91,8 @@ function Garden({ state }: Readonly<{ state: ProfileState }>) {
       <header className="flex flex-col gap-2 px-1 pt-4">
         <h1 className="text-large-title font-extrabold">{t('garden.title')}</h1>
         <p className="flex items-center gap-1.5 self-start rounded-full bg-surface px-3 py-1 text-footnote font-semibold text-label-2">
-          {butterflies > 0 ? (
-            <>
-              <Sparkles aria-hidden className="size-3.5 text-sun" />
-              {t('garden.momentButterfly')}
-            </>
-          ) : (
-            <>
-              <Bug aria-hidden className="size-3.5 text-danger" />
-              {t(ambientOfDay(todayKey()))}
-            </>
-          )}
+          <Bug aria-hidden className="size-3.5 text-danger" />
+          {t(ambientOfDay(todayKey()))}
         </p>
       </header>
 
@@ -141,19 +130,6 @@ function Garden({ state }: Readonly<{ state: ProfileState }>) {
       </section>
 
       <ListGroup>
-        {meadow.verbs.length === 0 ? null : (
-          <ListRow
-            detail={count('garden.meadowDetail', butterflies)}
-            leading={
-              <IconTile className="bg-sun">
-                <Flower2 aria-hidden />
-              </IconTile>
-            }
-            onClick={() => void navigate({ to: '/garden/meadow' })}
-            title={t('garden.meadowRow')}
-            trailing="chevron"
-          />
-        )}
         {plant === null ? null : (
           <ListRow
             detail={`${Math.min(plant.bloomsEarned, plant.bloomsRequired)}/${plant.bloomsRequired}`}

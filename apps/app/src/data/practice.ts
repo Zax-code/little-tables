@@ -23,15 +23,24 @@ export const policies = {
     focusTable: table,
     questionCount: 8,
   }),
-  /** At most two new items per watering (version 2, `docs/rewrite/TECHNICAL_SPEC.md` §3.4). */
+  /**
+   * The garden's watering: at most two new items (`docs/rewrite/TECHNICAL_SPEC.md` §3.4), and
+   * since version 3 no verb, which the meadow waters (`docs/conjugation/DEUX_JARDINS.md`).
+   */
   daily: (paths: LearningPathSettings): PracticePolicy => ({
-    algorithmVersion: '2',
+    algorithmVersion: '3',
     curriculum: { paths },
     kind: 'daily-watering',
   }),
   division: (): PracticePolicy => ({
     curriculum: { packs: ['inverse-division'] },
     questionCount: 6,
+  }),
+  /** The meadow's watering: the ticked verbs alone, composed like the garden's. */
+  meadow: (paths: LearningPathSettings): PracticePolicy => ({
+    algorithmVersion: '3',
+    curriculum: { paths },
+    kind: 'meadow-watering',
   }),
   quick: (paths: LearningPathSettings): PracticePolicy => ({
     curriculum: { paths },
@@ -156,10 +165,16 @@ export const completeSession = (profileId: string, now = Date.now()) =>
     const finalEvent = events[events.length - 1]
     if (finalQuestion === undefined || finalEvent === undefined) return null
     const learningDayKey = finalEvent.learningDayKey ?? new Date(now).toISOString().slice(0, 10)
+    const completions = [{ learningDayKey, sessionKind: session.kind }]
     const ledger = yield* engine.deriveGardenRewardLedger({
-      completions: [{ learningDayKey, sessionKind: session.kind }],
+      completions,
       gardenBloomCount: current.gardenBloomCount,
       rewardedDayKeys: current.rewardedDayKeys,
+    })
+    const meadowLedger = yield* engine.deriveMeadowRewardLedger({
+      completions,
+      gardenBloomCount: current.meadowBloomCount ?? 0,
+      rewardedDayKeys: current.meadowRewardedDayKeys ?? [],
     })
     const finalExpected =
       finalQuestion.exercise === undefined
@@ -180,6 +195,7 @@ export const completeSession = (profileId: string, now = Date.now()) =>
       gardenBloomEarned: ledger.gardenBloomsEarned === 1,
       learningDayKey,
       learningInsight,
+      meadowBloomEarned: meadowLedger.gardenBloomsEarned === 1,
       meadowVisit,
       sessionId: session.id,
       sessionKind: session.kind,
@@ -192,6 +208,8 @@ export const completeSession = (profileId: string, now = Date.now()) =>
         completedSessions: state.completedSessions + 1,
         gardenBloomCount: ledger.gardenBloomCount,
         lastCompletion: completion,
+        meadowBloomCount: meadowLedger.gardenBloomCount,
+        meadowRewardedDayKeys: meadowLedger.rewardedDayKeys,
         rewardedDayKeys: ledger.rewardedDayKeys,
         sessionStartSnapshot: null,
       },
