@@ -132,10 +132,15 @@ const routeTree = root.addChildren([
   ]),
 ])
 
-export const router = createRouter({ defaultPreload: 'intent', routeTree, scrollRestoration: true })
+/**
+ * A router for each mount of the family's space: a navigation left pending when the space closes
+ * (the app reopening, a test ending) must not hold the next one.
+ */
+export const createAppRouter = () =>
+  createRouter({ defaultPreload: 'intent', routeTree, scrollRestoration: true })
 
 declare module '@tanstack/react-router' {
   interface Register {
-    router: typeof router
+    router: ReturnType<typeof createAppRouter>
   }
 }

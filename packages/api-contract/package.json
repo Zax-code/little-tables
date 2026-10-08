@@ -15,8 +15,8 @@
     "typecheck": "tsc -p tsconfig.json"
   },
   "dependencies": {
-    "@effect/platform": "^0.96.2",
+    "@effect/platform": "^0.96.3",
     "@little-tables/engine": "workspace:*",
-    "effect": "^3.21.4"
+    "effect": "^3.22.2"
   }
 }
