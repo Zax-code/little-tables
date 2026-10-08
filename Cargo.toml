@@ -48,5 +48,12 @@ lto = true
 codegen-units = 1
 strip = true
 
-[profile.release.package.lt-domain-wasm]
+# The browser engine: the whole engine optimised for size, the server keeps `release`.
+[profile.wasm-release]
+inherits = "release"
+
+[profile.wasm-release.package.lt-domain]
+opt-level = "s"
+
+[profile.wasm-release.package.lt-domain-wasm]
 opt-level = "s"

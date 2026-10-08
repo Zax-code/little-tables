@@ -21,9 +21,10 @@ use crate::garden::{
     GardenInput, LedgerTotals, SessionCompletionDay, derive_garden_progress,
     derive_garden_reward_ledger, derive_rewards, garden_flower_ids, merge_garden_reward_ledgers,
 };
+use crate::meadow::{MeadowInput, derive_meadow, meadow_visit};
 use crate::model::{
-    AttemptEvent, CurriculumPolicy, Exercise, LearningPathSettings, LearningSnapshot, Millis,
-    PracticeAnswer, PracticePolicy, PracticeQuestion, PracticeSession,
+    AttemptEvent, ConjugationSettings, CurriculumPolicy, Exercise, LearningPathSettings,
+    LearningSnapshot, Millis, PracticeAnswer, PracticePolicy, PracticeQuestion, PracticeSession,
 };
 use crate::paths::{derive_open_skills, derive_path_progress};
 use crate::rhythm::{ActiveSessionProgress, derive_practice_rhythm};
@@ -124,6 +125,20 @@ struct PathsInput {
     settings: LearningPathSettings,
     snapshot: LearningSnapshot,
     tables_acquired: bool,
+}
+
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+struct MeadowData {
+    #[serde(default)]
+    settings: Option<ConjugationSettings>,
+    snapshot: LearningSnapshot,
+    today_key: String,
+}
+
+#[derive(Deserialize)]
+struct MeadowVisitInput {
+    attempts: Vec<AttemptEvent>,
 }
 
 #[derive(Deserialize)]
@@ -321,6 +336,18 @@ pub fn dispatch(operation: &str, input: Value, day_keys: &dyn DayKeys) -> Result
         "verbTable" => {
             let input: VerbInput = parse(input)?;
             output(&crate::conjugation::verb_table(&input.verb))
+        }
+        "deriveMeadow" => {
+            let input: MeadowData = parse(input)?;
+            output(&derive_meadow(&MeadowInput {
+                settings: input.settings.as_ref(),
+                snapshot: &input.snapshot,
+                today_key: &input.today_key,
+            }))
+        }
+        "meadowVisit" => {
+            let input: MeadowVisitInput = parse(input)?;
+            output(&meadow_visit(&input.attempts))
         }
         "validateLearningPaths" => {
             let settings: LearningPathSettings = parse(input)?;
