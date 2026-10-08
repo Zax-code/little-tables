@@ -301,6 +301,29 @@ async fn serves_the_new_app_contract() {
         )
         .await;
     assert_eq!(iso.status, StatusCode::BAD_REQUEST);
+    // A meadow watering, outside the insights' week, blooms in the meadow and not in the garden.
+    let meadow: Vec<Value> = (0..2)
+        .map(|sequence| {
+            let mut event = attempt(
+                &format!("m{sequence}"),
+                "s3",
+                sequence,
+                1_784_000_000_000 + sequence * 5_000,
+            );
+            event["learningDayKey"] = json!("2026-07-14");
+            event["sessionKind"] = json!("meadow-watering");
+            event["algorithmVersion"] = json!("3");
+            event
+        })
+        .collect();
+    let watered = client
+        .call(
+            Method::POST,
+            &format!("/api/v2/profiles/{lea}/attempts"),
+            Some(json!({ "attempts": meadow })),
+        )
+        .await;
+    assert_eq!(watered.body["accepted"], json!(["m0", "m1"]));
 
     let bootstrap = client
         .record(
@@ -359,8 +382,11 @@ async fn serves_the_new_app_contract() {
             .await;
         assert_eq!(refused.status, StatusCode::BAD_REQUEST, "{query}");
     }
-    assert_eq!(bootstrap["completedSessions"], 1);
+    // The daily watering and the meadow watering.
+    assert_eq!(bootstrap["completedSessions"], 2);
     assert_eq!(bootstrap["gardenBloomCount"], 1);
+    assert_eq!(bootstrap["meadowBloomCount"], 1);
+    assert_eq!(bootstrap["meadowRewardedDayKeys"], json!(["2026-07-14"]));
     assert_eq!(bootstrap["profile"]["name"], "Léa");
     assert!(bootstrap["snapshot"]["facts"]["7:8"]["dueAt"].is_i64());
     client

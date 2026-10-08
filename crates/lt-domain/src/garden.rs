@@ -84,6 +84,42 @@ pub fn derive_garden_reward_ledger(
     garden_bloom_count: f64,
     rewarded_day_keys: &[String],
 ) -> GardenRewardLedger {
+    // Extra practice and the meadow's watering never water the garden; a completion without a
+    // kind predates the kinds and was a daily watering.
+    derive_ledger(
+        completions,
+        |kind| {
+            !matches!(
+                kind,
+                Some(SessionKind::ExtraPractice | SessionKind::MeadowWatering)
+            )
+        },
+        garden_bloom_count,
+        rewarded_day_keys,
+    )
+}
+
+/// The meadow's blooms: one per learning day with a meadow watering, as for the garden. The
+/// server derives them from the events alone; the app adds a completion to what it knows.
+pub fn derive_meadow_reward_ledger(
+    completions: &[SessionCompletionDay],
+    meadow_bloom_count: f64,
+    rewarded_day_keys: &[String],
+) -> GardenRewardLedger {
+    derive_ledger(
+        completions,
+        |kind| kind == Some(SessionKind::MeadowWatering),
+        meadow_bloom_count,
+        rewarded_day_keys,
+    )
+}
+
+fn derive_ledger(
+    completions: &[SessionCompletionDay],
+    blooms: impl Fn(Option<SessionKind>) -> bool,
+    garden_bloom_count: f64,
+    rewarded_day_keys: &[String],
+) -> GardenRewardLedger {
     let mut rewarded: Vec<String> = Vec::new();
     for key in rewarded_day_keys {
         if !rewarded.contains(key) {
@@ -98,9 +134,7 @@ pub fn derive_garden_reward_ledger(
     let mut bloom_count = floor.max(rewarded.len() as i64).max(0);
     let mut earned = 0;
     for completion in completions {
-        if completion.session_kind == Some(SessionKind::ExtraPractice)
-            || rewarded.contains(&completion.learning_day_key)
-        {
+        if !blooms(completion.session_kind) || rewarded.contains(&completion.learning_day_key) {
             continue;
         }
         rewarded.push(completion.learning_day_key.clone());

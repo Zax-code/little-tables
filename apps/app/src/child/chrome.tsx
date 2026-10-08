@@ -47,21 +47,28 @@ export function ChildTopBar() {
 
 export function ChildTabBar() {
   const { t } = useI18n()
+  const { activeProfile } = useApp()
   const { pathname } = useLocation()
+  // The meadow has its tab as soon as a parent ticked a verb.
+  const meadow = (activeProfile.learningPaths.conjugation?.verbs.length ?? 0) > 0
   const tabs = [
     { icon: <TabIcon name="home" />, label: t('tabs.today'), to: '/' },
     { icon: <TabIcon name="garden" />, label: t('tabs.garden'), to: '/garden' },
+    ...(meadow
+      ? [{ icon: <TabIcon name="meadow" />, label: t('tabs.meadow'), to: '/garden/meadow' }]
+      : []),
     { icon: <TabIcon name="progress" />, label: t('tabs.progress'), to: '/progress' },
   ] as const
+  const current = (to: string) =>
+    to === '/'
+      ? pathname === '/'
+      : to === '/garden'
+        ? pathname.startsWith('/garden') && !pathname.startsWith('/garden/meadow')
+        : pathname.startsWith(to)
   return (
     <TabBar label={t('tabs.label')}>
       {tabs.map((tab) => (
-        <TabBarItem
-          active={tab.to === '/' ? pathname === '/' : pathname.startsWith(tab.to)}
-          icon={tab.icon}
-          key={tab.to}
-          label={tab.label}
-        >
+        <TabBarItem active={current(tab.to)} icon={tab.icon} key={tab.to} label={tab.label}>
           <Link to={tab.to} />
         </TabBarItem>
       ))}

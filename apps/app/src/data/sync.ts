@@ -31,6 +31,24 @@ export const mergeLedgers = (
   return { gardenBloomCount: Math.max(highest, rewardedDayKeys.length), rewardedDayKeys }
 }
 
+/** The meadow's ledger merged the same way; the server may not know the meadow yet. */
+const meadowLedger = (local: ProfileState, server: Bootstrap) => {
+  const ledger = mergeLedgers([
+    {
+      gardenBloomCount: local.meadowBloomCount ?? 0,
+      rewardedDayKeys: local.meadowRewardedDayKeys ?? [],
+    },
+    {
+      gardenBloomCount: server.meadowBloomCount ?? 0,
+      rewardedDayKeys: server.meadowRewardedDayKeys ?? [],
+    },
+  ])
+  return {
+    meadowBloomCount: ledger.gardenBloomCount,
+    meadowRewardedDayKeys: ledger.rewardedDayKeys,
+  }
+}
+
 /**
  * The device state after the server's: the server's snapshot and collection win (every local
  * event has reached it), counts and days never go backwards, the session in progress stays.
@@ -46,6 +64,7 @@ export const mergeServerState = (local: ProfileState, server: Bootstrap): Profil
       introductionSeen:
         server.gardenCollection.introductionSeen || local.gardenCollection.introductionSeen,
     },
+    ...meadowLedger(local, server),
     practiceDayKeys: [...new Set([...local.practiceDayKeys, ...server.practiceDayKeys])].sort(),
     rewardedDayKeys: ledger.rewardedDayKeys,
     snapshot: server.snapshot,
