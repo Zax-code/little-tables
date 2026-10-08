@@ -10,6 +10,7 @@ import {
   type Bootstrap,
   type ChildProfile,
 } from '@little-tables/api-contract'
+import { deviceTimeZone, learningDayKey } from '@little-tables/engine'
 import type { AttemptEvent } from '@little-tables/engine/schema'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
@@ -212,6 +213,8 @@ describe('the new app', () => {
     // happy-dom never ends the sheet's closing animation; its state is enough here.
     await waitFor(() => expect(rules).toHaveAttribute('data-state', 'closed'))
     expect(screen.getByRole('heading', { hidden: true, name: 'Mon jardin' })).toBeInTheDocument()
+    // Without a ticked verb, the garden has no meadow.
+    expect(screen.queryByRole('button', { hidden: true, name: /Le pré des verbes/ })).toBeNull()
 
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
     await waitFor(() => expect(server.received.length).toBeGreaterThanOrEqual(5))
@@ -393,6 +396,73 @@ describe('the new app', () => {
     })
     await runtime.dispose()
   }, 40_000)
+
+  it('sorts the verb meadow by group, with a butterfly on the verbs worked this week', async () => {
+    const today = learningDayKey(Date.now(), deviceTimeZone())
+    const rooted = {
+      correctCount: 6,
+      correctStreak: 3,
+      difficulty: 0.3,
+      dueAt: null,
+      lapseCount: 0,
+      lastReviewedAt: Date.now(),
+      lastReviewedDayKey: today,
+      latencyMs: 2000,
+      recallDayKeys: [],
+      stabilityDays: 8,
+      state: 'fluent' as const,
+      successfulDayKeys: [today],
+    }
+    const { runtime, user } = await openApp(
+      'meadow',
+      {
+        ...defaultPaths,
+        conjugation: {
+          focus: null,
+          tenses: ['present'],
+          verbs: ['venir', 'finir', 'chanter', 'être', 'danser', 'avoir'],
+        },
+      },
+      { 'conj:finir:present': rooted },
+    )
+    await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
+    await user.click(screen.getByRole('link', { name: 'Jardin' }))
+    const rules = await screen.findByRole(
+      'dialog',
+      { name: 'Comment ça pousse' },
+      { timeout: 5000 },
+    )
+    await user.click(screen.getByRole('button', { name: 'J’ai compris' }))
+    await waitFor(() => expect(rules).toHaveAttribute('data-state', 'closed'))
+    expect(screen.getByText('Un papillon t’attend dans le pré des verbes')).toBeInTheDocument()
+    await user.click(screen.getByRole('button', { hidden: true, name: /Le pré des verbes/ }))
+
+    expect(
+      await screen.findByRole(
+        'heading',
+        { level: 1, name: 'Le pré des verbes' },
+        { timeout: 5000 },
+      ),
+    ).toBeInTheDocument()
+    expect(screen.getByText('1 papillon est venu cette semaine')).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('heading', { level: 2 }).map(({ textContent }) => textContent),
+    ).toEqual(['Être et avoir', '1er groupe', '2e groupe', '3e groupe'])
+    const cards = screen.getAllByRole('button', { name: /^\S+ : Présent/ })
+    expect(cards.map((card) => card.getAttribute('aria-label')?.split(' : ')[0])).toEqual([
+      'être',
+      'avoir',
+      'chanter',
+      'danser',
+      'finir',
+      'venir',
+    ])
+    const finir = cards[4]
+    expect(finir?.getAttribute('aria-label')).toMatch(/un papillon est venu$/)
+    expect(finir?.getAttribute('data-stage')).toBe('mature')
+    expect(cards[0]?.getAttribute('data-stage')).toBe('seed')
+    await runtime.dispose()
+  }, 30_000)
 
   it('keeps the parent space behind a code chosen on the first visit', async () => {
     const { runtime, user } = await openApp('parent-code')

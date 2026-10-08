@@ -41,6 +41,7 @@ const HerbariumScreen = lazyRouteComponent(
   () => import('./garden/herbarium-screen.js'),
   'HerbariumScreen',
 )
+const MeadowScreen = lazyRouteComponent(() => import('./meadow/meadow-screen.js'), 'MeadowScreen')
 const ProgressScreen = lazyRouteComponent(
   () => import('./progress/progress-screen.js'),
   'ProgressScreen',
@@ -112,6 +113,7 @@ const routeTree = root.addChildren([
   route('/', TodayScreen),
   route('/garden', GardenScreen),
   route('/garden/herbarium', HerbariumScreen),
+  route('/garden/meadow', MeadowScreen),
   route('/progress', ProgressScreen),
   route('/progress/tables/$table', TableScreen),
   route('/progress/paths', PathsScreen),
