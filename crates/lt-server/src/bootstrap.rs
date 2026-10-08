@@ -6,8 +6,8 @@
 
 use lt_domain::garden::{
     GARDEN_BLOOMS_PER_FLOWER, GardenInput, GardenPlantStage, GardenReward, LedgerTotals,
-    SessionCompletionDay, derive_garden_progress, derive_garden_reward_ledger, derive_rewards,
-    garden_flower_ids, merge_garden_reward_ledgers,
+    SessionCompletionDay, derive_garden_progress, derive_garden_reward_ledger,
+    derive_meadow_reward_ledger, derive_rewards, garden_flower_ids, merge_garden_reward_ledgers,
 };
 use lt_domain::model::{LearningSnapshot, Millis};
 use lt_store::{GardenRecord, Store, personalized_flower_order};
@@ -43,6 +43,9 @@ pub struct ProfileState {
     pub collection: GardenRecord,
     pub completed_sessions: usize,
     pub garden_bloom_count: i64,
+    /// The meadow's blooms, derived from its waterings alone: it has no imported history.
+    pub meadow_bloom_count: i64,
+    pub meadow_rewarded_day_keys: Vec<String>,
     pub practice_day_keys: Vec<String>,
     pub rewarded_day_keys: Vec<String>,
     pub rewards: Vec<GardenReward>,
@@ -79,6 +82,7 @@ pub async fn profile_state(
     practice_day_keys.dedup();
 
     let derived = derive_garden_reward_ledger(&completions, 0.0, &[]);
+    let meadow = derive_meadow_reward_ledger(&completions, 0.0, &[]);
     let flower_ids = garden_flower_ids();
     let prefix_length = if derived.garden_bloom_count == 0 {
         0
@@ -132,6 +136,8 @@ pub async fn profile_state(
         collection,
         completed_sessions: completed_sessions.len(),
         garden_bloom_count: rewards.garden_bloom_count,
+        meadow_bloom_count: meadow.garden_bloom_count,
+        meadow_rewarded_day_keys: meadow.rewarded_day_keys,
         practice_day_keys,
         rewarded_day_keys: rewards.rewarded_day_keys,
         rewards: garden_rewards,

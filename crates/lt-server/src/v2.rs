@@ -592,6 +592,8 @@ async fn bootstrap(
         "completedSessions": profile_state.completed_sessions,
         "gardenBloomCount": profile_state.garden_bloom_count,
         "gardenCollection": collection_json(&profile_state.collection),
+        "meadowBloomCount": profile_state.meadow_bloom_count,
+        "meadowRewardedDayKeys": profile_state.meadow_rewarded_day_keys,
         "practiceDayKeys": profile_state.practice_day_keys,
         "profile": profile_json(&profile),
         "rewardedDayKeys": profile_state.rewarded_day_keys,
