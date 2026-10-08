@@ -18,6 +18,7 @@ import { ChildTabBar, ChildTopBar } from './chrome.js'
 import { useLaunch } from './launch.js'
 import { NewPathsSheet } from './new-paths-sheet.js'
 import { OtherSessionsSheet } from './other-sessions-sheet.js'
+import { ThirstCard } from './thirst-card.js'
 import { weekDays } from './week.js'
 
 export function TodayScreen() {
@@ -127,6 +128,9 @@ function Today({ state }: Readonly<{ state: ProfileState }>) {
         <h1 className="text-large-title font-extrabold text-balance">{heading}</h1>
         <p className="text-callout text-label-2 text-pretty">{t(copyKey)}</p>
       </header>
+      {session === null && !firstVisit ? (
+        <ThirstCard paths={activeProfile.learningPaths} state={state} />
+      ) : null}
       {session !== null ? (
         <section className="flex items-center gap-4 rounded-card bg-surface p-4">
           <ProgressRing
