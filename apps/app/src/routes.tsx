@@ -134,10 +134,16 @@ const routeTree = root.addChildren([
 
 /**
  * A router for each mount of the family's space: a navigation left pending when the space closes
- * (the app reopening, a test ending) must not hold the next one.
+ * (the app reopening, a test ending) must not hold the next one. Every screen scrolls in its own
+ * `main`: a new screen opens at its top, and only going back restores where it was.
  */
 export const createAppRouter = () =>
-  createRouter({ defaultPreload: 'intent', routeTree, scrollRestoration: true })
+  createRouter({
+    defaultPreload: 'intent',
+    routeTree,
+    scrollRestoration: true,
+    scrollToTopSelectors: ['main'],
+  })
 
 declare module '@tanstack/react-router' {
   interface Register {
