@@ -16,7 +16,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { act, cleanup, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { Effect, Layer } from 'effect'
-import { afterEach, beforeAll, describe, expect, it } from 'vitest'
+import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
 
 import { createDevice } from './data/device.js'
 import { emptyState, LocalStore } from './data/local-store.js'
@@ -110,6 +110,11 @@ const memoryServer = (
         return { profile: child }
       }),
     profiles: () => Effect.sync(() => ({ profiles: [child] })),
+    updateLearningPaths: (_profileId: string, next: ChildProfile['learningPaths']) =>
+      Effect.sync(() => {
+        child = { ...child, learningPaths: next }
+        return { profile: child }
+      }),
     refresh: () =>
       Effect.succeed({ sessionExpiresAt: Date.now() + 86_400_000, status: 'renewed' as const }),
     sync: (_profileId: string, attempts: ReadonlyArray<AttemptEvent>) =>
@@ -118,7 +123,11 @@ const memoryServer = (
         return { accepted: attempts.map(({ eventId }) => eventId), duplicates: [], rejected: [] }
       }),
   } as unknown as ApiClientService
-  return { layer: Layer.succeed(ApiClient, service), received }
+  return {
+    layer: Layer.succeed(ApiClient, service),
+    learningPaths: () => child.learningPaths,
+    received,
+  }
 }
 
 const memoryStorage = () => {
@@ -597,5 +606,37 @@ describe('the new app', () => {
       await screen.findByRole('heading', { name: 'Parents' }, { timeout: 5000 }),
     ).toBeInTheDocument()
     await runtime.dispose()
+  }, 30_000)
+
+  it('opens the verbs and their tenses from the child’s screen too', async () => {
+    // The search index stays out of the test: the sections are enough.
+    const fetchIndex = vi
+      .spyOn(window, 'fetch')
+      .mockResolvedValue(new Response(JSON.stringify({ verbs: [] })))
+    const { runtime, server, user } = await openApp('conjugation-entry')
+    await user.click(screen.getByRole('button', { name: 'Espace parents' }))
+    await screen.findByRole('heading', { name: 'Choisis un code parent' }, { timeout: 5000 })
+    for (const digit of '24682468') await user.click(screen.getByRole('button', { name: digit }))
+    await screen.findByRole('heading', { name: 'Parents' }, { timeout: 5000 })
+
+    await user.click(screen.getByRole('button', { name: /Léa/ }))
+    await user.click(await screen.findByRole('button', { name: /Conjugaison.*Aucun verbe coché/ }))
+    expect(await screen.findByRole('heading', { name: 'Conjugaison' })).toBeInTheDocument()
+    await user.click(screen.getByRole('switch', { name: 'Imparfait' }))
+    await user.click(screen.getByRole('switch', { name: 'venir' }))
+    await waitFor(() =>
+      expect(server.learningPaths().conjugation).toEqual({
+        focus: null,
+        tenses: ['imperfect'],
+        verbs: ['venir'],
+      }),
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Léa' }))
+    expect(
+      await screen.findByRole('button', { name: /Conjugaison.*1 verbe · 1 temps/ }),
+    ).toBeInTheDocument()
+    await runtime.dispose()
+    fetchIndex.mockRestore()
   }, 30_000)
 })

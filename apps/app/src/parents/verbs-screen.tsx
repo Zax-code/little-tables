@@ -12,6 +12,7 @@ import {
   Button,
   FormBreakdown,
   ListGroup,
+  ListRow,
   NavigationBar,
   Screen,
   SegmentedControl,
@@ -31,13 +32,53 @@ import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey } from '../i18n/translator.js'
 import { displayVerb, withSubject } from '../session/format.js'
 import { noConjugation, useChild, usePathSettings } from './learning-paths.js'
-import { loadVerbIndex, programmeVerbs, searchVerbs, sections } from './verb-catalogue.js'
+import {
+  loadVerbIndex,
+  programmeVerbs,
+  searchVerbs,
+  sections,
+  toggleTense,
+} from './verb-catalogue.js'
 
 export function VerbCatalogueScreen() {
+  const { t } = useI18n()
   const child = useChild()
   if (child === null) return null
-  return <Catalogue child={child} key={child.id} />
+  return (
+    <Catalogue
+      back={{ label: t('school.title'), to: '/parents/children/$profileId/school' }}
+      child={child}
+      key={child.id}
+      title={t('verbs.title')}
+    />
+  )
 }
+
+/** The same catalogue reached from the child's screen, the tenses ticked above the verbs. */
+export function ConjugationScreen() {
+  const { t } = useI18n()
+  const child = useChild()
+  if (child === null) return null
+  return (
+    <Catalogue
+      back={{ label: child.name, to: '/parents/children/$profileId' }}
+      child={child}
+      key={child.id}
+      title={t('school.conjugation')}
+      withTenses
+    />
+  )
+}
+
+type CatalogueProps = Readonly<{
+  back: Readonly<{
+    label: string
+    to: '/parents/children/$profileId' | '/parents/children/$profileId/school'
+  }>
+  child: ChildProfile
+  title: string
+  withTenses?: boolean
+}>
 
 /** The engine's table of a verb, or `null` when it cannot conjugate it. */
 function useVerbTable(verb: string | null): VerbTable | null {
@@ -51,7 +92,7 @@ function useVerbTable(verb: string | null): VerbTable | null {
   )
 }
 
-function Catalogue({ child }: Readonly<{ child: ChildProfile }>) {
+function Catalogue({ back, child, title, withTenses = false }: CatalogueProps) {
   const { count, t } = useI18n()
   const navigate = useNavigate()
   const searchField = useId()
@@ -131,17 +172,19 @@ function Catalogue({ child }: Readonly<{ child: ChildProfile }>) {
       top={
         <NavigationBar
           back={{
-            label: t('school.title'),
-            onBack: () =>
-              void navigate({
-                params: { profileId: child.id },
-                to: '/parents/children/$profileId/school',
-              }),
+            label: back.label,
+            onBack: () => void navigate({ params: { profileId: child.id }, to: back.to }),
           }}
-          title={t('verbs.title')}
+          title={title}
         />
       }
     >
+      {withTenses ? (
+        <TenseGroup
+          onToggle={(tense) => save(toggleTense(conjugation, tense))}
+          ticked={conjugation.tenses}
+        />
+      ) : null}
       <div className="relative">
         <Search
           aria-hidden
@@ -211,6 +254,34 @@ function Catalogue({ child }: Readonly<{ child: ChildProfile }>) {
         verb={opened}
       />
     </Screen>
+  )
+}
+
+type TenseGroupProps = Readonly<{
+  onToggle: (tense: Tense) => void
+  ticked: ReadonlyArray<Tense>
+}>
+
+/** The four tenses, each with its switch. */
+function TenseGroup({ onToggle, ticked }: TenseGroupProps) {
+  const { t } = useI18n()
+  const on = new Set(ticked)
+  return (
+    <ListGroup footer={t('conjugation.tensesCopy')} title={t('conjugation.tenses')}>
+      {tenses.map((tense) => (
+        <ListRow
+          accessory={
+            <Switch
+              aria-label={t(`conj.tenseTitle.${tense}`)}
+              checked={on.has(tense)}
+              onCheckedChange={() => onToggle(tense)}
+            />
+          }
+          key={tense}
+          title={t(`conj.tenseTitle.${tense}`)}
+        />
+      ))}
+    </ListGroup>
   )
 }
 

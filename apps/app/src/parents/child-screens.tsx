@@ -1,7 +1,6 @@
 /** E3, E4, E6 and E9: one child's profile, their school, a new child, removing a child. */
 import type { ChildProfile, ProfileChanges } from '@little-tables/api-contract'
 import {
-  maxConjugationVerbs,
   tenses,
   type ConjugationSettings,
   type SkillId,
@@ -53,6 +52,7 @@ import {
   remindedProfile,
   remindersSupported,
 } from './reminders.js'
+import { toggleTense } from './verb-catalogue.js'
 
 /** Replaces one child in the family after the server answered. */
 function useReplaceChild() {
@@ -111,7 +111,7 @@ export function ChildScreen() {
 
 function Child({ child }: Readonly<{ child: ChildProfile }>) {
   const { family, preferences, runtime, setProfiles } = useApp()
-  const { clock, t } = useI18n()
+  const { clock, count, t } = useI18n()
   const navigate = useNavigate()
   const api = useApi()
   const queryClient = useQueryClient()
@@ -125,6 +125,7 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
   const [reminderBusy, setReminderBusy] = useState(false)
   const [choosingTime, setChoosingTime] = useState(false)
   const character = characterOf(child.avatarId)
+  const conjugationSummary = child.learningPaths.conjugation ?? noConjugation
 
   const save = (changes: ProfileChanges) =>
     api((client) => client.updateProfile(child.id, changes))
@@ -229,6 +230,26 @@ function Child({ child }: Readonly<{ child: ChildProfile }>) {
             })
           }
           title={t('child.school')}
+          trailing="chevron"
+        />
+        <ListRow
+          leading={
+            <IconTile className="bg-leaf">
+              <CaseLower aria-hidden />
+            </IconTile>
+          }
+          onClick={() =>
+            void navigate({
+              params: { profileId: child.id },
+              to: '/parents/children/$profileId/conjugation',
+            })
+          }
+          subtitle={
+            conjugationSummary.verbs.length === 0
+              ? t('child.conjugationNone')
+              : `${count('verbs.count', conjugationSummary.verbs.length)} · ${count('child.conjugationTenses', conjugationSummary.tenses.length)}`
+          }
+          title={t('school.conjugation')}
           trailing="chevron"
         />
         <ListRow
@@ -367,25 +388,7 @@ function SchoolSettings({ child }: Readonly<{ child: ChildProfile }>) {
     })
   const setConjugation = (next: ConjugationSettings) => persist({ ...settings, conjugation: next })
   const ticked = new Set(conjugation.tenses)
-  const toggleTense = (tense: Tense) => {
-    const on = !ticked.has(tense)
-    const chosen = on
-      ? tenses.filter((candidate) => candidate === tense || ticked.has(candidate))
-      : conjugation.tenses.filter((candidate) => candidate !== tense)
-    // The compound past is half auxiliary: être and avoir come with it.
-    const auxiliaries =
-      on && tense === 'compound-past'
-        ? ['être', 'avoir'].filter((verb) => !conjugation.verbs.includes(verb))
-        : []
-    const verbs = [...conjugation.verbs, ...auxiliaries].slice(0, maxConjugationVerbs)
-    const focus =
-      verbFocus?.tense !== null &&
-      verbFocus?.tense !== undefined &&
-      !chosen.includes(verbFocus.tense)
-        ? { ...verbFocus, tense: null }
-        : verbFocus
-    setConjugation({ focus, tenses: chosen, verbs })
-  }
+  const tickTense = (tense: Tense) => setConjugation(toggleTense(conjugation, tense))
   const focusOn = (skill: SkillId | null) =>
     persist({
       ...settings,
@@ -485,7 +488,7 @@ function SchoolSettings({ child }: Readonly<{ child: ChildProfile }>) {
               <Switch
                 aria-label={t(`conj.tenseTitle.${tense}`)}
                 checked={ticked.has(tense)}
-                onCheckedChange={() => toggleTense(tense)}
+                onCheckedChange={() => tickTense(tense)}
               />
             }
             key={tense}

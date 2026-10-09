@@ -2,6 +2,13 @@
  * The verb catalogue: reviewed sections shown first, and the whole Lefff index for the search,
  * loaded on demand from `/verbs/index.json` (`docs/conjugation/TECHNICAL_SPEC.md` §1.5).
  */
+import {
+  maxConjugationVerbs,
+  tenses,
+  type ConjugationSettings,
+  type Tense,
+} from '@little-tables/engine/schema'
+
 import type { MessageKey } from '../i18n/translator.js'
 
 export type Section = Readonly<{ title: MessageKey; verbs: ReadonlyArray<string> }>
@@ -172,4 +179,31 @@ export const loadVerbIndex = async (): Promise<VerbIndex> => {
   if (!response.ok) throw new Error(`verb index: ${response.status}`)
   const body = (await response.json()) as { verbs: VerbIndex }
   return body.verbs
+}
+
+/**
+ * Ticks or unticks a tense. The compound past is half auxiliary: être and avoir come with it; a
+ * verb put forward at a tense no longer ticked stays put forward as a whole.
+ */
+export const toggleTense = (
+  conjugation: ConjugationSettings,
+  tense: Tense,
+): ConjugationSettings => {
+  const ticked = new Set(conjugation.tenses)
+  const on = !ticked.has(tense)
+  const chosen = tenses.filter((candidate) => (candidate === tense ? on : ticked.has(candidate)))
+  const auxiliaries =
+    on && tense === 'compound-past'
+      ? ['être', 'avoir'].filter((verb) => !conjugation.verbs.includes(verb))
+      : []
+  const verbs = [...conjugation.verbs, ...auxiliaries].slice(0, maxConjugationVerbs)
+  const { focus } = conjugation
+  return {
+    focus:
+      focus?.tense !== null && focus?.tense !== undefined && !chosen.includes(focus.tense)
+        ? { ...focus, tense: null }
+        : focus,
+    tenses: chosen,
+    verbs,
+  }
 }
