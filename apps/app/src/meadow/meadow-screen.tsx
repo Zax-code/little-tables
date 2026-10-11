@@ -1,6 +1,7 @@
 /**
  * D8: the verb meadow, a second garden. One flower per ticked verb, sorted by group, three cards
- * a row; a dot per ticked tense; a butterfly on the verbs worked this week. Never a score.
+ * a row; a dot per ticked tense; on each flower, its butterfly life cycle and the butterflies that
+ * came out of it. Never a score.
  */
 import type { MasteryState, MeadowVerb, VerbGroup } from '@little-tables/engine/schema'
 import { cn, IconTile, ListGroup, ListRow, Screen } from '@little-tables/ui'
@@ -20,6 +21,7 @@ import type { MessageKey } from '../i18n/translator.js'
 import { displayVerb } from '../session/format.js'
 import { Butterfly } from './butterfly.js'
 import { MeadowHelpSheet } from './meadow-help-sheet.js'
+import { MeadowLife } from './meadow-life.js'
 import { MeadowPlant } from './meadow-plant.js'
 import { MeadowScene } from './meadow-scene.js'
 
@@ -60,7 +62,7 @@ function Meadow({ state }: Readonly<{ state: ProfileState }>) {
         <h1 className="text-large-title font-extrabold">{t('meadow.title')}</h1>
         <p className="flex items-center gap-1.5 self-start rounded-full bg-surface px-3 py-1 text-footnote font-semibold text-label-2">
           <Sparkles aria-hidden className="size-3.5 text-sun" />
-          {count('meadow.butterfliesWeek', meadow.butterfliesThisWeek)}
+          {count('meadow.butterflies', meadow.butterflies)}
         </p>
       </header>
 
@@ -91,6 +93,7 @@ function Meadow({ state }: Readonly<{ state: ProfileState }>) {
               {verbs.map((verb) => (
                 <li key={verb.verb}>
                   <MeadowCard
+                    asleep={meadow.thirst !== null}
                     disabled={launch.pending}
                     onOpen={() => void launch.start(policies.verb(paths, verb.verb))}
                     verb={verb}
@@ -120,14 +123,17 @@ function Meadow({ state }: Readonly<{ state: ProfileState }>) {
   )
 }
 
+/** The caterpillars sleep while the verbs are thirsty. */
 function MeadowCard({
+  asleep,
   disabled,
   onOpen,
   verb,
-}: Readonly<{ disabled: boolean; onOpen: () => void; verb: MeadowVerb }>) {
-  const { t } = useI18n()
+}: Readonly<{ asleep: boolean; disabled: boolean; onOpen: () => void; verb: MeadowVerb }>) {
+  const { count, t } = useI18n()
   const seed = verb.stage === 'seed'
-  const butterfly = verb.butterflyDayKeys.length > 0
+  const latest = verb.butterflies.at(-1)
+  const sleeping = asleep && (verb.life === 'caterpillar' || verb.life === 'big-caterpillar')
   const states = verb.tenses
     .map(({ state, tense }) => `${t(`conj.tenseTitle.${tense}`)} ${t(stateLabel[state])}`)
     .join(', ')
@@ -135,7 +141,10 @@ function MeadowCard({
     <button
       aria-label={[
         t('progress.verbsLabel', { states, verb: displayVerb(verb.verb) }),
-        ...(butterfly ? [t('meadow.butterflyHere')] : []),
+        ...(verb.life === 'empty'
+          ? []
+          : [[t(`meadow.life.${verb.life}`), ...(sleeping ? [t('meadow.asleep')] : [])].join(' ')]),
+        ...(latest === undefined ? [] : [count('meadow.butterfliesHere', verb.butterflies.length)]),
       ].join(', ')}
       className={cn(
         'relative flex w-full flex-col items-center gap-1.5 rounded-card px-2 pt-4 pb-3 active:opacity-80 disabled:opacity-60',
@@ -147,7 +156,21 @@ function MeadowCard({
       type="button"
     >
       <MeadowPlant className="h-24 w-auto" verb={verb} />
-      {butterfly ? <Butterfly className="absolute -top-3 -right-1.5 h-7 w-8" /> : null}
+      <MeadowLife
+        asleep={sleeping}
+        className="absolute -top-3 -right-1.5 h-7 w-8"
+        life={verb.life}
+      />
+      {latest === undefined ? null : (
+        <span className="absolute -top-3 -left-1.5 flex items-end">
+          <Butterfly className="h-7 w-8" kind={latest.species} />
+          {verb.butterflies.length > 1 ? (
+            <span className="-ml-1.5 rounded-full bg-sun-soft px-1.5 text-caption font-extrabold text-label">
+              ×{verb.butterflies.length}
+            </span>
+          ) : null}
+        </span>
+      )}
       <span
         className={cn('text-body font-extrabold', seed ? 'text-label-2' : 'text-label')}
         lang="fr"

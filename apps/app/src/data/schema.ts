@@ -5,6 +5,7 @@
 import { ApiSchema } from '@little-tables/api-contract'
 import {
   LearningSnapshot,
+  MeadowChange,
   PracticeAnswer,
   PracticeSession,
   SessionInsight,
@@ -27,8 +28,8 @@ export const SessionCompletion = Schema.Struct({
   learningInsight: SessionInsight,
   /** Whether this meadow watering was the meadow's bloom of the day; absent before the meadow. */
   meadowBloomEarned: Schema.optional(Schema.Boolean),
-  /** The verb the session brought a butterfly to; absent on summaries written before. */
-  meadowVisit: Schema.optional(Schema.NullOr(Schema.String)),
+  /** What the session changed in the meadow; absent on summaries written before. */
+  meadowChange: Schema.optional(Schema.NullOr(MeadowChange)),
   sessionId: Schema.String,
   sessionKind: SessionKind,
   totalAnswers: Int,

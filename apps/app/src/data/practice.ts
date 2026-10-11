@@ -185,7 +185,11 @@ export const completeSession = (profileId: string, now = Date.now()) =>
       snapshot: current.sessionStartSnapshot ?? current.snapshot,
       timeZone: session.timeZone,
     })
-    const meadowVisit = yield* engine.meadowVisit({ attempts: events })
+    const meadowChange = yield* engine.meadowChange({
+      after: current.snapshot,
+      attempts: events,
+      before: current.sessionStartSnapshot ?? current.snapshot,
+    })
     const completion: SessionCompletion = {
       bloomNumber: ledger.gardenBloomCount,
       completedAt: now,
@@ -196,7 +200,7 @@ export const completeSession = (profileId: string, now = Date.now()) =>
       learningDayKey,
       learningInsight,
       meadowBloomEarned: meadowLedger.gardenBloomsEarned === 1,
-      meadowVisit,
+      meadowChange,
       sessionId: session.id,
       sessionKind: session.kind,
       totalAnswers: events.length,

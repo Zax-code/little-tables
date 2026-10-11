@@ -108,7 +108,7 @@ export type EngineApi = Readonly<{
     Readonly<{ curriculum?: S.CurriculumPolicy; snapshot: S.LearningSnapshot }>,
     S.LearningProgress
   >
-  /** The verb meadow: a flower per ticked verb, the week's butterflies and the thirst. */
+  /** The verb meadow: a flower and a butterfly life cycle per ticked verb, and the thirst. */
   deriveMeadow: Operation<MeadowInput, S.MeadowProgress>
   /** The meadow's blooms: one per learning day with a meadow watering. */
   deriveMeadowRewardLedger: Operation<LedgerInput, S.GardenRewardLedger>
@@ -129,8 +129,15 @@ export type EngineApi = Readonly<{
     boolean
   >
   isProductionExercise: Operation<S.Exercise, boolean>
-  /** The verb a session's three correct answers brought a butterfly to, or `null`. */
-  meadowVisit: Operation<Readonly<{ attempts: ReadonlyArray<S.AttemptEvent> }>, string | null>
+  /** What a session changed in the meadow, from the snapshots around it, or `null`. */
+  meadowChange: Operation<
+    Readonly<{
+      after: S.LearningSnapshot
+      attempts: ReadonlyArray<S.AttemptEvent>
+      before: S.LearningSnapshot
+    }>,
+    S.MeadowChange | null
+  >
   mergeGardenRewardLedgers: Operation<
     Readonly<{
       ledgers: ReadonlyArray<
@@ -171,7 +178,7 @@ export const makeEngine = (module: EngineModule): EngineApi => {
     expectedAnswer: operation('expectedAnswer', S.PracticeAnswer),
     isExerciseAnswerCorrect: operation('isExerciseAnswerCorrect', Schema.Boolean),
     isProductionExercise: operation('isProductionExercise', Schema.Boolean),
-    meadowVisit: operation('meadowVisit', Schema.NullOr(Schema.String)),
+    meadowChange: operation('meadowChange', Schema.NullOr(S.MeadowChange)),
     mergeGardenRewardLedgers: operation('mergeGardenRewardLedgers', S.GardenRewardLedger),
     reduce: operation('reduce', S.LearningSnapshot),
     validateExerciseAttempt: operation('validateExerciseAttempt', Schema.Boolean),

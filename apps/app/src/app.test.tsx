@@ -285,11 +285,9 @@ describe('the new app', () => {
       expect(await screen.findByRole('button', { name: 'Suivant' })).toBeInTheDocument()
     }
     expect(verbQuestions).toBeGreaterThanOrEqual(4)
-    // Three right answers on the verb bring a butterfly to it in the meadow.
-    expect(await screen.findByText('+1 papillon', {}, { timeout: 5000 })).toBeInTheDocument()
-    expect(
-      screen.getByText('Il se pose sur « finir », dans le pré des verbes.'),
-    ).toBeInTheDocument()
+    // The first day of work on the verb lays the eggs of its butterfly in the meadow.
+    expect(await screen.findByText('Des œufs', {}, { timeout: 5000 })).toBeInTheDocument()
+    expect(screen.getByText('Un papillon a pondu ses œufs sur « finir ».')).toBeInTheDocument()
     await act(() => new Promise((resolve) => setTimeout(resolve, 1700)))
     await waitFor(() =>
       expect(server.received.some(({ factKey }) => factKey === 'conj:finir:present')).toBe(true),
@@ -517,8 +515,11 @@ describe('the new app', () => {
     await runtime.dispose()
   }, 40_000)
 
-  it('sorts the verb meadow by group, with a butterfly on the verbs worked this week', async () => {
+  it('sorts the verb meadow by group, with the butterflies of each verb', async () => {
     const today = learningDayKey(Date.now(), deviceTimeZone())
+    // Five worked days from today, the last three days after the chrysalis: one butterfly.
+    const day = (offset: number) =>
+      new Date(Date.parse(`${today}T12:00:00Z`) + offset * 86_400_000).toISOString().slice(0, 10)
     const rooted = {
       correctCount: 6,
       correctStreak: 3,
@@ -531,7 +532,7 @@ describe('the new app', () => {
       recallDayKeys: [],
       stabilityDays: 8,
       state: 'fluent' as const,
-      successfulDayKeys: [today],
+      successfulDayKeys: [0, 1, 2, 3, 6].map(day),
     }
     const { runtime, user } = await openApp(
       'meadow',
@@ -555,7 +556,7 @@ describe('the new app', () => {
         { timeout: 5000 },
       ),
     ).toBeInTheDocument()
-    expect(screen.getByText('1 papillon est venu cette semaine')).toBeInTheDocument()
+    expect(screen.getByText('1 papillon dans le pré')).toBeInTheDocument()
     expect(
       screen.getAllByRole('heading', { level: 2 }).map(({ textContent }) => textContent),
     ).toEqual(['Être et avoir', '1er groupe', '2e groupe', '3e groupe'])
@@ -569,7 +570,8 @@ describe('the new app', () => {
       'venir',
     ])
     const finir = cards[4]
-    expect(finir?.getAttribute('aria-label')).toMatch(/un papillon est venu$/)
+    expect(finir?.getAttribute('aria-label')).toMatch(/, 1 papillon$/)
+    expect(finir?.querySelector('[data-butterfly]')).not.toBeNull()
     expect(finir?.getAttribute('data-stage')).toBe('mature')
     expect(cards[0]?.getAttribute('data-stage')).toBe('seed')
     await runtime.dispose()
