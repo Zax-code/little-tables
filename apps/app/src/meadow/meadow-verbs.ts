@@ -6,7 +6,7 @@ import { displayVerb } from '../session/format.js'
 
 /** The verbs a correct answer reached today, else the first ones: three at most. */
 export const verbsOfToday = (verbs: ReadonlyArray<MeadowVerb>, todayKey: string) => {
-  const today = verbs.filter((verb) => verb.butterflyDayKeys.includes(todayKey))
+  const today = verbs.filter((verb) => verb.lastWorkedDayKey === todayKey)
   return { today: today.length > 0, verbs: (today.length > 0 ? today : verbs).slice(0, 3) }
 }
 

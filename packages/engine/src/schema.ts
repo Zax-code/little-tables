@@ -545,10 +545,41 @@ export type MeadowPalette = typeof MeadowPalette.Type
 export const MeadowStage = Schema.Literals(['seed', 'growing', 'mature'])
 export type MeadowStage = typeof MeadowStage.Type
 
+/** Where a verb's butterfly life cycle stands. */
+export const MeadowLife = Schema.Literals([
+  'empty',
+  'eggs',
+  'caterpillar',
+  'big-caterpillar',
+  'chrysalis',
+])
+export type MeadowLife = typeof MeadowLife.Type
+
+export const MeadowSpecies = Schema.Literals([
+  'brimstone',
+  'peacock',
+  'common-blue',
+  'cabbage-white',
+  'red-admiral',
+  'swallowtail',
+])
+export type MeadowSpecies = typeof MeadowSpecies.Type
+
+export const MeadowButterfly = Schema.Struct({
+  /** The day it came out of its chrysalis. */
+  dayKey: Schema.String,
+  species: MeadowSpecies,
+})
+export type MeadowButterfly = typeof MeadowButterfly.Type
+
 export const MeadowVerb = Schema.Struct({
-  /** The days of the last seven when a butterfly landed on the verb, oldest first. */
-  butterflyDayKeys: Schema.Array(Schema.String),
+  /** The butterflies that came out on the verb, oldest first. They stay. */
+  butterflies: Schema.Array(MeadowButterfly),
   group: VerbGroup,
+  /** The latest day with a correct answer on the verb, at any tense. */
+  lastWorkedDayKey: Schema.NullOr(Schema.String),
+  /** The current life cycle on the flower. */
+  life: MeadowLife,
   palette: MeadowPalette,
   silhouette: MeadowSilhouette,
   stage: MeadowStage,
@@ -560,10 +591,20 @@ export type MeadowVerb = typeof MeadowVerb.Type
 
 /** The verb meadow (`deriveMeadow`), derived from the snapshot and the parent's verbs. */
 export const MeadowProgress = Schema.Struct({
-  butterfliesThisWeek: Int,
+  /** Every butterfly of the meadow. */
+  butterflies: Int,
   /** The verb to water when no ticked verb was seen for three days; `null` otherwise. */
   thirst: Schema.NullOr(Schema.Struct({ daysSince: Int, verb: Schema.String })),
   /** Auxiliaries, then the first, second and third groups; the parent's order within a group. */
   verbs: Schema.Array(MeadowVerb),
 })
 export type MeadowProgress = typeof MeadowProgress.Type
+
+/** What a session changed in the meadow (`meadowChange`): a verb's next step, or a butterfly. */
+export const MeadowChange = Schema.Struct({
+  /** The butterfly that just came out, the life cycle then being `empty`. */
+  butterfly: Schema.NullOr(MeadowButterfly),
+  life: MeadowLife,
+  verb: Schema.String,
+})
+export type MeadowChange = typeof MeadowChange.Type

@@ -1,20 +1,22 @@
-//! The verb meadow: one flower per ticked verb, butterflies on the verbs worked this week, and the
-//! thirst that invites the child back to conjugation (`docs/conjugation/PRE_DES_VERBES.md`).
+//! The verb meadow: one flower per ticked verb, a butterfly life cycle on each, and the thirst that
+//! invites the child back to conjugation (`docs/conjugation/PRE_DES_VERBES.md`).
 //!
 //! Everything is derived from the snapshot and the parent's settings; nothing is stored.
 
 use serde::Serialize;
 
 use crate::conjugation::VerbGroup;
-use crate::day_key::{days_between, shift_day_key};
+use crate::day_key::days_between;
 use crate::model::{AttemptEvent, ConjugationSettings, LearningSnapshot, MasteryState, Tense};
 
 /// Days without conjugation after which the verbs are thirsty.
 pub const MEADOW_THIRST_DAYS: i64 = 3;
-/// Correct answers on one verb that bring a butterfly to it in a session.
-pub const MEADOW_VISIT_ANSWERS: usize = 3;
-/// Days, today included, whose butterflies the meadow shows.
-const MEADOW_WEEK_DAYS: i64 = 7;
+/// The first day the life cycles count: the butterflies of the earlier meadow flew away.
+pub const MEADOW_CYCLE_START: &str = "2026-10-10";
+/// Worked days of a cycle that make the chrysalis: eggs, caterpillar, big caterpillar, chrysalis.
+pub const MEADOW_CHRYSALIS_DAYS: usize = 4;
+/// Calendar days a chrysalis waits before the next worked day lets its butterfly out.
+pub const MEADOW_CHRYSALIS_WAIT: i64 = 3;
 
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize)]
 #[serde(rename_all = "kebab-case")]
@@ -66,6 +68,52 @@ pub enum MeadowStage {
     Mature,
 }
 
+/// Where a verb's current life cycle stands.
+#[derive(Clone, Copy, Debug, Eq, Ord, PartialEq, PartialOrd, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum MeadowLife {
+    Empty,
+    Eggs,
+    Caterpillar,
+    BigCaterpillar,
+    Chrysalis,
+}
+
+#[derive(Clone, Copy, Debug, Eq, Hash, PartialEq, Serialize)]
+#[serde(rename_all = "kebab-case")]
+pub enum MeadowSpecies {
+    Brimstone,
+    Peacock,
+    CommonBlue,
+    CabbageWhite,
+    RedAdmiral,
+    Swallowtail,
+}
+
+pub const MEADOW_SPECIES: [MeadowSpecies; 6] = [
+    MeadowSpecies::Brimstone,
+    MeadowSpecies::Peacock,
+    MeadowSpecies::CommonBlue,
+    MeadowSpecies::CabbageWhite,
+    MeadowSpecies::RedAdmiral,
+    MeadowSpecies::Swallowtail,
+];
+
+#[derive(Clone, Debug, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MeadowButterfly {
+    pub species: MeadowSpecies,
+    /// The day it came out of its chrysalis.
+    pub day_key: String,
+}
+
+/// A verb's life cycles: the butterflies already out, then the one on its way.
+#[derive(Clone, Debug, PartialEq)]
+pub struct MeadowCycle {
+    pub life: MeadowLife,
+    pub butterflies: Vec<MeadowButterfly>,
+}
+
 pub struct MeadowInput<'a> {
     pub settings: Option<&'a ConjugationSettings>,
     pub snapshot: &'a LearningSnapshot,
@@ -88,8 +136,12 @@ pub struct MeadowVerb {
     pub stage: MeadowStage,
     /// The ticked tenses, in the parent's order.
     pub tenses: Vec<MeadowTense>,
-    /// The days of the last seven when a butterfly landed on the verb, oldest first.
-    pub butterfly_day_keys: Vec<String>,
+    /// The current life cycle on the flower.
+    pub life: MeadowLife,
+    /// The butterflies that came out on the verb, oldest first. They stay.
+    pub butterflies: Vec<MeadowButterfly>,
+    /// The latest day with a correct answer on the verb, at any tense.
+    pub last_worked_day_key: Option<String>,
 }
 
 #[derive(Clone, Debug, PartialEq, Serialize)]
@@ -104,7 +156,8 @@ pub struct MeadowThirst {
 pub struct MeadowProgress {
     /// Auxiliaries, then the first, second and third groups; the parent's order within a group.
     pub verbs: Vec<MeadowVerb>,
-    pub butterflies_this_week: i64,
+    /// Every butterfly of the meadow.
+    pub butterflies: i64,
     pub thirst: Option<MeadowThirst>,
 }
 
@@ -189,6 +242,66 @@ fn unique<T: Clone + PartialEq>(items: &[T]) -> Vec<T> {
     seen
 }
 
+/// The days with a correct answer on the verb, at any tense, in order.
+fn worked_days(snapshot: &LearningSnapshot, verb: &str) -> Vec<String> {
+    let mut days: Vec<String> = Tense::ALL
+        .into_iter()
+        .filter_map(|tense| snapshot.facts.get(&crate::conjugation::key(verb, tense)))
+        .flat_map(|fact| fact.successful_day_keys.iter().cloned())
+        .collect();
+    days.sort();
+    days.dedup();
+    days
+}
+
+/// The species of a butterfly, drawn from the verb and its day; never twice in a row on a verb.
+fn species_of(verb: &str, day_key: &str, previous: Option<MeadowSpecies>) -> MeadowSpecies {
+    let index = verb_hash(&format!("{verb}:{day_key}")) as usize % MEADOW_SPECIES.len();
+    let species = MEADOW_SPECIES[index];
+    if previous == Some(species) {
+        MEADOW_SPECIES[(index + 1) % MEADOW_SPECIES.len()]
+    } else {
+        species
+    }
+}
+
+/// The life cycles of a verb from its worked days, in order. From [`MEADOW_CYCLE_START`], each
+/// worked day moves the cycle one step until the chrysalis; the first worked day at least
+/// [`MEADOW_CHRYSALIS_WAIT`] days after it lets the butterfly out, and the next one lays eggs again.
+pub fn verb_cycle(verb: &str, days: &[String]) -> MeadowCycle {
+    let mut butterflies: Vec<MeadowButterfly> = Vec::new();
+    let mut steps = 0;
+    let mut chrysalis: Option<&str> = None;
+    for day in days.iter().filter(|day| day.as_str() >= MEADOW_CYCLE_START) {
+        match chrysalis {
+            Some(formed) if days_between(formed, day) >= MEADOW_CHRYSALIS_WAIT => {
+                let previous = butterflies.last().map(|butterfly| butterfly.species);
+                butterflies.push(MeadowButterfly {
+                    species: species_of(verb, day, previous),
+                    day_key: day.clone(),
+                });
+                steps = 0;
+                chrysalis = None;
+            }
+            Some(_) => {}
+            None => {
+                steps += 1;
+                if steps == MEADOW_CHRYSALIS_DAYS {
+                    chrysalis = Some(day);
+                }
+            }
+        }
+    }
+    let life = match steps {
+        0 => MeadowLife::Empty,
+        1 => MeadowLife::Eggs,
+        2 => MeadowLife::Caterpillar,
+        3 => MeadowLife::BigCaterpillar,
+        _ => MeadowLife::Chrysalis,
+    };
+    MeadowCycle { life, butterflies }
+}
+
 /// The latest day any tense of the verb was reviewed.
 fn last_reviewed(snapshot: &LearningSnapshot, verb: &str) -> Option<String> {
     Tense::ALL
@@ -207,7 +320,7 @@ pub fn derive_meadow(input: &MeadowInput) -> MeadowProgress {
     let Some(settings) = input.settings else {
         return MeadowProgress {
             verbs: Vec::new(),
-            butterflies_this_week: 0,
+            butterflies: 0,
             thirst: None,
         };
     };
@@ -219,10 +332,6 @@ pub fn derive_meadow(input: &MeadowInput) -> MeadowProgress {
             Some((verb, group))
         })
         .collect();
-    let week: Vec<String> = (1 - MEADOW_WEEK_DAYS..=0)
-        .map(|offset| shift_day_key(input.today_key, offset))
-        .collect();
-
     let mut verbs: Vec<MeadowVerb> = Vec::new();
     for group in [
         VerbGroup::Auxiliary,
@@ -262,15 +371,8 @@ pub fn derive_meadow(input: &MeadowInput) -> MeadowProgress {
             } else {
                 MeadowStage::Growing
             };
-            let butterfly_day_keys = week
-                .iter()
-                .filter(|day| {
-                    facts.iter().any(|(_, fact)| {
-                        fact.is_some_and(|fact| fact.successful_day_keys.contains(day))
-                    })
-                })
-                .cloned()
-                .collect();
+            let days = worked_days(input.snapshot, verb);
+            let cycle = verb_cycle(verb, &days);
             verbs.push(MeadowVerb {
                 verb: verb.clone(),
                 group,
@@ -278,18 +380,17 @@ pub fn derive_meadow(input: &MeadowInput) -> MeadowProgress {
                 palette,
                 stage,
                 tenses: states,
-                butterfly_day_keys,
+                life: cycle.life,
+                butterflies: cycle.butterflies,
+                last_worked_day_key: days.last().cloned(),
             });
         }
     }
-    let butterflies_this_week = verbs
-        .iter()
-        .map(|verb| verb.butterfly_day_keys.len() as i64)
-        .sum();
+    let butterflies = verbs.iter().map(|verb| verb.butterflies.len() as i64).sum();
     let thirst = derive_thirst(input, &known);
     MeadowProgress {
         verbs,
-        butterflies_this_week,
+        butterflies,
         thirst,
     }
 }
@@ -320,28 +421,54 @@ fn derive_thirst(input: &MeadowInput, known: &[(String, VerbGroup)]) -> Option<M
     }
 }
 
-/// The verb a session brought a butterfly to: the one with at least three correct answers at
-/// conjugation keys, the most answered if several.
-pub fn meadow_visit(attempts: &[AttemptEvent]) -> Option<String> {
-    let mut counts: Vec<(String, usize)> = Vec::new();
-    for attempt in attempts.iter().filter(|attempt| attempt.correct) {
-        let Some((verb, _)) = crate::conjugation::parse_key(&attempt.fact_key) else {
-            continue;
-        };
-        match counts.iter_mut().find(|(known, _)| known == verb) {
-            Some((_, count)) => *count += 1,
-            None => counts.push((verb.to_owned(), 1)),
+/// What a session changed in the meadow: a verb's next step, or a butterfly out of its chrysalis.
+#[derive(Clone, Debug, PartialEq, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct MeadowChange {
+    pub verb: String,
+    /// The verb's life cycle after the session; `empty` when the butterfly just came out.
+    pub life: MeadowLife,
+    pub butterfly: Option<MeadowButterfly>,
+}
+
+/// The change a session brought to the verbs it asked: a new butterfly first, then the furthest
+/// step, the first verb asked on a tie. `None` when no cycle moved, as on a second session the
+/// same day.
+pub fn meadow_change(
+    attempts: &[AttemptEvent],
+    before: &LearningSnapshot,
+    after: &LearningSnapshot,
+) -> Option<MeadowChange> {
+    let mut verbs: Vec<&str> = Vec::new();
+    for attempt in attempts {
+        if let Some((verb, _)) = crate::conjugation::parse_key(&attempt.fact_key)
+            && !verbs.contains(&verb)
+        {
+            verbs.push(verb);
         }
     }
-    counts
-        .into_iter()
-        .filter(|(_, count)| *count >= MEADOW_VISIT_ANSWERS)
-        .fold(
-            None,
-            |best: Option<(String, usize)>, candidate| match best {
-                Some(best) if best.1 >= candidate.1 => Some(best),
-                _ => Some(candidate),
-            },
-        )
-        .map(|(verb, _)| verb)
+    let mut best: Option<(usize, MeadowChange)> = None;
+    for verb in verbs {
+        let old = verb_cycle(verb, &worked_days(before, verb));
+        let new = verb_cycle(verb, &worked_days(after, verb));
+        let butterfly = (new.butterflies.len() > old.butterflies.len())
+            .then(|| new.butterflies.last().cloned())
+            .flatten();
+        let rank = match &butterfly {
+            Some(_) => MeadowLife::Chrysalis as usize + 1,
+            None if new.life != old.life => new.life as usize,
+            None => continue,
+        };
+        if best.as_ref().is_none_or(|(known, _)| rank > *known) {
+            best = Some((
+                rank,
+                MeadowChange {
+                    verb: verb.to_owned(),
+                    life: new.life,
+                    butterfly,
+                },
+            ));
+        }
+    }
+    best.map(|(_, change)| change)
 }

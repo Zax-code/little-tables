@@ -22,7 +22,7 @@ use crate::garden::{
     derive_garden_reward_ledger, derive_meadow_reward_ledger, derive_rewards, garden_flower_ids,
     merge_garden_reward_ledgers,
 };
-use crate::meadow::{MeadowInput, derive_meadow, meadow_visit};
+use crate::meadow::{MeadowInput, derive_meadow, meadow_change};
 use crate::model::{
     AttemptEvent, ConjugationSettings, CurriculumPolicy, Exercise, LearningPathSettings,
     LearningSnapshot, Millis, PracticeAnswer, PracticePolicy, PracticeQuestion, PracticeSession,
@@ -138,8 +138,10 @@ struct MeadowData {
 }
 
 #[derive(Deserialize)]
-struct MeadowVisitInput {
+struct MeadowChangeInput {
     attempts: Vec<AttemptEvent>,
+    before: LearningSnapshot,
+    after: LearningSnapshot,
 }
 
 #[derive(Deserialize)]
@@ -354,9 +356,9 @@ pub fn dispatch(operation: &str, input: Value, day_keys: &dyn DayKeys) -> Result
                 today_key: &input.today_key,
             }))
         }
-        "meadowVisit" => {
-            let input: MeadowVisitInput = parse(input)?;
-            output(&meadow_visit(&input.attempts))
+        "meadowChange" => {
+            let input: MeadowChangeInput = parse(input)?;
+            output(&meadow_change(&input.attempts, &input.before, &input.after))
         }
         "validateLearningPaths" => {
             let settings: LearningPathSettings = parse(input)?;

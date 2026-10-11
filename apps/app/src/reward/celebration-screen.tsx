@@ -1,5 +1,5 @@
 /** D1: the end of a session — the answer, the watering earned and one thing that went well. */
-import type { GardenProgress } from '@little-tables/engine/schema'
+import type { GardenProgress, MeadowChange } from '@little-tables/engine/schema'
 import { Badge, Button, ProgressBar } from '@little-tables/ui'
 import { useNavigate } from '@tanstack/react-router'
 import { Droplets, Flower, Sparkles, Sprout } from 'lucide-react'
@@ -18,6 +18,7 @@ import { isInstalled } from '../install-prompt.js'
 import { useI18n } from '../i18n/i18n.js'
 import type { MessageKey, Translator } from '../i18n/translator.js'
 import { Butterfly } from '../meadow/butterfly.js'
+import { MeadowLife } from '../meadow/meadow-life.js'
 import { MeadowPlant } from '../meadow/meadow-plant.js'
 import { listVerbs, verbsOfToday } from '../meadow/meadow-verbs.js'
 import { displayVerb, formatAnswer, formatNumber } from '../session/format.js'
@@ -115,9 +116,9 @@ function Celebration({
     : t('celebration.doneTitle')
   const insight =
     completion.learningInsight === null ? null : insightCopy(completion.learningInsight, translator)
-  const visit = completion.meadowVisit ?? null
+  const change = completion.meadowChange ?? null
   const meadowWatering = completion.sessionKind === 'meadow-watering'
-  const toMeadow = meadowWatering || visit !== null
+  const toMeadow = meadowWatering || change !== null
 
   return (
     <div className="relative flex h-dvh flex-col overflow-hidden bg-[linear-gradient(180deg,var(--lt-tint-soft),var(--lt-bg)_55%)] safe-top">
@@ -134,11 +135,8 @@ function Celebration({
           motion="celebration"
         />
         <section className="flex w-full max-w-md flex-col gap-2 rounded-card bg-surface p-4 text-left shadow-[0_4px_16px_var(--lt-shadow)]">
-          {meadowWatering ? (
-            <MeadowWatering completion={completion} state={state} />
-          ) : visit === null ? null : (
-            <MeadowVisit state={state} verb={visit} />
-          )}
+          {change === null ? null : <MeadowStep change={change} state={state} />}
+          {meadowWatering ? <MeadowWatering completion={completion} state={state} /> : null}
           {completion.gardenBloomEarned && plant !== null ? (
             <div className="flex items-center gap-3">
               <Plant className="h-20 w-auto shrink-0" plant={plant} />
@@ -202,7 +200,7 @@ function Celebration({
           {t(
             meadowWatering
               ? 'celebration.seeMyMeadow'
-              : visit === null
+              : change === null
                 ? 'celebration.seeGarden'
                 : 'celebration.seeMeadow',
           )}
@@ -212,33 +210,53 @@ function Celebration({
   )
 }
 
-/** D11: a « Mes verbes » session brought a butterfly to its verb, in the meadow. */
-function MeadowVisit({ state, verb }: Readonly<{ state: ProfileState; verb: string }>) {
+/** D11: what a session changed on a verb's flower: the next step of its cycle, or a butterfly. */
+function MeadowStep({ change, state }: Readonly<{ change: MeadowChange; state: ProfileState }>) {
   const { activeProfile } = useApp()
   const { count, t } = useI18n()
   const meadow = useMeadow(state, activeProfile.learningPaths)
-  const flower = meadow.verbs.find((candidate) => candidate.verb === verb)
+  const flower = meadow.verbs.find((candidate) => candidate.verb === change.verb)
+  const verb = displayVerb(change.verb)
+  const { butterfly, life } = change
+  if (butterfly === null && life === 'empty') return null
   return (
-    <div className="flex items-center gap-3" data-meadow-visit={verb}>
+    <div className="flex items-center gap-3" data-meadow-change={change.verb}>
       <div className="relative shrink-0 pr-6">
         <MeadowPlant
           className="h-20 w-auto"
           verb={flower ?? { palette: 'red', silhouette: 'poppy', stage: 'mature' }}
         />
-        <Butterfly className="absolute -top-2 -right-1" />
+        {butterfly === null ? (
+          <MeadowLife className="absolute -top-2 -right-1" life={life} />
+        ) : (
+          <Butterfly className="absolute -top-2 -right-1" kind={butterfly.species} />
+        )}
       </div>
       <div className="flex min-w-0 flex-1 flex-col items-start gap-1">
-        <Badge tone="sun">
-          <Sparkles aria-hidden className="size-3.5" />
-          {t('celebration.butterfly')}
-        </Badge>
-        <h2 className="text-body font-extrabold">{t('celebration.butterflyName')}</h2>
-        <p className="text-subhead font-semibold">
-          {t('celebration.butterflyWhere', { verb: displayVerb(verb) })}
-        </p>
-        <p className="text-footnote font-semibold text-label-2">
-          {count('celebration.butterflyWeek', meadow.butterfliesThisWeek)}
-        </p>
+        {butterfly === null ? (
+          life === 'empty' ? null : (
+            <>
+              <h2 className="text-body font-extrabold">{t(`meadow.life.${life}`)}</h2>
+              <p className="text-subhead font-semibold">
+                {t(`celebration.life.${life}`, { verb })}
+              </p>
+            </>
+          )
+        ) : (
+          <>
+            <Badge tone="sun">
+              <Sparkles aria-hidden className="size-3.5" />
+              {t('celebration.butterfly')}
+            </Badge>
+            <h2 className="text-body font-extrabold">{t(`meadow.species.${butterfly.species}`)}</h2>
+            <p className="text-subhead font-semibold">
+              {t('celebration.butterflyWhere', { verb })}
+            </p>
+            <p className="text-footnote font-semibold text-label-2">
+              {count('celebration.butterflyCount', meadow.butterflies)}
+            </p>
+          </>
+        )}
       </div>
     </div>
   )
@@ -252,17 +270,16 @@ function MeadowWatering({
   const { activeProfile } = useApp()
   const { count, language, t } = useI18n()
   const meadow = useMeadow(state, activeProfile.learningPaths)
-  const visit = completion.meadowVisit ?? null
   const watered = verbsOfToday(meadow.verbs, todayKey()).verbs
-  const flower = meadow.verbs.find((candidate) => candidate.verb === visit) ?? watered[0] ?? null
+  // The meadow's change already shows its flower.
+  const flower = (completion.meadowChange ?? null) === null ? (watered[0] ?? null) : null
   const verbs = listVerbs(watered, language)
   const character = characterNames[characterOf(activeProfile.avatarId)]
   return (
     <div className="flex items-center gap-3" data-meadow-watering="">
       {flower === null ? null : (
-        <div className="relative shrink-0 pr-6">
+        <div className="shrink-0">
           <MeadowPlant className="h-20 w-auto" verb={flower} />
-          {visit === null ? null : <Butterfly className="absolute -top-2 -right-1" />}
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col items-start gap-1">

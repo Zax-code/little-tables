@@ -15,13 +15,13 @@ Un parent rapporte que sa fille ne choisit que les maths. Deux causes dans l'app
 
 ## 2. Les trois mécaniques retenues
 
-| Écran                  | Mécanique                                                                                                                                                                                                                                                     | Export                                             |
-| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
-| A7 · Aujourd'hui       | **Tes verbes ont soif** : carte d'invitation quand aucun verbe n'a été arrosé depuis 3 jours, avec un verbe nommé et un bouton qui lance sa séance.                                                                                                           | `A7-aujourdhui-verbes-ont-soif.png`                |
-| D2b · Jardin           | Une ligne **Le pré des verbes · n papillons** dans les liens du jardin, et le « moment du jour » peut annoncer un papillon.                                                                                                                                   | `D2b-jardin-entree-du-pre.png`                     |
-| D8 · Le pré des verbes | **Un second jardin**, écran à part, trié par groupe de verbes, trois cartes par rangée, qui défile (jusqu'à 60 verbes). Une fleur par verbe coché, son nom, un point par temps coché avec son état. Un papillon posé sur les verbes travaillés cette semaine. | `D8-le-pre-des-verbes.png`, `R7-fleurs-du-pre.png` |
-| D11 · Célébration      | Après une séance de verbe : chip **+1 papillon**, le verbe visité, et un insight en conjugaison.                                                                                                                                                              | `D11-celebration-seance-de-verbes.png`             |
-| D12 · Feuille          | **Comment pousse un verbe** : quatre règles.                                                                                                                                                                                                                  | `D12-feuille-comment-pousse-un-verbe.png`          |
+| Écran                  | Mécanique                                                                                                                                                                                                                                                                                                 | Export                                             |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| A7 · Aujourd'hui       | **Tes verbes ont soif** : carte d'invitation quand aucun verbe n'a été arrosé depuis 3 jours, avec un verbe nommé et un bouton qui lance sa séance.                                                                                                                                                       | `A7-aujourdhui-verbes-ont-soif.png`                |
+| D2b · Jardin           | Une ligne **Le pré des verbes · n papillons** dans les liens du jardin, et le « moment du jour » peut annoncer un papillon.                                                                                                                                                                               | `D2b-jardin-entree-du-pre.png`                     |
+| D8 · Le pré des verbes | **Un second jardin**, écran à part, trié par groupe de verbes, trois cartes par rangée, qui défile (jusqu'à 60 verbes). Une fleur par verbe coché, son nom, un point par temps coché avec son état. Sur chaque fleur, le cycle de son papillon (œufs, chenille, chrysalide) et les papillons déjà sortis. | `D8-le-pre-des-verbes.png`, `R7-fleurs-du-pre.png` |
+| D11 · Célébration      | Après une séance de verbe : l'étape franchie (œufs, chenille, chrysalide) ou chip **+1 papillon** avec son espèce, et un insight en conjugaison.                                                                                                                                                          | `D11-celebration-seance-de-verbes.png`             |
+| D12 · Feuille          | **Comment pousse un verbe** : quatre règles.                                                                                                                                                                                                                                                              | `D12-feuille-comment-pousse-un-verbe.png`          |
 
 Invariants : le ledger des floraisons (`gardenBloomCount`, `rewardedDayKeys`) et la règle « une
 floraison par jour » ne changent pas. Le pré n'ajoute **aucun état persistant** : tout se dérive du
@@ -47,33 +47,42 @@ pub struct MeadowVerb {
     pub palette: MeadowPalette,       // voir §3.2
     pub stage: MeadowStage,           // seed | growing | mature
     pub tenses: Vec<(Tense, MasteryState)>, // les temps cochés, dans l'ordre du parent
-    pub butterfly_day_keys: Vec<String>,    // jours des 7 derniers où un papillon s'est posé
+    pub life: MeadowLife,                   // empty | eggs | caterpillar | big-caterpillar | chrysalis
+    pub butterflies: Vec<MeadowButterfly>,  // { species, day_key }, du plus ancien ; ils restent
+    pub last_worked_day_key: Option<String>, // dernier jour avec une réponse juste, tous temps
 }
 
 pub struct MeadowThirst { pub verb: String, pub days_since: i64 }
 
 pub struct MeadowProgress {
     pub verbs: Vec<MeadowVerb>,        // dans l'ordre : auxiliaires, 1er, 2e, 3e groupe ; puis l'ordre du parent
-    pub butterflies_this_week: i64,
+    pub butterflies: i64,              // tous les papillons du pré
     pub thirst: Option<MeadowThirst>,  // None sans verbe coché, ou si un verbe a été vu il y a moins de 3 jours
 }
 ```
 
 - **Stade.** Les clés sont `conj:{verbe}:{temps}` (`conjugation::key`) pour les temps cochés.
   `seed` si tous les temps sont `unseen`. `mature` si tous sont `fluent`. `growing` sinon.
-- **Papillon.** Un papillon se pose sur un verbe le jour `D` quand au moins **3 formes distinctes**
-  du verbe ont `D` dans `successful_day_keys`. On ne garde que les 7 derniers jours
-  (`shift_day_key`, `crates/lt-domain/src/rhythm.rs`). `butterflies_this_week` est le total des
-  paires (verbe, jour). Une séance « Mes verbes » (6 questions sur le verbe) remplit la règle dès
-  que trois réponses sont justes ; un arrosage du jour qui tombe sur trois formes d'un même verbe
-  aussi, et c'est voulu.
+- **Cycle du papillon** (`verb_cycle`). Les jours travaillés d'un verbe sont les jours de
+  `successful_day_keys` de toutes ses clés `conj:{verbe}:{temps}`, cochées ou non (décocher un temps
+  ne fait jamais reculer), à partir de `MEADOW_CYCLE_START` (2026-10-10 : les papillons de l'ancien
+  pré, un par jour travaillé de la semaine, sont partis). Chaque jour travaillé avance le cycle
+  d'une étape : œufs, chenille, grosse chenille, puis chrysalide au 4e jour. Le premier jour
+  travaillé au moins `MEADOW_CHRYSALIS_WAIT` (3) jours après la chrysalide fait sortir le papillon ;
+  le suivant pond de nouveaux œufs. Il faut donc au moins 5 jours de travail sur 8 jours de
+  calendrier : un papillon par verbe et par semaine au plus. Les papillons restent dans le pré.
+  L'espèce (citron, paon-du-jour, azuré, piéride, vulcain, machaon) est tirée par le hash FNV de
+  `{verbe}:{jour}`, jamais deux fois de suite la même sur un verbe : aléatoire mais identique sur
+  tous les appareils. Le snapshot ne compte pas les réponses par jour : un jour compte dès une
+  réponse juste.
 - **Soif.** `last` = le plus récent `last_reviewed_day_key` parmi toutes les clés de conjugaison
   des verbes cochés. Soif si aucun verbe coché n'a été vu, ou si `days_between(last, today) >= 3`.
   Le verbe proposé est, parmi les verbes cochés déjà vus, celui dont le dernier jour est le plus
   ancien ; sinon le premier verbe coché. `days_since` vaut 0 quand rien n'a été vu.
-- **Visite d'une séance** (`meadow_visit(attempts) -> Option<String>`) : le verbe sur lequel la
-  séance compte au moins 3 réponses justes à des clés de conjugaison. Même seuil que le papillon,
-  utilisé par la célébration.
+- **Changement d'une séance** (`meadow_change(attempts, before, after) -> Option<MeadowChange>`) :
+  pour les verbes demandés, compare le cycle avant et après la séance ; un papillon sorti d'abord,
+  sinon l'étape la plus avancée, le premier verbe demandé à égalité. `None` si rien n'a bougé,
+  comme à la deuxième séance du jour. Utilisé par la célébration.
 
 ### 3.2 Silhouettes et palettes
 
@@ -153,25 +162,26 @@ pot, `gardenPlantViewBox = "0 0 112 152"`, `scale(.8)`) et `garden-plant-rendere
   l'afficher à la première visite.
 - `apps/app/src/garden/garden-screen.tsx` : ligne `ListRow` « Le pré des verbes » en tête des
   liens, détail « n papillons », icône `flower-2` sur tuile `sun`, visible seulement avec au moins
-  un verbe coché. Le moment du jour peut dire « Un papillon t'attend dans le pré des verbes » quand
-  `butterflies_this_week > 0`.
+  un verbe coché.
 - Nouvelle route `/garden/meadow` dans `apps/app/src/routes.tsx` et
   `apps/app/src/meadow/meadow-screen.tsx` : `NavigationBar` retour « Jardin », titre « Le pré des
-  verbes », pastille « n papillons sont venus cette semaine », sections par groupe (auxiliaires
+  verbes », pastille « n papillons dans le pré », sections par groupe (auxiliaires
   « Être et avoir », puis 1er, 2e, 3e groupe ; une section vide n'apparaît pas), grille de trois
   cartes par rangée. Carte : `bg-surface` (`bg-surface-2` et nom en `text-label-2` pour `seed`),
   plante, nom du verbe (`lang="fr"`), un point par temps (`leaf` fluent, `sun` familiar,
-  `sun-soft` bordé `sun` learning, `separator` unseen, comme `progress/verbs-screen.tsx`). Un
-  papillon en haut à droite de la plante quand `butterfly_day_keys` n'est pas vide. Taper une carte
-  lance `policies.verb`.
-- Papillon : un petit SVG dessiné en code (`apps/app/src/meadow/butterfly.tsx`), ailes jaune pâle
-  `#FFF3B0`, taches `#FFC21C`, contour `--ink-primary`, environ 42 × 36.
-- `apps/app/src/reward/celebration-screen.tsx` : `SessionCompletion` gagne `meadowVisit:
-string | null` (le verbe, calculé dans `completeSession` avec `engine.meadowVisit(events)`).
-  Avec une visite, la carte de récompense montre le coquelicot (ou la fleur du verbe) et le
-  papillon, chip `+1 papillon` sur `sun-soft`, titre « Papillon citron », « Il se pose sur
-  « aller », dans le pré des verbes. », puis « n papillons dans le pré cette semaine ». Le CTA
-  devient « Voir le pré des verbes » vers `/garden/meadow`. Sans visite, rien ne change.
+  `sun-soft` bordé `sun` learning, `separator` unseen, comme `progress/verbs-screen.tsx`). En
+  haut à droite de la plante, l'étape du cycle (`meadow-life.tsx`) ; la chenille dort quand le pré a
+  soif. En haut à gauche, le dernier papillon sorti et « ×n » s'il y en a plusieurs. Taper une
+  carte lance `policies.verb`.
+- Papillon : un petit SVG dessiné en code (`apps/app/src/meadow/butterfly.tsx`), environ 42 × 36,
+  ailes peintes selon l'espèce. Œufs, chenilles et chrysalide dans `meadow-life.tsx`, même cadre
+  52 × 44, même contour et mêmes yeux.
+- `apps/app/src/reward/celebration-screen.tsx` : `SessionCompletion` garde `meadowChange`
+  (calculé dans `completeSession` avec `engine.meadowChange`, entre `sessionStartSnapshot` et le
+  snapshot final). Une étape : la fleur du verbe, la bête du cycle, « Une chenille » et « Une
+  chenille est née sur « aller ». ». Un papillon : chip `+1 papillon` sur `sun-soft`, le nom de
+  l'espèce, « Il est sorti de sa chrysalide sur « aller ». Il reste dans le pré. », puis « n
+  papillons dans le pré ». Le CTA devient « Voir le pré des verbes » vers `/garden/meadow`.
 - `apps/app/src/reward/insight.ts` : quand toutes les clés d'un insight `facts-became-fluent`
   sont `conj:{verbe}:{temps}` d'un même verbe, écrire « Tu sais conjuguer « aller » au futur » (un
   temps) ou « Tu sais conjuguer « aller » » (plusieurs).
@@ -180,7 +190,8 @@ string | null` (le verbe, calculé dans `completeSession` avec `engine.meadowVis
   `droplets` leaf) :
   1. Un verbe, une fleur. Chaque verbe coché par tes parents a sa fleur dans le pré, à côté du jardin.
   2. Un temps, un pétale. Quand tu sais un temps par cœur, un pétale s'ouvre.
-  3. Les papillons. Une séance « Mes verbes » fait venir un papillon se poser sur ton verbe.
+  3. Les papillons. Chaque jour où tu travailles un verbe, sa chenille grandit. Après la chrysalide,
+     attends 3 jours : la fois suivante, un papillon en sort et reste dans le pré.
   4. Un arrosage par jour. Le pré ne change pas la règle du jardin : une floraison par jour, avec l'arrosage.
 
 ### 4.3 Textes

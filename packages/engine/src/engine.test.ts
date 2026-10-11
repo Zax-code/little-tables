@@ -162,7 +162,7 @@ describe('WebAssembly engine', () => {
     expect(line.expected).toEqual({ index: 3, type: 'tick' })
   })
 
-  it('derives the verb meadow and the visit of a session', () => {
+  it('derives the verb meadow and the change of a session', () => {
     const meadow = runSync(
       engine.deriveMeadow({
         settings: { focus: null, tenses: ['present'], verbs: ['aller', 'être'] },
@@ -175,7 +175,16 @@ describe('WebAssembly engine', () => {
       ['aller', 'anemone', 'seed'],
     ])
     expect(meadow.thirst).toEqual({ daysSince: 0, verb: 'aller' })
-    expect(runSync(engine.meadowVisit({ attempts: [] }))).toBeNull()
+    expect(meadow.verbs.map((verb) => verb.life)).toEqual(['empty', 'empty'])
+    expect(
+      runSync(
+        engine.meadowChange({
+          after: engine.emptySnapshot,
+          attempts: [],
+          before: engine.emptySnapshot,
+        }),
+      ),
+    ).toBeNull()
   })
 
   it('composes the meadow watering and counts its blooms', () => {
